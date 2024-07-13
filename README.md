@@ -1,6 +1,6 @@
 # Starcom App
 
-## Global Cyber Command Interface
+## Global Cyber Command Netrunner Interface
 
 ### OSINT Framework & Cyber Investigations Power Tool
 
