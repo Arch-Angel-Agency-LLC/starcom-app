@@ -1,2 +1,2 @@
 # starcom-app
-Starcom App - Decentralized OSINT Global Operations Command Software
+Starcom App - Global Decentralized OSINT Cyber Operations Command Software
