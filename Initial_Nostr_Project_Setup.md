@@ -378,7 +378,7 @@ This guide provides a starting point for setting up a decentralized Nostr-based 
 
 Here’s an updated version of the instruction manual and the supplemental guide that includes details on connecting to a Decentralized Nostr MeshNet RelayNode for the RSS Feed Web Scraper Bot.
 
-# Initial Project Setup for Decentralized Nostr-based React Application with Bots
+# Advanced Project Setup for Decentralized Nostr-based React Application with Bots
 
 ## Table of Contents
 1. [Overview](#overview)
@@ -752,11 +752,9 @@ This guide provides a starting point for setting up a decentralized Nostr-based 
 - [RSS Parsing in JavaScript](https://developer.mozilla.org/en-US/docs/Web/API/DOMParser)
 - [axios Documentation](https://axios-http.com/)
 - [cheerio Documentation](https://cheerio.js.org/)
-```
 
 ### Supplemental Guide
 
-```markdown
 # Supplemental Guide for RSS Feed Web Scraper Bot
 
 ## Table of Contents
@@ -897,6 +895,5 @@ public async fetchRSSFeed() {
 - [axios Documentation](https://axios-http.com/)
 - [cheerio Documentation](https://cheerio.js.org/)
 
-```
 
-You can save this content into a file named `Supplemental_Guide_for_RSS_Feed_Web_Scraper_Bot.md`.
+
