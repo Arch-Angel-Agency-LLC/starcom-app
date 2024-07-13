@@ -4,7 +4,7 @@
 
 ### OSINT Framework & Cyber Investigations Power Tool
 
-React Web App using TypeScript
+Decentralized React Web App using TypeScript
 
 
 - Node Web
