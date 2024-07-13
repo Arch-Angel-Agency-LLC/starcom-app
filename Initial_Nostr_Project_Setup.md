@@ -378,7 +378,7 @@ This guide provides a starting point for setting up a decentralized Nostr-based 
 
 Here’s an updated version of the instruction manual and the supplemental guide that includes details on connecting to a Decentralized Nostr MeshNet RelayNode for the RSS Feed Web Scraper Bot.
 
-# Initial Project Setup for Decentralized Nostr-based React Application with Bots
+# Advanced Project Setup for Decentralized Nostr-based React Application with Bots
 
 ## Table of Contents
 1. [Overview](#overview)
