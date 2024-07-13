@@ -752,11 +752,9 @@ This guide provides a starting point for setting up a decentralized Nostr-based 
 - [RSS Parsing in JavaScript](https://developer.mozilla.org/en-US/docs/Web/API/DOMParser)
 - [axios Documentation](https://axios-http.com/)
 - [cheerio Documentation](https://cheerio.js.org/)
-```
 
 ### Supplemental Guide
 
-```markdown
 # Supplemental Guide for RSS Feed Web Scraper Bot
 
 ## Table of Contents
