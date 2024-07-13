@@ -897,6 +897,5 @@ public async fetchRSSFeed() {
 - [axios Documentation](https://axios-http.com/)
 - [cheerio Documentation](https://cheerio.js.org/)
 
-```
 
-You can save this content into a file named `Supplemental_Guide_for_RSS_Feed_Web_Scraper_Bot.md`.
+
