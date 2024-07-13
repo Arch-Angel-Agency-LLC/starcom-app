@@ -1,6 +1,16 @@
 
 # Starcom App Node Web Visualization
 
+## Table of Contents
+1. [Overview](#overview)
+2. [Prerequisites](#prerequisites)
+3. [Setting Up the Environment](#setting-up-the-environment)
+4. [2D Node Web with D3.js](#2d-node-web-with-d3js)
+5. [3D Node Web with Three.js and React-Three-Fiber](#3d-node-web-with-threejs-and-react-three-fiber)
+6. [Toggling Between 2D and 3D Views](#toggling-between-2d-and-3d-views)
+7. [Summary](#summary)
+8. [Further Reading and Resources](#further-reading-and-resources)
+
 ## Overview
 
 This document provides instructions for creating a visualization of a node web for the Starcom App's cyber investigations case management tool. The node web can be dragged around and zoomed in and out, and can be displayed in both 2D and 3D views.
@@ -16,6 +26,24 @@ Install D3.js for 2D visualizations, Three.js for 3D visualizations, and React-T
 ```sh
 npm install d3 three @react-three/fiber
 ```
+
+## Setting Up the Environment
+
+1. **Create a new React application**:
+   ```sh
+   npx create-react-app node-web-visualization
+   cd node-web-visualization
+   ```
+
+2. **Install the required libraries**:
+   ```sh
+   npm install d3 three @react-three/fiber
+   ```
+
+3. **Start the React application**:
+   ```sh
+   npm start
+   ```
 
 ## 2D Node Web with D3.js
 
@@ -161,3 +189,11 @@ export default NodeWebContainer;
 ## Summary
 
 This guide provides a starting point for building an interactive node web visualization in both 2D and 3D views for the Starcom App's cyber investigations case management tool. You can further customize the appearance and functionality as needed.
+
+## Further Reading and Resources
+
+- [D3.js Documentation](https://d3js.org/)
+- [Three.js Documentation](https://threejs.org/docs/index.html#manual/en/introduction/Creating-a-scene)
+- [React-Three-Fiber Documentation](https://docs.pmnd.rs/react-three-fiber/getting-started/introduction)
+- [Force-Graph Documentation](https://github.com/vasturiano/react-force-graph)
+
