@@ -1,2 +1,3 @@
-# starcom-app
-Starcom App - Global Decentralized OSINT Cyber Operations Command Software
+Starcom Prototype
+
+Basic React Web App using TypeScript
