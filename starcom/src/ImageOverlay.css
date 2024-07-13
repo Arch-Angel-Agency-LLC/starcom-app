@@ -1,0 +1,289 @@
+@font-face {
+  font-family: 'Aldrich';
+  src: url('./fonts/aldrich.ttf') format('ttf')
+}
+
+/* LANDSCAPE MODE */
+@media screen and (orientation: landscape) {
+  .top-middle-text {
+    font-family: 'Aldrich', sans-serif;
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%); /* Center the text horizontally */
+    color: #fff; /* Text color */
+    padding: 10px 20px;
+    font-size: 18px;
+    z-index: 9999;
+  }
+
+  .image-uifacade-bottommiddle {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    z-index: 9999;
+    mix-blend-mode: lighten;
+  }
+
+  .image-uifacade-bottommiddle img {
+    max-width: 33.33vw; 
+    height: auto; 
+  }
+
+  /* Bottom Left Image Overlay */
+  .image-uifacade-bottomleft {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-end;
+    z-index: 9999;
+    mix-blend-mode: lighten;
+  }
+
+  .image-uifacade-bottomleft img {
+    max-width: 30vw; 
+    height: auto; 
+  }
+
+
+  /* Bottom Right Image Overlay */
+  .image-uifacade-bottomright {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+    z-index: 9999;
+    mix-blend-mode: lighten;
+  }
+
+  .image-uifacade-bottomright img {
+    max-width: 30vw; 
+    height: auto; 
+  }
+
+  /* Side Left Image Overlay */
+  .image-uifacade-sideleft {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    z-index: 100;
+    mix-blend-mode: lighten;
+  }
+
+  .image-uifacade-sideleft img {
+    max-height: 40vw; 
+    width: auto; 
+  }
+
+  .button-container {
+    position: fixed;
+    top: 0;
+    right: 0;
+    display: flex;
+    gap: 10px; /* Add some spacing between buttons */
+    padding: 10px; /* Add padding to create space around buttons */
+    z-index: 100;
+  }
+
+  .login-button {
+    font-family: 'Aldrich', sans-serif;
+    background-color: #00d9ff; /* Blue color, you can change this */
+    color: #fff; /* White text color */
+    border: 1;
+    border-radius: 4px;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .login-button:hover {
+    background-color: #0056b3; /* Darker blue color on hover */
+  }
+
+  .login-container {
+    display: flex;
+    justify-content: flex-end; /* Align the "Login" button to the right */
+    margin-bottom: 10px; /* Add spacing between the button containers */
+  }
+
+  .button-stack {
+    position: fixed;
+    top: 50%; /* Center vertically */
+    right: 0;
+    transform: translateY(-50%); /* Adjust for vertical centering */
+    display: flex;
+    flex-direction: column; /* Arrange buttons vertically */
+    align-items: flex-end; /* Align buttons to the left side */
+    padding: 10px 10px;
+  }
+
+  .button-stack button {
+    font-family: 'Aldrich', sans-serif;
+    background-color: #ff7700; /* Gray background color */
+    color: #333; /* Dark text color */
+    border: 1;
+    border-radius: 4px;
+    padding: 10px 20px;
+    margin-bottom: 5px; /* Add spacing between buttons */
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .button-stack button:hover {
+    background-color: #999; /* Darker gray color on hover */
+  }
+}
+
+/* PORTRAIT MODE */
+@media screen and (orientation: portrait) {
+  .top-middle-text {
+    font-family: 'Aldrich', sans-serif;
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%); /* Center the text horizontally */
+    color: #fff; /* Text color */
+    padding: 10px 20px;
+    font-size: 24px; 
+    z-index: 9999;
+  }
+
+  .image-uifacade-bottommiddle {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    z-index: 9999;
+  }
+
+  .image-uifacade-bottommiddle img {
+    max-width: 90vw; 
+    height: auto; 
+  }
+
+  /* Bottom Left Image Overlay */
+  .image-uifacade-bottomleft {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-end;
+    z-index: 9999;
+  }
+
+  .image-uifacade-bottomleft img {
+    max-width: 0; 
+    height: auto; 
+  }
+
+
+  /* Bottom Right Image Overlay */
+  .image-uifacade-bottomright {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+    z-index: 9999;
+  }
+
+  .image-uifacade-bottomright img {
+    max-width: 0; 
+    height: auto; 
+  }
+
+  /* Side Left Image Overlay */
+  .image-uifacade-sideleft {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    z-index: 9999;
+  }
+
+  .image-uifacade-sideleft img {
+    max-height: 100vw; 
+    width: auto; 
+  }
+
+  .button-container {
+    position: fixed;
+    top: 0;
+    right: 0;
+    display: flex;
+    gap: 10px; /* Add some spacing between buttons */
+    padding: 10px; /* Add padding to create space around buttons */
+    z-index: 9999;
+  }
+
+  .login-button {
+    font-family: 'Aldrich', sans-serif;
+    background-color: #00d9ff; /* Blue color, you can change this */
+    color: #fff; /* White text color */
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .login-button:hover {
+    background-color: #0056b3; /* Darker blue color on hover */
+  }
+
+  .login-container {
+    display: flex;
+    justify-content: flex-end; /* Align the "Login" button to the right */
+    margin-bottom: 10px; /* Add spacing between the button containers */
+  }
+
+  .button-stack {
+    position: fixed;
+    top: 50%; /* Center vertically */
+    right: 0;
+    transform: translateY(-50%); /* Adjust for vertical centering */
+    display: flex;
+    flex-direction: column; /* Arrange buttons vertically */
+    align-items: flex-start; /* Align buttons to the left side */
+  }
+
+  .button-stack button {
+    font-family: 'Aldrich', sans-serif;
+    background-color: #ff7700; /* Gray background color */
+    color: #333; /* Dark text color */
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    margin-bottom: 5px; /* Add spacing between buttons */
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .button-stack button:hover {
+    background-color: #999; /* Darker gray color on hover */
+  }
+}
