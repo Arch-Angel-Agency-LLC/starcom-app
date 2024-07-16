@@ -2177,3 +2177,1478 @@ The Starcom Super dApp represents a significant advancement in decentralized app
 ---
 
 **Note**: The following pages provide detailed instructions and guidelines for each aspect of the Starcom Super dApp, from initial setup to advanced features and deployment strategies.
+
+
+# Starcom Super dApp Goals and Progress Indicators
+
+---
+
+## Overview
+
+To facilitate a productive and engaging Hackathon Series every weekend for the summer, we will define development phases and milestones for each SubApp. These milestones will guide participants through the development process, ensuring that each SubApp progresses methodically and effectively.
+
+---
+
+## Development Phases and Milestones for Each SubApp
+
+1. **3D Global Monitoring Station Interface**
+   - **Phase 1: Initialization and Setup**
+     - Milestone 1.1: Set up WebGL environment.
+     - Milestone 1.2: Fetch initial data from IPFS.
+   - **Phase 2: Data Integration**
+     - Milestone 2.1: Integrate real-time data from Nostr.
+     - Milestone 2.2: Implement data overlays for visual representation.
+   - **Phase 3: Interactive Controls**
+     - Milestone 3.1: Implement zoom, pan, and rotate controls.
+     - Milestone 3.2: Add time scrubbing functionality.
+   - **Phase 4: Alert System**
+     - Milestone 4.1: Develop real-time alert notifications.
+     - Milestone 4.2: Configure alert thresholds and triggers.
+
+2. **3D HoloPit Interface**
+   - **Phase 1: Environment Setup**
+     - Milestone 1.1: Set up 3D rendering engine with WebGL.
+     - Milestone 1.2: Establish initial data fetching from IPFS.
+   - **Phase 2: Advanced Navigation Tools**
+     - Milestone 2.1: Implement zoom, rotate, and pan features.
+     - Milestone 2.2: Develop search and filter functionalities.
+   - **Phase 3: Data Visualization**
+     - Milestone 3.1: Create multiple visualization options.
+     - Milestone 3.2: Integrate real-time data from Nostr.
+   - **Phase 4: Collaboration Features**
+     - Milestone 4.1: Implement real-time collaboration tools.
+     - Milestone 4.2: Enable insight sharing and joint exploration.
+
+3. **Virtual Break Room**
+   - **Phase 1: Environment Creation**
+     - Milestone 1.1: Set up the virtual space using WebGL.
+     - Milestone 1.2: Integrate basic navigation controls.
+   - **Phase 2: Communication Tools**
+     - Milestone 2.1: Implement real-time chat features.
+     - Milestone 2.2: Add voice communication capabilities.
+   - **Phase 3: Customization Options**
+     - Milestone 3.1: Develop customizable environment settings.
+     - Milestone 3.2: Allow users to personalize their space.
+   - **Phase 4: Collaboration Features**
+     - Milestone 4.1: Enable multimedia sharing.
+     - Milestone 4.2: Implement real-time collaboration tools.
+
+4. **Node Web**
+   - **Phase 1: Visualization Setup**
+     - Milestone 1.1: Initialize 2D and 3D visualization engine.
+     - Milestone 1.2: Fetch initial data from IPFS.
+   - **Phase 2: Interactive Controls**
+     - Milestone 2.1: Implement zoom, pan, and rotate features.
+     - Milestone 2.2: Add search and filter functionalities.
+   - **Phase 3: Customizable Layouts**
+     - Milestone 3.1: Develop customizable node layouts.
+     - Milestone 3.2: Enable users to change node appearances.
+   - **Phase 4: Data Integration**
+     - Milestone 4.1: Integrate real-time data from Nostr.
+     - Milestone 4.2: Implement real-time updates on node connections.
+
+5. **Case Manager**
+   - **Phase 1: Initial Setup**
+     - Milestone 1.1: Develop the interface for filing Intel Reports.
+     - Milestone 1.2: Integrate initial data from IPFS.
+   - **Phase 2: Case Management Tools**
+     - Milestone 2.1: Implement tools for tracking investigations.
+     - Milestone 2.2: Develop task assignment and deadline management features.
+   - **Phase 3: Data Integration**
+     - Milestone 3.1: Integrate real-time data from Nostr.
+     - Milestone 3.2: Implement search and filter functionalities.
+   - **Phase 4: Collaboration Features**
+     - Milestone 4.1: Enable case sharing and collaborative tools.
+     - Milestone 4.2: Develop real-time updates and notifications.
+
+6. **Task Manager**
+   - **Phase 1: Setup and Interface Design**
+     - Milestone 1.1: Develop task creation and assignment interface.
+     - Milestone 1.2: Integrate initial data from IPFS.
+   - **Phase 2: Team Coordination Tools**
+     - Milestone 2.1: Implement real-time task updates.
+     - Milestone 2.2: Develop task tracking and progress monitoring features.
+   - **Phase 3: Notification System**
+     - Milestone 3.1: Implement real-time notifications for task updates.
+     - Milestone 3.2: Add deadline reminders and alerts.
+   - **Phase 4: Search and Filter**
+     - Milestone 4.1: Develop advanced search and filter functionalities.
+     - Milestone 4.2: Enable task prioritization and categorization.
+
+7. **Bot Roster**
+   - **Phase 1: Setup and Bot Management**
+     - Milestone 1.1: Develop interface for adding and removing dBots.
+     - Milestone 1.2: Integrate initial data from IPFS.
+   - **Phase 2: Command and Control**
+     - Milestone 2.1: Implement bot control and status monitoring features.
+     - Milestone 2.2: Develop real-time updates on bot activities.
+   - **Phase 3: Data Integration**
+     - Milestone 3.1: Integrate real-time data from Nostr.
+     - Milestone 3.2: Implement search and filter functionalities.
+   - **Phase 4: Notification System**
+     - Milestone 4.1: Implement real-time notifications for bot status changes.
+     - Milestone 4.2: Add alerts for significant bot activities.
+
+8. **Case dBot**
+   - **Phase 1: Setup and Initialization**
+     - Milestone 1.1: Develop initial bot configuration and settings.
+     - Milestone 1.2: Integrate initial data from IPFS.
+   - **Phase 2: Automated Reporting**
+     - Milestone 2.1: Implement automated Intel Report generation.
+     - Milestone 2.2: Develop data collection and analysis algorithms.
+   - **Phase 3: Data Integration**
+     - Milestone 3.1: Integrate real-time data from Nostr.
+     - Milestone 3.2: Implement customization options for report parameters.
+   - **Phase 4: Notification System**
+     - Milestone 4.1: Implement real-time notifications for new reports.
+     - Milestone 4.2: Add alerts for significant findings.
+
+9. **Agent Communicator**
+   - **Phase 1: Setup and Initialization**
+     - Milestone 1.1: Develop interface for secure messaging.
+     - Milestone 1.2: Integrate initial data from IPFS.
+   - **Phase 2: Communication Tools**
+     - Milestone 2.1: Implement encrypted communication channels.
+     - Milestone 2.2: Develop multi-grid alert messaging features.
+   - **Phase 3: Data Integration**
+     - Milestone 3.1: Integrate real-time data from Nostr.
+     - Milestone 3.2: Implement search and filter functionalities.
+   - **Phase 4: Notification System**
+     - Milestone 4.1: Implement real-time notifications for new messages.
+     - Milestone 4.2: Add alerts for significant communications.
+
+10. **Intel Timeline Scrubber**
+    - **Phase 1: Setup and Initialization**
+      - Milestone 1.1: Develop initial search and filter interface.
+      - Milestone 1.2: Integrate initial data from IPFS.
+    - **Phase 2: Data Scrubbing Tools**
+      - Milestone 2.1: Implement tools for dynamic data scrubbing.
+      - Milestone 2.2: Develop visualization options (timelines, graphs, heatmaps).
+    - **Phase 3: Data Integration**
+      - Milestone 3.1: Integrate real-time data from Nostr.
+      - Milestone 3.2: Implement advanced search functionalities.
+    - **Phase 4: Notification System**
+      - Milestone 4.1: Implement real-time notifications for significant findings.
+      - Milestone 4.2: Add alerts for updates and trends.
+
+11. **Cyber Command**
+    - **Phase 1: Setup and Initialization**
+      - Milestone 1.1: Develop initial security management interface.
+      - Milestone 1.2: Integrate initial data from IPFS.
+    - **Phase 2: Threat Detection**
+      - Milestone 2.1: Implement real-time threat detection tools.
+      - Milestone 2.2: Develop incident response planning features.
+    - **Phase 3: Data Integration**
+      - Milestone 3.1: Integrate real-time data from Nostr.
+      - Milestone 3.2: Implement search and filter functionalities.
+    - **Phase 4: Notification System**
+      - Milestone 4.1: Implement real-time notifications for threats.
+      - Milestone 4.2: Add alerts for incident updates and resolutions
+
+12. **Threat Simulator**
+    - **Phase 1: Setup and Initialization**
+      - Milestone 1.1: Develop initial simulation environment.
+      - Milestone 1.2: Integrate initial data from IPFS.
+    - **Phase 2: Simulation Tools**
+      - Milestone 2.1: Implement tools for simulating various threat scenarios.
+      - Milestone 2.2: Develop real-time simulation updates.
+    - **Phase 3: Data Integration**
+      - Milestone 3.1: Integrate real-time data from Nostr.
+      - Milestone 3.2: Implement customization options for simulation parameters.
+    - **Phase 4: Notification System**
+      - Milestone 4.1: Implement real-time notifications for simulation results.
+      - Milestone 4.2: Add alerts for significant simulation findings.
+
+13. **Incident Response Planner**
+    - **Phase 1: Setup and Initialization**
+      - Milestone 1.1: Develop initial incident response planning interface.
+      - Milestone 1.2: Integrate initial data from IPFS.
+    - **Phase 2: Response Tools**
+      - Milestone 2.1: Implement tools for planning and managing incident responses.
+      - Milestone 2.2: Develop tracking and resolution features.
+    - **Phase 3: Data Integration**
+      - Milestone 3.1: Integrate real-time data from Nostr.
+      - Milestone 3.2: Implement search and filter functionalities.
+    - **Phase 4: Notification System**
+      - Milestone 4.1: Implement real-time notifications for incident updates.
+      - Milestone 4.2: Add alerts for response progress and resolutions.
+
+14. **Training Module**
+    - **Phase 1: Setup and Initialization**
+      - Milestone 1.1: Develop initial training interface.
+      - Milestone 1.2: Integrate initial data from IPFS.
+    - **Phase 2: Training Content**
+      - Milestone 2.1: Develop training modules and resources.
+      - Milestone 2.2: Implement interactive tutorials and workshops.
+    - **Phase 3: Data Integration**
+      - Milestone 3.1: Integrate real-time data from Nostr.
+      - Milestone 3.2: Implement tracking of training progress.
+    - **Phase 4: Feedback and Assessment**
+      - Milestone 4.1: Implement tools for gathering trainee feedback.
+      - Milestone 4.2: Develop assessment and certification features.
+
+15. **Resource Allocator**
+    - **Phase 1: Setup and Initialization**
+      - Milestone 1.1: Develop initial resource allocation interface.
+      - Milestone 1.2: Integrate initial data from IPFS.
+    - **Phase 2: Allocation Tools**
+      - Milestone 2.1: Implement tools for managing and allocating resources.
+      - Milestone 2.2: Develop optimization features for resource management.
+    - **Phase 3: Data Integration**
+      - Milestone 3.1: Integrate real-time data from Nostr.
+      - Milestone 3.2: Implement search and filter functionalities.
+    - **Phase 4: Notification System**
+      - Milestone 4.1: Implement real-time notifications for resource updates.
+      - Milestone 4.2: Add alerts for resource allocation changes.
+
+16. **Compliance Manager**
+    - **Phase 1: Setup and Initialization**
+      - Milestone 1.1: Develop initial compliance management interface.
+      - Milestone 1.2: Integrate initial data from IPFS.
+    - **Phase 2: Compliance Tools**
+      - Milestone 2.1: Implement tools for managing compliance with regulations.
+      - Milestone 2.2: Develop tracking and reporting features.
+    - **Phase 3: Data Integration**
+      - Milestone 3.1: Integrate real-time data from Nostr.
+      - Milestone 3.2: Implement search and filter functionalities.
+    - **Phase 4: Notification System**
+      - Milestone 4.1: Implement real-time notifications for compliance updates.
+      - Milestone 4.2: Add alerts for significant compliance events.
+
+---
+
+### Conclusion
+
+By breaking down the development of each SubApp into these detailed phases and milestones, participants in the Hackathon Series will have clear, achievable goals to work towards each weekend. This structure ensures a steady and progressive development process, leading to the successful completion of the Starcom Super dApp.
+
+# Instructions for Running Sub dApps Independently and Within Starcom Super dApp
+
+---
+
+## Introduction
+
+Each Sub dApp within the Starcom Super dApp should be capable of running independently in a browser that supports IPFS and also within a portal webview from within the Starcom Super dApp. This ensures flexibility and modularity, allowing each Sub dApp to be developed, tested, and used as standalone applications or as integrated components of the larger Super dApp.
+
+---
+
+### Prerequisites
+
+- **Node.js** (v14 or later)
+- **npm** (v6 or later)
+- **TypeScript** (v5.x)
+- **Vite** (latest version)
+- **IPFS** (latest version)
+- **Nostr** (latest version)
+- **IPFS-Enabled Browser** (e.g., Brave, Opera, or a browser with IPFS Companion extension)
+
+---
+
+## Setting Up the Development Environment
+
+1. **Install Node.js and npm**: Download and install Node.js and npm from the [official Node.js website](https://nodejs.org/).
+
+2. **Create a New Vite Project**:
+   ```bash
+   npm create vite@latest subapp-name --template react-ts
+   cd subapp-name
+   ```
+
+3. **Install Dependencies**:
+   ```bash
+   npm install
+   npm install axios ipfs-http-client nostr-tools
+   ```
+
+4. **Set Up TypeScript Configuration**:
+   Ensure your `tsconfig.json` is set up correctly:
+   ```json
+   {
+     "compilerOptions": {
+       "target": "ESNext",
+       "module": "ESNext",
+       "jsx": "react-jsx",
+       "strict": true,
+       "moduleResolution": "node",
+       "resolveJsonModule": true,
+       "isolatedModules": true,
+       "esModuleInterop": true,
+       "skipLibCheck": true
+     },
+     "include": ["src"]
+   }
+   ```
+
+5. **Install and Configure Vite**:
+   ```bash
+   npm install vite --save-dev
+   ```
+   Add the following to `vite.config.ts`:
+   ```typescript
+   import { defineConfig } from 'vite';
+   import react from '@vitejs/plugin-react';
+
+   export default defineConfig({
+     plugins: [react()],
+     server: {
+       open: true
+     }
+   });
+   ```
+
+---
+
+### Running Sub dApps Independently in IPFS-Enabled Browser
+
+1. **Initialize IPFS**:
+   ```bash
+   ipfs init
+   ipfs config Addresses.API /ip4/127.0.0.1/tcp/5001
+   ipfs config Addresses.Gateway /ip4/127.0.0.1/tcp/8080
+   ```
+
+2. **Build the Sub dApp**:
+   ```bash
+   npm run build
+   ```
+
+3. **Deploy to IPFS**:
+   ```bash
+   ipfs add -r dist
+   ```
+
+4. **Access via IPFS-Enabled Browser**:
+   - Open the IPFS-enabled browser.
+   - Navigate to the IPFS hash provided after running `ipfs add -r dist`.
+   - Example: `ipfs://<hash>/index.html`
+
+---
+
+### Integrating Sub dApps into Starcom Super dApp
+
+1. **Create a Webview Component**:
+   - Create a new component file for the webview in `src/components/Webview.tsx`:
+   ```typescript
+   import React from 'react';
+
+   interface WebviewProps {
+     url: string;
+   }
+
+   const Webview: React.FC<WebviewProps> = ({ url }) => {
+     return (
+       <iframe src={url} style={{ width: '100%', height: '100%' }} />
+     );
+   };
+
+   export default Webview;
+   ```
+
+2. **Add Routes to the Sub dApps**:
+   - Modify `src/App.tsx` to include routes for each Sub dApp:
+   ```typescript
+   import React, { Suspense, lazy } from 'react';
+   import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+
+   const Webview = lazy(() => import('./components/Webview'));
+
+   const App: React.FC = () => {
+     return (
+       <Router>
+         <Suspense fallback={<div>Loading...</div>}>
+           <Switch>
+             <Route path="/subapp1" render={() => <Webview url="ipfs://<subapp1-hash>/index.html" />} />
+             <Route path="/subapp2" render={() => <Webview url="ipfs://<subapp2-hash>/index.html" />} />
+             {/* Add more routes for other Sub dApps */}
+           </Switch>
+         </Suspense>
+       </Router>
+     );
+   };
+
+   export default App;
+   ```
+
+3. **Launch the Starcom Super dApp**:
+   ```bash
+   npm run dev
+   ```
+
+4. **Access Sub dApps within Starcom Super dApp**:
+   - Open the Starcom Super dApp in your browser.
+   - Navigate to the routes defined for each Sub dApp (e.g., `http://localhost:3000/subapp1`).
+
+---
+
+### Example Implementation
+
+#### 3D Global Monitoring Station Interface
+
+1. **Independent Setup**:
+   - Follow the steps in the "Running Sub dApps Independently in IPFS-Enabled Browser" section to set up and deploy the 3D Global Monitoring Station Interface.
+
+2. **Integrate into Starcom Super dApp**:
+   - Define a route for the 3D Global Monitoring Station Interface in `src/App.tsx`:
+   ```typescript
+   import React, { Suspense, lazy } from 'react';
+   import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+
+   const Webview = lazy(() => import('./components/Webview'));
+
+   const App: React.FC = () => {
+     return (
+       <Router>
+         <Suspense fallback={<div>Loading...</div>}>
+           <Switch>
+             <Route path="/3d-global-monitoring" render={() => <Webview url="ipfs://<hash>/index.html" />} />
+           </Switch>
+         </Suspense>
+       </Router>
+     );
+   };
+
+   export default App;
+   ```
+
+#### 3D HoloPit Interface
+
+1. **Independent Setup**:
+   - Follow the steps in the "Running Sub dApps Independently in IPFS-Enabled Browser" section to set up and deploy the 3D HoloPit Interface.
+
+2. **Integrate into Starcom Super dApp**:
+   - Define a route for the 3D HoloPit Interface in `src/App.tsx`:
+   ```typescript
+   import React, { Suspense, lazy } from 'react';
+   import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+
+   const Webview = lazy(() => import('./components/Webview'));
+
+   const App: React.FC = () => {
+     return (
+       <Router>
+         <Suspense fallback={<div>Loading...</div>}>
+           <Switch>
+             <Route path="/3d-holopit" render={() => <Webview url="ipfs://<hash>/index.html" />} />
+           </Switch>
+         </Suspense>
+       </Router>
+     );
+   };
+
+   export default App;
+   ```
+
+#### Virtual Break Room
+
+1. **Independent Setup**:
+   - Follow the steps in the "Running Sub dApps Independently in IPFS-Enabled Browser" section to set up and deploy the Virtual Break Room.
+
+2. **Integrate into Starcom Super dApp**:
+   - Define a route for the Virtual Break Room in `src/App.tsx`:
+   ```typescript
+   import React, { Suspense, lazy } from 'react';
+   import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+
+   const Webview = lazy(() => import('./components/Webview'));
+
+   const App: React.FC = () => {
+     return (
+       <Router>
+         <Suspense fallback={<div>Loading...</div>}>
+           <Switch>
+             <Route path="/virtual-break-room" render={() => <Webview url="ipfs://<hash>/index.html" />} />
+           </Switch>
+         </Suspense>
+       </Router>
+     );
+   };
+
+   export default App;
+   ```
+
+Repeat the above steps for each Sub dApp to ensure they can run independently in a browser and within the Starcom Super dApp. This modular approach ensures flexibility and allows for efficient development and testing of each component.
+
+---
+
+### Conclusion
+
+By following these detailed instructions, each Sub dApp within the Starcom Super dApp can be developed and deployed independently or as part of the larger application. This flexibility allows for seamless integration and efficient development, ensuring the success of the Starcom Super dApp project.
+
+# Instructions for Integration with an IPFS/Nostr Decentralized MeshNet SubNet RelayNode
+
+---
+
+## Introduction
+
+This guide provides detailed instructions for integrating each Sub dApp within the Starcom Super dApp with an IPFS/Nostr decentralized MeshNet SubNet RelayNode. This setup ensures decentralized communication and data sharing, enhancing the resilience and security of the application.
+
+---
+
+### Prerequisites
+
+- **Node.js** (v14 or later)
+- **npm** (v6 or later)
+- **TypeScript** (v5.x)
+- **Vite** (latest version)
+- **IPFS** (latest version)
+- **Nostr** (latest version)
+- **IPFS-Enabled Browser** (e.g., Brave, Opera, or a browser with IPFS Companion extension)
+
+---
+
+### Setting Up the Development Environment
+
+1. **Install Node.js and npm**: Download and install Node.js and npm from the [official Node.js website](https://nodejs.org/).
+
+2. **Create a New Vite Project**:
+   ```bash
+   npm create vite@latest subapp-name --template react-ts
+   cd subapp-name
+   ```
+
+3. **Install Dependencies**:
+   ```bash
+   npm install
+   npm install axios ipfs-http-client nostr-tools
+   ```
+
+4. **Set Up TypeScript Configuration**:
+   Ensure your `tsconfig.json` is set up correctly:
+   ```json
+   {
+     "compilerOptions": {
+       "target": "ESNext",
+       "module": "ESNext",
+       "jsx": "react-jsx",
+       "strict": true,
+       "moduleResolution": "node",
+       "resolveJsonModule": true,
+       "isolatedModules": true,
+       "esModuleInterop": true,
+       "skipLibCheck": true
+     },
+     "include": ["src"]
+   }
+   ```
+
+5. **Install and Configure Vite**:
+   ```bash
+   npm install vite --save-dev
+   ```
+   Add the following to `vite.config.ts`:
+   ```typescript
+   import { defineConfig } from 'vite';
+   import react from '@vitejs/plugin-react';
+
+   export default defineConfig({
+     plugins: [react()],
+     server: {
+       open: true
+     }
+   });
+   ```
+
+---
+
+### Setting Up IPFS and Nostr
+
+1. **Install IPFS**:
+   ```bash
+   npm install ipfs
+   ```
+
+2. **Initialize IPFS**:
+   ```bash
+   ipfs init
+   ipfs config Addresses.API /ip4/127.0.0.1/tcp/5001
+   ipfs config Addresses.Gateway /ip4/127.0.0.1/tcp/8080
+   ```
+
+3. **Install and Configure Nostr**:
+   ```bash
+   npm install nostr-tools
+   ```
+
+4. **Set Up Nostr Relay**:
+   ```bash
+   nostr relay --port 8081
+   ```
+
+5. **Integrate IPFS and Nostr in SubApp**:
+   - Create a service file for IPFS in `src/services/ipfs.ts`:
+     ```typescript
+     import { create } from 'ipfs-http-client';
+
+     const ipfs = create('http://127.0.0.1:5001');
+
+     export const addFileToIPFS = async (file: File) => {
+       const added = await ipfs.add(file);
+       return added.path;
+     };
+
+     export const getFileFromIPFS = async (cid: string) => {
+       const file = await ipfs.cat(cid);
+       return file;
+     };
+     ```
+
+   - Create a service file for Nostr in `src/services/nostr.ts`:
+     ```typescript
+     import { relayInit, getEventHash, signEvent, validateEvent, verifySignature, Event } from 'nostr-tools';
+
+     const relay = relayInit('wss://relay.example.com');
+
+     relay.on('connect', () => {
+       console.log(`Connected to ${relay.url}`);
+     });
+
+     relay.on('error', () => {
+       console.log(`Failed to connect to ${relay.url}`);
+     });
+
+     export const sendEvent = async (event: Event) => {
+       const signedEvent = signEvent(event);
+       if (validateEvent(signedEvent) && verifySignature(signedEvent)) {
+         await relay.publish(signedEvent);
+       }
+     };
+
+     export const subscribeToEvents = (callback: (event: Event) => void) => {
+       relay.on('event', callback);
+       relay.connect();
+     };
+     ```
+
+---
+
+### Running Sub dApps Independently in IPFS-Enabled Browser
+
+1. **Build the Sub dApp**:
+   ```bash
+   npm run build
+   ```
+
+2. **Deploy to IPFS**:
+   ```bash
+   ipfs add -r dist
+   ```
+
+3. **Access via IPFS-Enabled Browser**:
+   - Open the IPFS-enabled browser.
+   - Navigate to the IPFS hash provided after running `ipfs add -r dist`.
+   - Example: `ipfs://<hash>/index.html`
+
+---
+
+### Integrating Sub dApps into Starcom Super dApp
+
+1. **Create a Webview Component**:
+   - Create a new component file for the webview in `src/components/Webview.tsx`:
+   ```typescript
+   import React from 'react';
+
+   interface WebviewProps {
+     url: string;
+   }
+
+   const Webview: React.FC<WebviewProps> = ({ url }) => {
+     return (
+       <iframe src={url} style={{ width: '100%', height: '100%' }} />
+     );
+   };
+
+   export default Webview;
+   ```
+
+2. **Add Routes to the Sub dApps**:
+   - Modify `src/App.tsx` to include routes for each Sub dApp:
+   ```typescript
+   import React, { Suspense, lazy } from 'react';
+   import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+
+   const Webview = lazy(() => import('./components/Webview'));
+
+   const App: React.FC = () => {
+     return (
+       <Router>
+         <Suspense fallback={<div>Loading...</div>}>
+           <Switch>
+             <Route path="/subapp1" render={() => <Webview url="ipfs://<subapp1-hash>/index.html" />} />
+             <Route path="/subapp2" render={() => <Webview url="ipfs://<subapp2-hash>/index.html" />} />
+             {/* Add more routes for other Sub dApps */}
+           </Switch>
+         </Suspense>
+       </Router>
+     );
+   };
+
+   export default App;
+   ```
+
+3. **Launch the Starcom Super dApp**:
+   ```bash
+   npm run dev
+   ```
+
+4. **Access Sub dApps within Starcom Super dApp**:
+   - Open the Starcom Super dApp in your browser.
+   - Navigate to the routes defined for each Sub dApp (e.g., `http://localhost:3000/subapp1`).
+
+---
+
+### Example Implementation
+
+#### 3D Global Monitoring Station Interface
+
+1. **Independent Setup**:
+   - Follow the steps in the "Running Sub dApps Independently in IPFS-Enabled Browser" section to set up and deploy the 3D Global Monitoring Station Interface.
+
+2. **Integrate into Starcom Super dApp**:
+   - Define a route for the 3D Global Monitoring Station Interface in `src/App.tsx`:
+   ```typescript
+   import React, { Suspense, lazy } from 'react';
+   import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+
+   const Webview = lazy(() => import('./components/Webview'));
+
+   const App: React.FC = () => {
+     return (
+       <Router>
+         <Suspense fallback={<div>Loading...</div>}>
+           <Switch>
+             <Route path="/3d-global-monitoring" render={() => <Webview url="ipfs://<hash>/index.html" />} />
+           </Switch>
+         </Suspense>
+       </Router>
+     );
+   };
+
+   export default App;
+   ```
+
+#### 3D HoloPit Interface
+
+1. **Independent Setup**:
+   - Follow the steps in the "Running Sub dApps Independently in IPFS-Enabled Browser" section to set up and deploy the 3D HoloPit Interface.
+
+2. **Integrate into Starcom Super dApp**:
+   - Define a route for the 3D HoloPit Interface in `src/App.tsx`:
+   ```typescript
+   import React, { Suspense, lazy } from 'react';
+   import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+
+   const Webview = lazy(() => import('./components/Webview'));
+
+   const App: React.FC = () => {
+     return (
+       <Router>
+         <Suspense fallback={<div>Loading...</div>}>
+           <Switch>
+             <Route path="/3d-holopit" render={() => <Webview url="ipfs://<hash>/index.html" />} />
+           </Switch>
+         </Suspense>
+       </Router>
+     );
+   };
+
+   export default App;
+   ```
+
+#### Virtual Break Room
+
+1. **Independent Setup**:
+   - Follow the steps in the "Running Sub dApps Independently in IPFS-Enabled Browser" section to set up and deploy the Virtual Break Room.
+
+2. **Integrate into Starcom Super dApp**:
+   - Define a route for the Virtual Break Room in `src/App.tsx`:
+   ```typescript
+   import React, { Suspense, lazy } from 'react';
+  ```
+
+# Understanding Web3 IPFS/Nostr Decentralized MeshNet SubNet RelayNode
+
+---
+
+## Introduction
+
+A Web3 IPFS/Nostr Decentralized MeshNet SubNet RelayNode is a fundamental component of the decentralized internet infrastructure. It facilitates decentralized data storage, retrieval, and real-time communication, ensuring data integrity, security, and availability without relying on centralized servers. This page explains how these components work together to create a resilient and efficient network.
+
+---
+
+### Key Components
+
+1. **IPFS (InterPlanetary File System)**
+2. **Nostr (Notes and Other Stuff Transmitted by Relay)**
+3. **MeshNet**
+4. **SubNet**
+5. **RelayNode**
+
+---
+
+## IPFS (InterPlanetary File System)
+
+**Overview**:
+IPFS is a decentralized file storage and sharing protocol that enables users to store, request, and transfer verifiable data in a peer-to-peer network.
+
+**How it Works**:
+- **Content Addressing**: Instead of using location-based addressing (like URLs), IPFS uses content-based addressing. Each file is assigned a unique hash (CID), which acts as its address.
+- **Distributed Storage**: Files are split into smaller chunks, distributed, and stored across multiple nodes in the network. This ensures redundancy and availability.
+- **Peer-to-Peer Network**: Nodes in the IPFS network communicate and share files directly with each other, reducing the need for centralized servers.
+
+**Benefits**:
+- **Decentralization**: Eliminates single points of failure.
+- **Efficiency**: Reduces duplication and optimizes bandwidth.
+- **Resilience**: Ensures data availability even if some nodes go offline.
+
+---
+
+## Nostr (Notes and Other Stuff Transmitted by Relay)
+
+**Overview**:
+Nostr is a decentralized, real-time messaging and data transmission protocol designed to facilitate communication between nodes.
+
+**How it Works**:
+- **Event-Based Protocol**: Nostr operates on events. Each message or data transmission is treated as an event with a unique identifier.
+- **Relays**: Nodes, known as relays, broadcast events to subscribers. Relays do not store events permanently; they simply transmit them.
+- **Public/Private Keys**: Communication is secured using cryptographic keys. Users sign events with their private keys, and recipients verify them with the public keys.
+
+**Benefits**:
+- **Real-Time Communication**: Enables instant updates and messaging.
+- **Security**: Ensures data integrity and authenticity through cryptographic signatures.
+- **Scalability**: Can handle large volumes of messages efficiently.
+
+---
+
+## MeshNet
+
+**Overview**:
+A MeshNet is a decentralized network where each node connects directly to multiple other nodes, forming a mesh-like topology.
+
+**How it Works**:
+- **Peer-to-Peer Connections**: Each node can communicate directly with several other nodes.
+- **Dynamic Routing**: Data can take multiple paths to reach its destination, ensuring efficient routing and fault tolerance.
+- **Self-Healing**: If a node goes offline, the network automatically reroutes traffic through other nodes.
+
+**Benefits**:
+- **Resilience**: High fault tolerance and network stability.
+- **Decentralization**: No central points of control or failure.
+- **Efficiency**: Optimized data routing and reduced latency.
+
+---
+
+## SubNet
+
+**Overview**:
+A SubNet is a smaller, isolated segment within a larger network, designed to manage specific tasks or data types.
+
+**How it Works**:
+- **Segmentation**: The main network is divided into SubNets, each responsible for specific functions or data.
+- **Interconnectivity**: SubNets can communicate with each other through defined protocols and gateways.
+- **Resource Management**: SubNets manage their own resources, improving efficiency and performance.
+
+**Benefits**:
+- **Scalability**: Easier to manage and scale individual SubNets.
+- **Security**: Isolated environments reduce the risk of network-wide breaches.
+- **Performance**: Optimized resource allocation and management within each SubNet.
+
+---
+
+## RelayNode
+
+**Overview**:
+A RelayNode is a specialized node that facilitates data transmission and communication between nodes in a decentralized network.
+
+**How it Works**:
+- **Event Broadcasting**: RelayNodes broadcast events to subscribers in the Nostr network.
+- **Data Transmission**: They facilitate data transfer between nodes in the IPFS network.
+- **Decentralized Coordination**: RelayNodes ensure efficient communication and data routing without centralized control.
+
+**Benefits**:
+- **Efficiency**: Optimized data transmission and reduced latency.
+- **Scalability**: Can handle large volumes of data and connections.
+- **Resilience**: Ensures continuous network operation even if some nodes fail.
+
+---
+
+## Integration of Components
+
+1. **Storage and Retrieval**:
+   - Files are added to the IPFS network and assigned unique CIDs.
+   - Nodes store and retrieve files using these CIDs, ensuring data integrity and availability.
+
+2. **Real-Time Communication**:
+   - Events are created and signed by users in the Nostr network.
+   - RelayNodes broadcast these events to subscribers, ensuring real-time updates and communication.
+
+3. **MeshNet and SubNet Coordination**:
+   - Nodes form a mesh network, ensuring efficient and resilient data routing.
+   - SubNets manage specific tasks or data, optimizing performance and security.
+
+4. **RelayNode Operations**:
+   - RelayNodes facilitate data transmission and event broadcasting, coordinating communication between nodes and SubNets.
+
+---
+
+### Conclusion
+
+A Web3 IPFS/Nostr Decentralized MeshNet SubNet RelayNode is a powerful combination of technologies that ensures efficient, secure, and resilient data storage, retrieval, and communication. By leveraging the strengths of IPFS for decentralized storage, Nostr for real-time communication, and MeshNet/SubNet architecture for network efficiency and resilience, RelayNodes play a crucial role in maintaining a robust decentralized infrastructure.
+
+
+# Advanced Integration for Web3 IPFS/Nostr Decentralized MeshNet SubNet RelayNode
+
+---
+
+#### Introduction
+
+This advanced integration guide provides detailed instructions for setting up and optimizing a Web3 IPFS/Nostr Decentralized MeshNet SubNet RelayNode. By integrating IPFS for decentralized storage, Nostr for real-time communication, and leveraging MeshNet/SubNet architecture, this setup ensures a robust, secure, and efficient decentralized network.
+
+---
+
+### Key Components
+
+1. **IPFS (InterPlanetary File System)**
+2. **Nostr (Notes and Other Stuff Transmitted by Relay)**
+3. **MeshNet**
+4. **SubNet**
+5. **RelayNode**
+
+---
+
+### Prerequisites
+
+- **Node.js** (v14 or later)
+- **npm** (v6 or later)
+- **TypeScript** (v5.x)
+- **Vite** (latest version)
+- **IPFS** (latest version)
+- **Nostr** (latest version)
+- **IPFS-Enabled Browser** (e.g., Brave, Opera, or a browser with IPFS Companion extension)
+
+---
+
+### Setting Up the Development Environment
+
+1. **Install Node.js and npm**: Download and install Node.js and npm from the [official Node.js website](https://nodejs.org/).
+
+2. **Create a New Vite Project**:
+   ```bash
+   npm create vite@latest subapp-name --template react-ts
+   cd subapp-name
+   ```
+
+3. **Install Dependencies**:
+   ```bash
+   npm install
+   npm install axios ipfs-http-client nostr-tools
+   ```
+
+4. **Set Up TypeScript Configuration**:
+   Ensure your `tsconfig.json` is set up correctly:
+   ```json
+   {
+     "compilerOptions": {
+       "target": "ESNext",
+       "module": "ESNext",
+       "jsx": "react-jsx",
+       "strict": true,
+       "moduleResolution": "node",
+       "resolveJsonModule": true,
+       "isolatedModules": true,
+       "esModuleInterop": true,
+       "skipLibCheck": true
+     },
+     "include": ["src"]
+   }
+   ```
+
+5. **Install and Configure Vite**:
+   ```bash
+   npm install vite --save-dev
+   ```
+   Add the following to `vite.config.ts`:
+   ```typescript
+   import { defineConfig } from 'vite';
+   import react from '@vitejs/plugin-react';
+
+   export default defineConfig({
+     plugins: [react()],
+     server: {
+       open: true
+     }
+   });
+   ```
+
+---
+
+### Setting Up IPFS and Nostr
+
+1. **Install IPFS**:
+   ```bash
+   npm install ipfs
+   ```
+
+2. **Initialize IPFS**:
+   ```bash
+   ipfs init
+   ipfs config Addresses.API /ip4/127.0.0.1/tcp/5001
+   ipfs config Addresses.Gateway /ip4/127.0.0.1/tcp/8080
+   ```
+
+3. **Install and Configure Nostr**:
+   ```bash
+   npm install nostr-tools
+   ```
+
+4. **Set Up Nostr Relay**:
+   ```bash
+   nostr relay --port 8081
+   ```
+
+5. **Integrate IPFS and Nostr in SubApp**:
+   - Create a service file for IPFS in `src/services/ipfs.ts`:
+     ```typescript
+     import { create } from 'ipfs-http-client';
+
+     const ipfs = create('http://127.0.0.1:5001');
+
+     export const addFileToIPFS = async (file: File) => {
+       const added = await ipfs.add(file);
+       return added.path;
+     };
+
+     export const getFileFromIPFS = async (cid: string) => {
+       const file = await ipfs.cat(cid);
+       return file;
+     };
+     ```
+
+   - Create a service file for Nostr in `src/services/nostr.ts`:
+     ```typescript
+     import { relayInit, getEventHash, signEvent, validateEvent, verifySignature, Event } from 'nostr-tools';
+
+     const relay = relayInit('wss://relay.example.com');
+
+     relay.on('connect', () => {
+       console.log(`Connected to ${relay.url}`);
+     });
+
+     relay.on('error', () => {
+       console.log(`Failed to connect to ${relay.url}`);
+     });
+
+     export const sendEvent = async (event: Event) => {
+       const signedEvent = signEvent(event);
+       if (validateEvent(signedEvent) && verifySignature(signedEvent)) {
+         await relay.publish(signedEvent);
+       }
+     };
+
+     export const subscribeToEvents = (callback: (event: Event) => void) => {
+       relay.on('event', callback);
+       relay.connect();
+     };
+     ```
+
+---
+
+### Running Sub dApps Independently in IPFS-Enabled Browser
+
+1. **Build the Sub dApp**:
+   ```bash
+   npm run build
+   ```
+
+2. **Deploy to IPFS**:
+   ```bash
+   ipfs add -r dist
+   ```
+
+3. **Access via IPFS-Enabled Browser**:
+   - Open the IPFS-enabled browser.
+   - Navigate to the IPFS hash provided after running `ipfs add -r dist`.
+   - Example: `ipfs://<hash>/index.html`
+
+---
+
+### Integrating Sub dApps into Starcom Super dApp
+
+1. **Create a Webview Component**:
+   - Create a new component file for the webview in `src/components/Webview.tsx`:
+   ```typescript
+   import React from 'react';
+
+   interface WebviewProps {
+     url: string;
+   }
+
+   const Webview: React.FC<WebviewProps> = ({ url }) => {
+     return (
+       <iframe src={url} style={{ width: '100%', height: '100%' }} />
+     );
+   };
+
+   export default Webview;
+   ```
+
+2. **Add Routes to the Sub dApps**:
+   - Modify `src/App.tsx` to include routes for each Sub dApp:
+   ```typescript
+   import React, { Suspense, lazy } from 'react';
+   import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+
+   const Webview = lazy(() => import('./components/Webview'));
+
+   const App: React.FC = () => {
+     return (
+       <Router>
+         <Suspense fallback={<div>Loading...</div>}>
+           <Switch>
+             <Route path="/subapp1" render={() => <Webview url="ipfs://<subapp1-hash>/index.html" />} />
+             <Route path="/subapp2" render={() => <Webview url="ipfs://<subapp2-hash>/index.html" />} />
+             {/* Add more routes for other Sub dApps */}
+           </Switch>
+         </Suspense>
+       </Router>
+     );
+   };
+
+   export default App;
+   ```
+
+3. **Launch the Starcom Super dApp**:
+   ```bash
+   npm run dev
+   ```
+
+4. **Access Sub dApps within Starcom Super dApp**:
+   - Open the Starcom Super dApp in your browser.
+   - Navigate to the routes defined for each Sub dApp (e.g., `http://localhost:3000/subapp1`).
+
+---
+
+### Advanced Integration for MeshNet/SubNet Architecture
+
+1. **Setting Up the MeshNet**:
+   - Ensure each node in the MeshNet is configured to communicate with multiple other nodes, forming a resilient mesh topology.
+   - Use tools like [cjdns](https://github.com/cjdelisle/cjdns) or [Yggdrasil](https://yggdrasil-network.github.io/) for setting up MeshNet infrastructure.
+
+2. **Creating SubNets**:
+   - Segment the main MeshNet into SubNets, each responsible for specific tasks or data types.
+   - Configure gateways to facilitate communication between SubNets.
+
+3. **Configuring RelayNodes**:
+   - Deploy RelayNodes at strategic points in the MeshNet to facilitate data transmission and event broadcasting.
+   - Ensure RelayNodes are configured to handle IPFS and Nostr protocols for decentralized data storage and real-time communication.
+
+4. **Optimizing Data Routing**:
+   - Implement dynamic routing algorithms to ensure efficient data transfer within the MeshNet.
+   - Use protocols like [Babel](https://www.irif.fr/~jch/software/babel/) for adaptive routing in MeshNet environments.
+
+5. **Ensuring Security and Resilience**:
+   - Use cryptographic techniques to secure data transmission and communication.
+   - Implement redundancy and failover mechanisms to enhance network resilience.
+
+---
+
+### Example Implementation
+
+#### Setting Up a RelayNode
+
+1. **Initialize the RelayNode**:
+   - Set up a new instance for the RelayNode:
+   ```bash
+   mkdir relaynode
+   cd relaynode
+   npm init -y
+   npm install ipfs nostr-tools
+   ```
+
+2. **Configure IPFS**:
+   - Create `ipfsConfig.js`:
+     ```javascript
+     const IPFS = require('ipfs');
+
+     const node = await IPFS.create({
+       repo: 'ipfs-repo',
+       config: {
+         Addresses: {
+           Swarm: [
+             '/ip4/0.0.0.0/tcp/4001',
+             '/ip4/127.0.0.1/tcp/4001/ws'
+           ],
+           API: '/ip4/127.0.0.1/tcp/5001',
+           Gateway: '/ip4/127.0.0.1/tcp/8080'
+         }
+       }
+     });
+
+     module.exports = node;
+     ```
+
+3. **Configure Nostr**:
+   - Create `nostrConfig.js`:
+     ```javascript
+     const { relayInit } = require('nostr-tools');
+
+     const relay = relayInit('wss://relay.example.com');
+
+     relay.on('connect', () => {
+       console.log(`Connected to ${relay.url}`);
+     });
+
+     relay.on('error', () => {
+       console.log(`Failed to connect to ${relay.url}`);
+     });
+
+     module.exports = relay;
+     ```
+
+4. **Integrate and Run the RelayNode**:
+   - Create `index.js`:
+     ```javascript
+     const ipfs = require('./ipfsConfig');
+     const relay = require('./nostrConfig');
+
+     (async () => {
+       await ipfs.start();
+       relay.connect();
+
+       console.log('RelayNode is running...');
+     })();
+     ```
+
+   - Start the RelayNode:
+     ```bash
+     node index.js
+     ```
+
+---
+
+### Conclusion
+
+Integrating Web3 IPFS/Nostr Decentralized MeshNet SubNet RelayNodes ensures a robust, secure, and efficient decentralized network infrastructure. By following these advanced integration steps, you can leverage the full potential of decentralized technologies, enhancing the resilience and performance of your applications.
+
+
+# Web3 IPFS/Nostr Decentralized MeshNet SubNet RelayNode: For Noobs
+
+---
+
+#### Introduction
+
+Welcome to the world of decentralized technology! This guide is for beginners (noobs) who want to understand how to set up and use a Web3 IPFS/Nostr Decentralized MeshNet SubNet RelayNode. We'll break down the concepts and steps to make it as simple as possible. 
+
+---
+
+### What You Need to Know
+
+1. **IPFS (InterPlanetary File System)**: A decentralized storage system where files are stored across multiple computers.
+2. **Nostr (Notes and Other Stuff Transmitted by Relay)**: A system for sending and receiving messages and data in real-time.
+3. **MeshNet**: A network where each computer (node) connects to multiple others, forming a web of connections.
+4. **SubNet**: A smaller network within the MeshNet, handling specific tasks.
+5. **RelayNode**: A special computer in the network that helps transmit data between other computers.
+
+---
+
+### What You'll Need
+
+- **A computer with Node.js and npm installed** (we'll show you how to install these if you don't have them).
+- **An IPFS-enabled browser** (like Brave, Opera, or a browser with the IPFS Companion extension).
+
+---
+
+### Step 1: Set Up Your Computer
+
+1. **Install Node.js and npm**:
+   - Go to the [Node.js website](https://nodejs.org/) and download the installer.
+   - Run the installer and follow the instructions.
+
+2. **Open your terminal or command prompt**:
+   - On Windows, press `Win + R`, type `cmd`, and hit Enter.
+   - On Mac, open the `Terminal` app.
+   - On Linux, open your preferred terminal emulator.
+
+3. **Create a new project folder**:
+   ```bash
+   mkdir my-decentralized-app
+   cd my-decentralized-app
+   ```
+
+4. **Initialize a new Node.js project**:
+   ```bash
+   npm init -y
+   ```
+
+5. **Install Vite (a build tool)**:
+   ```bash
+   npm install vite --save-dev
+   ```
+
+6. **Install some necessary libraries**:
+   ```bash
+   npm install axios ipfs-http-client nostr-tools
+   ```
+
+---
+
+### Step 2: Set Up IPFS
+
+1. **Install IPFS**:
+   ```bash
+   npm install ipfs
+   ```
+
+2. **Initialize IPFS**:
+   ```bash
+   ipfs init
+   ipfs config Addresses.API /ip4/127.0.0.1/tcp/5001
+   ipfs config Addresses.Gateway /ip4/127.0.0.1/tcp/8080
+   ```
+
+---
+
+### Step 3: Set Up Nostr
+
+1. **Install Nostr tools**:
+   ```bash
+   npm install nostr-tools
+   ```
+
+2. **Create a Nostr Relay**:
+   ```bash
+   nostr relay --port 8081
+   ```
+
+---
+
+### Step 4: Create Your First SubApp
+
+1. **Set up a basic Vite project**:
+   ```bash
+   npm create vite@latest my-subapp --template react-ts
+   cd my-subapp
+   npm install
+   ```
+
+2. **Add IPFS and Nostr functionality**:
+   - Create a file `src/services/ipfs.ts`:
+     ```typescript
+     import { create } from 'ipfs-http-client';
+
+     const ipfs = create('http://127.0.0.1:5001');
+
+     export const addFileToIPFS = async (file: File) => {
+       const added = await ipfs.add(file);
+       return added.path;
+     };
+
+     export const getFileFromIPFS = async (cid: string) => {
+       const file = await ipfs.cat(cid);
+       return file;
+     };
+     ```
+
+   - Create a file `src/services/nostr.ts`:
+     ```typescript
+     import { relayInit, getEventHash, signEvent, validateEvent, verifySignature, Event } from 'nostr-tools';
+
+     const relay = relayInit('wss://relay.example.com');
+
+     relay.on('connect', () => {
+       console.log(`Connected to ${relay.url}`);
+     });
+
+     relay.on('error', () => {
+       console.log(`Failed to connect to ${relay.url}`);
+     });
+
+     export const sendEvent = async (event: Event) => {
+       const signedEvent = signEvent(event);
+       if (validateEvent(signedEvent) && verifySignature(signedEvent)) {
+         await relay.publish(signedEvent);
+       }
+     };
+
+     export const subscribeToEvents = (callback: (event: Event) => void) => {
+       relay.on('event', callback);
+       relay.connect();
+     };
+     ```
+
+---
+
+### Step 5: Running Your SubApp Independently
+
+1. **Build your SubApp**:
+   ```bash
+   npm run build
+   ```
+
+2. **Deploy to IPFS**:
+   ```bash
+   ipfs add -r dist
+   ```
+
+3. **Access your SubApp**:
+   - Open your IPFS-enabled browser.
+   - Navigate to the IPFS hash provided after running `ipfs add -r dist`.
+   - Example: `ipfs://<hash>/index.html`
+
+---
+
+### Step 6: Integrating Your SubApp into Starcom Super dApp
+
+1. **Create a Webview Component**:
+   - Create a file `src/components/Webview.tsx`:
+     ```typescript
+     import React from 'react';
+
+     interface WebviewProps {
+       url: string;
+     }
+
+     const Webview: React.FC<WebviewProps> = ({ url }) => {
+       return (
+         <iframe src={url} style={{ width: '100%', height: '100%' }} />
+       );
+     };
+
+     export default Webview;
+     ```
+
+2. **Add Routes to Your SubApps**:
+   - Modify `src/App.tsx`:
+     ```typescript
+     import React, { Suspense, lazy } from 'react';
+     import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+
+     const Webview = lazy(() => import('./components/Webview'));
+
+     const App: React.FC = () => {
+       return (
+         <Router>
+           <Suspense fallback={<div>Loading...</div>}>
+             <Switch>
+               <Route path="/subapp1" render={() => <Webview url="ipfs://<subapp1-hash>/index.html" />} />
+               <Route path="/subapp2" render={() => <Webview url="ipfs://<subapp2-hash>/index.html" />} />
+               {/* Add more routes for other SubApps */}
+             </Switch>
+           </Suspense>
+         </Router>
+       );
+     };
+
+     export default App;
+     ```
+
+3. **Run the Starcom Super dApp**:
+   ```bash
+   npm run dev
+   ```
+
+4. **Access SubApps Within the Starcom Super dApp**:
+   - Open your browser and go to the Super dApp URL (e.g., `http://localhost:3000/subapp1`).
+
+---
+
+### Conclusion
+
+By following these simplified steps, you can set up and run decentralized applications using IPFS and Nostr, both independently and within a larger Super dApp. This noob-friendly guide ensures you can get started with decentralized technology without getting overwhelmed by technical details. Happy hacking!
