@@ -1,0 +1,95 @@
+.
+├── README.md
+├── directory-structure.txt
+├── eslint.config.js
+├── index.html
+├── package-lock.json
+├── package.json
+├── postcss.config.cjs
+├── public
+│   └── vite.svg
+├── src
+│   ├── App.css
+│   ├── App.tsx
+│   ├── __tests__
+│   ├── assets
+│   │   └── react.svg
+│   ├── components
+│   │   ├── Globe
+│   │   │   ├── GlobeComponent.tsx
+│   │   │   ├── GlobeMarker.tsx
+│   │   │   └── TimeScrubber.tsx
+│   │   ├── HUD
+│   │   │   ├── Legend.tsx
+│   │   │   ├── Overlay.tsx
+│   │   │   ├── TimeScrubber.tsx
+│   │   │   └── Tooltip.tsx
+│   │   ├── Navigation
+│   │   │   ├── DropdownMenu.tsx
+│   │   │   ├── Sidebar.tsx
+│   │   │   └── TopBar.tsx
+│   │   └── Shared
+│   │       ├── Button.tsx
+│   │       ├── Card.tsx
+│   │       ├── Loader.tsx
+│   │       └── Modal.tsx
+│   ├── context
+│   │   ├── AuthContext.tsx
+│   │   ├── DashboardContext.tsx
+│   │   ├── GlobeContext.tsx
+│   │   └── SettingsContext.tsx
+│   ├── hooks
+│   │   ├── useAuth.ts
+│   │   ├── useFetchData.ts
+│   │   └── useGlobeInteractions.ts
+│   ├── index.css
+│   ├── layouts
+│   ├── main.tsx
+│   ├── mocks
+│   ├── pages
+│   │   ├── Auth
+│   │   │   ├── Login.tsx
+│   │   │   └── Register.tsx
+│   │   ├── Dashboard
+│   │   │   └── Dashboard.tsx
+│   │   ├── MarketWatchdog
+│   │   │   └── MarketWatchdog.tsx
+│   │   ├── Netrunner
+│   │   │   └── Netrunner.tsx
+│   │   ├── Settings
+│   │   │   ├── FilterSettings.tsx
+│   │   │   └── UserSettings.tsx
+│   │   └── TimelineEvents
+│   │       └── Timeline.tsx
+│   ├── routes
+│   │   └── routes.tsx
+│   ├── services
+│   │   ├── api
+│   │   │   ├── FetchFeeds.ts
+│   │   │   ├── FetchFilters.ts
+│   │   │   ├── FetchUserData.ts
+│   │   │   └── UpdateSettings.ts
+│   │   ├── blockchain
+│   │   │   ├── BlockchainService.ts
+│   │   │   └── IntelTransactions.ts
+│   │   └── datasets
+│   │       ├── ConflictZones.json
+│   │       └── GeoJSONSample.json
+│   ├── styles
+│   │   ├── globals.css
+│   │   └── theme.ts
+│   ├── tailwind.config.js
+│   ├── types
+│   ├── utils
+│   │   ├── formatDate.ts
+│   │   ├── generateColor.ts
+│   │   ├── logging.ts
+│   │   └── mockData.ts
+│   └── vite-env.d.ts
+├── tailwind.config.js
+├── tsconfig.app.json
+├── tsconfig.json
+├── tsconfig.node.json
+└── vite.config.ts
+
+29 directories, 64 files
