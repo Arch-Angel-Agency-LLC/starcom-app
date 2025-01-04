@@ -1,115 +1,79 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import Globe from 'react-globe.gl';
-import TimeScrubber from './TimeScrubber';
-
-interface DataPoint {
-  lat: number;
-  lng: number;
-  size: number;
-  color: string;
-  info: string;
-}
-
-interface HeatmapPoint {
-  lat: number;
-  lng: number;
-  weight: number; // Renamed from 'intensity' to 'weight'
-}
+import Legend from '../HUD/Legend';
+import Overlay from '../HUD/Overlay';
+import TimeScrubber from '../HUD/TimeScrubber';
+import { useTimeData } from '../../context/TimeDataProvider';
 
 const GlobeComponent: React.FC = () => {
-  // State Hooks
-  const [data, setData] = useState<DataPoint[]>([]);
-  const [hoveredPoint, setHoveredPoint] = useState<DataPoint | null>(null);
-  const [showMarkers, setShowMarkers] = useState(true);
-  const [timeValue, setTimeValue] = useState(0);
+  const { currentTime, isLive, setCurrentTime, toggleLive, fetchDataForTime } = useTimeData();
+  const [globeData, setGlobeData] = React.useState<any[]>([]);
 
-  // Static Heatmap Data
-  const heatmapData: HeatmapPoint[] = [
-    { lat: 40.7128, lng: -74.006, weight: 0.6 }, // NYC
-    { lat: 34.0522, lng: -118.2437, weight: 0.5 }, // LA
-    { lat: 48.8566, lng: 2.3522, weight: 0.4 }, // Paris
-  ];
-
-  // Simulate time-based data changes
   useEffect(() => {
-    const generateTimeBasedData = (time: number): DataPoint[] => {
-      return [
-        { lat: 37.7749, lng: -122.4194, size: 1 + time / 100, color: 'red', info: `San Francisco at time ${time}` },
-        { lat: 51.5074, lng: -0.1278, size: 1.5 + time / 100, color: 'blue', info: `London at time ${time}` },
-        { lat: 35.6895, lng: 139.6917, size: 1.2 + time / 100, color: 'green', info: `Tokyo at time ${time}` },
-      ];
+    const updateData = async () => {
+      await fetchDataForTime(currentTime);
+      const data = await fetchGlobeDataForTime(currentTime);
+      setGlobeData(data);
     };
 
-    setData(generateTimeBasedData(timeValue));
-  }, [timeValue]);
+    updateData();
+  }, [currentTime]);
 
   return (
     <div style={{ height: '100vh', width: '100%', position: 'relative' }}>
-      {/* UI Controls */}
-      <div
-        style={{
-          position: 'absolute',
-          top: '10px',
-          right: '10px',
-          zIndex: 1000,
-          padding: '10px',
-          display: 'flex',
-          gap: '10px',
+      <Legend
+        title="Data Legend"
+        items={[
+          { label: 'Conflict Zone', color: 'red', size: 2 },
+          { label: 'Weather Marker', color: 'blue', size: 1 },
+          { label: 'High Intensity', color: 'orange' },
+          { label: 'Medium Intensity', color: 'yellow' },
+          { label: 'Low Intensity', color: 'green' },
+        ]}
+        maxSize={2}
+        collapsible={true}
+      />
+      <Overlay
+        stats={[
+          { label: 'Active Conflict Zones', value: 42 },
+          { label: 'Live Data Points', value: 132 },
+          { label: 'Users Online', value: 25 },
+        ]}
+        notifications={[
+          { id: '1', message: 'New conflict detected in Middle East', type: 'info', priority: 1, timestamp: '2024-12-25 14:30' },
+          { id: '2', message: 'Weather alert in NYC', type: 'warning', priority: 2, timestamp: '2024-12-25 14:35' },
+          { id: '3', message: 'Data fetch error: Check logs', type: 'error', priority: 1, timestamp: '2024-12-25 14:40' },
+        ]}
+        onNotificationClick={(id) => console.log(`Notification ${id} clicked`)}
+        onClearNotifications={() => console.log('Notifications cleared')}
+        onStatsUpdate={async () => {
+          return [
+            { label: 'Active Conflict Zones', value: 45 },
+            { label: 'Live Data Points', value: 140 },
+            { label: 'Users Online', value: 30 },
+          ];
         }}
-      >
-        <button
-          style={{
-            padding: '5px 10px',
-            background: showMarkers ? '#007bff' : '#6c757d',
-            color: 'white',
-            border: 'none',
-            borderRadius: '5px',
-            cursor: 'pointer',
-          }}
-          onClick={() => setShowMarkers(!showMarkers)}
-        >
-          {showMarkers ? 'Hide Markers' : 'Show Markers'}
-        </button>
-      </div>
-
-      {/* Time Scrubber */}
-      <TimeScrubber onChange={(value) => setTimeValue(value)} />
-
-      {/* Globe */}
+        theme="dark"
+      />
+      <TimeScrubber
+        currentTime={currentTime}
+        isLive={isLive}
+        onTimeChange={(value: number) => setCurrentTime(value)}
+        onToggleLive={toggleLive}
+      />
       <Globe
-        globeImageUrl="//unpkg.com/three-globe/example/img/earth-dark.jpg"
-        bumpImageUrl="//unpkg.com/three-globe/example/img/earth-topology.png"
-        pointsData={showMarkers ? data : []}
+        pointsData={globeData}
         pointAltitude="size"
         pointColor="color"
-        onPointHover={(point) => setHoveredPoint(point as DataPoint | null)}
-        heatmapsData={[heatmapData]} // Heatmap data as array
-        heatmapPointLat="lat"
-        heatmapPointLng="lng"
-        heatmapPointWeight="weight" // Corrected property name
-        heatmapTopAltitude={0.7} // Altitude of the heatmap
-        heatmapsTransitionDuration={3000} // Smooth transitions
+        globeImageUrl="//unpkg.com/three-globe/example/img/earth-dark.jpg"
       />
-
-      {/* Tooltip */}
-      {hoveredPoint && (
-        <div
-          style={{
-            position: 'absolute',
-            top: '10px',
-            left: '10px',
-            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-            color: 'white',
-            padding: '8px',
-            borderRadius: '5px',
-            pointerEvents: 'none',
-          }}
-        >
-          {hoveredPoint.info}
-        </div>
-      )}
     </div>
   );
 };
 
 export default GlobeComponent;
+
+async function fetchGlobeDataForTime(time: number): Promise<any[]> {
+  console.log(`Fetching data for time: ${time}`);
+  return [{ lat: 10, lng: 20, size: 1, color: 'blue' }];
+}

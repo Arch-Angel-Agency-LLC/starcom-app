@@ -17,8 +17,7 @@
 │   ├── components
 │   │   ├── Globe
 │   │   │   ├── GlobeComponent.tsx
-│   │   │   ├── GlobeMarker.tsx
-│   │   │   └── TimeScrubber.tsx
+│   │   │   └── GlobeMarker.tsx
 │   │   ├── HUD
 │   │   │   ├── Legend.tsx
 │   │   │   ├── Overlay.tsx
@@ -28,24 +27,34 @@
 │   │   │   ├── DropdownMenu.tsx
 │   │   │   ├── Sidebar.tsx
 │   │   │   └── TopBar.tsx
-│   │   └── Shared
-│   │       ├── Button.tsx
-│   │       ├── Card.tsx
-│   │       ├── Loader.tsx
-│   │       └── Modal.tsx
+│   │   ├── Shared
+│   │   │   ├── Button.tsx
+│   │   │   ├── Card.tsx
+│   │   │   ├── Loader.tsx
+│   │   │   └── Modal.tsx
+│   │   └── UCDP
+│   │       ├── ConfictDashboard.tsx
+│   │       ├── ConflictDetails.tsx
+│   │       └── ConflictList.tsx
 │   ├── context
 │   │   ├── AuthContext.tsx
 │   │   ├── DashboardContext.tsx
 │   │   ├── GlobeContext.tsx
-│   │   └── SettingsContext.tsx
+│   │   ├── SettingsContext.tsx
+│   │   ├── TimeDataProvider.tsx
+│   │   └── UCDPContext.tsx
+│   ├── data
+│   │   ├── ConflictZones.json
+│   │   └── GeoJSONSample.json
 │   ├── hooks
-│   │   ├── useAuth.ts
-│   │   ├── useFetchData.ts
-│   │   └── useGlobeInteractions.ts
+│   │   ├── data
+│   │   │   ├── useFetchConflicts.ts
+│   │   │   └── useFetchData.ts
+│   │   └── ui
+│   │       ├── useAuth.ts
+│   │       └── useGlobeInteractions.ts
 │   ├── index.css
-│   ├── layouts
 │   ├── main.tsx
-│   ├── mocks
 │   ├── pages
 │   │   ├── Auth
 │   │   │   ├── Login.tsx
@@ -59,32 +68,41 @@
 │   │   ├── Settings
 │   │   │   ├── FilterSettings.tsx
 │   │   │   └── UserSettings.tsx
-│   │   └── TimelineEvents
-│   │       └── Timeline.tsx
+│   │   ├── TimelineEvents
+│   │   │   └── Timeline.tsx
+│   │   └── UCDP
+│   │       └── ConflictDashboard.tsx
 │   ├── routes
 │   │   └── routes.tsx
 │   ├── services
 │   │   ├── api
+│   │   │   ├── ApiService.ts
+│   │   │   ├── FetchConflictZoneFeeds.ts
 │   │   │   ├── FetchFeeds.ts
 │   │   │   ├── FetchFilters.ts
+│   │   │   ├── FetchMarketDataFeeds.ts
 │   │   │   ├── FetchUserData.ts
+│   │   │   ├── FetchWeatherDataFeeds.ts
+│   │   │   ├── UCDPApi.ts
 │   │   │   └── UpdateSettings.ts
-│   │   ├── blockchain
-│   │   │   ├── BlockchainService.ts
-│   │   │   └── IntelTransactions.ts
-│   │   └── datasets
-│   │       ├── ConflictZones.json
-│   │       └── GeoJSONSample.json
+│   │   └── blockchain
+│   │       ├── BlockchainService.ts
+│   │       └── IntelTransactions.ts
 │   ├── styles
 │   │   ├── globals.css
 │   │   └── theme.ts
 │   ├── tailwind.config.js
 │   ├── types
+│   │   ├── TimeDataTypes.ts
+│   │   └── ucdpTypes.ts
 │   ├── utils
+│   │   ├── constants.ts
+│   │   ├── fetchDataUtils.ts
 │   │   ├── formatDate.ts
 │   │   ├── generateColor.ts
 │   │   ├── logging.ts
-│   │   └── mockData.ts
+│   │   ├── mockData.ts
+│   │   └── queryUtils.ts
 │   └── vite-env.d.ts
 ├── tailwind.config.js
 ├── tsconfig.app.json
@@ -92,4 +110,4 @@
 ├── tsconfig.node.json
 └── vite.config.ts
 
-29 directories, 64 files
+31 directories, 80 files

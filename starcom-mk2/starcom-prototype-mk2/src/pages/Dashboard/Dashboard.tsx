@@ -1,5 +1,5 @@
 import React from 'react';
-import GlobeComponent from '../../components/Globe/Globe';
+import GlobeComponent from '../../components/Globe/GlobeComponent';
 
 const Dashboard: React.FC = () => {
   return (
