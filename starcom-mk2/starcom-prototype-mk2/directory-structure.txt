@@ -1,7 +1,18 @@
 .
 ├──  jest.config.ts
+├── .DS_Store
+├── .env
+├── .eslintignore
+├── .gitignore
+├── .prettierignore
 ├── README.md
 ├── directory-structure.txt
+├── dist
+│   ├── assets
+│   │   ├── index-DQpHtSNv.js
+│   │   └── index-DQpHtSNv.js.map
+│   ├── index.html
+│   └── vite.svg
 ├── eslint.config.js
 ├── index.html
 ├── package-lock.json
@@ -10,35 +21,95 @@
 ├── public
 │   └── vite.svg
 ├── src
-│   ├── App.css
+│   ├── .DS_Store
+│   ├── .eslintrc.js
+│   ├── .prettierrc
 │   ├── App.tsx
 │   ├── __tests__
 │   │   ├── GlobeComponent.test.tsx
 │   │   ├── Legend.test.tsx
 │   │   └── utils.test.ts
+│   ├── app.md
 │   ├── assets
 │   │   └── react.svg
 │   ├── components
 │   │   ├── Conflict
 │   │   │   ├── ConflictDetails.tsx
 │   │   │   └── ConflictList.tsx
-│   │   ├── Globe
-│   │   │   ├── GlobeComponent.tsx
-│   │   │   └── GlobeMarker.tsx
+│   │   ├── DropdownMenu
+│   │   │   ├── DropdownMenu.module.css
+│   │   │   └── DropdownMenu.tsx
+│   │   ├── GlobeViewport
+│   │   │   ├── GlobeFeatures
+│   │   │   │   ├── GlobeMarker
+│   │   │   │   │   ├── GlobeMarker.md
+│   │   │   │   │   ├── GlobeMarker.module.css
+│   │   │   │   │   └── GlobeMarker.tsx
+│   │   │   │   ├── GlobeObject
+│   │   │   │   │   ├── GlobeObject.md
+│   │   │   │   │   ├── GlobeObject.module.css
+│   │   │   │   │   └── GlobeObject.tsx
+│   │   │   │   └── GlobePolygon
+│   │   │   │       ├── GlobePloygon.md
+│   │   │   │       ├── GlobePolygon.module.css
+│   │   │   │       └── GlobePolygon.tsx
+│   │   │   ├── GlobeViewport.md
+│   │   │   ├── GlobeViewport.module.css
+│   │   │   └── GlobeViewport.tsx
 │   │   ├── HUD
-│   │   │   ├── Legend.tsx
-│   │   │   ├── Overlay.tsx
-│   │   │   ├── TimeScrubber.tsx
-│   │   │   └── Tooltip.tsx
-│   │   ├── Navigation
-│   │   │   ├── DropdownMenu.tsx
-│   │   │   ├── Sidebar.tsx
-│   │   │   └── TopBar.tsx
-│   │   └── Shared
-│   │       ├── Button.tsx
-│   │       ├── Card.tsx
-│   │       ├── Loader.tsx
-│   │       └── Modal.tsx
+│   │   │   ├── Bars
+│   │   │   │   ├── BottomBar
+│   │   │   │   │   ├── BottomBar.md
+│   │   │   │   │   ├── BottomBar.module.css
+│   │   │   │   │   └── BottomBar.tsx
+│   │   │   │   ├── LeftSideBar
+│   │   │   │   │   ├── LeftSideBar.md
+│   │   │   │   │   ├── LeftSideBar.module.css
+│   │   │   │   │   └── LeftSideBar.tsx
+│   │   │   │   ├── RightSideBar
+│   │   │   │   │   ├── RightSideBar.md
+│   │   │   │   │   ├── RightSideBar.module.css
+│   │   │   │   │   └── RightSideBar.tsx
+│   │   │   │   └── TopBar
+│   │   │   │       ├── TopBar.md
+│   │   │   │       ├── TopBar.module.css
+│   │   │   │       └── TopBar.tsx
+│   │   │   ├── Corners
+│   │   │   │   ├── BottomLeft
+│   │   │   │   │   ├── BottomLeft.md
+│   │   │   │   │   ├── BottomLeft.module.css
+│   │   │   │   │   └── BottomLeft.tsx
+│   │   │   │   ├── BottomRight
+│   │   │   │   │   ├── BottomRight.md
+│   │   │   │   │   ├── BottomRight.module.css
+│   │   │   │   │   └── BottomRight.tsx
+│   │   │   │   ├── TopLeft
+│   │   │   │   │   ├── TopLeft.md
+│   │   │   │   │   ├── TopLeft.module.css
+│   │   │   │   │   └── TopLeft.tsx
+│   │   │   │   └── TopRight
+│   │   │   │       ├── TopRight.md
+│   │   │   │       ├── TopRight.module.css
+│   │   │   │       └── TopRight.tsx
+│   │   │   ├── MiniMap
+│   │   │   │   ├── MiniMap.md
+│   │   │   │   ├── MiniMap.module.css
+│   │   │   │   └── MiniMap.tsx
+│   │   │   ├── Overlay
+│   │   │   │   ├── Overlay.module.css
+│   │   │   │   └── Overlay.tsx
+│   │   │   ├── TimeScrubber
+│   │   │   │   ├── TimeScrubber.module.css
+│   │   │   │   └── TimeScrubber.tsx
+│   │   │   └── ToolTip
+│   │   │       ├── Tooltip.module.css
+│   │   │       └── Tooltip.tsx
+│   │   ├── Shared
+│   │   │   ├── Button.tsx
+│   │   │   ├── Card.tsx
+│   │   │   ├── Loader.tsx
+│   │   │   └── Modal.tsx
+│   │   └── components.md
 │   ├── context
 │   │   ├── AuthContext.tsx
 │   │   ├── DashboardContext.tsx
@@ -53,29 +124,26 @@
 │   │   ├── data
 │   │   │   ├── useFetchConflicts.ts
 │   │   │   └── useFetchData.ts
+│   │   ├── hooks.md
 │   │   └── ui
 │   │       ├── useAuth.ts
 │   │       └── useGlobeInteractions.ts
-│   ├── index.css
+│   ├── interfaces
+│   │   └── interfaces.md
 │   ├── main.tsx
 │   ├── pages
-│   │   ├── Auth
-│   │   │   ├── Login.tsx
-│   │   │   └── Register.tsx
-│   │   ├── Dashboard
-│   │   │   ├── ConfictDashboard.tsx
-│   │   │   └── Dashboard.tsx
-│   │   ├── MarketWatchdog
-│   │   │   └── MarketWatchdog.tsx
-│   │   ├── Netrunner
-│   │   │   └── Netrunner.tsx
-│   │   ├── Settings
-│   │   │   ├── FilterSettings.tsx
-│   │   │   └── UserSettings.tsx
-│   │   └── TimelineEvents
-│   │       └── Timeline.tsx
+│   │   ├── MainPage
+│   │   │   ├── MainPage.module.css
+│   │   │   └── MainPage.tsx
+│   │   ├── SettingsPage
+│   │   │   ├── SettingsPage.module.css
+│   │   │   └── SettingsPage.tsx
+│   │   └── pages.md
 │   ├── routes
+│   │   ├── routes.md
 │   │   └── routes.tsx
+│   ├── screens
+│   │   └── screens.md
 │   ├── services
 │   │   ├── api
 │   │   │   ├── ApiService.ts
@@ -87,9 +155,13 @@
 │   │   │   ├── FetchWeatherDataFeeds.ts
 │   │   │   ├── UCDPApi.ts
 │   │   │   └── UpdateSettings.ts
-│   │   └── blockchain
-│   │       ├── BlockchainService.ts
-│   │       └── IntelTransactions.ts
+│   │   ├── blockchain
+│   │   │   ├── BlockchainService.ts
+│   │   │   └── IntelTransactions.ts
+│   │   └── services.md
+│   ├── setupTests.ts
+│   ├── store
+│   │   └── store.md
 │   ├── styles
 │   │   ├── globals.css
 │   │   └── theme.ts
@@ -98,18 +170,24 @@
 │   │   ├── TimeDataTypes.ts
 │   │   └── ucdpTypes.ts
 │   ├── utils
+│   │   ├── ProxyUtils.ts
 │   │   ├── constants.ts
 │   │   ├── fetchDataUtils.ts
+│   │   ├── fetchHistoricalData.ts
 │   │   ├── formatDate.ts
 │   │   ├── generateColor.ts
 │   │   ├── logging.ts
 │   │   ├── mockData.ts
 │   │   └── queryUtils.ts
-│   └── vite-env.d.ts
+│   ├── views
+│   │   └── views.md
+│   ├── vite-env.d.ts
+│   └── windows
+│       └── windows.md
 ├── tailwind.config.js
 ├── tsconfig.app.json
 ├── tsconfig.json
 ├── tsconfig.node.json
 └── vite.config.ts
 
-30 directories, 83 files
+51 directories, 140 files

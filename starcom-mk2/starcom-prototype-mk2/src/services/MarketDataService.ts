@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getProxiedUrl } from '../../utils/ProxyUtils';
+import { getProxiedUrl } from '../utils/ProxyUtils';
 
 interface MarketData {
   symbol: string;

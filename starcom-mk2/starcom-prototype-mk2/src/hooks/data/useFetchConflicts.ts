@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { fetchGEDData } from '../../services/api/UCDPApi';
-import { Conflict, UCDPResponse } from '../../types/ucdpTypes';
+import { fetchGEDData } from '../../services/UCDPDataService';
+import { Conflict, UCDPResponse } from '../../types/UCDPTypes';
 
 export const useFetchConflicts = (filters: Record<string, string | number>, page = 1) => {
   const [data, setData] = useState<UCDPResponse<Conflict> | null>(null); // Use UCDPResponse type

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getProxiedUrl } from '../../utils/ProxyUtils';
+import { getProxiedUrl } from '../utils/ProxyUtils';
 import xml2js from 'xml2js';
 
 const reliefWebApiUrl = import.meta.env.VITE_RELIEF_WEB_API_URL;
