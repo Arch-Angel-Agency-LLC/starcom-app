@@ -1,5 +1,7 @@
 🎮 Bottom-Center: RTS-Style Command Bar (For Actions & Deployment)
 
+🚨 Bottom Event Bar: Breaking News, Market Shocks, Cyber Threats, Trade Opportunities
+
 Similar to RTS unit command buttons, but for OSINT tasks.
 
 🔹 “Deploy Intel Search” (Equivalent to Building/Unit Production)

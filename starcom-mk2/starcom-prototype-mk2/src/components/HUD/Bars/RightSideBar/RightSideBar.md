@@ -1,5 +1,7 @@
 📌 Left-Side: The Tactical Intelligence Sidebar (Packed, But Functional)
 
+💰 Right-Side Market Panel: Real-time stock, crypto, economic updates, money movements
+
 Since RTS games don’t normally overload the left side, we must innovate a collapsible, multi-layered system that maximizes usability.
 
 🔳 Innovative “Stacked Sidebar” Approach

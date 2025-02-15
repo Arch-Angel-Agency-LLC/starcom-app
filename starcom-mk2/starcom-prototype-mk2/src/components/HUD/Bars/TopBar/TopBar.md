@@ -1,5 +1,7 @@
 📌 The Top of the Screen: Command & Strategic Overview
 
+🔍 Top Intelligence Bar: OSINT overlays, economic heatmaps, financial sentiment tracking
+
 Think of the top section as the “battlefield command bar” in an RTS—where you track global status, resources, and strategic actions.
 
 🔺 Left Side (Top Bar) — Resource & Intelligence Metrics

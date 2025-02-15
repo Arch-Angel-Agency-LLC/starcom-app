@@ -1,5 +1,7 @@
 📌 Left-Side: The Tactical Intelligence Sidebar (Packed, But Functional)
 
+Left Sidebar (Command Panel): Operations, AI analysis, investigations, strategic deployments
+
 Since RTS games don’t normally overload the left side, we must innovate a collapsible, multi-layered system that maximizes usability.
 
 🔳 Innovative “Stacked Sidebar” Approach
@@ -41,3 +43,5 @@ Primary Sidebar Sections (Quick-Access Intelligence Menu)
 
 📌 7. Customizable Widgets (User Preference Area)
 	•	Users can add custom data feeds, preferred tools, or shortcuts.
+
+     Left Sidebar (Command Panel)	Operations, AI analysis, investigations, strategic deployments
