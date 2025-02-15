@@ -1,11 +1,12 @@
 import React from 'react';
 import { TimeDataProvider } from './context/TimeDataProvider';
-import GlobeComponent from './components/Globe/GlobeComponent';
+import MainPage from './pages/MainPage/MainPage';
+import './styles/globals.css';
 
 const App: React.FC = () => {
   return (
     <TimeDataProvider>
-      <GlobeComponent />
+      <MainPage />
     </TimeDataProvider>
   );
 };
