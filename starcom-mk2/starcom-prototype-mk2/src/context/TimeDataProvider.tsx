@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback, ReactNode } from 'react';
+import { fetchHistoricalData } from '../utils/fetchHistoricalData'; // Moved `fetchHistoricalData` to a separate file
 
-// Define types
 interface TimeDataContextProps {
   currentTime: number;
   isLive: boolean;
@@ -15,7 +15,6 @@ interface CacheEntry {
   data: Array<{ lat: number; lng: number; size: number; color: string; timestamp: number }>;
 }
 
-// Create Context
 const TimeDataContext = createContext<TimeDataContextProps | undefined>(undefined);
 
 export const TimeDataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
@@ -23,38 +22,54 @@ export const TimeDataProvider: React.FC<{ children: ReactNode }> = ({ children }
   const [isLive, setIsLive] = useState<boolean>(true);
   const [dataCache, setDataCache] = useState<Map<number, CacheEntry>>(new Map());
   const [error, setError] = useState<string | null>(null);
+  const lastUpdateTimeRef = useRef<number>(0);
 
   const toggleLive = () => {
     setIsLive(!isLive);
-    if (!isLive) {
-      setCurrentTime(Date.now());
-    }
+    if (!isLive) setCurrentTime(Date.now());
   };
 
-  const fetchDataForTime = async (time: number): Promise<void> => {
-    if (dataCache.has(time)) return; // Use cached data if available
+  const fetchDataForTime = useCallback(
+    async (time: number): Promise<void> => {
+      if (dataCache.has(time)) return;
 
-    try {
-      setError(null);
-      const data = await fetchHistoricalData(time);
-      setDataCache((prev) => new Map(prev).set(time, { timestamp: Date.now(), data }));
-    } catch (err) {
-      console.error('Error fetching data:', err);
-      setError('Failed to fetch data for the selected time.');
-    }
-  };
+      try {
+        setError(null);
+        const data = await fetchHistoricalData(time);
+        setDataCache((prev) => {
+          const newCache = new Map(prev);
+          newCache.set(time, { timestamp: Date.now(), data });
+
+          // Evict older entries (LRU logic)
+          if (newCache.size > 100) {
+            const oldestKey = Array.from(newCache.keys())[0];
+            newCache.delete(oldestKey);
+          }
+
+          return newCache;
+        });
+      } catch (err) {
+        console.error('Error fetching data:', err);
+        setError('Failed to fetch data for the selected time.');
+      }
+    },
+    [dataCache]
+  );
 
   useEffect(() => {
     if (!isLive) return;
 
     const interval = setInterval(() => {
       const now = Date.now();
-      setCurrentTime(now);
-      fetchDataForTime(now);
-    }, 5000);
+      if (now - lastUpdateTimeRef.current >= 5000) {
+        setCurrentTime(now);
+        fetchDataForTime(now);
+        lastUpdateTimeRef.current = now;
+      }
+    }, 1000);
 
     return () => clearInterval(interval);
-  }, [isLive]);
+  }, [isLive, fetchDataForTime]);
 
   return (
     <TimeDataContext.Provider
@@ -74,16 +89,6 @@ export const TimeDataProvider: React.FC<{ children: ReactNode }> = ({ children }
 
 export const useTimeData = () => {
   const context = useContext(TimeDataContext);
-  if (!context) {
-    throw new Error('useTimeData must be used within a TimeDataProvider');
-  }
+  if (!context) throw new Error('useTimeData must be used within a TimeDataProvider');
   return context;
 };
-
-// Example API call for historical data
-async function fetchHistoricalData(time: number): Promise<CacheEntry['data']> {
-  // Replace this with your actual API call
-  return Promise.resolve([
-    { lat: 40.7128, lng: -74.006, size: 1, color: 'red', timestamp: time },
-  ]);
-}

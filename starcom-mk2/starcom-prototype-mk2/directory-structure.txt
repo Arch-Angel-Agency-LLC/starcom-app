@@ -1,4 +1,5 @@
 .
+├──  jest.config.ts
 ├── README.md
 ├── directory-structure.txt
 ├── eslint.config.js
@@ -12,9 +13,15 @@
 │   ├── App.css
 │   ├── App.tsx
 │   ├── __tests__
+│   │   ├── GlobeComponent.test.tsx
+│   │   ├── Legend.test.tsx
+│   │   └── utils.test.ts
 │   ├── assets
 │   │   └── react.svg
 │   ├── components
+│   │   ├── Conflict
+│   │   │   ├── ConflictDetails.tsx
+│   │   │   └── ConflictList.tsx
 │   │   ├── Globe
 │   │   │   ├── GlobeComponent.tsx
 │   │   │   └── GlobeMarker.tsx
@@ -27,15 +34,11 @@
 │   │   │   ├── DropdownMenu.tsx
 │   │   │   ├── Sidebar.tsx
 │   │   │   └── TopBar.tsx
-│   │   ├── Shared
-│   │   │   ├── Button.tsx
-│   │   │   ├── Card.tsx
-│   │   │   ├── Loader.tsx
-│   │   │   └── Modal.tsx
-│   │   └── UCDP
-│   │       ├── ConfictDashboard.tsx
-│   │       ├── ConflictDetails.tsx
-│   │       └── ConflictList.tsx
+│   │   └── Shared
+│   │       ├── Button.tsx
+│   │       ├── Card.tsx
+│   │       ├── Loader.tsx
+│   │       └── Modal.tsx
 │   ├── context
 │   │   ├── AuthContext.tsx
 │   │   ├── DashboardContext.tsx
@@ -60,6 +63,7 @@
 │   │   │   ├── Login.tsx
 │   │   │   └── Register.tsx
 │   │   ├── Dashboard
+│   │   │   ├── ConfictDashboard.tsx
 │   │   │   └── Dashboard.tsx
 │   │   ├── MarketWatchdog
 │   │   │   └── MarketWatchdog.tsx
@@ -68,10 +72,8 @@
 │   │   ├── Settings
 │   │   │   ├── FilterSettings.tsx
 │   │   │   └── UserSettings.tsx
-│   │   ├── TimelineEvents
-│   │   │   └── Timeline.tsx
-│   │   └── UCDP
-│   │       └── ConflictDashboard.tsx
+│   │   └── TimelineEvents
+│   │       └── Timeline.tsx
 │   ├── routes
 │   │   └── routes.tsx
 │   ├── services
@@ -110,4 +112,4 @@
 ├── tsconfig.node.json
 └── vite.config.ts
 
-31 directories, 80 files
+30 directories, 83 files

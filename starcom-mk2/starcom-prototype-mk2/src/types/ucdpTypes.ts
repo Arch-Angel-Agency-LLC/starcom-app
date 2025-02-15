@@ -28,3 +28,11 @@ export interface UCDPEvent {
     region: string; // Region where conflict occurred
     type_of_violence: number; // Type of violence (1, 2, or 3)
   }
+
+  export interface UCDPResponse<T> {
+    Result: T[];
+    TotalCount: number;
+    TotalPages: number;
+    PreviousPageUrl: string | null;
+    NextPageUrl: string | null;
+  }

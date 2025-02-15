@@ -1,59 +1,61 @@
-import React, { useEffect } from 'react';
+import React, { useState } from 'react';
 import Globe from 'react-globe.gl';
-import Legend from '../HUD/Legend';
-import Overlay from '../HUD/Overlay';
-import TimeScrubber from '../HUD/TimeScrubber';
+import Legend from '../HUD/Legend/Legend';
+import Overlay from '../HUD/Overlay/Overlay';
+import TimeScrubber from '../HUD/TimeScrubber/TimeScrubber';
 import { useTimeData } from '../../context/TimeDataProvider';
+// import { fetchAllConflictZones } from '../../services/api/FetchConflictZoneFeeds';
+// import { fetchWeatherData } from '../../services/api/FetchWeatherDataFeeds';
 
 const GlobeComponent: React.FC = () => {
-  const { currentTime, isLive, setCurrentTime, toggleLive, fetchDataForTime } = useTimeData();
-  const [globeData, setGlobeData] = React.useState<any[]>([]);
+  const { currentTime, isLive, setCurrentTime, toggleLive } = useTimeData();
+  const [globeData] = useState<any[]>([]);
+  const [showConflicts, setShowConflicts] = useState(true);
+  const [showWeather, setShowWeather] = useState(true);
 
-  useEffect(() => {
-    const updateData = async () => {
-      await fetchDataForTime(currentTime);
-      const data = await fetchGlobeDataForTime(currentTime);
-      setGlobeData(data);
-    };
+  // useEffect(() => {
+  //   const updateData = async () => {
+  //     await fetchDataForTime(currentTime);
 
-    updateData();
-  }, [currentTime]);
+  //     const conflictData = showConflicts ? await fetchAllConflictZones() : [];
+  //     const weatherData = showWeather
+  //       ? [
+  //           await fetchWeatherData(40.7128, -74.006), // NYC
+  //           await fetchWeatherData(34.0522, -118.2437), // LA
+  //         ].map((weather) => ({
+  //           lat: weather.lat,
+  //           lng: weather.lng,
+  //           size: 1,
+  //           color: 'blue',
+  //           info: `Temp: ${weather.temperature}°C`,
+  //         }))
+  //       : [];
+
+  //     setGlobeData([...conflictData, ...weatherData]);
+  //   };
+
+  //   updateData();
+  // }, [currentTime, showConflicts, showWeather]);
 
   return (
     <div style={{ height: '100vh', width: '100%', position: 'relative' }}>
+      {/* Legend for Layer Toggles */}
       <Legend
-        title="Data Legend"
+        title="Data Layers"
         items={[
-          { label: 'Conflict Zone', color: 'red', size: 2 },
-          { label: 'Weather Marker', color: 'blue', size: 1 },
-          { label: 'High Intensity', color: 'orange' },
-          { label: 'Medium Intensity', color: 'yellow' },
-          { label: 'Low Intensity', color: 'green' },
+          { label: 'Conflict Zones', color: 'red', toggle: showConflicts, onToggle: setShowConflicts },
+          { label: 'Weather Markers', color: 'blue', toggle: showWeather, onToggle: setShowWeather },
         ]}
         maxSize={2}
         collapsible={true}
       />
+
+      {/* Overlay and Time Scrubber */}
       <Overlay
         stats={[
-          { label: 'Active Conflict Zones', value: 42 },
-          { label: 'Live Data Points', value: 132 },
-          { label: 'Users Online', value: 25 },
+          { label: 'Active Conflict Zones', value: showConflicts ? globeData.filter((d) => d.color === 'red').length : 0 },
+          { label: 'Weather Markers', value: showWeather ? globeData.filter((d) => d.color === 'blue').length : 0 },
         ]}
-        notifications={[
-          { id: '1', message: 'New conflict detected in Middle East', type: 'info', priority: 1, timestamp: '2024-12-25 14:30' },
-          { id: '2', message: 'Weather alert in NYC', type: 'warning', priority: 2, timestamp: '2024-12-25 14:35' },
-          { id: '3', message: 'Data fetch error: Check logs', type: 'error', priority: 1, timestamp: '2024-12-25 14:40' },
-        ]}
-        onNotificationClick={(id) => console.log(`Notification ${id} clicked`)}
-        onClearNotifications={() => console.log('Notifications cleared')}
-        onStatsUpdate={async () => {
-          return [
-            { label: 'Active Conflict Zones', value: 45 },
-            { label: 'Live Data Points', value: 140 },
-            { label: 'Users Online', value: 30 },
-          ];
-        }}
-        theme="dark"
       />
       <TimeScrubber
         currentTime={currentTime}
@@ -61,6 +63,8 @@ const GlobeComponent: React.FC = () => {
         onTimeChange={(value: number) => setCurrentTime(value)}
         onToggleLive={toggleLive}
       />
+
+      {/* Globe */}
       <Globe
         pointsData={globeData}
         pointAltitude="size"
@@ -72,8 +76,3 @@ const GlobeComponent: React.FC = () => {
 };
 
 export default GlobeComponent;
-
-async function fetchGlobeDataForTime(time: number): Promise<any[]> {
-  console.log(`Fetching data for time: ${time}`);
-  return [{ lat: 10, lng: 20, size: 1, color: 'blue' }];
-}
