@@ -19,7 +19,8 @@
 ├── package.json
 ├── postcss.config.cjs
 ├── public
-│   └── vite.svg
+│   ├── starcom.ico
+│   └── starcom.png
 ├── src
 │   ├── .DS_Store
 │   ├── .eslintrc.js
@@ -31,7 +32,12 @@
 │   │   └── utils.test.ts
 │   ├── app.md
 │   ├── assets
-│   │   └── react.svg
+│   │   ├── fonts
+│   │   │   └── Aldrich-Regular.ttf
+│   │   ├── images
+│   │   │   ├── backgrounds
+│   │   │   └── icons
+│   │   └── sounds
 │   ├── components
 │   │   ├── Conflict
 │   │   │   ├── ConflictDetails.tsx
@@ -97,7 +103,8 @@
 │   │   │   │   └── TopBar
 │   │   │   │       ├── TopBar.md
 │   │   │   │       ├── TopBar.module.css
-│   │   │   │       └── TopBar.tsx
+│   │   │   │       ├── TopBar.tsx
+│   │   │   │       └── useTopBarData.ts
 │   │   │   ├── Corners
 │   │   │   │   ├── BottomLeft
 │   │   │   │   │   ├── BottomLeft.md
@@ -158,6 +165,7 @@
 │   │       ├── useAuth.ts
 │   │       └── useGlobeInteractions.ts
 │   ├── interfaces
+│   │   ├── MarketData.ts
 │   │   └── interfaces.md
 │   ├── layouts
 │   │   ├── HUDLayout
@@ -225,4 +233,4 @@
 ├── tsconfig.node.json
 └── vite.config.ts
 
-61 directories, 165 files
+66 directories, 168 files
