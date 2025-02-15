@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getProxiedUrl } from '../../utils/ProxyUtils';
+import { getProxiedUrl } from '../utils/ProxyUtils';
 
 const BASE_URL = 'https://ucdpapi.pcr.uu.se/api';
 const DEFAULT_VERSION = '24.1';
