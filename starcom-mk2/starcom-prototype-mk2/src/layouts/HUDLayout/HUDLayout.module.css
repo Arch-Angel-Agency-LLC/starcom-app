@@ -14,7 +14,7 @@
 .topLeftCorner, .topBar, .topRightCorner,
 .leftSideBar, .rightSideBar,
 .bottomLeftCorner, .bottomBar, .bottomRightCorner {
-  background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  background: rgba(0, 0, 0, 0.0); /* transparent background */
   pointer-events: auto; /* Enable clicks on HUD components */
 }
 
