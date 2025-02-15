@@ -39,23 +39,47 @@
 │   │   ├── DropdownMenu
 │   │   │   ├── DropdownMenu.module.css
 │   │   │   └── DropdownMenu.tsx
-│   │   ├── GlobeViewport
-│   │   │   ├── GlobeFeatures
-│   │   │   │   ├── GlobeMarker
-│   │   │   │   │   ├── GlobeMarker.md
-│   │   │   │   │   ├── GlobeMarker.module.css
-│   │   │   │   │   └── GlobeMarker.tsx
-│   │   │   │   ├── GlobeObject
-│   │   │   │   │   ├── GlobeObject.md
-│   │   │   │   │   ├── GlobeObject.module.css
-│   │   │   │   │   └── GlobeObject.tsx
-│   │   │   │   └── GlobePolygon
-│   │   │   │       ├── GlobePolygon.md
-│   │   │   │       ├── GlobePolygon.module.css
-│   │   │   │       └── GlobePolygon.tsx
-│   │   │   ├── GlobeViewport.md
-│   │   │   ├── GlobeViewport.module.css
-│   │   │   └── GlobeViewport.tsx
+│   │   ├── Globe
+│   │   │   ├── Features
+│   │   │   │   ├── GlobeGeoEvent
+│   │   │   │   │   ├── GlobeGeoEvent.md
+│   │   │   │   │   └── GlobeGeoEvent.tsx
+│   │   │   │   ├── GlobeGeoHeatmap
+│   │   │   │   │   ├── GlobeGeoHeatmap.md
+│   │   │   │   │   └── GlobeGeoHeatmap.tsx
+│   │   │   │   ├── GlobeGeoMarker
+│   │   │   │   │   ├── GlobeGeoMarker.md
+│   │   │   │   │   └── GlobeGeoMarker.tsx
+│   │   │   │   ├── GlobeGeoOverlay
+│   │   │   │   │   ├── GlobeGeoOverlay.md
+│   │   │   │   │   └── GlobeGeoOverlay.tsx
+│   │   │   │   ├── GlobeGeoWeather
+│   │   │   │   │   ├── GlobeGeoWeather.md
+│   │   │   │   │   └── GlobeGeoWeather.tsx
+│   │   │   │   ├── GlobeIntelNode
+│   │   │   │   │   ├── GlobeIntelNode.md
+│   │   │   │   │   ├── GlobeIntelNode.module.css
+│   │   │   │   │   └── GlobeIntelNode.tsx
+│   │   │   │   ├── GlobeSpaceAsset
+│   │   │   │   │   ├── GlobeSpaceAsset.md
+│   │   │   │   │   └── GlobeSpaceAsset.tsx
+│   │   │   │   ├── GlobeSpaceEntity
+│   │   │   │   │   ├── GlobeSpaceEntity.md
+│   │   │   │   │   └── GlobeSpaceEntity.tsx
+│   │   │   │   └── GlobeSpacecraft
+│   │   │   │       ├── GlobeSpacecraft.md
+│   │   │   │       └── GlobeSpacecraft.tsx
+│   │   │   ├── Globe.md
+│   │   │   ├── Globe.tsx
+│   │   │   ├── Handlers
+│   │   │   │   ├── GlobeDataProvider.tsx
+│   │   │   │   ├── GlobeEventHandler.tsx
+│   │   │   │   ├── GlobeHandlers.md
+│   │   │   │   └── GlobeLayerManager.tsx
+│   │   │   └── Hooks
+│   │   │       ├── useGlobeData.ts
+│   │   │       ├── useGlobeInteraction.ts
+│   │   │       └── useGlobeLayerControl.ts
 │   │   ├── HUD
 │   │   │   ├── Bars
 │   │   │   │   ├── BottomBar
@@ -136,7 +160,9 @@
 │   ├── interfaces
 │   │   └── interfaces.md
 │   ├── layouts
-│   │   ├── DashboardLayout.tsx
+│   │   ├── HUDLayout
+│   │   │   ├── HUDLayout.module.css
+│   │   │   └── HUDLayout.tsx
 │   │   ├── SettingsLayout.tsx
 │   │   ├── StandardLayout.tsx
 │   │   └── layouts.md
@@ -199,4 +225,4 @@
 ├── tsconfig.node.json
 └── vite.config.ts
 
-52 directories, 148 files
+61 directories, 165 files

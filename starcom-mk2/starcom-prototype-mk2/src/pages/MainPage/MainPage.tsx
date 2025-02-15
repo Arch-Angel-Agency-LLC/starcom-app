@@ -1,10 +1,13 @@
 import React from 'react';
-import GlobeViewport from '../../components/GlobeViewport/GlobeViewport';
+import GlobeView from '../../components/Globe/Globe';
+import HUDLayout from '../../layouts/HUDLayout/HUDLayout';
+import styles from './MainPage.module.css';
 
 const MainPage: React.FC = () => {
   return (
-    <div>
-      <GlobeViewport />
+    <div className={styles.mainPage}>
+      <GlobeView />
+      <HUDLayout />
     </div>
   );
 };

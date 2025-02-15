@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Globe from 'react-globe.gl';
 
-const GlobeViewport: React.FC = () => {
+const GlobeView: React.FC = () => {
   const [globeData] = useState<any[]>([]);
   const globeRef = useRef<any>(null);
 
@@ -35,4 +35,4 @@ const GlobeViewport: React.FC = () => {
   );
 };
 
-export default GlobeViewport;
+export default GlobeView;

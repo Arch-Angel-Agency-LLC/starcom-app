@@ -1,6 +1,6 @@
 import '../setupTests';
 import { render, screen, waitFor } from '@testing-library/react';
-import GlobeComponent from '../components/GlobeViewport/GlobeViewport';
+import GlobeComponent from '../components/Globe/Globe';
 import * as api from '../services/api/FetchConflictZoneFeeds';
 
 jest.mock('../services/api/FetchConflictZoneFeeds', () => ({

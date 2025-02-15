@@ -1,22 +1,12 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import styles from './LeftSideBar.module.css';
 
-const Sidebar: React.FC = () => {
+const LeftSideBar: React.FC = () => {
   return (
-    <nav className="sidebar">
-      <ul>
-        <li>
-          <Link to="/">Dashboard</Link>
-        </li>
-        <li>
-          <Link to="/settings">User Settings</Link>
-        </li>
-        <li>
-          <Link to="/filters">Filter Settings</Link>
-        </li>
-      </ul>
-    </nav>
+    <div className={styles.leftSideBar}>
+      {/* Add your LeftSideBar content here */}
+    </div>
   );
 };
 
-export default Sidebar;
+export default LeftSideBar;
