@@ -50,7 +50,7 @@
 │   │   │   │   │   ├── GlobeObject.module.css
 │   │   │   │   │   └── GlobeObject.tsx
 │   │   │   │   └── GlobePolygon
-│   │   │   │       ├── GlobePloygon.md
+│   │   │   │       ├── GlobePolygon.md
 │   │   │   │       ├── GlobePolygon.module.css
 │   │   │   │       └── GlobePolygon.tsx
 │   │   │   ├── GlobeViewport.md
@@ -96,12 +96,15 @@
 │   │   │   │   ├── MiniMap.module.css
 │   │   │   │   └── MiniMap.tsx
 │   │   │   ├── Overlay
+│   │   │   │   ├── Overlay.md
 │   │   │   │   ├── Overlay.module.css
 │   │   │   │   └── Overlay.tsx
 │   │   │   ├── TimeScrubber
+│   │   │   │   ├── TimeScrubber.md
 │   │   │   │   ├── TimeScrubber.module.css
 │   │   │   │   └── TimeScrubber.tsx
 │   │   │   └── ToolTip
+│   │   │       ├── Tooltip.md
 │   │   │       ├── Tooltip.module.css
 │   │   │       └── Tooltip.tsx
 │   │   ├── Shared
@@ -110,6 +113,8 @@
 │   │   │   ├── Loader.tsx
 │   │   │   └── Modal.tsx
 │   │   └── components.md
+│   ├── config
+│   │   └── config.md
 │   ├── context
 │   │   ├── AuthContext.tsx
 │   │   ├── DashboardContext.tsx
@@ -130,6 +135,13 @@
 │   │       └── useGlobeInteractions.ts
 │   ├── interfaces
 │   │   └── interfaces.md
+│   ├── layouts
+│   │   ├── DashboardLayout.tsx
+│   │   ├── SettingsLayout.tsx
+│   │   ├── StandardLayout.tsx
+│   │   └── layouts.md
+│   ├── lib
+│   │   └── lib.md
 │   ├── main.tsx
 │   ├── pages
 │   │   ├── MainPage
@@ -145,19 +157,15 @@
 │   ├── screens
 │   │   └── screens.md
 │   ├── services
-│   │   ├── api
-│   │   │   ├── ApiService.ts
-│   │   │   ├── FetchConflictZoneFeeds.ts
-│   │   │   ├── FetchFeeds.ts
-│   │   │   ├── FetchFilters.ts
-│   │   │   ├── FetchMarketDataFeeds.ts
-│   │   │   ├── FetchUserData.ts
-│   │   │   ├── FetchWeatherDataFeeds.ts
-│   │   │   ├── UCDPApi.ts
-│   │   │   └── UpdateSettings.ts
-│   │   ├── blockchain
-│   │   │   ├── BlockchainService.ts
-│   │   │   └── IntelTransactions.ts
+│   │   ├── ApiService.ts
+│   │   ├── BlockchainService.ts
+│   │   ├── ConflictZoneService.ts
+│   │   ├── FeedsService.ts
+│   │   ├── FiltersService.ts
+│   │   ├── MarketDataService.ts
+│   │   ├── UCDPDataService.ts
+│   │   ├── UserDataService.ts
+│   │   ├── WeatherDataService.ts
 │   │   └── services.md
 │   ├── setupTests.ts
 │   ├── store
@@ -168,7 +176,7 @@
 │   ├── tailwind.config.js
 │   ├── types
 │   │   ├── TimeDataTypes.ts
-│   │   └── ucdpTypes.ts
+│   │   └── UCDPTypes.ts
 │   ├── utils
 │   │   ├── ProxyUtils.ts
 │   │   ├── constants.ts
@@ -178,7 +186,8 @@
 │   │   ├── generateColor.ts
 │   │   ├── logging.ts
 │   │   ├── mockData.ts
-│   │   └── queryUtils.ts
+│   │   ├── queryUtils.ts
+│   │   └── utils.md
 │   ├── views
 │   │   └── views.md
 │   ├── vite-env.d.ts
@@ -190,4 +199,4 @@
 ├── tsconfig.node.json
 └── vite.config.ts
 
-51 directories, 140 files
+52 directories, 148 files
