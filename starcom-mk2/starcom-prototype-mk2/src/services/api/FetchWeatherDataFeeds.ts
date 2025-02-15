@@ -1,29 +1,29 @@
 import axios from 'axios';
+import { getProxiedUrl } from '../../utils/ProxyUtils';
 
-// Define the structure of the weather data response
 interface WeatherData {
   location: string;
   temperature: number;
   description: string;
   windSpeed: number;
   humidity: number;
-  [key: string]: any; // Add other optional fields as needed
 }
 
-/**
- * Fetch weather data for a given latitude and longitude using OpenWeatherMap API.
- * @param lat - Latitude of the location.
- * @param lng - Longitude of the location.
- * @returns A promise that resolves to structured weather data.
- */
+interface WeatherForecastData {
+  dateTime: string;
+  temperature: number;
+  description: string;
+  windSpeed: number;
+  humidity: number;
+}
+
 export const fetchWeatherData = async (lat: number, lng: number): Promise<WeatherData> => {
   try {
-    const apiKey = import.meta.env.VITE_OPENWEATHERMAP_API_KEY; // Use environment variable for the API key
+    const apiKey = import.meta.env.VITE_OPENWEATHERMAP_API_KEY;
     const response = await axios.get(
-      `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&units=metric&appid=${apiKey}`
+      getProxiedUrl(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&units=metric&appid=${apiKey}`)
     );
 
-    // Extract and structure the data
     const data = response.data;
     return {
       location: data.name,
@@ -33,26 +33,23 @@ export const fetchWeatherData = async (lat: number, lng: number): Promise<Weathe
       humidity: data.main.humidity,
     };
   } catch (error) {
-    console.error('Error fetching weather data:', error);
+    if(axios.isAxiosError(error)) {
+      console.error('Error fetching weather data:', error.response ? error.response.data : error.message);
+    } else{
+      console.error('Error fetching weather data:', error);
+    }
     throw new Error('Failed to fetch weather data. Please try again later.');
   }
 };
 
-/**
- * Fetch 5-day forecast data for a given latitude and longitude using OpenWeatherMap API.
- * @param lat - Latitude of the location.
- * @param lng - Longitude of the location.
- * @returns A promise that resolves to forecast data.
- */
-export const fetchWeatherForecast = async (lat: number, lng: number): Promise<any[]> => {
+export const fetchWeatherForecast = async (lat: number, lng: number): Promise<WeatherForecastData[]> => {
   try {
-    const apiKey = import.meta.env.VITE_OPENWEATHERMAP_API_KEY; // Use environment variable for the API key
+    const apiKey = import.meta.env.VITE_OPENWEATHERMAP_API_KEY;
     const response = await axios.get(
-      `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lng}&units=metric&appid=${apiKey}`
+      getProxiedUrl(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lng}&units=metric&appid=${apiKey}`)
     );
 
-    // Extract and structure forecast data
-    return response.data.list.map((entry: any) => ({
+    return response.data.list.map((entry: WeatherForecastEntry) => ({
       dateTime: entry.dt_txt,
       temperature: entry.main.temp,
       description: entry.weather[0].description,
@@ -60,7 +57,21 @@ export const fetchWeatherForecast = async (lat: number, lng: number): Promise<an
       humidity: entry.main.humidity,
     }));
   } catch (error) {
-    console.error('Error fetching weather forecast:', error);
+    if(axios.isAxiosError(error)) {
+      console.error('Error fetching weather forecast:', error.response ? error.response.data : error.message);
+    } else{
+      console.error('Error fetching weather forecast:', error);
+    }
     throw new Error('Failed to fetch weather forecast. Please try again later.');
   }
 };
+
+interface WeatherForecastEntry {
+  dt_txt: string;
+  main: {
+    temp: number;
+    humidity: number;
+  };
+  weather: Array<{ description: string }>;
+  wind: { speed: number };
+}
