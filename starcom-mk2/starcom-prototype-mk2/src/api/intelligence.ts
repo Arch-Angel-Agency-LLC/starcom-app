@@ -1,0 +1,1 @@
+// Queries intelligence data from smart contracts

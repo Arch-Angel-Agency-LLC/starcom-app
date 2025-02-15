@@ -1,3 +1,10 @@
+// src/services/MarketDataService.ts
+export async function fetchMarketData() {
+  const res = await fetch("/api/market");
+  return await res.json();
+}
+
+
 import axios from 'axios';
 import { getProxiedUrl } from '../utils/ProxyUtils';
 
