@@ -1,0 +1,56 @@
+.hudLayout {
+  display: flex;
+  flex-wrap: wrap;
+  height: 100vh;
+  pointer-events: none; /* Allow clicks to pass through */
+}
+
+.hudLayout > div {
+  flex: 1 1 33%;
+  box-sizing: border-box;
+  pointer-events: none; /* Allow clicks to pass through */
+}
+
+.topLeftCorner, .topBar, .topRightCorner,
+.leftSideBar, .rightSideBar,
+.bottomLeftCorner, .bottomBar, .bottomRightCorner {
+  background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  pointer-events: auto; /* Enable clicks on HUD components */
+}
+
+.topLeftCorner {
+  order: 1;
+}
+
+.topBar {
+  order: 2;
+}
+
+.topRightCorner {
+  order: 3;
+}
+
+.leftSideBar {
+  order: 4;
+}
+
+.center {
+  order: 5;
+  background: transparent; /* Fully transparent background */
+}
+
+.rightSideBar {
+  order: 6;
+}
+
+.bottomLeftCorner {
+  order: 7;
+}
+
+.bottomBar {
+  order: 8;
+}
+
+.bottomRightCorner {
+  order: 9;
+}
