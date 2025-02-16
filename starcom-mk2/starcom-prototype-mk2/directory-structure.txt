@@ -155,9 +155,10 @@
 │   │   │   ├── useFetchConflicts.ts
 │   │   │   └── useFetchData.ts
 │   │   ├── hooks.md
-│   │   └── ui
-│   │       ├── useAuth.ts
-│   │       └── useGlobeInteractions.ts
+│   │   ├── ui
+│   │   │   ├── useAuth.ts
+│   │   │   └── useGlobeInteractions.ts
+│   │   └── useWASM.ts
 │   ├── interfaces
 │   │   ├── MarketData.ts
 │   │   └── interfaces.md
@@ -1562,4 +1563,4 @@
                 ├── wasm_mini_server.d
                 └── wasm_mini_server.wasm
 
-265 directories, 1298 files
+265 directories, 1299 files

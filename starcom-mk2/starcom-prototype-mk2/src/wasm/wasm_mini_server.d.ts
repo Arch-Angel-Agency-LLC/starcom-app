@@ -32,6 +32,8 @@ export function cleanup_cache(): Promise<void>;
  */
 export function log(message: string): void;
 
+export function fetch_with_cors(url: string): Promise<any>;
+
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
 
 export interface InitOutput {

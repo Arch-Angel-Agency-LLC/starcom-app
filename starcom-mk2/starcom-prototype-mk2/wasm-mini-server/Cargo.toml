@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [lib]
-crate-type = ["cdylib"]
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 wasm-bindgen = { version = "0.2", features = ["serde"] } # ✅ Enable serde
@@ -25,3 +25,15 @@ web-sys = { version = "0.3", features = [
     "Headers",
     "Storage"  # ✅ Add this
 ]}
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3"  # ✅ Ensure this is included
+
+[profile.release]
+lto = true
+opt-level = "z"
+
+[[test]]
+name = "wasm_mini_server_tests"
+path = "tests/tests.rs"
+harness = false  # Required for `wasm-bindgen-test`

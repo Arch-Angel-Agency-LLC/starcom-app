@@ -1,38 +1,32 @@
-//! ✅ `api.rs` - Handles API requests
+//! ✅ `api.rs` - Handles API requests via CORS-enabled fetch.
 
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::JsFuture;
 use web_sys::{Request, RequestInit, RequestMode, Response};
-use crate::utils::log;
 
-/// ✅ Fetch data from an API endpoint.
+/// ✅ Fetch data with a CORS-enabled request.
 ///
-/// - Uses CORS mode to bypass cross-origin restrictions.
-/// - Converts the response into a JSON object.
+/// This function acts as a **CORS proxy** inside the WASM mini-server, allowing
+/// **cross-origin API requests** without relying on external proxies.
 ///
 /// Parameters:
-/// - `url: String` → The API URL.
+/// - `url: &str` → API endpoint to fetch data from.
 ///
 /// Returns:
-/// - `Result<JsValue, JsValue>` → The JSON response or an error.
-pub async fn fetch_data(url: String) -> Result<JsValue, JsValue> {
-    log(&format!("🌍 Making API request to: {}", url));
-
-    // ✅ Configure request options
+/// - `Result<JsValue, JsValue>` → The fetched JSON data or an error message.
+#[wasm_bindgen]
+pub async fn fetch_data(url: &str) -> Result<JsValue, JsValue> {
     let opts = RequestInit::new();
-    opts.set_method("GET");
-    opts.set_mode(RequestMode::Cors); // ✅ Bypass CORS
+    opts.set_method("GET"); // ✅ Updated deprecated `.method()`
+    opts.set_mode(RequestMode::Cors); // ✅ Updated deprecated `.mode()`
 
-    let request = Request::new_with_str_and_init(&url, &opts)?;
-    let window = web_sys::window().expect("No global `window` exists");
+    let request = Request::new_with_str_and_init(url, &opts)?;
+    request.headers().set("Access-Control-Allow-Origin", "*")?;
 
-    // ✅ Execute fetch request
-    let response = JsFuture::from(window.fetch_with_request(&request)).await?;
-    let response: Response = response.dyn_into().unwrap();
+    let window = web_sys::window().unwrap();
+    let resp_value = JsFuture::from(window.fetch_with_request(&request)).await?;
 
-    // ✅ Convert response to JSON
-    let json = JsFuture::from(response.json()?).await?;
-    log(&format!("✅ API request successful: {}", url));
-
+    let resp: Response = resp_value.dyn_into().unwrap();
+    let json = JsFuture::from(resp.json()?).await?;
     Ok(json)
 }
