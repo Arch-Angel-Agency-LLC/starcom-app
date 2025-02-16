@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react-swc';
 export default defineConfig({
   plugins: [react()],
   optimizeDeps: {
-    include: ["src/wasm/wasm_mini_server"],
+    exclude: ['wasm_mini_server'], // Prevents Vite from trying to pre-bundle WASM
   },
   build: {
     sourcemap: true,
