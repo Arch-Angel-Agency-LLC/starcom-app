@@ -1,21 +1,17 @@
 import React, { useEffect } from "react";
 import { BrowserRouter } from "react-router-dom";
 import AppRoutes from "./routes/routes";
-import { WASMProvider } from "./context/WASMContext";
-import { useWASM } from "./hooks/useWASM";
+import { WASMProvider, useWASM } from "./context/WASMContext";
 import "./styles/globals.css";
 
 const AppContent: React.FC = () => {
   const { fetchFromMiniServer, wasmReady } = useWASM();
 
   useEffect(() => {
-    console.log("WASM Ready:", wasmReady);
     let isMounted = true;
 
     const fetchData = async () => {
-      console.log("fetchData called");
       try {
-        console.log("trying to fetch data");
         const data = await fetchFromMiniServer("https://jsonplaceholder.typicode.com/todos/1");
         if (isMounted) {
           console.log("Fetched data:", data);
