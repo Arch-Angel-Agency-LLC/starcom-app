@@ -1,0 +1,9 @@
+/Users/jono/Documents/GitHub/starcom-app/starcom-mk2/starcom-prototype-mk2/wasm-mini-server/target/wasm32-unknown-unknown/debug/deps/libwasm_bindgen_futures-77d98bb1a9876959.rmeta: /Users/jono/.cargo/registry/src/index.crates.io-6f17d22bba15001f/wasm-bindgen-futures-0.4.50/src/lib.rs /Users/jono/.cargo/registry/src/index.crates.io-6f17d22bba15001f/wasm-bindgen-futures-0.4.50/src/queue.rs /Users/jono/.cargo/registry/src/index.crates.io-6f17d22bba15001f/wasm-bindgen-futures-0.4.50/src/task/singlethread.rs
+
+/Users/jono/Documents/GitHub/starcom-app/starcom-mk2/starcom-prototype-mk2/wasm-mini-server/target/wasm32-unknown-unknown/debug/deps/libwasm_bindgen_futures-77d98bb1a9876959.rlib: /Users/jono/.cargo/registry/src/index.crates.io-6f17d22bba15001f/wasm-bindgen-futures-0.4.50/src/lib.rs /Users/jono/.cargo/registry/src/index.crates.io-6f17d22bba15001f/wasm-bindgen-futures-0.4.50/src/queue.rs /Users/jono/.cargo/registry/src/index.crates.io-6f17d22bba15001f/wasm-bindgen-futures-0.4.50/src/task/singlethread.rs
+
+/Users/jono/Documents/GitHub/starcom-app/starcom-mk2/starcom-prototype-mk2/wasm-mini-server/target/wasm32-unknown-unknown/debug/deps/wasm_bindgen_futures-77d98bb1a9876959.d: /Users/jono/.cargo/registry/src/index.crates.io-6f17d22bba15001f/wasm-bindgen-futures-0.4.50/src/lib.rs /Users/jono/.cargo/registry/src/index.crates.io-6f17d22bba15001f/wasm-bindgen-futures-0.4.50/src/queue.rs /Users/jono/.cargo/registry/src/index.crates.io-6f17d22bba15001f/wasm-bindgen-futures-0.4.50/src/task/singlethread.rs
+
+/Users/jono/.cargo/registry/src/index.crates.io-6f17d22bba15001f/wasm-bindgen-futures-0.4.50/src/lib.rs:
+/Users/jono/.cargo/registry/src/index.crates.io-6f17d22bba15001f/wasm-bindgen-futures-0.4.50/src/queue.rs:
+/Users/jono/.cargo/registry/src/index.crates.io-6f17d22bba15001f/wasm-bindgen-futures-0.4.50/src/task/singlethread.rs:
