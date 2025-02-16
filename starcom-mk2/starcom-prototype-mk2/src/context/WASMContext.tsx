@@ -1,40 +1,31 @@
-import React, { createContext, useEffect, useState, useCallback } from "react";
-import initWasm, { get_api_data } from "../wasm/wasm_mini_server";
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { initializeWASM, fetchFromMiniServer as fetchFromWASM } from "../utils/wasm";
 
-// Define the shape of the WASM context
 interface WASMContextType {
   wasmReady: boolean;
   fetchFromMiniServer: (url: string) => Promise<any>;
 }
 
-// Create WASM Context with the defined type
 const WASMContext = createContext<WASMContextType | undefined>(undefined);
 
-// WASM Provider Component
-export const WASMProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+interface WASMProviderProps {
+  children: React.ReactNode;
+}
+
+const WASMProvider: React.FC<WASMProviderProps> = ({ children }) => {
   const [wasmReady, setWasmReady] = useState(false);
 
-  const initializeWASM = useCallback(async () => {
-    try {
-      await initWasm();
+  useEffect(() => {
+    const initWASM = async () => {
+      await initializeWASM();
       setWasmReady(true);
-      console.log("WASMContext: ✅ WASM Mini-Server Initialized");
-    } catch (error) {
-      console.error("WASMContext: ❌ Failed to initialize WASM Mini-Server", error);
-    }
+    };
+    initWASM();
   }, []);
 
-  // Effect to initialize the WASM Mini-Server on component mount
-  useEffect(() => {
-    initializeWASM();
-  }, [initializeWASM]);
-
-  const fetchFromMiniServer = useCallback(async (url: string) => {
-    if (!wasmReady) {
-      throw new Error("WASM not initialized");
-    }
-    return get_api_data(url);
-  }, [wasmReady]);
+  const fetchFromMiniServer = async (url: string) => {
+    return await fetchFromWASM(url);
+  };
 
   return (
     <WASMContext.Provider value={{ wasmReady, fetchFromMiniServer }}>
@@ -43,4 +34,12 @@ export const WASMProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 };
 
-export { WASMContext };
+const useWASM = () => {
+  const context = useContext(WASMContext);
+  if (!context) {
+    throw new Error("useWASM must be used within a WASMProvider");
+  }
+  return context;
+};
+
+export { WASMProvider, useWASM, WASMContext };
