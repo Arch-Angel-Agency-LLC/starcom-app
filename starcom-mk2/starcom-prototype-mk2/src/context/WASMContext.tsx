@@ -1,42 +1,46 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
-import { initMiniServer, fetchFromMiniServer } from "../utils/wasm";
+import React, { createContext, useEffect, useState, useCallback } from "react";
+import initWasm, { get_api_data } from "../wasm/wasm_mini_server";
 
-// Create WASM Context
-const WASMContext = createContext(null);
+// Define the shape of the WASM context
+interface WASMContextType {
+  wasmReady: boolean;
+  fetchFromMiniServer: (url: string) => Promise<any>;
+}
 
-// Global variable to track initialization state
-let wasmInitPromise: Promise<void> | null = null;
+// Create WASM Context with the defined type
+const WASMContext = createContext<WASMContextType | undefined>(undefined);
 
 // WASM Provider Component
 export const WASMProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [wasmReady, setWasmReady] = useState(false);
 
-  /**
-   * Initialize the WASM Mini-Server.
-   * @param forceReinitialize - If true, forces re-initialization of the WASM Mini-Server.
-   */
-  const initializeWASM = async (forceReinitialize = false) => {
-    if (forceReinitialize || !wasmInitPromise) {
-      wasmInitPromise = initMiniServer().then(() => {
-        setWasmReady(true);
-        console.log("WASMContext: ✅ WASM Mini-Server Initialized");
-      });
-    } else {
-      wasmInitPromise.then(() => setWasmReady(true));
+  const initializeWASM = useCallback(async () => {
+    try {
+      await initWasm();
+      setWasmReady(true);
+      console.log("WASMContext: ✅ WASM Mini-Server Initialized");
+    } catch (error) {
+      console.error("WASMContext: ❌ Failed to initialize WASM Mini-Server", error);
     }
-  };
+  }, []);
 
   // Effect to initialize the WASM Mini-Server on component mount
   useEffect(() => {
     initializeWASM();
-  }, []);
+  }, [initializeWASM]);
+
+  const fetchFromMiniServer = useCallback(async (url: string) => {
+    if (!wasmReady) {
+      throw new Error("WASM not initialized");
+    }
+    return get_api_data(url);
+  }, [wasmReady]);
 
   return (
-    <WASMContext.Provider value={{ wasmReady, fetchFromMiniServer, initializeWASM }}>
+    <WASMContext.Provider value={{ wasmReady, fetchFromMiniServer }}>
       {children}
     </WASMContext.Provider>
   );
 };
 
-// Hook for easy access to WASM context
-export const useWASM = () => useContext(WASMContext);
+export { WASMContext };
