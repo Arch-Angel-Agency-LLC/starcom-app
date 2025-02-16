@@ -1,13 +1,16 @@
-import React from 'react';
-import { BrowserRouter } from 'react-router-dom';
-import AppRoutes from './routes/routes';
-import './styles/globals.css';
+import React from "react";
+import { BrowserRouter } from "react-router-dom";
+import AppRoutes from "./routes/routes";
+import { WASMProvider } from "./context/WASMContext";
+import "./styles/globals.css";
 
 const App: React.FC = () => {
   return (
-    <BrowserRouter>
-      <AppRoutes />
-    </BrowserRouter>
+    <WASMProvider>
+      <BrowserRouter>
+        <AppRoutes />
+      </BrowserRouter>
+    </WASMProvider>
   );
 };
 

@@ -3,6 +3,9 @@ import react from '@vitejs/plugin-react-swc';
 
 export default defineConfig({
   plugins: [react()],
+  optimizeDeps: {
+    include: ["src/wasm/wasm_mini_server"],
+  },
   build: {
     sourcemap: true,
   },

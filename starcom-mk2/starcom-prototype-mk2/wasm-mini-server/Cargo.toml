@@ -1,0 +1,27 @@
+[package]
+name = "wasm_mini_server"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wasm-bindgen = { version = "0.2", features = ["serde"] } # ✅ Enable serde
+wee_alloc = "0.4"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+wasm-bindgen-futures = "0.4"
+wasm-bindgen-test = "0.3"
+js-sys = "0.3"
+http = "0.2"
+web-sys = { version = "0.3", features = [
+    "Window",
+    "Request",
+    "RequestInit",
+    "RequestMode",
+    "Response",
+    "console",
+    "Headers",
+    "Storage"  # ✅ Add this
+]}
