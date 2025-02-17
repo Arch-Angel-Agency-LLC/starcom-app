@@ -198,10 +198,10 @@ function debugString(val) {
     return className;
 }
 /**
- * ✅ Fetch data with a CORS-enabled request.
+ * ✅ Fetch data with a CORS-enabled request and enforce response CORS headers.
  *
  * This function acts as a **CORS proxy** inside the WASM mini-server, allowing
- * **cross-origin API requests** without relying on external proxies.
+ * **cross-origin API requests** while ensuring CORS headers are properly handled.
  *
  * Parameters:
  * - `url: &str` → API endpoint to fetch data from.
@@ -285,11 +285,11 @@ export function main_js() {
 }
 
 function __wbg_adapter_24(arg0, arg1, arg2) {
-    wasm.closure51_externref_shim(arg0, arg1, arg2);
+    wasm.closure52_externref_shim(arg0, arg1, arg2);
 }
 
-function __wbg_adapter_77(arg0, arg1, arg2, arg3) {
-    wasm.closure63_externref_shim(arg0, arg1, arg2, arg3);
+function __wbg_adapter_83(arg0, arg1, arg2, arg3) {
+    wasm.closure64_externref_shim(arg0, arg1, arg2, arg3);
 }
 
 const __wbindgen_enum_RequestMode = ["same-origin", "no-cors", "cors", "navigate"];
@@ -336,6 +336,10 @@ function __wbg_get_imports() {
         const ret = arg0.call(arg1, arg2);
         return ret;
     }, arguments) };
+    imports.wbg.__wbg_clone_74c1bc948bcfa805 = function() { return handleError(function (arg0) {
+        const ret = arg0.clone();
+        return ret;
+    }, arguments) };
     imports.wbg.__wbg_fetch_b7bf320f681242d2 = function(arg0, arg1) {
         const ret = arg0.fetch(arg1);
         return ret;
@@ -351,7 +355,7 @@ function __wbg_get_imports() {
         const ret = arg0[arg1 >>> 0];
         return ret;
     };
-    imports.wbg.__wbg_headers_7852a8ea641c1379 = function(arg0) {
+    imports.wbg.__wbg_headers_9cb51cfd2ac780a4 = function(arg0) {
         const ret = arg0.headers;
         return ret;
     };
@@ -394,6 +398,10 @@ function __wbg_get_imports() {
     imports.wbg.__wbg_log_c222819a41e063d3 = function(arg0) {
         console.log(arg0);
     };
+    imports.wbg.__wbg_new_018dcc2d6c8c2f6a = function() { return handleError(function () {
+        const ret = new Headers();
+        return ret;
+    }, arguments) };
     imports.wbg.__wbg_new_23a2665fac83c611 = function(arg0, arg1) {
         try {
             var state0 = {a: arg0, b: arg1};
@@ -401,7 +409,7 @@ function __wbg_get_imports() {
                 const a = state0.a;
                 state0.a = 0;
                 try {
-                    return __wbg_adapter_77(a, state0.b, arg0, arg1);
+                    return __wbg_adapter_83(a, state0.b, arg0, arg1);
                 } finally {
                     state0.a = a;
                 }
@@ -424,6 +432,10 @@ function __wbg_get_imports() {
         const ret = new Request(getStringFromWasm0(arg0, arg1), arg2);
         return ret;
     }, arguments) };
+    imports.wbg.__wbg_ok_3aaf32d069979723 = function(arg0) {
+        const ret = arg0.ok;
+        return ret;
+    };
     imports.wbg.__wbg_queueMicrotask_97d92b4fcc8a61c5 = function(arg0) {
         queueMicrotask(arg0);
     };
@@ -483,8 +495,8 @@ function __wbg_get_imports() {
         const ret = false;
         return ret;
     };
-    imports.wbg.__wbindgen_closure_wrapper526 = function(arg0, arg1, arg2) {
-        const ret = makeMutClosure(arg0, arg1, 52, __wbg_adapter_24);
+    imports.wbg.__wbindgen_closure_wrapper596 = function(arg0, arg1, arg2) {
+        const ret = makeMutClosure(arg0, arg1, 53, __wbg_adapter_24);
         return ret;
     };
     imports.wbg.__wbindgen_debug_string = function(arg0, arg1) {

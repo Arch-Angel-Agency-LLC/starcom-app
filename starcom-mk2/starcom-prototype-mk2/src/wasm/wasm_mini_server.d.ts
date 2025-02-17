@@ -1,10 +1,10 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * ✅ Fetch data with a CORS-enabled request.
+ * ✅ Fetch data with a CORS-enabled request and enforce response CORS headers.
  *
  * This function acts as a **CORS proxy** inside the WASM mini-server, allowing
- * **cross-origin API requests** without relying on external proxies.
+ * **cross-origin API requests** while ensuring CORS headers are properly handled.
  *
  * Parameters:
  * - `url: &str` → API endpoint to fetch data from.
@@ -66,8 +66,8 @@ export interface InitOutput {
   readonly __wbindgen_malloc: (a: number, b: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;
   readonly __wbindgen_export_5: WebAssembly.Table;
-  readonly closure51_externref_shim: (a: number, b: number, c: any) => void;
-  readonly closure63_externref_shim: (a: number, b: number, c: any, d: any) => void;
+  readonly closure52_externref_shim: (a: number, b: number, c: any) => void;
+  readonly closure64_externref_shim: (a: number, b: number, c: any, d: any) => void;
   readonly __wbindgen_start: () => void;
 }
 

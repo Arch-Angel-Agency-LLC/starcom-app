@@ -12,15 +12,21 @@ interface WASMProviderProps {
   children: React.ReactNode;
 }
 
+let wasmInitializationPromise: Promise<void> | null = null;
+
 const WASMProvider: React.FC<WASMProviderProps> = ({ children }) => {
   const [wasmReady, setWasmReady] = useState(false);
 
   useEffect(() => {
-    const initWASM = async () => {
-      await initializeWASM();
-      setWasmReady(true);
-    };
-    initWASM();
+    if (!wasmInitializationPromise) {
+      wasmInitializationPromise = initializeWASM().then(() => {
+        setWasmReady(true);
+      });
+    } else {
+      wasmInitializationPromise.then(() => {
+        setWasmReady(true);
+      });
+    }
   }, []);
 
   const fetchFromMiniServer = async (url: string) => {

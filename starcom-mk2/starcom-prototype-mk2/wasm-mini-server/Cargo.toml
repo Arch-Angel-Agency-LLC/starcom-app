@@ -17,13 +17,15 @@ js-sys = "0.3"
 http = "0.2"
 web-sys = { version = "0.3", features = [
     "Window",
+    "Document",
+    "Location",
     "Request",
     "RequestInit",
     "RequestMode",
     "Response",
     "console",
     "Headers",
-    "Storage"  # ✅ Add this
+    "Storage",
 ]}
 
 [dev-dependencies]

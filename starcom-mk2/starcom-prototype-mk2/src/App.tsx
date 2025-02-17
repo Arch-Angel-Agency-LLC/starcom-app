@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { BrowserRouter } from "react-router-dom";
 import AppRoutes from "./routes/routes";
 import { WASMProvider, useWASM } from "./context/WASMContext";
@@ -6,6 +6,7 @@ import "./styles/globals.css";
 
 const AppContent: React.FC = () => {
   const { fetchFromMiniServer, wasmReady } = useWASM();
+  const [fetchPromise, setFetchPromise] = useState<Promise<void> | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -48,14 +49,15 @@ const AppContent: React.FC = () => {
       }
     };
 
-    if (wasmReady) {
-      fetchData();
+    if (wasmReady && !fetchPromise) {
+      const promise = fetchData();
+      setFetchPromise(promise);
     }
 
     return () => {
       isMounted = false;
     };
-  }, [wasmReady, fetchFromMiniServer]);
+  }, [wasmReady, fetchFromMiniServer, fetchPromise]);
 
   return (
     <BrowserRouter>

@@ -6,6 +6,7 @@ pub mod storage;
 pub mod utils;
 
 use wasm_bindgen::prelude::*;
+use api::fetch_data;
 use wasm_bindgen_futures::JsFuture;
 use web_sys::{Request, RequestInit, RequestMode, Response};
 use storage::{store_response, get_cached_response, clear_cached_response, cleanup_expired_cache};
