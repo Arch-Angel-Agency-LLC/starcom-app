@@ -1,37 +1,20 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '../../ui/Card.tsx';
-import { useEIAData } from '../../../hooks/useEIAData';
+import { Card } from '../../Shared/Card'; // Assuming this is your reusable Card component
+import { useDashboard } from '../../../context/DashboardContext';
 
-interface EnergyCardProps {
-    title: string;
-    endpoint: string;
-    params?: Record<string, string>;
-}
-
-const EnergyCard: React.FC<EnergyCardProps> = ({ title, endpoint, params = {} }) => {
-    const { data, loading, error } = useEIAData(endpoint, params);
+export const EnergyCard: React.FC = () => {
+    const { oilPrice, loading, error } = useDashboard();
 
     return (
-    <Card className="w-full p-4 bg-gray-800 text-white border border-gray-600">
-        <CardHeader>
-        <CardTitle>{title}</CardTitle>
-        </CardHeader>
-        <CardContent>
-        {loading ? (
-            <p className="text-gray-400">Loading...</p>
-        ) : error ? (
-            <p className="text-red-400">Error fetching data</p>
-        ) : data && data.length > 0 ? (
-            <div>
-            <p className="text-xl font-bold">🛢️ ${data[0].value} / BBL</p>
-            <p className="text-sm text-gray-400">Date: {data[0].period}</p>
-            </div>
-        ) : (
-            <p className="text-gray-400">No data available</p>
+        <Card>
+        <h3>Oil Price (WTI)</h3>
+        {loading && <p>Loading...</p>}
+        {error && <p className="error">{error}</p>}
+        {oilPrice !== null && !loading && !error && (
+            <p>
+            ${oilPrice.toFixed(2)} <span>/ barrel</span>
+            </p>
         )}
-        </CardContent>
-    </Card>
+        </Card>
     );
 };
-
-export default EnergyCard;

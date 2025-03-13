@@ -1,7 +1,13 @@
 module.exports = {
-  content: ['./src/**/*.{js,ts,jsx,tsx}', './public/index.html'],
+  content: [
+    './src/**/*.{js,ts,jsx,tsx}', 
+    './public/index.html'
+  ],
   theme: {
     extend: {
+      fontFamily: {
+        aldrich: ['Aldrich-Regular', 'sans-serif'], // Custom font
+      },
       colors: {
         primary: {
           DEFAULT: '#1A202C', // Deep Blue

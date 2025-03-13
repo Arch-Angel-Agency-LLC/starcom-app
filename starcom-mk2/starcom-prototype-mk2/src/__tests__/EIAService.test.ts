@@ -1,29 +1,40 @@
-// src/__tests__/EIAService.test.ts
-import { getEIAData } from '../services/EIAService';
-import { fetchEIAData } from '../api/eia';
+import { describe, it, expect, vi } from 'vitest';
+import EIAService from '../services/EIAService';
+import { EIAData } from '../interfaces/EIAData';
 
-jest.mock('../api/eia', () => ({
-    fetchEIAData: jest.fn(),
-}));
+// Mock fetch
+global.fetch = vi.fn();
 
-describe('EIA API Service', () => {
-    it('fetches and caches data correctly', async () => {
-        const mockData = [{ period: '2025-02-28', value: '69.93', product: 'EPCWTI', series: 'RWTC' }];
-        
-        (fetchEIAData as jest.Mock).mockResolvedValue(mockData);
+describe('EIAService', () => {
+    it('fetches the latest oil price successfully', async () => {
+        const mockResponse: EIAData = {
+        response: {
+            total: '1',
+            dateFormat: 'YYYY-MM-DD',
+            frequency: 'weekly',
+            data: [{ period: '2025-03-07', value: 67.52 }],
+        },
+        request: { command: '/v2/seriesid/PET.RWTC.W', params: {} },
+        apiVersion: '2.1.8',
+        };
 
-        const data = await getEIAData('petroleum/pri/spt/data/', { product: 'EPCWTI', length: '1' });
+        (fetch as any).mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(mockResponse),
+        });
 
-        expect(data).toEqual(mockData);
-        expect(fetchEIAData).toHaveBeenCalledTimes(1);
+        await EIAService.getLatestOilPrice();
+        expect(fetch).toHaveBeenCalledWith(
+        `https://api.eia.gov/v2/seriesid/PET.RWTC.W?api_key=${import.meta.env.VITE_EIA_API_KEY}`
+        );
     });
 
-    it('returns cached data instead of refetching', async () => {
-        const mockData = [{ period: '2025-02-28', value: '69.93', product: 'EPCWTI', series: 'RWTC' }];
-        
-        const data = await getEIAData('petroleum/pri/spt/data/', { product: 'EPCWTI', length: '1' });
+    it('handles fetch errors', async () => {
+        (fetch as any).mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+        });
 
-        expect(data).toEqual(mockData);
-        expect(fetchEIAData).toHaveBeenCalledTimes(1);
+        await expect(EIAService.getLatestOilPrice()).rejects.toThrow('HTTP error! Status: 404');
     });
 });

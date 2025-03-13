@@ -1,28 +1,25 @@
-// src/hooks/useEIAData.ts
-import { useEffect, useState } from 'react';
-import { getEIAData } from '../services/EIAService';
-import { EIADataPoint } from '../interfaces/EIAData';
+import { useState, useEffect } from 'react';
+import EIAService from '../services/EIAService';
 
-export const useEIAData = (endpoint: string, params: Record<string, string> = {}) => {
-    const [data, setData] = useState<EIADataPoint[] | null>(null);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
+export const useEIAData = () => {
+  const [oilPrice, setOilPrice] = useState<number | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            setLoading(true);
-            const result = await getEIAData(endpoint, params);
-            if (result) {
-                setData(result);
-                setError(null);
-            } else {
-                setError('Failed to fetch data');
-            }
-            setLoading(false);
-        };
+  useEffect(() => {
+    const fetchOilPrice = async () => {
+      try {
+        const price = await EIAService.getLatestOilPrice();
+        setOilPrice(price);
+      } catch (err) {
+        setError('Failed to fetch oil price');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-        fetchData();
-    }, [endpoint, JSON.stringify(params)]);
+    fetchOilPrice();
+  }, []);
 
-    return { data, loading, error };
+  return { oilPrice, loading, error };
 };
