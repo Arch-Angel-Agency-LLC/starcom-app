@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { BrowserRouter } from "react-router-dom";
 import AppRoutes from "./routes/routes";
 import { WASMProvider, useWASM } from "./context/WASMContext";
+import { DashboardProvider } from "./context/DashboardContext";
 import "./styles/globals.css";
 
 const AppContent: React.FC = () => {
@@ -68,7 +69,9 @@ const AppContent: React.FC = () => {
 
 const App: React.FC = () => (
   <WASMProvider>
-    <AppContent />
+    <DashboardProvider>
+      <AppContent />
+    </DashboardProvider>
   </WASMProvider>
 );
 
