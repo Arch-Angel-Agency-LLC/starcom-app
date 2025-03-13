@@ -2,55 +2,87 @@
   display: flex;
   flex-wrap: wrap;
   height: 100vh;
+  width: 100vh;
+  position: relative;
   pointer-events: none; /* Allow clicks to pass through */
 }
 
 .hudLayout > div {
-  flex: 1 1 33%;
-  box-sizing: border-box;
   pointer-events: none; /* Allow clicks to pass through */
 }
 
-.topLeftCorner, .topBar, .topRightCorner,
-.leftSideBar, .rightSideBar,
-.bottomLeftCorner, .bottomBar, .bottomRightCorner {
+.topLeftCorner, .topRightCorner,
+.bottomLeftCorner, .bottomRightCorner {
+  position: absolute;
+  z-index: 2; /* Corners take priority for z-space */
+  background: rgba(0, 0, 0, 0); /* transparent background */
+  pointer-events: auto; /* Enable clicks on HUD components */
+  width: 33%;
+  height: 33%;
+}
+
+.topLeftCorner {
+  top: 0;
+  left: 0;
+}
+
+.topRightCorner {
+  top: 0;
+  right: 0;
+}
+
+.bottomLeftCorner {
+  bottom: 0;
+  left: 0;
+}
+
+.bottomRightCorner {
+  bottom: 0;
+  right: 0;
+}
+
+.topBar, .bottomBar {
+  position: absolute;
   background: rgba(0, 0, 0, 0.0); /* transparent background */
   pointer-events: auto; /* Enable clicks on HUD components */
 }
 
-.topLeftCorner {
-  order: 1;
-}
-
 .topBar {
-  order: 2;
-}
-
-.topRightCorner {
-  order: 3;
-}
-
-.leftSideBar {
-  order: 4;
-}
-
-.center {
-  order: 5;
-  background: transparent; /* Fully transparent background */
-}
-
-.rightSideBar {
-  order: 6;
-}
-
-.bottomLeftCorner {
-  order: 7;
+  top: 0;
+  width: 100%;
+  height: 5%;
 }
 
 .bottomBar {
-  order: 8;
+  z-index: 3;
+  bottom: 0;
+  width: 100%;
+  height: 15%;
 }
 
-.bottomRightCorner {
-  order: 9;
+.leftSideBar, .rightSideBar {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.0); /* transparent background */
+  pointer-events: auto; /* Enable clicks on HUD components */
+}
+
+.leftSideBar {
+  left: 0;
+  width: 5%; /* Adjust width to be very narrow */
+  height: 100%;
+  background-image: url('../../assets/images/Starcom-UI_ConceptArt-sideLeft.png');
+  background-size: contain;
+  background-repeat:no-repeat;
+}
+
+.rightSideBar {
+  right: 0;
+  width: 5%;
+  height: 100%;
+}
+
+.center {
+  position: absolute;
+  background: transparent; /* Fully transparent background */
+  pointer-events: none; /* Allow clicks to pass through */
 }
