@@ -22,6 +22,8 @@
 │   ├── App.tsx
 │   ├── __tests__
 │   │   └── EIAService.test.ts
+│   ├── anywhere
+│   │   └── ExampleUsage.ts
 │   ├── api
 │   │   ├── eia.ts
 │   │   ├── intelligence.ts
@@ -29,6 +31,7 @@
 │   │   └── rss.ts
 │   ├── app.md
 │   ├── assets
+│   │   ├── .DS_Store
 │   │   ├── fonts
 │   │   │   └── Aldrich-Regular.ttf
 │   │   └── images
@@ -36,6 +39,11 @@
 │   │       ├── Starcom-UI_ConceptArt-bottomMiddle.png
 │   │       ├── Starcom-UI_ConceptArt-bottomRight.png
 │   │       └── Starcom-UI_ConceptArt-sideLeft.png
+│   ├── cache
+│   │   ├── Cache.ts
+│   │   ├── CacheManager.ts
+│   │   ├── CacheRegistry.ts
+│   │   └── EIADataCacheService.ts
 │   ├── components
 │   │   ├── Conflict
 │   │   │   ├── ConflictDetails.tsx
@@ -256,6 +264,7 @@
 ├── tsconfig.json
 ├── tsconfig.node.json
 ├── vite.config.ts
+├── vitest.config.ts
 └── wasm-mini-server
     ├── Cargo.lock
     ├── Cargo.toml
@@ -1856,4 +1865,4 @@
     └── tests
         └── tests.rs
 
-316 directories, 1541 files
+318 directories, 1548 files
