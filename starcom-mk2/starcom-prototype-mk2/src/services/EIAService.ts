@@ -1,21 +1,31 @@
-// src/services/EIAService.ts
-import { fetchEIAData } from '../api/eia';
-import { EIADataPoint } from '../interfaces/EIAData';
+import { EIAData } from '../interfaces/EIAData'; // Assuming this exists or we’ll define it
 
-const CACHE: Record<string, EIADataPoint[]> = {}; // Simple in-memory cache
+export class EIAService {
+  private static readonly API_KEY = import.meta.env.VITE_EIA_API_KEY; // Store in .env
+  private static readonly BASE_URL = 'https://api.eia.gov/v2';
 
-export const getEIAData = async (endpoint: string, params: Record<string, string> = {}): Promise<EIADataPoint[] | null> => {
-    const cacheKey = `${endpoint}-${JSON.stringify(params)}`;
-    
-    if (CACHE[cacheKey]) {
-        return CACHE[cacheKey]; // Return cached data if available
+  /**
+   * Fetches the latest WTI spot price from the EIA API.
+   * @returns Promise<number> - Latest price in USD per barrel.
+   */
+  public static async getLatestOilPrice(): Promise<number> {
+    const url = `${this.BASE_URL}/seriesid/PET.RWTC.W?api_key=${this.API_KEY}`;
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      const data: EIAData = await response.json();
+      const latestPrice = data.response.data[0]?.value;
+      if (latestPrice === undefined) {
+        throw new Error('No oil price data available');
+      }
+      return latestPrice;
+    } catch (error) {
+      console.error('Error fetching oil price:', error);
+      throw error;
     }
+  }
+}
 
-    const data = await fetchEIAData(endpoint, params);
-    
-    if (data) {
-        CACHE[cacheKey] = data; // Store in cache
-    }
-
-    return data;
-};
+export default EIAService;

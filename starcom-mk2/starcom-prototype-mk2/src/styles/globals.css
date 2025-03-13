@@ -1,36 +1,49 @@
+/* Load custom font */
+@font-face {
+  font-family: 'Aldrich-Regular';
+  src: url('/src/assets/fonts/Aldrich-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* Tailwind directives */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* Reset and global styles */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-  
-  body {
-    font-family: 'Arial', sans-serif;
-    background-color: #1a202c;
-    color: #fff;
-    line-height: 1.6;
-  }
-  
-  .dashboard {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100vh;
-    overflow: hidden;
-  }
-  
-  .dashboard h1 {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    color: white;
-    z-index: 10;
-  }
-  
-  .globe-container {
-    width: 100%;
-    height: 100%;
-  }
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Aldrich-Regular', 'Arial', sans-serif; /* Fallback to Arial */
+  background-color: #1a202c;
+  color: #fff;
+  line-height: 1.6;
+}
+
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.dashboard h1 {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  color: white;
+  z-index: 10;
+}
+
+.globe-container {
+  width: 100%;
+  height: 100%;
+}

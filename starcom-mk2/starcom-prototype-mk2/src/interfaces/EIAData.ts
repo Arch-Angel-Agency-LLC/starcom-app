@@ -1,16 +1,16 @@
-// src/interfaces/EIAData.ts
-export interface EIADataPoint {
-    period: string;
-    value: string;
-    product: string;
-    series: string;
-    area_name?: string;
-    units?: string;
-}
-
-export interface EIAResponse {
-    data: EIADataPoint[];
-    total: number;
-    frequency: string;
-    dateFormat: string;
-}
+export interface EIAData {
+    response: {
+      total: string;
+      dateFormat: string;
+      frequency: string;
+      data: {
+        period: string; // e.g., "2025-03-07"
+        value: number; // e.g., 67.52
+      }[];
+    };
+    request: {
+      command: string;
+      params: Record<string, any>;
+    };
+    apiVersion: string;
+  }

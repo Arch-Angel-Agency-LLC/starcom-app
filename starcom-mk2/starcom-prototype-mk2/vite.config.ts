@@ -3,6 +3,9 @@ import react from '@vitejs/plugin-react-swc';
 
 export default defineConfig({
   plugins: [react()],
+  css: {
+    postcss: './postcss.config.cjs', // Explicitly point to PostCSS config
+  },
   optimizeDeps: {
     exclude: ['wasm_mini_server'], // Prevents Vite from trying to pre-bundle WASM
   },

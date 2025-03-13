@@ -1,0 +1,15 @@
+.bottomBar {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+}
+
+.resourceSection {
+    font-family: 'Aldrich-Regular', sans-serif; /* From your assets/fonts */
+}
+
+.error {
+    color: #ff4444;
+}
