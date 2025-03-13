@@ -13,14 +13,14 @@ const HUDLayout: React.FC = () => {
   return (
     <div className={styles.hudLayout}>
       <div className={styles.topLeftCorner}><TopLeftCorner /></div>
-      <div className={styles.topBar}><TopBar /></div>
       <div className={styles.topRightCorner}><TopRightCorner /></div>
-      <div className={styles.leftSideBar}><LeftSideBar /></div>
-      <div className={styles.center}></div>
-      <div className={styles.rightSideBar}><RightSideBar /></div>
       <div className={styles.bottomLeftCorner}><BottomLeftCorner /></div>
-      <div className={styles.bottomBar}><BottomBar /></div>
       <div className={styles.bottomRightCorner}><BottomRightCorner /></div>
+      <div className={styles.topBar}><TopBar /></div>
+      <div className={styles.bottomBar}><BottomBar /></div>
+      <div className={styles.leftSideBar}><LeftSideBar /></div>
+      <div className={styles.rightSideBar}><RightSideBar /></div>
+      <div className={styles.center}></div>
     </div>
   );
 };
