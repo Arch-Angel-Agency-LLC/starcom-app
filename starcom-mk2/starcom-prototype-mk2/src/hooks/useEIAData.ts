@@ -3,23 +3,34 @@ import EIAService from '../services/EIAService';
 
 export const useEIAData = () => {
   const [oilPrice, setOilPrice] = useState<number | null>(null);
+  const [gasolinePrice, setGasolinePrice] = useState<number | null>(null);
+  const [oilInventory, setOilInventory] = useState<number | null>(null);
+  const [naturalGasStorage, setNaturalGasStorage] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchOilPrice = async () => {
+    const fetchData = async () => {
       try {
-        const price = await EIAService.getLatestOilPrice();
-        setOilPrice(price);
+        const [oilPrice, gasolinePrice, oilInventory, naturalGasStorage] = await Promise.all([
+          EIAService.getLatestOilPrice(),
+          EIAService.getLatestGasolinePrice(),
+          EIAService.getLatestOilInventory(),
+          EIAService.getLatestNaturalGasStorage(),
+        ]);
+        setOilPrice(oilPrice);
+        setGasolinePrice(gasolinePrice);
+        setOilInventory(oilInventory);
+        setNaturalGasStorage(naturalGasStorage);
       } catch (err) {
-        setError('Failed to fetch oil price');
+        setError('Failed to fetch data');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchOilPrice();
+    fetchData();
   }, []);
 
-  return { oilPrice, loading, error };
+  return { oilPrice, gasolinePrice, oilInventory, naturalGasStorage, loading, error };
 };
