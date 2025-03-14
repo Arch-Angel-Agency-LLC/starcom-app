@@ -1,6 +1,7 @@
 .bottomBar {
     display: flex;
     justify-content: space-between;
+    align-self: flex-end;
     padding: 10px;
     background: rgba(0, 0, 0, 0.8);
     color: #fff;
