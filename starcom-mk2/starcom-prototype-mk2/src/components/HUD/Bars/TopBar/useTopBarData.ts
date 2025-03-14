@@ -1,10 +1,10 @@
 // src/components/HUD/useTopBarData.ts
 import { useState, useEffect } from "react";
-import { useGlobeData } from "../../GlobeViewport/GlobeDataProvider";
+//import { useGlobeData } from "../../../Globe/Handlers/GlobeDataProvider";
 
 export function useTopBarData() {
-  const { osintReports, cyberThreats } = useGlobeData();
-  const [threatLevel, setThreatLevel] = useState("low");
+  //const { osintReports, cyberThreats } = useGlobeData();
+  //const [threatLevel, setThreatLevel] = useState("low");
   const [stockSentiment, setStockSentiment] = useState("Neutral");
   const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
 
@@ -17,16 +17,16 @@ export function useTopBarData() {
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    // Determine threat level dynamically
-    if (cyberThreats.length > 5) {
-      setThreatLevel("high");
-    } else if (cyberThreats.length > 2) {
-      setThreatLevel("medium");
-    } else {
-      setThreatLevel("low");
-    }
-  }, [cyberThreats]);
+  // useEffect(() => {
+  //   // Determine threat level dynamically
+  //   if (cyberThreats.length > 5) {
+  //     setThreatLevel("high");
+  //   } else if (cyberThreats.length > 2) {
+  //     setThreatLevel("medium");
+  //   } else {
+  //     setThreatLevel("low");
+  //   }
+  // }, [cyberThreats]);
 
   useEffect(() => {
     // Fetch Market Sentiment API (Dummy Data for Now)
@@ -40,5 +40,6 @@ export function useTopBarData() {
     return () => clearInterval(stockInterval);
   }, []);
 
-  return { threatLevel, osintReports, stockSentiment, cyberThreats, currentTime };
+  //return { threatLevel, osintReports, stockSentiment, cyberThreats, currentTime };
+  return { stockSentiment, currentTime };
 }

@@ -5,8 +5,6 @@ import * as THREE from 'three'; // Import the THREE namespace
 import { DirectionalLight, Vector3, TextureLoader, ShaderMaterial, Vector2 } from 'three';
 import Globe, { GlobeMethods } from 'react-globe.gl';
 
-const VELOCITY = 1; // minutes per frame
-
 const dayNightShader = {
     vertexShader: `
         varying vec3 vNormal;

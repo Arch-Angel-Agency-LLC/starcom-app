@@ -25,6 +25,6 @@ export const useGlobeData = create((set) => ({
     set({ spaceEntities: data });
   },
 
-  selectGeoMarker: (marker) => set({ selectedGeoMarker: marker }),
-  selectSpaceEntity: (entity) => set({ selectedSpaceEntity: entity }),
+  // selectGeoMarker: (marker) => set({ selectedGeoMarker: marker }),
+  // selectSpaceEntity: (entity) => set({ selectedSpaceEntity: entity }),
 }));
