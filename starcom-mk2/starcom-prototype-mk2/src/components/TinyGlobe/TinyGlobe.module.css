@@ -22,13 +22,13 @@
 .buttonContainer {
     display: flex;
     gap: 10px;
-    margin-bottom: 10px;
+    margin: 10px;
     pointer-events: auto; /* Enable interaction with buttons */
 }
 
 .shaderButton {
-    padding: 5px 10px;
-    background-color: #007bff;
+    padding: 0px 0px;
+    background-color: #007bff33;
     color: white;
     border: none;
     border-radius: 3px;
@@ -43,4 +43,8 @@
 
 .shaderButton:active {
     background-color: #003f7f;
+}
+
+.title {
+    text-align: center;
 }
