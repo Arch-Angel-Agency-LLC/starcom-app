@@ -257,28 +257,8 @@ const TinyGlobe: React.FC = () => {
 
     return (
         <div className={`${styles.tinyGlobeContainer}`}>
-            <div className={styles.buttonContainer}>
-                <button 
-                    className={styles.shaderButton} 
-                    data-interface-button="dayNight" 
-                    onClick={() => setShaderMode('dayNight')}
-                >
-                    Day/Night
-                </button>
-                <button 
-                    className={styles.shaderButton} 
-                    data-interface-button="hologram" 
-                    onClick={() => setShaderMode('hologram')}
-                >
-                    Hologram
-                </button>
-                <button 
-                    className={styles.shaderButton} 
-                    data-interface-button="blueMarble" 
-                    onClick={() => setShaderMode('blueMarble')}
-                >
-                    Blue Marble
-                </button>
+            <div className={`${styles.title}`}>
+                <h1>Starcom</h1>
             </div>
             <Suspense fallback={<div>Loading...</div>}>
                 <Globe
@@ -292,6 +272,29 @@ const TinyGlobe: React.FC = () => {
                     onGlobeReady={() => setGlobeReady(true)}
                 />
             </Suspense>
+            <div className={styles.buttonContainer}>
+                <button 
+                    className={styles.shaderButton} 
+                    data-interface-button="dayNight" 
+                    onClick={() => setShaderMode('dayNight')}
+                >
+                    🌗
+                </button>
+                <button 
+                    className={styles.shaderButton} 
+                    data-interface-button="hologram" 
+                    onClick={() => setShaderMode('hologram')}
+                >
+                    🏝️
+                </button>
+                <button 
+                    className={styles.shaderButton} 
+                    data-interface-button="blueMarble" 
+                    onClick={() => setShaderMode('blueMarble')}
+                >
+                    🌎
+                </button>
+            </div>
         </div>
     );
 };
