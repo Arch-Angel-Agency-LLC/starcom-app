@@ -5,8 +5,22 @@
 ├── .eslintignore
 ├── .gitignore
 ├── .prettierignore
+├── .vercel
+│   ├── README.txt
+│   └── project.json
 ├── README.md
 ├── directory-structure.txt
+├── dist
+│   ├── assets
+│   │   ├── Aldrich-Regular-BJ2Af9cL.ttf
+│   │   ├── Starcom-UI_ConceptArt-sideLeft-DjhMpIxN.png
+│   │   ├── index-DrI3-sOI.js
+│   │   ├── index-DrI3-sOI.js.map
+│   │   ├── index-DslR1BAJ.css
+│   │   └── wasm_mini_server_bg-B7A0PIjU.wasm
+│   ├── index.html
+│   ├── starcom.ico
+│   └── starcom.png
 ├── eslint.config.js
 ├── index.html
 ├── jest.config.js
@@ -22,8 +36,6 @@
 │   ├── App.tsx
 │   ├── __tests__
 │   │   └── EIAService.test.ts
-│   ├── anywhere
-│   │   └── ExampleUsage.ts
 │   ├── api
 │   │   ├── eia.ts
 │   │   ├── intelligence.ts
@@ -153,6 +165,9 @@
 │   │   │   ├── Card.tsx
 │   │   │   ├── Loader.tsx
 │   │   │   └── Modal.tsx
+│   │   ├── TinyGlobe
+│   │   │   ├── TinyGlobe.module.css
+│   │   │   └── TinyGlobe.tsx
 │   │   ├── components.md
 │   │   └── ui
 │   │       └── Card.tsx
@@ -222,7 +237,6 @@
 │   │   ├── UCDPDataService.ts
 │   │   ├── UserDataService.ts
 │   │   ├── WeatherDataService.ts
-│   │   ├── cache.ts
 │   │   └── services.md
 │   ├── setupTests.ts
 │   ├── store
@@ -265,6 +279,496 @@
 ├── tsconfig.node.json
 ├── vite.config.ts
 ├── vitest.config.ts
+├── wasm-ephemeris
+│   ├── .DS_Store
+│   ├── Cargo.lock
+│   ├── Cargo.toml
+│   ├── directory-structure.txt
+│   ├── ephemeris
+│   │   ├── .DS_Store
+│   │   ├── Cargo.toml
+│   │   ├── de421.bsp
+│   │   ├── src
+│   │   │   ├── bsp.rs
+│   │   │   └── lib.rs
+│   │   └── tests
+│   │       ├── bsp_tests.rs
+│   │       └── position_tests.rs
+│   ├── example_code
+│   │   └── usage_in_starcom_app_example.ts
+│   ├── gravimetrics
+│   │   ├── Cargo.toml
+│   │   ├── src
+│   │   │   ├── lib.rs
+│   │   │   └── tensor.rs
+│   │   └── tests
+│   │       └── tensor_tests.rs
+│   ├── harmonics
+│   │   ├── Cargo.toml
+│   │   ├── src
+│   │   │   ├── lib.rs
+│   │   │   └── tensor.rs
+│   │   └── tests
+│   │       └── harmonics_tests.rs
+│   ├── loader
+│   │   ├── Cargo.toml
+│   │   ├── src
+│   │   │   └── lib.rs
+│   │   └── tests
+│   │       └── fetch_tests.rs
+│   ├── positions
+│   │   ├── Cargo.toml
+│   │   ├── src
+│   │   │   └── lib.rs
+│   │   └── tests
+│   │       └── dataset_tests.rs
+│   ├── target
+│   │   ├── .rustc_info.json
+│   │   ├── CACHEDIR.TAG
+│   │   ├── debug
+│   │   │   ├── .cargo-lock
+│   │   │   ├── .fingerprint
+│   │   │   │   ├── byteorder-eb72a7cea50981e2
+│   │   │   │   │   ├── dep-lib-byteorder
+│   │   │   │   │   ├── invoked.timestamp
+│   │   │   │   │   ├── lib-byteorder
+│   │   │   │   │   └── lib-byteorder.json
+│   │   │   │   ├── ephemeris-13bd17a82d5c396f
+│   │   │   │   │   ├── dep-test-integration-test-position_tests
+│   │   │   │   │   ├── invoked.timestamp
+│   │   │   │   │   ├── test-integration-test-position_tests
+│   │   │   │   │   └── test-integration-test-position_tests.json
+│   │   │   │   ├── ephemeris-864f7a22a55af31a
+│   │   │   │   │   ├── dep-test-lib-ephemeris
+│   │   │   │   │   ├── invoked.timestamp
+│   │   │   │   │   ├── test-lib-ephemeris
+│   │   │   │   │   └── test-lib-ephemeris.json
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4
+│   │   │   │   │   ├── dep-lib-ephemeris
+│   │   │   │   │   ├── invoked.timestamp
+│   │   │   │   │   ├── lib-ephemeris
+│   │   │   │   │   └── lib-ephemeris.json
+│   │   │   │   ├── ephemeris-f2414e7d35273b19
+│   │   │   │   │   ├── dep-test-integration-test-bsp_tests
+│   │   │   │   │   ├── invoked.timestamp
+│   │   │   │   │   ├── test-integration-test-bsp_tests
+│   │   │   │   │   └── test-integration-test-bsp_tests.json
+│   │   │   │   ├── proc-macro2-0efce5b7b3717f10
+│   │   │   │   │   ├── dep-lib-proc_macro2
+│   │   │   │   │   ├── invoked.timestamp
+│   │   │   │   │   ├── lib-proc_macro2
+│   │   │   │   │   └── lib-proc_macro2.json
+│   │   │   │   ├── proc-macro2-6ae8c3e2346ad2ab
+│   │   │   │   │   ├── run-build-script-build-script-build
+│   │   │   │   │   └── run-build-script-build-script-build.json
+│   │   │   │   ├── proc-macro2-e860b36a47f1cefa
+│   │   │   │   │   ├── build-script-build-script-build
+│   │   │   │   │   ├── build-script-build-script-build.json
+│   │   │   │   │   ├── dep-build-script-build-script-build
+│   │   │   │   │   └── invoked.timestamp
+│   │   │   │   ├── quote-30b03719c148a6f0
+│   │   │   │   │   ├── dep-lib-quote
+│   │   │   │   │   ├── invoked.timestamp
+│   │   │   │   │   ├── lib-quote
+│   │   │   │   │   └── lib-quote.json
+│   │   │   │   ├── serde-36c8404a76573ba8
+│   │   │   │   │   ├── run-build-script-build-script-build
+│   │   │   │   │   └── run-build-script-build-script-build.json
+│   │   │   │   ├── serde-5d3b23baec6aa335
+│   │   │   │   │   ├── dep-lib-serde
+│   │   │   │   │   ├── invoked.timestamp
+│   │   │   │   │   ├── lib-serde
+│   │   │   │   │   └── lib-serde.json
+│   │   │   │   ├── serde-e7b6b0d23cb72f4b
+│   │   │   │   │   ├── build-script-build-script-build
+│   │   │   │   │   ├── build-script-build-script-build.json
+│   │   │   │   │   ├── dep-build-script-build-script-build
+│   │   │   │   │   └── invoked.timestamp
+│   │   │   │   ├── serde_derive-9e3bf5d7f598d01d
+│   │   │   │   │   ├── dep-lib-serde_derive
+│   │   │   │   │   ├── invoked.timestamp
+│   │   │   │   │   ├── lib-serde_derive
+│   │   │   │   │   └── lib-serde_derive.json
+│   │   │   │   ├── syn-141f15e92bd731b4
+│   │   │   │   │   ├── dep-lib-syn
+│   │   │   │   │   ├── invoked.timestamp
+│   │   │   │   │   ├── lib-syn
+│   │   │   │   │   └── lib-syn.json
+│   │   │   │   └── unicode-ident-904b1c5de53466ff
+│   │   │   │       ├── dep-lib-unicode_ident
+│   │   │   │       ├── invoked.timestamp
+│   │   │   │       ├── lib-unicode_ident
+│   │   │   │       └── lib-unicode_ident.json
+│   │   │   ├── build
+│   │   │   │   ├── proc-macro2-6ae8c3e2346ad2ab
+│   │   │   │   │   ├── invoked.timestamp
+│   │   │   │   │   ├── out
+│   │   │   │   │   ├── output
+│   │   │   │   │   ├── root-output
+│   │   │   │   │   └── stderr
+│   │   │   │   ├── proc-macro2-e860b36a47f1cefa
+│   │   │   │   │   ├── build-script-build
+│   │   │   │   │   ├── build_script_build-e860b36a47f1cefa
+│   │   │   │   │   └── build_script_build-e860b36a47f1cefa.d
+│   │   │   │   ├── serde-36c8404a76573ba8
+│   │   │   │   │   ├── invoked.timestamp
+│   │   │   │   │   ├── out
+│   │   │   │   │   ├── output
+│   │   │   │   │   ├── root-output
+│   │   │   │   │   └── stderr
+│   │   │   │   └── serde-e7b6b0d23cb72f4b
+│   │   │   │       ├── build-script-build
+│   │   │   │       ├── build_script_build-e7b6b0d23cb72f4b
+│   │   │   │       └── build_script_build-e7b6b0d23cb72f4b.d
+│   │   │   ├── deps
+│   │   │   │   ├── bsp_tests-f2414e7d35273b19
+│   │   │   │   ├── bsp_tests-f2414e7d35273b19.06b0vxepoe2j03y4of2f5yl4e.rcgu.o
+│   │   │   │   ├── bsp_tests-f2414e7d35273b19.08dqq0dv731d2bgwwnvdknwbv.rcgu.o
+│   │   │   │   ├── bsp_tests-f2414e7d35273b19.0nq54vxfdsqj4vuxzlrxtimp7.rcgu.o
+│   │   │   │   ├── bsp_tests-f2414e7d35273b19.0oiqi14um5ccjtygwq833ncj7.rcgu.o
+│   │   │   │   ├── bsp_tests-f2414e7d35273b19.11xsprbatfbojjtjviegttrm3.rcgu.o
+│   │   │   │   ├── bsp_tests-f2414e7d35273b19.32exelhuandqp8pyhk1ct27ky.rcgu.o
+│   │   │   │   ├── bsp_tests-f2414e7d35273b19.37k9gb6o4q5kuzq6vh7pw4c6m.rcgu.o
+│   │   │   │   ├── bsp_tests-f2414e7d35273b19.3zayskzs63oyoa2007v7ggp2f.rcgu.o
+│   │   │   │   ├── bsp_tests-f2414e7d35273b19.5wl3yycsplrnyqy8l0mfz7w8k.rcgu.o
+│   │   │   │   ├── bsp_tests-f2414e7d35273b19.5xmyynvipi08xluljlzef2shg.rcgu.o
+│   │   │   │   ├── bsp_tests-f2414e7d35273b19.61oq4q6r2et6bdzub9cp85aah.rcgu.o
+│   │   │   │   ├── bsp_tests-f2414e7d35273b19.7jspijl2xwusr1y8qct9kauhl.rcgu.o
+│   │   │   │   ├── bsp_tests-f2414e7d35273b19.7mwcdt182vt23d8haeiewmeoa.rcgu.o
+│   │   │   │   ├── bsp_tests-f2414e7d35273b19.85lfhiolytqmyaggqwy255jw2.rcgu.o
+│   │   │   │   ├── bsp_tests-f2414e7d35273b19.8mfhsrgcvdudircdyyqiy4lj1.rcgu.o
+│   │   │   │   ├── bsp_tests-f2414e7d35273b19.8ms443lojyw97ib7ctkdbvi5a.rcgu.o
+│   │   │   │   ├── bsp_tests-f2414e7d35273b19.8zeb5itr8cb46rii2l34ztnjk.rcgu.o
+│   │   │   │   ├── bsp_tests-f2414e7d35273b19.9l9it217xzgsgjhk7rq3spw8g.rcgu.o
+│   │   │   │   ├── bsp_tests-f2414e7d35273b19.a353teu2t004lc0odydrgwg7n.rcgu.o
+│   │   │   │   ├── bsp_tests-f2414e7d35273b19.a9hbl2120kblfirxjxj943q8f.rcgu.o
+│   │   │   │   ├── bsp_tests-f2414e7d35273b19.achjhj6v89pkxk7ht8zwtlpwo.rcgu.o
+│   │   │   │   ├── bsp_tests-f2414e7d35273b19.b1s611rwb3kop841tz8pjtn9q.rcgu.o
+│   │   │   │   ├── bsp_tests-f2414e7d35273b19.c2oetxdac3222t66agx81956q.rcgu.o
+│   │   │   │   ├── bsp_tests-f2414e7d35273b19.d
+│   │   │   │   ├── bsp_tests-f2414e7d35273b19.eogyd7bhq4augus02xrf2t7pc.rcgu.o
+│   │   │   │   ├── bsp_tests-f2414e7d35273b19.f5an0yjeewgpz5vzmm2h4m3ry.rcgu.o
+│   │   │   │   ├── byteorder-eb72a7cea50981e2.byteorder.e14c01840ffc88f5-cgu.0.rcgu.o
+│   │   │   │   ├── byteorder-eb72a7cea50981e2.d
+│   │   │   │   ├── ephemeris-864f7a22a55af31a
+│   │   │   │   ├── ephemeris-864f7a22a55af31a.atitwi1uh9002ztrl5xcyg4ip.rcgu.o
+│   │   │   │   ├── ephemeris-864f7a22a55af31a.bezl5c1f3srncv3kszezzzgee.rcgu.o
+│   │   │   │   ├── ephemeris-864f7a22a55af31a.d
+│   │   │   │   ├── ephemeris-864f7a22a55af31a.dbb889hixwf8oz3ap1d4ylwn5.rcgu.o
+│   │   │   │   ├── ephemeris-864f7a22a55af31a.dki9w7p217c59d8lafrd8ffxe.rcgu.o
+│   │   │   │   ├── ephemeris-864f7a22a55af31a.f47pii3cgnxyf2gij8tedjdrx.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.03j63j5q3b0kehticenk57vfq.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.05a7lqjhlym1iy1tcikugmdvx.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.06b87fey0hqmsbvtde9s5vlk7.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.06yu0wo6s3gmal9mheanaoj7x.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.0ny7k7plmazgxg1sxhpz51xlq.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.0q1jphcmmpd25oroxwx3npjcv.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.0qt19wiaxav9rv0f4jz5c0u8s.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.11tl4f4cslvhfrz00iafi0fvl.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.1fvt0zm1wwgncrkql76ifgihd.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.1ie8dmsajexqznk46sajgtr8u.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.1kmc6cne1sxmqhwtgjl3vmace.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.1nmlu3d6qk1fxa03n4e6ttwy1.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.1xosjrhkiyqlqo50q9llu5zrs.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.256g0tex42tfe71gmzu3123m4.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.26skocw5pgcy2187g649x12ve.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.28lo9zx7rvtagij55aulmnijd.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.2h8s144i02bs0w2h2l8don7a4.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.2hm6ifjk3nskzaiocg42hwyiq.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.2jc7dhdmiofkni9cnk5r3nc7y.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.2kwh56mprthw45vtciz7x7ukz.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.2zgghax01wezoh8zmu156eqox.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.392io6p9cqi3q282fprt6v0tt.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.4bo7kwcmkxt7637fvhml5bx11.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.4cbojil5udyakojl3k71blvxo.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.4rcunrloqalw3sdsoy8qoibvn.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.4yyhnb4y0sdg57wmvoqpuedl6.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.512sx75xe73unhhxelflf5vzl.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.51rm2ehjeqkmhixu3cyil086u.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.57hd9dij1o4hb9vx7fjoakv3q.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.6b9du1yr2436100bftwypena5.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.6bze8yfi6ori33787omys3351.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.6jrwnhagj8d6jn0gy67oz7ej6.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.6k62y1qri1b8elhs3u08fl8po.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.6kf4h7veh4hecdh2fwhyn3dfn.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.6vnrrqnry0kikfcdxym1sfjlb.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.70a5p9opke1ao3l8e7tdf7nsv.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.7acav9o4x8d92iswc0j4smufa.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.7du07a2c1cro024ck10u93len.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.7f0cc4xgv5yuy1lqqume9ls8l.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.7lam0b9oyz6mju2ra30quubpx.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.7n3nhz66t4xmqgjz9zck6c7je.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.83sfx113ozwaa7n6g8xfp7srk.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.89nf3dw85pjcdpxvfjbhe800o.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.8gqknsklvznmfmy7ax8ef7eur.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.8i7pkridevh33s3t4w60g77ai.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.8kz2ilrkhnwocbejq1iwl6oz2.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.8p42sw2hycdoqc0y01t3o534w.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.90oos34jnsuoucltp2qwlm4kb.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.9a2zhe7jyphgkjxrez2y8k8yj.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.9t0ssejvok4cigkfo46lh27b7.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.9wpx1evu3425csu904ocyu2xu.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.9ynjq1z96cfmxv05quz9okxz1.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.a84tzs2q3wlohfe129gmw5qlv.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.adkeiaj3gvygzwebyqjee99kt.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.aeqiof8u7capm8l6m7erxh0r0.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.afaqmpymuzlisfpt0vejwk01c.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.al726gof5x0d1am4oj1wioev5.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.amclznowiw94gbfi2mwdfvqo9.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.atfo1i775kc5awye8k967ucg9.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.ax2j6c6sc8i74wb1gwectcnm4.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.c7it4e5biqjrm2lsr3yxmvhvt.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.cg99lzrmruaorl4d4kx4c5gw1.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.cs79ryd3mx4hta5vpqltidhow.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.cs7zbydchqr6h6cfpldwxnayw.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.cutfo8ghs0rcbdrbziklsurjs.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.cx4umuta35ve8cek5vwllfc46.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.czc5t4y29ebr4in4uf4inxcd3.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.d
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.ddqw2kp7ad4uddur5vtg1u8co.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.dem22rr2vswohpkldtkhjsjwj.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.djekhlltk3kt17yg2sjnqou33.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.djhigfmdppmxp79yprqh2zsbe.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.du3qm71vsaje6u8m2q1uya3mb.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.dyxu7u6o48fjsl5d4f6qnmqi0.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.eshwemmesqbnd8unmaqnz5kyg.rcgu.o
+│   │   │   │   ├── ephemeris-aaa1f5d7cf79f1a4.eymvjr2ns58qhe0ooj2je18sl.rcgu.o
+│   │   │   │   ├── libbyteorder-eb72a7cea50981e2.rlib
+│   │   │   │   ├── libbyteorder-eb72a7cea50981e2.rmeta
+│   │   │   │   ├── libephemeris-aaa1f5d7cf79f1a4.rlib
+│   │   │   │   ├── libephemeris-aaa1f5d7cf79f1a4.rmeta
+│   │   │   │   ├── libproc_macro2-0efce5b7b3717f10.rlib
+│   │   │   │   ├── libproc_macro2-0efce5b7b3717f10.rmeta
+│   │   │   │   ├── libquote-30b03719c148a6f0.rlib
+│   │   │   │   ├── libquote-30b03719c148a6f0.rmeta
+│   │   │   │   ├── libserde-5d3b23baec6aa335.rlib
+│   │   │   │   ├── libserde-5d3b23baec6aa335.rmeta
+│   │   │   │   ├── libserde_derive-9e3bf5d7f598d01d.dylib
+│   │   │   │   ├── libsyn-141f15e92bd731b4.rlib
+│   │   │   │   ├── libsyn-141f15e92bd731b4.rmeta
+│   │   │   │   ├── libunicode_ident-904b1c5de53466ff.rlib
+│   │   │   │   ├── libunicode_ident-904b1c5de53466ff.rmeta
+│   │   │   │   ├── position_tests-13bd17a82d5c396f
+│   │   │   │   ├── position_tests-13bd17a82d5c396f.0edrh5k2m56w3v82g610o3f6k.rcgu.o
+│   │   │   │   ├── position_tests-13bd17a82d5c396f.0h976am7jrk810zb829m1doew.rcgu.o
+│   │   │   │   ├── position_tests-13bd17a82d5c396f.0tl4dtlve24uwzyubu93f49ar.rcgu.o
+│   │   │   │   ├── position_tests-13bd17a82d5c396f.14dnmww33jn7d37sy4u6dvksm.rcgu.o
+│   │   │   │   ├── position_tests-13bd17a82d5c396f.2b3fwhgikug3cplcvw1zuiso3.rcgu.o
+│   │   │   │   ├── position_tests-13bd17a82d5c396f.2hvkxwi8j27qlv5ygccwtzvmk.rcgu.o
+│   │   │   │   ├── position_tests-13bd17a82d5c396f.2xqfmdrst6yw61ktpo1q9de9j.rcgu.o
+│   │   │   │   ├── position_tests-13bd17a82d5c396f.32wuindggm4dkyp4f2s4eseo6.rcgu.o
+│   │   │   │   ├── position_tests-13bd17a82d5c396f.3t9ahw2fd9djseo7lx4tihuxj.rcgu.o
+│   │   │   │   ├── position_tests-13bd17a82d5c396f.3z4s8ubpj41b2dnubjdykmzzd.rcgu.o
+│   │   │   │   ├── position_tests-13bd17a82d5c396f.3z5jkw09lt9k5bgf2lsy2hlk1.rcgu.o
+│   │   │   │   ├── position_tests-13bd17a82d5c396f.46d3bwzcdopnwc4sxob40159h.rcgu.o
+│   │   │   │   ├── position_tests-13bd17a82d5c396f.4chu9nndnaiw5js3x31axr1bf.rcgu.o
+│   │   │   │   ├── position_tests-13bd17a82d5c396f.4irqxuobthlhx7h3zm5qf1tgz.rcgu.o
+│   │   │   │   ├── position_tests-13bd17a82d5c396f.5u2yhvawaob3ppdrocutbcdlj.rcgu.o
+│   │   │   │   ├── position_tests-13bd17a82d5c396f.6i49dvawrc8dl1j0qfog7mxpl.rcgu.o
+│   │   │   │   ├── position_tests-13bd17a82d5c396f.7271e9lm5pqkqv34gt3ya49yk.rcgu.o
+│   │   │   │   ├── position_tests-13bd17a82d5c396f.76yptpbci92dt4y16u4y0rka5.rcgu.o
+│   │   │   │   ├── position_tests-13bd17a82d5c396f.78r126xhoe8kggtb5tkyyv2ls.rcgu.o
+│   │   │   │   ├── position_tests-13bd17a82d5c396f.8hr1h3y0b5rjjyq1rrdl9sg5m.rcgu.o
+│   │   │   │   ├── position_tests-13bd17a82d5c396f.8oc93t48rdk5cuiwa96gaj145.rcgu.o
+│   │   │   │   ├── position_tests-13bd17a82d5c396f.9lyw8j1x0idzzi57zfrcebtev.rcgu.o
+│   │   │   │   ├── position_tests-13bd17a82d5c396f.a7pzcy25naiy6x90b6wxic9y5.rcgu.o
+│   │   │   │   ├── position_tests-13bd17a82d5c396f.akcmqasgxabf3xy05yx7e8w1m.rcgu.o
+│   │   │   │   ├── position_tests-13bd17a82d5c396f.at1rso2w7kk7yabtygnikly2o.rcgu.o
+│   │   │   │   ├── position_tests-13bd17a82d5c396f.b5iqs3448r4zml7e5u6y791x2.rcgu.o
+│   │   │   │   ├── position_tests-13bd17a82d5c396f.bed1o03861m983l7cfdqdm31w.rcgu.o
+│   │   │   │   ├── position_tests-13bd17a82d5c396f.bfxozhll704dj4kiaaqdbira1.rcgu.o
+│   │   │   │   ├── position_tests-13bd17a82d5c396f.br3ex73hizgf8ej4d79bpxof7.rcgu.o
+│   │   │   │   ├── position_tests-13bd17a82d5c396f.cawv1ronrckmd5hz7vtig4j75.rcgu.o
+│   │   │   │   ├── position_tests-13bd17a82d5c396f.d
+│   │   │   │   ├── position_tests-13bd17a82d5c396f.d8kqgszxxf9h1nlrmjzgphkcf.rcgu.o
+│   │   │   │   ├── position_tests-13bd17a82d5c396f.dlpjisv85efr7echq82wli3v5.rcgu.o
+│   │   │   │   ├── position_tests-13bd17a82d5c396f.dxsxxebmjeb8ops7lrqthtue4.rcgu.o
+│   │   │   │   ├── position_tests-13bd17a82d5c396f.e5i1sxaltktp8e3btbwovebwm.rcgu.o
+│   │   │   │   ├── position_tests-13bd17a82d5c396f.edokemzgdj5eh929gnze3y460.rcgu.o
+│   │   │   │   ├── position_tests-13bd17a82d5c396f.eqfkyt4qc155arapkd47fs7iq.rcgu.o
+│   │   │   │   ├── position_tests-13bd17a82d5c396f.f47j76ivfixgqhyohth0tkmi5.rcgu.o
+│   │   │   │   ├── proc_macro2-0efce5b7b3717f10.d
+│   │   │   │   ├── quote-30b03719c148a6f0.d
+│   │   │   │   ├── serde-5d3b23baec6aa335.d
+│   │   │   │   ├── serde-5d3b23baec6aa335.serde.5ad8de0ecd0d7810-cgu.0.rcgu.o
+│   │   │   │   ├── serde_derive-9e3bf5d7f598d01d.d
+│   │   │   │   ├── syn-141f15e92bd731b4.d
+│   │   │   │   └── unicode_ident-904b1c5de53466ff.d
+│   │   │   ├── examples
+│   │   │   └── incremental
+│   │   │       ├── bsp_tests-024xnbv8j6sx3
+│   │   │       │   ├── s-h5hdlg967q-002exps-bl1li52dykyzipl5v6vyto4hm
+│   │   │       │   │   ├── 06b0vxepoe2j03y4of2f5yl4e.o
+│   │   │       │   │   ├── 08dqq0dv731d2bgwwnvdknwbv.o
+│   │   │       │   │   ├── 0nq54vxfdsqj4vuxzlrxtimp7.o
+│   │   │       │   │   ├── 0oiqi14um5ccjtygwq833ncj7.o
+│   │   │       │   │   ├── 11xsprbatfbojjtjviegttrm3.o
+│   │   │       │   │   ├── 32exelhuandqp8pyhk1ct27ky.o
+│   │   │       │   │   ├── 37k9gb6o4q5kuzq6vh7pw4c6m.o
+│   │   │       │   │   ├── 3zayskzs63oyoa2007v7ggp2f.o
+│   │   │       │   │   ├── 5wl3yycsplrnyqy8l0mfz7w8k.o
+│   │   │       │   │   ├── 5xmyynvipi08xluljlzef2shg.o
+│   │   │       │   │   ├── 61oq4q6r2et6bdzub9cp85aah.o
+│   │   │       │   │   ├── 7jspijl2xwusr1y8qct9kauhl.o
+│   │   │       │   │   ├── 7mwcdt182vt23d8haeiewmeoa.o
+│   │   │       │   │   ├── 85lfhiolytqmyaggqwy255jw2.o
+│   │   │       │   │   ├── 8mfhsrgcvdudircdyyqiy4lj1.o
+│   │   │       │   │   ├── 8ms443lojyw97ib7ctkdbvi5a.o
+│   │   │       │   │   ├── 8zeb5itr8cb46rii2l34ztnjk.o
+│   │   │       │   │   ├── 9l9it217xzgsgjhk7rq3spw8g.o
+│   │   │       │   │   ├── a353teu2t004lc0odydrgwg7n.o
+│   │   │       │   │   ├── a9hbl2120kblfirxjxj943q8f.o
+│   │   │       │   │   ├── achjhj6v89pkxk7ht8zwtlpwo.o
+│   │   │       │   │   ├── b1s611rwb3kop841tz8pjtn9q.o
+│   │   │       │   │   ├── c2oetxdac3222t66agx81956q.o
+│   │   │       │   │   ├── dep-graph.bin
+│   │   │       │   │   ├── eogyd7bhq4augus02xrf2t7pc.o
+│   │   │       │   │   ├── f5an0yjeewgpz5vzmm2h4m3ry.o
+│   │   │       │   │   ├── query-cache.bin
+│   │   │       │   │   └── work-products.bin
+│   │   │       │   └── s-h5hdlg967q-002exps.lock
+│   │   │       ├── ephemeris-3an42hwmmyna8
+│   │   │       │   ├── s-h5hdlg555r-1qfgd0b-c5e6qt07g6hchdugpfwbqupig
+│   │   │       │   │   ├── 03j63j5q3b0kehticenk57vfq.o
+│   │   │       │   │   ├── 05a7lqjhlym1iy1tcikugmdvx.o
+│   │   │       │   │   ├── 06b87fey0hqmsbvtde9s5vlk7.o
+│   │   │       │   │   ├── 06yu0wo6s3gmal9mheanaoj7x.o
+│   │   │       │   │   ├── 0ny7k7plmazgxg1sxhpz51xlq.o
+│   │   │       │   │   ├── 0q1jphcmmpd25oroxwx3npjcv.o
+│   │   │       │   │   ├── 0qt19wiaxav9rv0f4jz5c0u8s.o
+│   │   │       │   │   ├── 11tl4f4cslvhfrz00iafi0fvl.o
+│   │   │       │   │   ├── 1fvt0zm1wwgncrkql76ifgihd.o
+│   │   │       │   │   ├── 1ie8dmsajexqznk46sajgtr8u.o
+│   │   │       │   │   ├── 1kmc6cne1sxmqhwtgjl3vmace.o
+│   │   │       │   │   ├── 1nmlu3d6qk1fxa03n4e6ttwy1.o
+│   │   │       │   │   ├── 1xosjrhkiyqlqo50q9llu5zrs.o
+│   │   │       │   │   ├── 256g0tex42tfe71gmzu3123m4.o
+│   │   │       │   │   ├── 26skocw5pgcy2187g649x12ve.o
+│   │   │       │   │   ├── 28lo9zx7rvtagij55aulmnijd.o
+│   │   │       │   │   ├── 2h8s144i02bs0w2h2l8don7a4.o
+│   │   │       │   │   ├── 2hm6ifjk3nskzaiocg42hwyiq.o
+│   │   │       │   │   ├── 2jc7dhdmiofkni9cnk5r3nc7y.o
+│   │   │       │   │   ├── 2kwh56mprthw45vtciz7x7ukz.o
+│   │   │       │   │   ├── 2zgghax01wezoh8zmu156eqox.o
+│   │   │       │   │   ├── 392io6p9cqi3q282fprt6v0tt.o
+│   │   │       │   │   ├── 4bo7kwcmkxt7637fvhml5bx11.o
+│   │   │       │   │   ├── 4cbojil5udyakojl3k71blvxo.o
+│   │   │       │   │   ├── 4rcunrloqalw3sdsoy8qoibvn.o
+│   │   │       │   │   ├── 4yyhnb4y0sdg57wmvoqpuedl6.o
+│   │   │       │   │   ├── 512sx75xe73unhhxelflf5vzl.o
+│   │   │       │   │   ├── 51rm2ehjeqkmhixu3cyil086u.o
+│   │   │       │   │   ├── 57hd9dij1o4hb9vx7fjoakv3q.o
+│   │   │       │   │   ├── 6b9du1yr2436100bftwypena5.o
+│   │   │       │   │   ├── 6bze8yfi6ori33787omys3351.o
+│   │   │       │   │   ├── 6jrwnhagj8d6jn0gy67oz7ej6.o
+│   │   │       │   │   ├── 6k62y1qri1b8elhs3u08fl8po.o
+│   │   │       │   │   ├── 6kf4h7veh4hecdh2fwhyn3dfn.o
+│   │   │       │   │   ├── 6vnrrqnry0kikfcdxym1sfjlb.o
+│   │   │       │   │   ├── 70a5p9opke1ao3l8e7tdf7nsv.o
+│   │   │       │   │   ├── 7acav9o4x8d92iswc0j4smufa.o
+│   │   │       │   │   ├── 7du07a2c1cro024ck10u93len.o
+│   │   │       │   │   ├── 7f0cc4xgv5yuy1lqqume9ls8l.o
+│   │   │       │   │   ├── 7lam0b9oyz6mju2ra30quubpx.o
+│   │   │       │   │   ├── 7n3nhz66t4xmqgjz9zck6c7je.o
+│   │   │       │   │   ├── 83sfx113ozwaa7n6g8xfp7srk.o
+│   │   │       │   │   ├── 89nf3dw85pjcdpxvfjbhe800o.o
+│   │   │       │   │   ├── 8gqknsklvznmfmy7ax8ef7eur.o
+│   │   │       │   │   ├── 8i7pkridevh33s3t4w60g77ai.o
+│   │   │       │   │   ├── 8kz2ilrkhnwocbejq1iwl6oz2.o
+│   │   │       │   │   ├── 8p42sw2hycdoqc0y01t3o534w.o
+│   │   │       │   │   ├── 90oos34jnsuoucltp2qwlm4kb.o
+│   │   │       │   │   ├── 9a2zhe7jyphgkjxrez2y8k8yj.o
+│   │   │       │   │   ├── 9t0ssejvok4cigkfo46lh27b7.o
+│   │   │       │   │   ├── 9wpx1evu3425csu904ocyu2xu.o
+│   │   │       │   │   ├── 9ynjq1z96cfmxv05quz9okxz1.o
+│   │   │       │   │   ├── a84tzs2q3wlohfe129gmw5qlv.o
+│   │   │       │   │   ├── adkeiaj3gvygzwebyqjee99kt.o
+│   │   │       │   │   ├── aeqiof8u7capm8l6m7erxh0r0.o
+│   │   │       │   │   ├── afaqmpymuzlisfpt0vejwk01c.o
+│   │   │       │   │   ├── al726gof5x0d1am4oj1wioev5.o
+│   │   │       │   │   ├── amclznowiw94gbfi2mwdfvqo9.o
+│   │   │       │   │   ├── atfo1i775kc5awye8k967ucg9.o
+│   │   │       │   │   ├── ax2j6c6sc8i74wb1gwectcnm4.o
+│   │   │       │   │   ├── c7it4e5biqjrm2lsr3yxmvhvt.o
+│   │   │       │   │   ├── cg99lzrmruaorl4d4kx4c5gw1.o
+│   │   │       │   │   ├── cs79ryd3mx4hta5vpqltidhow.o
+│   │   │       │   │   ├── cs7zbydchqr6h6cfpldwxnayw.o
+│   │   │       │   │   ├── cutfo8ghs0rcbdrbziklsurjs.o
+│   │   │       │   │   ├── cx4umuta35ve8cek5vwllfc46.o
+│   │   │       │   │   ├── czc5t4y29ebr4in4uf4inxcd3.o
+│   │   │       │   │   ├── ddqw2kp7ad4uddur5vtg1u8co.o
+│   │   │       │   │   ├── dem22rr2vswohpkldtkhjsjwj.o
+│   │   │       │   │   ├── dep-graph.bin
+│   │   │       │   │   ├── djekhlltk3kt17yg2sjnqou33.o
+│   │   │       │   │   ├── djhigfmdppmxp79yprqh2zsbe.o
+│   │   │       │   │   ├── du3qm71vsaje6u8m2q1uya3mb.o
+│   │   │       │   │   ├── dyxu7u6o48fjsl5d4f6qnmqi0.o
+│   │   │       │   │   ├── eshwemmesqbnd8unmaqnz5kyg.o
+│   │   │       │   │   ├── eymvjr2ns58qhe0ooj2je18sl.o
+│   │   │       │   │   ├── query-cache.bin
+│   │   │       │   │   └── work-products.bin
+│   │   │       │   └── s-h5hdlg555r-1qfgd0b.lock
+│   │   │       ├── ephemeris-3qotdmnbeetfz
+│   │   │       │   ├── s-h5hdlg6n3q-0v1pwqk-1o45qyvf31x31t8yy0cp03ou3
+│   │   │       │   │   ├── atitwi1uh9002ztrl5xcyg4ip.o
+│   │   │       │   │   ├── bezl5c1f3srncv3kszezzzgee.o
+│   │   │       │   │   ├── dbb889hixwf8oz3ap1d4ylwn5.o
+│   │   │       │   │   ├── dep-graph.bin
+│   │   │       │   │   ├── dki9w7p217c59d8lafrd8ffxe.o
+│   │   │       │   │   ├── f47pii3cgnxyf2gij8tedjdrx.o
+│   │   │       │   │   ├── query-cache.bin
+│   │   │       │   │   └── work-products.bin
+│   │   │       │   └── s-h5hdlg6n3q-0v1pwqk.lock
+│   │   │       └── position_tests-2go5goa5b8lxe
+│   │   │           ├── s-h5hdlg9663-1y1c987-eu8lnp729cz8jo6ivj967tk1u
+│   │   │           │   ├── 0edrh5k2m56w3v82g610o3f6k.o
+│   │   │           │   ├── 0h976am7jrk810zb829m1doew.o
+│   │   │           │   ├── 0tl4dtlve24uwzyubu93f49ar.o
+│   │   │           │   ├── 14dnmww33jn7d37sy4u6dvksm.o
+│   │   │           │   ├── 2b3fwhgikug3cplcvw1zuiso3.o
+│   │   │           │   ├── 2hvkxwi8j27qlv5ygccwtzvmk.o
+│   │   │           │   ├── 2xqfmdrst6yw61ktpo1q9de9j.o
+│   │   │           │   ├── 32wuindggm4dkyp4f2s4eseo6.o
+│   │   │           │   ├── 3t9ahw2fd9djseo7lx4tihuxj.o
+│   │   │           │   ├── 3z4s8ubpj41b2dnubjdykmzzd.o
+│   │   │           │   ├── 3z5jkw09lt9k5bgf2lsy2hlk1.o
+│   │   │           │   ├── 46d3bwzcdopnwc4sxob40159h.o
+│   │   │           │   ├── 4chu9nndnaiw5js3x31axr1bf.o
+│   │   │           │   ├── 4irqxuobthlhx7h3zm5qf1tgz.o
+│   │   │           │   ├── 5u2yhvawaob3ppdrocutbcdlj.o
+│   │   │           │   ├── 6i49dvawrc8dl1j0qfog7mxpl.o
+│   │   │           │   ├── 7271e9lm5pqkqv34gt3ya49yk.o
+│   │   │           │   ├── 76yptpbci92dt4y16u4y0rka5.o
+│   │   │           │   ├── 78r126xhoe8kggtb5tkyyv2ls.o
+│   │   │           │   ├── 8hr1h3y0b5rjjyq1rrdl9sg5m.o
+│   │   │           │   ├── 8oc93t48rdk5cuiwa96gaj145.o
+│   │   │           │   ├── 9lyw8j1x0idzzi57zfrcebtev.o
+│   │   │           │   ├── a7pzcy25naiy6x90b6wxic9y5.o
+│   │   │           │   ├── akcmqasgxabf3xy05yx7e8w1m.o
+│   │   │           │   ├── at1rso2w7kk7yabtygnikly2o.o
+│   │   │           │   ├── b5iqs3448r4zml7e5u6y791x2.o
+│   │   │           │   ├── bed1o03861m983l7cfdqdm31w.o
+│   │   │           │   ├── bfxozhll704dj4kiaaqdbira1.o
+│   │   │           │   ├── br3ex73hizgf8ej4d79bpxof7.o
+│   │   │           │   ├── cawv1ronrckmd5hz7vtig4j75.o
+│   │   │           │   ├── d8kqgszxxf9h1nlrmjzgphkcf.o
+│   │   │           │   ├── dep-graph.bin
+│   │   │           │   ├── dlpjisv85efr7echq82wli3v5.o
+│   │   │           │   ├── dxsxxebmjeb8ops7lrqthtue4.o
+│   │   │           │   ├── e5i1sxaltktp8e3btbwovebwm.o
+│   │   │           │   ├── edokemzgdj5eh929gnze3y460.o
+│   │   │           │   ├── eqfkyt4qc155arapkd47fs7iq.o
+│   │   │           │   ├── f47j76ivfixgqhyohth0tkmi5.o
+│   │   │           │   ├── query-cache.bin
+│   │   │           │   └── work-products.bin
+│   │   │           └── s-h5hdlg9663-1y1c987.lock
+│   │   └── tmp
+│   └── wasm-ephemeris-api
+│       ├── Cargo.toml
+│       ├── src
+│       │   └── lib.rs
+│       └── tests
+│           └── api_tests.rs
 └── wasm-mini-server
     ├── Cargo.lock
     ├── Cargo.toml
@@ -1865,4 +2369,4 @@
     └── tests
         └── tests.rs
 
-318 directories, 1548 files
+378 directories, 1992 files

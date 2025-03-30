@@ -1,0 +1,36 @@
+.bottomRight {
+    background: rgba(0, 0, 0, 0.8); /* Updated background */
+    border: 2px solid #00C4FF; /* Neon Blue */
+    border-radius: 5px; /* Slightly rounded corners */
+    padding: 0px;
+    box-shadow: 0 0 10px #00C4FF; /* Glow effect */
+    color: #00C4FF; /* Neon Blue text */
+    font-family: 'Orbitron', Arial, sans-serif; /* Futuristic font */
+    width: 100%; /* Match TinyGlobe width */
+    height: auto; /* Adjust height */
+    position: absolute; /* Updated position */
+    top: 0;
+    bottom: 0px; /* Stop at the top of the BottomBar */
+    left: 0;
+}
+
+.header {
+    font-size: 24px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #00C4FF; /* Neon Blue */
+    text-shadow: 0 0 2px #00C4FF; /* Glow effect */
+    margin-bottom: 10px;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Spacing between elements */
+}
+
+.text {
+    font-size: 14px;
+    color: #A0A0A0; /* Neutral Gray */
+}

@@ -4,7 +4,8 @@ import styles from './BottomLeft.module.css';
 const BottomLeft: React.FC = () => {
   return (
     <div className={styles.bottomLeft}>
-      {/* Add your BottomLeft content here */}
+      <div className={styles.content}>
+      </div>
     </div>
   );
 };

@@ -1,11 +1,19 @@
 import React from 'react';
 import styles from './TopBar.module.css';
 import { useDashboard } from '../../../../context/DashboardContext';
+import wingCommanderLogo from '../../../../assets/images/WingCommanderLogo-288x162.gif';
 
 const TopBar: React.FC = () => {
   const { oilPrice, gasolinePrice, oilInventory, naturalGasStorage, loading, error } = useDashboard();
   return (
     <div className={styles.topBar}>
+      <div className={styles.logoSection}>
+        <img 
+          src={wingCommanderLogo} 
+          alt="Wing Commander Logo" 
+          className={styles.logo} 
+        />
+      </div>
       <div className={styles.resourceSection}>
         <span>🛢️ Oil Price: </span>
         {loading ? (

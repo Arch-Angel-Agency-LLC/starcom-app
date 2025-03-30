@@ -28,8 +28,7 @@ The 3D Globe remains the tactical interface, but now integrates real-time financ
 💠 Financial & Business News Aggregation (Market Sentiment Analysis)
 💠 Capital Flows & Money Movements (Smart Money Tracking)
 💠 Geo-Economic Indicators (Inflation, Interest Rates, Trade Data)
-💠 Time-Scrubbing & AI Predictions (Market Forecasts & Historical Playback)
-💠 Investor Sentiment & Risk Analysis
+💠 Time-Scrubbing & AI Predictions (Market Forecasts & Historical Records)
 
 🔍 UI Breakdown: What Appears on the Globe?
 
@@ -77,6 +76,8 @@ The 3D Globe remains the tactical interface, but now integrates real-time financ
 	•	📊 Employment Data (Unemployment Rate, Wages, Productivity)
 	•	💵 Currency Manipulation (Forex Black Swan Events)
 	•	🛢️ Energy Price Fluctuations & OPEC Movements
+	•	🛰️ Schumann Resonance and Space Weather
+	•	⚡️ Electric Field Global Magnetometrics
 
 📌 Interaction:
 	•	Click any country/region to pull up real-time economic stats.

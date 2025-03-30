@@ -1,8 +1,9 @@
 .hudLayout {
   display: flex;
   flex-wrap: wrap;
+  flex-direction: column; /* Stack elements vertically */
   height: 100vh;
-  width: 100vh;
+  width: 100vw; /* Ensure full width of the viewport */
   position: relative;
   pointer-events: none; /* Allow clicks to pass through */
 }
@@ -14,11 +15,11 @@
 .topLeftCorner, .topRightCorner,
 .bottomLeftCorner, .bottomRightCorner {
   position: absolute;
-  z-index: 2; /* Corners take priority for z-space */
+  z-index: 10; /* Corners take priority for z-space */
   background: rgba(0, 0, 0, 0); /* transparent background */
   pointer-events: auto; /* Enable clicks on HUD components */
-  width: 33%;
-  height: 33%;
+  width: 30%;
+  height: 30%;
 }
 
 .topLeftCorner {
@@ -32,13 +33,15 @@
 }
 
 .bottomLeftCorner {
-  bottom: 0;
-  left: 0;
+  bottom: 3%;
+  background: rgba(0, 0, 0, 0.8); /* transparent background */
+  left: 5%; /* Ensure it aligns with the left side */
 }
 
 .bottomRightCorner {
-  bottom: 0;
-  right: 0;
+  bottom: 3%;
+  right: 5%;
+  background: rgba(0, 0, 0, 0.8); /* transparent background */
 }
 
 .topBar, .bottomBar {
@@ -55,10 +58,12 @@
 }
 
 .bottomBar {
-  z-index: 3;
   bottom: 0;
-  width: 100%;
-  height: 15%;
+  left: 0;
+  right: 0;
+  width: 100%; /* Stretch across the full width of the screen */
+  height: 5%; /* Adjust height as needed */
+  z-index: 3;
 }
 
 .leftSideBar, .rightSideBar {
@@ -68,18 +73,22 @@
 }
 
 .leftSideBar {
+  position: absolute;
+  z-index: 5;
+  top: 0;
   left: 0;
-  width: 5%; /* Adjust width to be very narrow */
-  height: 100%;
+  width: 5%; /* Adjust width as needed */
+  bottom: 0; /* Dynamically stop at the top of the BottomBar */
   background-image: url('../../assets/images/Starcom-UI_ConceptArt-sideLeft.png');
   background-size: contain;
-  background-repeat:no-repeat;
+  background-repeat: no-repeat;
 }
 
 .rightSideBar {
   right: 0;
   width: 5%;
-  height: 100%;
+  top: 5%; /* Start from the top */
+  bottom: 5%;
 }
 
 .center {
