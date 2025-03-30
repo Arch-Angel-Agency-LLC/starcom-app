@@ -2,9 +2,14 @@
     display: flex;
     justify-content: space-between;
     align-self: flex-end;
-    padding: 10px;
+    padding: 0%;
     background: rgba(0, 0, 0, 0.8);
     color: #fff;
+    width: 100%; /* Stretch across the full width of the screen */
+    height: 5%; /* Ensure consistent height */
+    position: fixed; /* Fix the BottomBar to the bottom of the viewport */
+    bottom: 0;
+    left: 0;
 }
 
 .resourceSection {

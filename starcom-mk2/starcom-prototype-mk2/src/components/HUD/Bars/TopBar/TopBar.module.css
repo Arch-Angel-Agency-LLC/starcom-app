@@ -2,15 +2,19 @@
 .topBar {
     position: absolute;
     top: 0;
-    width: 100%;
+    left: 100px; /* Offset to match the width of the LeftSideBar */
+    right: 0px; /* Extend to the right edge of the screen */
     height: 40px;
     background: rgba(0, 0, 0, 0.7);
     color: white;
     display: flex;
-    justify-content: space-between;
+    flex-direction: row; /* Ensure items are aligned horizontally */
     align-items: center;
-    padding: 5px 20px;
-    font-size: 14px;
+    gap: 20px; /* Add spacing between sections */
+    justify-content: space-between;
+    padding: 0px 0px; /* Increase padding for better spacing */
+    font-size: 16px; /* Slightly increase font size for readability */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5); /* Add a subtle shadow for depth */
   }
   
   .section {
@@ -35,4 +39,54 @@
   
   .intel, .market, .cyber, .time {
     font-weight: bold;
+  }
+
+  .logo {
+    height: 3em; /* Adjust the height to match the font size */
+    margin-right: 0em; /* Add some spacing between the logo and the text */
+    vertical-align: middle; /* Align the logo with the text */
+  }
+
+  .logoSection {
+    display: flex;
+    align-items: left;
+    justify-content: left;
+    flex-shrink: 0; /* Prevent the logo section from shrinking */
+    margin-right: 0px; /* Add spacing between the logo and the resource sections */
+  }
+
+  .resourceSection {
+    display: flex;
+    align-items: center;
+    gap: 5px; /* Add spacing between the label and the value */
+    flex-wrap: wrap; /* Allow wrapping if the content overflows */
+    flex: 1; /* Allow resource sections to take up equal space */
+    justify-content: flex-start; /* Align content to the start */
+  }
+
+  .resourceSection span {
+    white-space: nowrap; /* Prevent text from wrapping */
+  }
+
+  .error {
+    color: red;
+    font-weight: bold;
+    font-size: 14px; /* Slightly smaller font for error messages */
+  }
+
+  @media (max-width: 768px) {
+    .topBar {
+      flex-direction: column; /* Stack items vertically on smaller screens */
+      align-items: flex-start; /* Align items to the start */
+      gap: 10px; /* Reduce spacing between sections */
+    }
+
+    .logoSection {
+      margin-right: 0; /* Remove extra margin in stacked layout */
+    }
+
+    .resourceSection {
+      flex: none; /* Prevent sections from stretching */
+      width: 100%; /* Make sections take full width */
+    }
   }

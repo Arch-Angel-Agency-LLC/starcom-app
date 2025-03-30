@@ -1,4 +1,4 @@
-mod bsp;
+pub mod bsp;  // Changed from mod bsp;
 use bsp::BspData;
 use std::collections::HashMap;
 
@@ -21,7 +21,6 @@ impl Ephemeris {
         let planet_id = match planet.to_lowercase().as_str() {
             "earth" => 399,
             "mars" => 499,
-            // Add more mappings as needed
             _ => return (0.0, 0.0, 0.0),
         };
         self.bsp_data
