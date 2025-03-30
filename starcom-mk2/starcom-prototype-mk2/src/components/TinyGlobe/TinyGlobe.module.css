@@ -6,6 +6,7 @@
     top: 0px;
     left: 0px;
     z-index: 1000;
+    pointer-events: none; /* Allow clicks to pass through */
 }
 
 .dayShader {
@@ -16,4 +17,30 @@
 .nightShader {
     background: linear-gradient(to bottom, #000000, #000033); /* Black to dark blue */
     opacity: 0.7;
+}
+
+.buttonContainer {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    pointer-events: auto; /* Enable interaction with buttons */
+}
+
+.shaderButton {
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.shaderButton:hover {
+    background-color: #0056b3;
+}
+
+.shaderButton:active {
+    background-color: #003f7f;
 }
