@@ -32,6 +32,7 @@
     "styled-components": "^6.1.13",
     "tailwindcss-animate": "^1.0.7",
     "three": "^0.171.0",
+    "uuid": "^11.1.0",
     "wagmi": "^2.14.5",
     "xml2js": "^0.6.2",
     "zustand": "^5.0.3"

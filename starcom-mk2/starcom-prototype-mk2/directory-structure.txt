@@ -22,6 +22,7 @@
 │   ├── starcom.ico
 │   └── starcom.png
 ├── eslint.config.js
+├── hardhat.config.ts
 ├── index.html
 ├── jest.config.js
 ├── package-lock.json
@@ -30,6 +31,8 @@
 ├── public
 │   ├── starcom.ico
 │   └── starcom.png
+├── scripts
+│   └── deploy.ts
 ├── src
 │   ├── .eslintrc.js
 │   ├── .prettierrc
@@ -50,13 +53,17 @@
 │   │       ├── Starcom-UI_ConceptArt-bottomLeft.png
 │   │       ├── Starcom-UI_ConceptArt-bottomMiddle.png
 │   │       ├── Starcom-UI_ConceptArt-bottomRight.png
-│   │       └── Starcom-UI_ConceptArt-sideLeft.png
+│   │       ├── Starcom-UI_ConceptArt-sideLeft.png
+│   │       └── WingCommanderLogo-288x162.gif
 │   ├── cache
 │   │   ├── Cache.ts
 │   │   ├── CacheManager.ts
 │   │   ├── CacheRegistry.ts
 │   │   └── EIADataCacheService.ts
 │   ├── components
+│   │   ├── .DS_Store
+│   │   ├── Auth
+│   │   │   └── TermsModal.tsx
 │   │   ├── Conflict
 │   │   │   ├── ConflictDetails.tsx
 │   │   │   └── ConflictList.tsx
@@ -160,6 +167,9 @@
 │   │   │       ├── Tooltip.md
 │   │   │       ├── Tooltip.module.css
 │   │   │       └── Tooltip.tsx
+│   │   ├── Marketplace
+│   │   │   ├── ListReportForm.tsx
+│   │   │   └── ReportList.tsx
 │   │   ├── Shared
 │   │   │   ├── Button.tsx
 │   │   │   ├── Card.tsx
@@ -182,6 +192,9 @@
 │   │   ├── TimeDataProvider.tsx
 │   │   ├── UCDPContext.tsx
 │   │   └── WASMContext.tsx
+│   ├── contracts
+│   │   ├── IntelToken.sol
+│   │   └── IntelligenceMarket.sol
 │   ├── data
 │   │   ├── ConflictZones.json
 │   │   └── GeoJSONSample.json
@@ -194,7 +207,8 @@
 │   │   │   ├── useAuth.ts
 │   │   │   └── useGlobeInteractions.ts
 │   │   ├── useEIAData.ts
-│   │   └── useWASM.ts
+│   │   ├── useWASM.ts
+│   │   └── useWallet.ts
 │   ├── interfaces
 │   │   ├── EIAData.ts
 │   │   ├── MarketData.ts
@@ -233,6 +247,7 @@
 │   │   ├── EIAService.ts
 │   │   ├── FeedsService.ts
 │   │   ├── FiltersService.ts
+│   │   ├── IPFSService.ts
 │   │   ├── MarketDataService.ts
 │   │   ├── UCDPDataService.ts
 │   │   ├── UserDataService.ts
@@ -2369,4 +2384,4 @@
     └── tests
         └── tests.rs
 
-378 directories, 1992 files
+382 directories, 2003 files

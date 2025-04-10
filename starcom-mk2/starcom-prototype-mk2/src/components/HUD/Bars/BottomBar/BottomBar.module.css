@@ -3,7 +3,7 @@
     justify-content: space-between;
     align-self: flex-end;
     padding: 0%;
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.0);
     color: #fff;
     width: 100%; /* Stretch across the full width of the screen */
     height: 5%; /* Ensure consistent height */
