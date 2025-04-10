@@ -7,6 +7,7 @@ const AppRoutes: React.FC = () => (
   <Routes>
     <Route path="/" element={<MainPage />} />
     <Route path="/settings" element={<SettingsPage />} />
+    <Route path="/intelreports" element={<SettingsPage />} />
   </Routes>
 );
 

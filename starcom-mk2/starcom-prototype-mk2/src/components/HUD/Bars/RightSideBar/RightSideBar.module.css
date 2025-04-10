@@ -12,6 +12,7 @@
     top: 0;
     bottom: 0px; /* Stop at the top of the BottomBar */
     left: 0;
+    pointer-events: auto; /* Enable clicks on HUD components */
 }
 
 .header {
@@ -33,4 +34,52 @@
 .text {
     font-size: 14px;
     color: #A0A0A0; /* Neutral Gray */
+}
+
+.scrollContainer {
+  max-height: 100%; /* Limit height to the containing RightSideBar */
+  overflow: hidden; /* Prevent overflow outside the container */
+  display: flex;
+  flex-direction: column;
+}
+
+.scrollView {
+  overflow-y: auto; /* Enable vertical scrolling */
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 1; /* Ensures square buttons */
+  margin-bottom: 10px;
+  background: rgba(0, 0, 0, 0.8); /* Simplified background */
+  border: 2px solid #00C4FF; /* Neon Blue border */
+  border-radius: 5px; /* Slightly rounded corners */
+  text-decoration: none;
+  color: #00C4FF; /* Neon Blue text */
+  font-size: 1.5rem; /* Larger font size for emojis */
+  transition: transform 0.2s, background 0.2s;
+}
+
+.button:hover {
+  transform: scale(1.05);
+  background: rgba(0, 0, 0, 1); /* Slightly darker on hover */
+}
+
+.icon {
+  width: 50%;
+  height: auto;
+  margin-bottom: 5px;
+}
+
+.label {
+  font-size: 0.8rem;
+  text-align: center;
+  margin-top: 5px;
 }
