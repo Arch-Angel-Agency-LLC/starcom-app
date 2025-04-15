@@ -4,6 +4,8 @@ import AppRoutes from "./routes/routes";
 import { WASMProvider, useWASM } from "./context/WASMContext";
 import { DashboardProvider } from "./context/DashboardContext"
 import { GlobeProvider } from './context/GlobeContext.tsx';
+import { VisualizationModeProvider } from './context/VisualizationModeContext';
+import { AuthProvider } from './context/AuthContext.tsx';
 import "./styles/globals.css";
 
 const AppContent: React.FC = () => {
@@ -62,20 +64,24 @@ const AppContent: React.FC = () => {
   }, [wasmReady, fetchFromMiniServer, fetchPromise]);
 
   return (
-    <BrowserRouter>
-      <AppRoutes />
-    </BrowserRouter>
+    <VisualizationModeProvider>
+      <BrowserRouter>
+        <AppRoutes />
+      </BrowserRouter>
+    </VisualizationModeProvider>
   );
 };
 
 const App: React.FC = () => (
-  <WASMProvider>
-    <DashboardProvider>
-      <GlobeProvider>
-        <AppContent />
-      </GlobeProvider>
-    </DashboardProvider>
-  </WASMProvider>
+  <AuthProvider>
+    <WASMProvider>
+      <DashboardProvider>
+        <GlobeProvider>
+          <AppContent />
+        </GlobeProvider>
+      </DashboardProvider>
+    </WASMProvider>
+  </AuthProvider>
 );
 
 export default App;

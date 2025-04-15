@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styles from './BottomRight.module.css';
+import { IntelReport } from '../../../../models/IntelReport';
 
 const BottomRight: React.FC = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);

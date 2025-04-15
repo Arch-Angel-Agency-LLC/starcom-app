@@ -28,7 +28,7 @@
 .content {
     display: flex;
     flex-direction: column;
-    gap: 10px; /* Spacing between elements */
+    gap: 4px; /* Spacing between elements */
 }
 
 .text {
@@ -46,7 +46,7 @@
 .scrollView {
   overflow-y: auto; /* Enable vertical scrolling */
   width: 100%;
-  padding: 10px;
+  padding: 2px;
   box-sizing: border-box;
 }
 

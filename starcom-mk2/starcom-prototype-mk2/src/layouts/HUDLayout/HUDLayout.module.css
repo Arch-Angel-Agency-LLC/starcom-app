@@ -18,8 +18,8 @@
   z-index: 10; /* Corners take priority for z-space */
   background: rgba(0, 0, 0, 0); /* transparent background */
   pointer-events: auto; /* Enable clicks on HUD components */
-  width: 30%;
-  height: 30%;
+  width: 20%;
+  height: 20%;
 }
 
 .topLeftCorner {
@@ -28,19 +28,21 @@
 }
 
 .topRightCorner {
-  top: 0;
-  right: 0;
+  top: 10%;
+  right: 8%; /* Matches the RightSideBar width */
+  width: 120px;
+  height: 120px;
 }
 
 .bottomLeftCorner {
   bottom: 3%;
   background: rgba(0, 0, 0, 0.8); /* transparent background */
-  left: 5%; /* Ensure it aligns with the left side */
+  left: 6%; /* Ensure it aligns with the left side */
 }
 
 .bottomRightCorner {
   bottom: 3%;
-  right: 5%;
+  right: 8%;
   background: rgba(0, 0, 0, 0.8); /* transparent background */
 }
 
@@ -86,7 +88,7 @@
 
 .rightSideBar {
   right: 0;
-  width: 5%;
+  width: 8%;
   top: 5%; /* Start from the top */
   bottom: 5%;
 }
