@@ -13,6 +13,18 @@ const buttonData = [
   { url: 'https://globalnettrader.starcom.app/', label: 'Global Net Trader' },
 ];
 
+const emojiFallbacks: Record<string, string> = {
+  'Crypto Sentinel': '🛡️',
+  'Gravity Trader': '🌌',
+  'Global Pulse': '🌍',
+  'Data Feed': '📊',
+  'Astro Market Trader': '🌠',
+  'Crypto Watchdog': '🐕',
+  'Astro Market Seer': '🔮',
+  'Market Astrology': '✨',
+  'Global Net Trader': '🌐',
+};
+
 const RightSideBar: React.FC = () => {
   return (
     <div className={styles.rightSideBar}>
@@ -28,13 +40,14 @@ const RightSideBar: React.FC = () => {
               aria-label={`Open ${button.label}`}
             >
               <img
-                src={`https://www.google.com/s2/favicons?sz=64&domain_url=${button.url}`}
+                src={`/path/to/icons/${button.label.replace(/\s+/g, '-').toLowerCase()}.png`}
                 alt=""
                 className={styles.icon}
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src = '/path/to/default-icon.png'; // Fallback icon
+                  (e.target as HTMLImageElement).style.display = 'none'; // Hide broken image
                 }}
               />
+              <span className={styles.iconFallback}>{emojiFallbacks[button.label] || '❓'}</span>
               <span className={styles.label}>{button.label}</span>
             </a>
           ))}

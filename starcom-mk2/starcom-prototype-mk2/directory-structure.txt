@@ -6,18 +6,18 @@
 ├── .gitignore
 ├── .prettierignore
 ├── .vercel
-│   ├── README.txt
-│   └── project.json
-├── README.md
+│   ├── project.json
+│   └── README.txt
 ├── directory-structure.txt
 ├── dist
 │   ├── assets
 │   │   ├── Aldrich-Regular-BJ2Af9cL.ttf
+│   │   ├── index-CzBTWGW9.js
+│   │   ├── index-CzBTWGW9.js.map
+│   │   ├── index-E9nsm-b-.css
 │   │   ├── Starcom-UI_ConceptArt-sideLeft-DjhMpIxN.png
-│   │   ├── index-DrI3-sOI.js
-│   │   ├── index-DrI3-sOI.js.map
-│   │   ├── index-DslR1BAJ.css
-│   │   └── wasm_mini_server_bg-B7A0PIjU.wasm
+│   │   ├── wasm_mini_server_bg-B7A0PIjU.wasm
+│   │   └── WingCommanderLogo-288x162-Dr7UFZxN.gif
 │   ├── index.html
 │   ├── starcom.ico
 │   └── starcom.png
@@ -31,20 +31,21 @@
 ├── public
 │   ├── starcom.ico
 │   └── starcom.png
+├── README.md
 ├── scripts
 │   └── deploy.ts
 ├── src
-│   ├── .eslintrc.js
-│   ├── .prettierrc
-│   ├── App.tsx
 │   ├── __tests__
 │   │   └── EIAService.test.ts
+│   ├── .eslintrc.js
+│   ├── .prettierrc
 │   ├── api
 │   │   ├── eia.ts
 │   │   ├── intelligence.ts
 │   │   ├── market.ts
 │   │   └── rss.ts
 │   ├── app.md
+│   ├── App.tsx
 │   ├── assets
 │   │   ├── .DS_Store
 │   │   ├── fonts
@@ -59,11 +60,13 @@
 │   │   ├── Cache.ts
 │   │   ├── CacheManager.ts
 │   │   ├── CacheRegistry.ts
-│   │   └── EIADataCacheService.ts
+│   │   ├── EIADataCacheService.ts
+│   │   └── IntelReportCache.ts
 │   ├── components
 │   │   ├── .DS_Store
 │   │   ├── Auth
 │   │   │   └── TermsModal.tsx
+│   │   ├── components.md
 │   │   ├── Conflict
 │   │   │   ├── ConflictDetails.tsx
 │   │   │   └── ConflictList.tsx
@@ -94,12 +97,12 @@
 │   │   │   │   ├── GlobeSpaceAsset
 │   │   │   │   │   ├── GlobeSpaceAsset.md
 │   │   │   │   │   └── GlobeSpaceAsset.tsx
-│   │   │   │   ├── GlobeSpaceEntity
-│   │   │   │   │   ├── GlobeSpaceEntity.md
-│   │   │   │   │   └── GlobeSpaceEntity.tsx
-│   │   │   │   └── GlobeSpacecraft
-│   │   │   │       ├── GlobeSpacecraft.md
-│   │   │   │       └── GlobeSpacecraft.tsx
+│   │   │   │   ├── GlobeSpacecraft
+│   │   │   │   │   ├── GlobeSpacecraft.md
+│   │   │   │   │   └── GlobeSpacecraft.tsx
+│   │   │   │   └── GlobeSpaceEntity
+│   │   │   │       ├── GlobeSpaceEntity.md
+│   │   │   │       └── GlobeSpaceEntity.tsx
 │   │   │   ├── Globe.md
 │   │   │   ├── Globe.tsx
 │   │   │   ├── Handlers
@@ -131,6 +134,7 @@
 │   │   │   │       ├── TopBar.tsx
 │   │   │   │       └── useTopBarData.ts
 │   │   │   ├── Corners
+│   │   │   │   ├── .DS_Store
 │   │   │   │   ├── BottomLeft
 │   │   │   │   │   ├── BottomLeft.md
 │   │   │   │   │   ├── BottomLeft.module.css
@@ -167,6 +171,8 @@
 │   │   │       ├── Tooltip.md
 │   │   │       ├── Tooltip.module.css
 │   │   │       └── Tooltip.tsx
+│   │   ├── Intel
+│   │   │   └── IntelReportViewer.tsx
 │   │   ├── Marketplace
 │   │   │   ├── ListReportForm.tsx
 │   │   │   └── ReportList.tsx
@@ -178,7 +184,6 @@
 │   │   ├── TinyGlobe
 │   │   │   ├── TinyGlobe.module.css
 │   │   │   └── TinyGlobe.tsx
-│   │   ├── components.md
 │   │   └── ui
 │   │       └── Card.tsx
 │   ├── config
@@ -191,10 +196,11 @@
 │   │   ├── SettingsContext.tsx
 │   │   ├── TimeDataProvider.tsx
 │   │   ├── UCDPContext.tsx
+│   │   ├── VisualizationModeContext.tsx
 │   │   └── WASMContext.tsx
 │   ├── contracts
-│   │   ├── IntelToken.sol
-│   │   └── IntelligenceMarket.sol
+│   │   ├── IntelligenceMarket.sol
+│   │   └── IntelToken.sol
 │   ├── data
 │   │   ├── ConflictZones.json
 │   │   └── GeoJSONSample.json
@@ -207,19 +213,19 @@
 │   │   │   ├── useAuth.ts
 │   │   │   └── useGlobeInteractions.ts
 │   │   ├── useEIAData.ts
-│   │   ├── useWASM.ts
-│   │   └── useWallet.ts
+│   │   ├── useWallet.ts
+│   │   └── useWASM.ts
 │   ├── interfaces
 │   │   ├── EIAData.ts
-│   │   ├── MarketData.ts
-│   │   └── interfaces.md
+│   │   ├── interfaces.md
+│   │   └── MarketData.ts
 │   ├── layouts
 │   │   ├── HUDLayout
 │   │   │   ├── HUDLayout.module.css
 │   │   │   └── HUDLayout.tsx
+│   │   ├── layouts.md
 │   │   ├── SettingsLayout.tsx
-│   │   ├── StandardLayout.tsx
-│   │   └── layouts.md
+│   │   └── StandardLayout.tsx
 │   ├── lib
 │   │   ├── lib.md
 │   │   └── utils.ts
@@ -227,14 +233,16 @@
 │   ├── middleware
 │   │   ├── apiHandler.ts
 │   │   └── web3Middleware.ts
+│   ├── models
+│   │   └── IntelReport.ts
 │   ├── pages
 │   │   ├── MainPage
 │   │   │   ├── MainPage.module.css
 │   │   │   └── MainPage.tsx
-│   │   ├── SettingsPage
-│   │   │   ├── SettingsPage.module.css
-│   │   │   └── SettingsPage.tsx
-│   │   └── pages.md
+│   │   ├── pages.md
+│   │   └── SettingsPage
+│   │       ├── SettingsPage.module.css
+│   │       └── SettingsPage.tsx
 │   ├── routes
 │   │   ├── routes.md
 │   │   └── routes.tsx
@@ -249,10 +257,10 @@
 │   │   ├── FiltersService.ts
 │   │   ├── IPFSService.ts
 │   │   ├── MarketDataService.ts
+│   │   ├── services.md
 │   │   ├── UCDPDataService.ts
 │   │   ├── UserDataService.ts
-│   │   ├── WeatherDataService.ts
-│   │   └── services.md
+│   │   └── WeatherDataService.ts
 │   ├── setupTests.ts
 │   ├── store
 │   │   └── store.md
@@ -264,7 +272,6 @@
 │   │   ├── TimeDataTypes.ts
 │   │   └── ucdpTypes.ts
 │   ├── utils
-│   │   ├── ProxyUtils.ts
 │   │   ├── constants.ts
 │   │   ├── fetchDataUtils.ts
 │   │   ├── fetchHistoricalData.ts
@@ -272,18 +279,20 @@
 │   │   ├── generateColor.ts
 │   │   ├── logging.ts
 │   │   ├── mockData.ts
+│   │   ├── ProxyUtils.ts
 │   │   ├── queryUtils.ts
 │   │   ├── utils.md
+│   │   ├── wallet.ts
 │   │   └── wasm.ts
 │   ├── views
 │   │   └── views.md
 │   ├── vite-env.d.ts
 │   ├── wasm
 │   │   ├── package.json
-│   │   ├── wasm_mini_server.d.ts
-│   │   ├── wasm_mini_server.js
 │   │   ├── wasm_mini_server_bg.wasm
-│   │   └── wasm_mini_server_bg.wasm.d.ts
+│   │   ├── wasm_mini_server_bg.wasm.d.ts
+│   │   ├── wasm_mini_server.d.ts
+│   │   └── wasm_mini_server.js
 │   ├── windows
 │   │   └── windows.md
 │   └── workers
@@ -386,6 +395,11 @@
 │   │   │   │   │   ├── invoked.timestamp
 │   │   │   │   │   ├── lib-quote
 │   │   │   │   │   └── lib-quote.json
+│   │   │   │   ├── serde_derive-9e3bf5d7f598d01d
+│   │   │   │   │   ├── dep-lib-serde_derive
+│   │   │   │   │   ├── invoked.timestamp
+│   │   │   │   │   ├── lib-serde_derive
+│   │   │   │   │   └── lib-serde_derive.json
 │   │   │   │   ├── serde-36c8404a76573ba8
 │   │   │   │   │   ├── run-build-script-build-script-build
 │   │   │   │   │   └── run-build-script-build-script-build.json
@@ -399,11 +413,6 @@
 │   │   │   │   │   ├── build-script-build-script-build.json
 │   │   │   │   │   ├── dep-build-script-build-script-build
 │   │   │   │   │   └── invoked.timestamp
-│   │   │   │   ├── serde_derive-9e3bf5d7f598d01d
-│   │   │   │   │   ├── dep-lib-serde_derive
-│   │   │   │   │   ├── invoked.timestamp
-│   │   │   │   │   ├── lib-serde_derive
-│   │   │   │   │   └── lib-serde_derive.json
 │   │   │   │   ├── syn-141f15e92bd731b4
 │   │   │   │   │   ├── dep-lib-syn
 │   │   │   │   │   ├── invoked.timestamp
@@ -422,9 +431,9 @@
 │   │   │   │   │   ├── root-output
 │   │   │   │   │   └── stderr
 │   │   │   │   ├── proc-macro2-e860b36a47f1cefa
-│   │   │   │   │   ├── build-script-build
 │   │   │   │   │   ├── build_script_build-e860b36a47f1cefa
-│   │   │   │   │   └── build_script_build-e860b36a47f1cefa.d
+│   │   │   │   │   ├── build_script_build-e860b36a47f1cefa.d
+│   │   │   │   │   └── build-script-build
 │   │   │   │   ├── serde-36c8404a76573ba8
 │   │   │   │   │   ├── invoked.timestamp
 │   │   │   │   │   ├── out
@@ -432,9 +441,9 @@
 │   │   │   │   │   ├── root-output
 │   │   │   │   │   └── stderr
 │   │   │   │   └── serde-e7b6b0d23cb72f4b
-│   │   │   │       ├── build-script-build
 │   │   │   │       ├── build_script_build-e7b6b0d23cb72f4b
-│   │   │   │       └── build_script_build-e7b6b0d23cb72f4b.d
+│   │   │   │       ├── build_script_build-e7b6b0d23cb72f4b.d
+│   │   │   │       └── build-script-build
 │   │   │   ├── deps
 │   │   │   │   ├── bsp_tests-f2414e7d35273b19
 │   │   │   │   ├── bsp_tests-f2414e7d35273b19.06b0vxepoe2j03y4of2f5yl4e.rcgu.o
@@ -556,9 +565,9 @@
 │   │   │   │   ├── libproc_macro2-0efce5b7b3717f10.rmeta
 │   │   │   │   ├── libquote-30b03719c148a6f0.rlib
 │   │   │   │   ├── libquote-30b03719c148a6f0.rmeta
+│   │   │   │   ├── libserde_derive-9e3bf5d7f598d01d.dylib
 │   │   │   │   ├── libserde-5d3b23baec6aa335.rlib
 │   │   │   │   ├── libserde-5d3b23baec6aa335.rmeta
-│   │   │   │   ├── libserde_derive-9e3bf5d7f598d01d.dylib
 │   │   │   │   ├── libsyn-141f15e92bd731b4.rlib
 │   │   │   │   ├── libsyn-141f15e92bd731b4.rmeta
 │   │   │   │   ├── libunicode_ident-904b1c5de53466ff.rlib
@@ -604,9 +613,9 @@
 │   │   │   │   ├── position_tests-13bd17a82d5c396f.f47j76ivfixgqhyohth0tkmi5.rcgu.o
 │   │   │   │   ├── proc_macro2-0efce5b7b3717f10.d
 │   │   │   │   ├── quote-30b03719c148a6f0.d
+│   │   │   │   ├── serde_derive-9e3bf5d7f598d01d.d
 │   │   │   │   ├── serde-5d3b23baec6aa335.d
 │   │   │   │   ├── serde-5d3b23baec6aa335.serde.5ad8de0ecd0d7810-cgu.0.rcgu.o
-│   │   │   │   ├── serde_derive-9e3bf5d7f598d01d.d
 │   │   │   │   ├── syn-141f15e92bd731b4.d
 │   │   │   │   └── unicode_ident-904b1c5de53466ff.d
 │   │   │   ├── examples
@@ -791,10 +800,10 @@
     ├── pkg
     │   ├── .gitignore
     │   ├── package.json
-    │   ├── wasm_mini_server.d.ts
-    │   ├── wasm_mini_server.js
     │   ├── wasm_mini_server_bg.wasm
-    │   └── wasm_mini_server_bg.wasm.d.ts
+    │   ├── wasm_mini_server_bg.wasm.d.ts
+    │   ├── wasm_mini_server.d.ts
+    │   └── wasm_mini_server.js
     ├── src
     │   ├── api.rs
     │   ├── lib.rs
@@ -956,24 +965,6 @@
     │   │   │   │   ├── invoked.timestamp
     │   │   │   │   ├── lib-ryu
     │   │   │   │   └── lib-ryu.json
-    │   │   │   ├── serde-300ebe82799028d7
-    │   │   │   │   ├── build-script-build-script-build
-    │   │   │   │   ├── build-script-build-script-build.json
-    │   │   │   │   ├── dep-build-script-build-script-build
-    │   │   │   │   └── invoked.timestamp
-    │   │   │   ├── serde-70c8b1cd19367627
-    │   │   │   │   ├── run-build-script-build-script-build
-    │   │   │   │   └── run-build-script-build-script-build.json
-    │   │   │   ├── serde-cec7f051440c45e5
-    │   │   │   │   ├── dep-lib-serde
-    │   │   │   │   ├── invoked.timestamp
-    │   │   │   │   ├── lib-serde
-    │   │   │   │   └── lib-serde.json
-    │   │   │   ├── serde-e0753cda29535176
-    │   │   │   │   ├── build-script-build-script-build
-    │   │   │   │   ├── build-script-build-script-build.json
-    │   │   │   │   ├── dep-build-script-build-script-build
-    │   │   │   │   └── invoked.timestamp
     │   │   │   ├── serde_derive-3031dd2d61670bad
     │   │   │   │   ├── dep-lib-serde_derive
     │   │   │   │   ├── invoked.timestamp
@@ -1002,6 +993,24 @@
     │   │   │   ├── serde_json-e43fb5d211dc6e22
     │   │   │   │   ├── run-build-script-build-script-build
     │   │   │   │   └── run-build-script-build-script-build.json
+    │   │   │   ├── serde-300ebe82799028d7
+    │   │   │   │   ├── build-script-build-script-build
+    │   │   │   │   ├── build-script-build-script-build.json
+    │   │   │   │   ├── dep-build-script-build-script-build
+    │   │   │   │   └── invoked.timestamp
+    │   │   │   ├── serde-70c8b1cd19367627
+    │   │   │   │   ├── run-build-script-build-script-build
+    │   │   │   │   └── run-build-script-build-script-build.json
+    │   │   │   ├── serde-cec7f051440c45e5
+    │   │   │   │   ├── dep-lib-serde
+    │   │   │   │   ├── invoked.timestamp
+    │   │   │   │   ├── lib-serde
+    │   │   │   │   └── lib-serde.json
+    │   │   │   ├── serde-e0753cda29535176
+    │   │   │   │   ├── build-script-build-script-build
+    │   │   │   │   ├── build-script-build-script-build.json
+    │   │   │   │   ├── dep-build-script-build-script-build
+    │   │   │   │   └── invoked.timestamp
     │   │   │   ├── syn-4d4612c2f87fd3fa
     │   │   │   │   ├── dep-lib-syn
     │   │   │   │   ├── invoked.timestamp
@@ -1022,6 +1031,12 @@
     │   │   │   │   ├── invoked.timestamp
     │   │   │   │   ├── lib-unicode_ident
     │   │   │   │   └── lib-unicode_ident.json
+    │   │   │   ├── wasm_mini_server-146dcec947325570
+    │   │   │   │   ├── dep-lib-wasm_mini_server
+    │   │   │   │   ├── invoked.timestamp
+    │   │   │   │   ├── lib-wasm_mini_server
+    │   │   │   │   ├── lib-wasm_mini_server.json
+    │   │   │   │   └── output-lib-wasm_mini_server
     │   │   │   ├── wasm-bindgen-65ba6a58c9be3dd6
     │   │   │   │   ├── run-build-script-build-script-build
     │   │   │   │   └── run-build-script-build-script-build.json
@@ -1116,12 +1131,6 @@
     │   │   │   │   ├── invoked.timestamp
     │   │   │   │   ├── lib-wasm_bindgen_test_macro
     │   │   │   │   └── lib-wasm_bindgen_test_macro.json
-    │   │   │   ├── wasm_mini_server-146dcec947325570
-    │   │   │   │   ├── dep-lib-wasm_mini_server
-    │   │   │   │   ├── invoked.timestamp
-    │   │   │   │   ├── lib-wasm_mini_server
-    │   │   │   │   ├── lib-wasm_mini_server.json
-    │   │   │   │   └── output-lib-wasm_mini_server
     │   │   │   ├── web-sys-081d0df6de232a21
     │   │   │   │   ├── dep-lib-web_sys
     │   │   │   │   ├── invoked.timestamp
@@ -1147,9 +1156,9 @@
     │   │   │       └── lib-wee_alloc.json
     │   │   ├── build
     │   │   │   ├── libc-591ba81123d9318e
-    │   │   │   │   ├── build-script-build
     │   │   │   │   ├── build_script_build-591ba81123d9318e
-    │   │   │   │   └── build_script_build-591ba81123d9318e.d
+    │   │   │   │   ├── build_script_build-591ba81123d9318e.d
+    │   │   │   │   └── build-script-build
     │   │   │   ├── libc-70068036db0500a8
     │   │   │   │   ├── invoked.timestamp
     │   │   │   │   ├── out
@@ -1163,15 +1172,15 @@
     │   │   │   │   ├── root-output
     │   │   │   │   └── stderr
     │   │   │   ├── proc-macro2-266fda160c31b2c7
-    │   │   │   │   ├── build-script-build
     │   │   │   │   ├── build_script_build-266fda160c31b2c7
-    │   │   │   │   └── build_script_build-266fda160c31b2c7.d
+    │   │   │   │   ├── build_script_build-266fda160c31b2c7.d
+    │   │   │   │   └── build-script-build
     │   │   │   ├── proc-macro2-36a610057d359302
-    │   │   │   │   ├── build-script-build
     │   │   │   │   ├── build_script_build-36a610057d359302
     │   │   │   │   ├── build_script_build-36a610057d359302.build_script_build.a01b871703936487-cgu.0.rcgu.o
     │   │   │   │   ├── build_script_build-36a610057d359302.build_script_build.a01b871703936487-cgu.1.rcgu.o
-    │   │   │   │   └── build_script_build-36a610057d359302.d
+    │   │   │   │   ├── build_script_build-36a610057d359302.d
+    │   │   │   │   └── build-script-build
     │   │   │   ├── proc-macro2-658b139c8482da6f
     │   │   │   │   ├── invoked.timestamp
     │   │   │   │   ├── out
@@ -1193,20 +1202,35 @@
     │   │   │   │   ├── root-output
     │   │   │   │   └── stderr
     │   │   │   ├── rustversion-977c30d3479b018e
-    │   │   │   │   ├── build-script-build
     │   │   │   │   ├── build_script_build-977c30d3479b018e
     │   │   │   │   ├── build_script_build-977c30d3479b018e.build_script_build.1be695fd309a6915-cgu.0.rcgu.o
     │   │   │   │   ├── build_script_build-977c30d3479b018e.build_script_build.1be695fd309a6915-cgu.1.rcgu.o
     │   │   │   │   ├── build_script_build-977c30d3479b018e.build_script_build.1be695fd309a6915-cgu.2.rcgu.o
-    │   │   │   │   └── build_script_build-977c30d3479b018e.d
+    │   │   │   │   ├── build_script_build-977c30d3479b018e.d
+    │   │   │   │   └── build-script-build
     │   │   │   ├── rustversion-9bc000f8ad12d438
-    │   │   │   │   ├── build-script-build
     │   │   │   │   ├── build_script_build-9bc000f8ad12d438
-    │   │   │   │   └── build_script_build-9bc000f8ad12d438.d
+    │   │   │   │   ├── build_script_build-9bc000f8ad12d438.d
+    │   │   │   │   └── build-script-build
+    │   │   │   ├── serde_json-373eea8e5a3936e1
+    │   │   │   │   ├── build_script_build-373eea8e5a3936e1
+    │   │   │   │   ├── build_script_build-373eea8e5a3936e1.build_script_build.9f642d9f844625c5-cgu.0.rcgu.o
+    │   │   │   │   ├── build_script_build-373eea8e5a3936e1.d
+    │   │   │   │   └── build-script-build
+    │   │   │   ├── serde_json-376a01a75b372905
+    │   │   │   │   ├── build_script_build-376a01a75b372905
+    │   │   │   │   ├── build_script_build-376a01a75b372905.d
+    │   │   │   │   └── build-script-build
+    │   │   │   ├── serde_json-e43fb5d211dc6e22
+    │   │   │   │   ├── invoked.timestamp
+    │   │   │   │   ├── out
+    │   │   │   │   ├── output
+    │   │   │   │   ├── root-output
+    │   │   │   │   └── stderr
     │   │   │   ├── serde-300ebe82799028d7
-    │   │   │   │   ├── build-script-build
     │   │   │   │   ├── build_script_build-300ebe82799028d7
-    │   │   │   │   └── build_script_build-300ebe82799028d7.d
+    │   │   │   │   ├── build_script_build-300ebe82799028d7.d
+    │   │   │   │   └── build-script-build
     │   │   │   ├── serde-70c8b1cd19367627
     │   │   │   │   ├── invoked.timestamp
     │   │   │   │   ├── out
@@ -1214,25 +1238,10 @@
     │   │   │   │   ├── root-output
     │   │   │   │   └── stderr
     │   │   │   ├── serde-e0753cda29535176
-    │   │   │   │   ├── build-script-build
     │   │   │   │   ├── build_script_build-e0753cda29535176
     │   │   │   │   ├── build_script_build-e0753cda29535176.build_script_build.44f2fe2b826e0303-cgu.0.rcgu.o
-    │   │   │   │   └── build_script_build-e0753cda29535176.d
-    │   │   │   ├── serde_json-373eea8e5a3936e1
-    │   │   │   │   ├── build-script-build
-    │   │   │   │   ├── build_script_build-373eea8e5a3936e1
-    │   │   │   │   ├── build_script_build-373eea8e5a3936e1.build_script_build.9f642d9f844625c5-cgu.0.rcgu.o
-    │   │   │   │   └── build_script_build-373eea8e5a3936e1.d
-    │   │   │   ├── serde_json-376a01a75b372905
-    │   │   │   │   ├── build-script-build
-    │   │   │   │   ├── build_script_build-376a01a75b372905
-    │   │   │   │   └── build_script_build-376a01a75b372905.d
-    │   │   │   ├── serde_json-e43fb5d211dc6e22
-    │   │   │   │   ├── invoked.timestamp
-    │   │   │   │   ├── out
-    │   │   │   │   ├── output
-    │   │   │   │   ├── root-output
-    │   │   │   │   └── stderr
+    │   │   │   │   ├── build_script_build-e0753cda29535176.d
+    │   │   │   │   └── build-script-build
     │   │   │   ├── wasm-bindgen-65ba6a58c9be3dd6
     │   │   │   │   ├── invoked.timestamp
     │   │   │   │   ├── out
@@ -1240,14 +1249,14 @@
     │   │   │   │   ├── root-output
     │   │   │   │   └── stderr
     │   │   │   ├── wasm-bindgen-663e5716d220b928
-    │   │   │   │   ├── build-script-build
     │   │   │   │   ├── build_script_build-663e5716d220b928
-    │   │   │   │   └── build_script_build-663e5716d220b928.d
+    │   │   │   │   ├── build_script_build-663e5716d220b928.d
+    │   │   │   │   └── build-script-build
     │   │   │   ├── wasm-bindgen-c12608ae003ba473
-    │   │   │   │   ├── build-script-build
     │   │   │   │   ├── build_script_build-c12608ae003ba473
     │   │   │   │   ├── build_script_build-c12608ae003ba473.build_script_build.490f471926c607f-cgu.0.rcgu.o
-    │   │   │   │   └── build_script_build-c12608ae003ba473.d
+    │   │   │   │   ├── build_script_build-c12608ae003ba473.d
+    │   │   │   │   └── build-script-build
     │   │   │   ├── wasm-bindgen-shared-274e88a988669eba
     │   │   │   │   ├── invoked.timestamp
     │   │   │   │   ├── out
@@ -1255,14 +1264,14 @@
     │   │   │   │   ├── root-output
     │   │   │   │   └── stderr
     │   │   │   ├── wasm-bindgen-shared-791768f98f99fd87
-    │   │   │   │   ├── build-script-build
     │   │   │   │   ├── build_script_build-791768f98f99fd87
     │   │   │   │   ├── build_script_build-791768f98f99fd87.build_script_build.6cc9d595b927cd71-cgu.0.rcgu.o
-    │   │   │   │   └── build_script_build-791768f98f99fd87.d
+    │   │   │   │   ├── build_script_build-791768f98f99fd87.d
+    │   │   │   │   └── build-script-build
     │   │   │   ├── wasm-bindgen-shared-a6647306e8b8f649
-    │   │   │   │   ├── build-script-build
     │   │   │   │   ├── build_script_build-a6647306e8b8f649
-    │   │   │   │   └── build_script_build-a6647306e8b8f649.d
+    │   │   │   │   ├── build_script_build-a6647306e8b8f649.d
+    │   │   │   │   └── build-script-build
     │   │   │   ├── wasm-bindgen-shared-ad03ce770a223a18
     │   │   │   │   ├── invoked.timestamp
     │   │   │   │   ├── out
@@ -1270,14 +1279,14 @@
     │   │   │   │   ├── root-output
     │   │   │   │   └── stderr
     │   │   │   ├── wee_alloc-8fbd2ecbacd805ab
-    │   │   │   │   ├── build-script-build
     │   │   │   │   ├── build_script_build-8fbd2ecbacd805ab
     │   │   │   │   ├── build_script_build-8fbd2ecbacd805ab.build_script_build.67d069e79813f83-cgu.0.rcgu.o
-    │   │   │   │   └── build_script_build-8fbd2ecbacd805ab.d
+    │   │   │   │   ├── build_script_build-8fbd2ecbacd805ab.d
+    │   │   │   │   └── build-script-build
     │   │   │   ├── wee_alloc-b1d690ffa0cf2f37
-    │   │   │   │   ├── build-script-build
     │   │   │   │   ├── build_script_build-b1d690ffa0cf2f37
-    │   │   │   │   └── build_script_build-b1d690ffa0cf2f37.d
+    │   │   │   │   ├── build_script_build-b1d690ffa0cf2f37.d
+    │   │   │   │   └── build-script-build
     │   │   │   └── wee_alloc-c47f62baae69edf0
     │   │   │       ├── invoked.timestamp
     │   │   │       ├── out
@@ -1360,12 +1369,12 @@
     │   │   │   ├── librustversion-a2e84aa76067e1c4.dylib
     │   │   │   ├── libryu-d2a879e777395e1e.rlib
     │   │   │   ├── libryu-d2a879e777395e1e.rmeta
-    │   │   │   ├── libserde-cec7f051440c45e5.rlib
-    │   │   │   ├── libserde-cec7f051440c45e5.rmeta
     │   │   │   ├── libserde_derive-3031dd2d61670bad.dylib
     │   │   │   ├── libserde_derive-fd35e062980cf5cc.dylib
     │   │   │   ├── libserde_json-9bd08f8e7ef6d382.rlib
     │   │   │   ├── libserde_json-9bd08f8e7ef6d382.rmeta
+    │   │   │   ├── libserde-cec7f051440c45e5.rlib
+    │   │   │   ├── libserde-cec7f051440c45e5.rmeta
     │   │   │   ├── libsyn-4d4612c2f87fd3fa.rlib
     │   │   │   ├── libsyn-4d4612c2f87fd3fa.rmeta
     │   │   │   ├── libsyn-aaf8dd9cbe712a1a.rlib
@@ -1374,28 +1383,28 @@
     │   │   │   ├── libunicode_ident-3b73019508798312.rmeta
     │   │   │   ├── libunicode_ident-91f859ff581a065e.rlib
     │   │   │   ├── libunicode_ident-91f859ff581a065e.rmeta
-    │   │   │   ├── libwasm_bindgen-d2c62ed8b9d33d09.rlib
-    │   │   │   ├── libwasm_bindgen-d2c62ed8b9d33d09.rmeta
     │   │   │   ├── libwasm_bindgen_backend-6457e79e6f2f825b.rlib
     │   │   │   ├── libwasm_bindgen_backend-6457e79e6f2f825b.rmeta
     │   │   │   ├── libwasm_bindgen_backend-ae2d10edc6e468af.rlib
     │   │   │   ├── libwasm_bindgen_backend-ae2d10edc6e468af.rmeta
     │   │   │   ├── libwasm_bindgen_futures-70bf39af344a6a4c.rlib
     │   │   │   ├── libwasm_bindgen_futures-70bf39af344a6a4c.rmeta
-    │   │   │   ├── libwasm_bindgen_macro-064170bf57829a45.dylib
-    │   │   │   ├── libwasm_bindgen_macro-42afb954767eef7c.dylib
     │   │   │   ├── libwasm_bindgen_macro_support-3e0cacdd7d55cb31.rlib
     │   │   │   ├── libwasm_bindgen_macro_support-3e0cacdd7d55cb31.rmeta
     │   │   │   ├── libwasm_bindgen_macro_support-6e26787b8691621e.rlib
     │   │   │   ├── libwasm_bindgen_macro_support-6e26787b8691621e.rmeta
+    │   │   │   ├── libwasm_bindgen_macro-064170bf57829a45.dylib
+    │   │   │   ├── libwasm_bindgen_macro-42afb954767eef7c.dylib
     │   │   │   ├── libwasm_bindgen_shared-30f0708888632310.rlib
     │   │   │   ├── libwasm_bindgen_shared-30f0708888632310.rmeta
     │   │   │   ├── libwasm_bindgen_shared-fe026d0948b3d3bd.rlib
     │   │   │   ├── libwasm_bindgen_shared-fe026d0948b3d3bd.rmeta
-    │   │   │   ├── libwasm_bindgen_test-63812f1aca627b18.rlib
-    │   │   │   ├── libwasm_bindgen_test-63812f1aca627b18.rmeta
     │   │   │   ├── libwasm_bindgen_test_macro-0be861235e136499.dylib
     │   │   │   ├── libwasm_bindgen_test_macro-6d610c7c30be7dc5.dylib
+    │   │   │   ├── libwasm_bindgen_test-63812f1aca627b18.rlib
+    │   │   │   ├── libwasm_bindgen_test-63812f1aca627b18.rmeta
+    │   │   │   ├── libwasm_bindgen-d2c62ed8b9d33d09.rlib
+    │   │   │   ├── libwasm_bindgen-d2c62ed8b9d33d09.rmeta
     │   │   │   ├── libwasm_mini_server.dylib
     │   │   │   ├── libwasm_mini_server.rlib
     │   │   │   ├── libweb_sys-081d0df6de232a21.rlib
@@ -1434,8 +1443,6 @@
     │   │   │   ├── rustversion-a2e84aa76067e1c4.rustversion.6775e5dba67c4d61-cgu.4.rcgu.o
     │   │   │   ├── ryu-d2a879e777395e1e.d
     │   │   │   ├── ryu-d2a879e777395e1e.ryu.43974877e22d7332-cgu.0.rcgu.o
-    │   │   │   ├── serde-cec7f051440c45e5.d
-    │   │   │   ├── serde-cec7f051440c45e5.serde.22367e5430cc875e-cgu.0.rcgu.o
     │   │   │   ├── serde_derive-3031dd2d61670bad.d
     │   │   │   ├── serde_derive-fd35e062980cf5cc.d
     │   │   │   ├── serde_derive-fd35e062980cf5cc.serde_derive.74cc75d697b77975-cgu.00.rcgu.o
@@ -1463,6 +1470,8 @@
     │   │   │   ├── serde_json-9bd08f8e7ef6d382.serde_json.7f2c8209bc28e708-cgu.5.rcgu.o
     │   │   │   ├── serde_json-9bd08f8e7ef6d382.serde_json.7f2c8209bc28e708-cgu.6.rcgu.o
     │   │   │   ├── serde_json-9bd08f8e7ef6d382.serde_json.7f2c8209bc28e708-cgu.7.rcgu.o
+    │   │   │   ├── serde-cec7f051440c45e5.d
+    │   │   │   ├── serde-cec7f051440c45e5.serde.22367e5430cc875e-cgu.0.rcgu.o
     │   │   │   ├── syn-4d4612c2f87fd3fa.d
     │   │   │   ├── syn-4d4612c2f87fd3fa.syn.ce93ebf774038f13-cgu.00.rcgu.o
     │   │   │   ├── syn-4d4612c2f87fd3fa.syn.ce93ebf774038f13-cgu.01.rcgu.o
@@ -1484,10 +1493,6 @@
     │   │   │   ├── unicode_ident-3b73019508798312.d
     │   │   │   ├── unicode_ident-3b73019508798312.unicode_ident.21d84c85725b9801-cgu.0.rcgu.o
     │   │   │   ├── unicode_ident-91f859ff581a065e.d
-    │   │   │   ├── wasm_bindgen-d2c62ed8b9d33d09.d
-    │   │   │   ├── wasm_bindgen-d2c62ed8b9d33d09.wasm_bindgen.b95af9c83a6d1d67-cgu.0.rcgu.o
-    │   │   │   ├── wasm_bindgen-d2c62ed8b9d33d09.wasm_bindgen.b95af9c83a6d1d67-cgu.1.rcgu.o
-    │   │   │   ├── wasm_bindgen-d2c62ed8b9d33d09.wasm_bindgen.b95af9c83a6d1d67-cgu.2.rcgu.o
     │   │   │   ├── wasm_bindgen_backend-6457e79e6f2f825b.d
     │   │   │   ├── wasm_bindgen_backend-6457e79e6f2f825b.wasm_bindgen_backend.67edad725620a845-cgu.00.rcgu.o
     │   │   │   ├── wasm_bindgen_backend-6457e79e6f2f825b.wasm_bindgen_backend.67edad725620a845-cgu.01.rcgu.o
@@ -1503,9 +1508,6 @@
     │   │   │   ├── wasm_bindgen_futures-70bf39af344a6a4c.d
     │   │   │   ├── wasm_bindgen_futures-70bf39af344a6a4c.wasm_bindgen_futures.ac7292a999bc5392-cgu.0.rcgu.o
     │   │   │   ├── wasm_bindgen_futures-70bf39af344a6a4c.wasm_bindgen_futures.ac7292a999bc5392-cgu.1.rcgu.o
-    │   │   │   ├── wasm_bindgen_macro-064170bf57829a45.d
-    │   │   │   ├── wasm_bindgen_macro-064170bf57829a45.wasm_bindgen_macro.20434ee1874233b3-cgu.0.rcgu.o
-    │   │   │   ├── wasm_bindgen_macro-42afb954767eef7c.d
     │   │   │   ├── wasm_bindgen_macro_support-3e0cacdd7d55cb31.d
     │   │   │   ├── wasm_bindgen_macro_support-6e26787b8691621e.d
     │   │   │   ├── wasm_bindgen_macro_support-6e26787b8691621e.wasm_bindgen_macro_support.8982db750cc93314-cgu.00.rcgu.o
@@ -1524,20 +1526,27 @@
     │   │   │   ├── wasm_bindgen_macro_support-6e26787b8691621e.wasm_bindgen_macro_support.8982db750cc93314-cgu.13.rcgu.o
     │   │   │   ├── wasm_bindgen_macro_support-6e26787b8691621e.wasm_bindgen_macro_support.8982db750cc93314-cgu.14.rcgu.o
     │   │   │   ├── wasm_bindgen_macro_support-6e26787b8691621e.wasm_bindgen_macro_support.8982db750cc93314-cgu.15.rcgu.o
+    │   │   │   ├── wasm_bindgen_macro-064170bf57829a45.d
+    │   │   │   ├── wasm_bindgen_macro-064170bf57829a45.wasm_bindgen_macro.20434ee1874233b3-cgu.0.rcgu.o
+    │   │   │   ├── wasm_bindgen_macro-42afb954767eef7c.d
     │   │   │   ├── wasm_bindgen_shared-30f0708888632310.d
     │   │   │   ├── wasm_bindgen_shared-fe026d0948b3d3bd.d
     │   │   │   ├── wasm_bindgen_shared-fe026d0948b3d3bd.wasm_bindgen_shared.4355f6b050409bd4-cgu.0.rcgu.o
     │   │   │   ├── wasm_bindgen_shared-fe026d0948b3d3bd.wasm_bindgen_shared.4355f6b050409bd4-cgu.1.rcgu.o
+    │   │   │   ├── wasm_bindgen_test_macro-0be861235e136499.d
+    │   │   │   ├── wasm_bindgen_test_macro-6d610c7c30be7dc5.d
+    │   │   │   ├── wasm_bindgen_test_macro-6d610c7c30be7dc5.wasm_bindgen_test_macro.dc1220c3aecc1028-cgu.0.rcgu.o
+    │   │   │   ├── wasm_bindgen_test_macro-6d610c7c30be7dc5.wasm_bindgen_test_macro.dc1220c3aecc1028-cgu.1.rcgu.o
     │   │   │   ├── wasm_bindgen_test-63812f1aca627b18.d
     │   │   │   ├── wasm_bindgen_test-63812f1aca627b18.wasm_bindgen_test.ff79cdd488b930b1-cgu.0.rcgu.o
     │   │   │   ├── wasm_bindgen_test-63812f1aca627b18.wasm_bindgen_test.ff79cdd488b930b1-cgu.1.rcgu.o
     │   │   │   ├── wasm_bindgen_test-63812f1aca627b18.wasm_bindgen_test.ff79cdd488b930b1-cgu.2.rcgu.o
     │   │   │   ├── wasm_bindgen_test-63812f1aca627b18.wasm_bindgen_test.ff79cdd488b930b1-cgu.3.rcgu.o
     │   │   │   ├── wasm_bindgen_test-63812f1aca627b18.wasm_bindgen_test.ff79cdd488b930b1-cgu.4.rcgu.o
-    │   │   │   ├── wasm_bindgen_test_macro-0be861235e136499.d
-    │   │   │   ├── wasm_bindgen_test_macro-6d610c7c30be7dc5.d
-    │   │   │   ├── wasm_bindgen_test_macro-6d610c7c30be7dc5.wasm_bindgen_test_macro.dc1220c3aecc1028-cgu.0.rcgu.o
-    │   │   │   ├── wasm_bindgen_test_macro-6d610c7c30be7dc5.wasm_bindgen_test_macro.dc1220c3aecc1028-cgu.1.rcgu.o
+    │   │   │   ├── wasm_bindgen-d2c62ed8b9d33d09.d
+    │   │   │   ├── wasm_bindgen-d2c62ed8b9d33d09.wasm_bindgen.b95af9c83a6d1d67-cgu.0.rcgu.o
+    │   │   │   ├── wasm_bindgen-d2c62ed8b9d33d09.wasm_bindgen.b95af9c83a6d1d67-cgu.1.rcgu.o
+    │   │   │   ├── wasm_bindgen-d2c62ed8b9d33d09.wasm_bindgen.b95af9c83a6d1d67-cgu.2.rcgu.o
     │   │   │   ├── wasm_mini_server.03wis7c4ba3o3g5ibmwn5hv41.rcgu.o
     │   │   │   ├── wasm_mini_server.0fvhcmys9an3knmohmgo28d7h.rcgu.o
     │   │   │   ├── wasm_mini_server.0mdlxnb8du5alol96c6s4h6mg.rcgu.o
@@ -1640,17 +1649,17 @@
     │   │   │   │   ├── invoked.timestamp
     │   │   │   │   ├── lib-rustversion
     │   │   │   │   └── lib-rustversion.json
-    │   │   │   ├── serde-3fdf0a3de6c5822a
-    │   │   │   │   ├── build-script-build-script-build
-    │   │   │   │   ├── build-script-build-script-build.json
-    │   │   │   │   ├── dep-build-script-build-script-build
-    │   │   │   │   └── invoked.timestamp
     │   │   │   ├── serde_derive-d4c0565947ed57a0
     │   │   │   │   ├── dep-lib-serde_derive
     │   │   │   │   ├── invoked.timestamp
     │   │   │   │   ├── lib-serde_derive
     │   │   │   │   └── lib-serde_derive.json
     │   │   │   ├── serde_json-e2882374c39623c4
+    │   │   │   │   ├── build-script-build-script-build
+    │   │   │   │   ├── build-script-build-script-build.json
+    │   │   │   │   ├── dep-build-script-build-script-build
+    │   │   │   │   └── invoked.timestamp
+    │   │   │   ├── serde-3fdf0a3de6c5822a
     │   │   │   │   ├── build-script-build-script-build
     │   │   │   │   ├── build-script-build-script-build.json
     │   │   │   │   ├── dep-build-script-build-script-build
@@ -1716,13 +1725,13 @@
     │   │   │   │   ├── root-output
     │   │   │   │   └── stderr
     │   │   │   ├── proc-macro2-19f50f410f692006
-    │   │   │   │   ├── build-script-build
     │   │   │   │   ├── build_script_build-19f50f410f692006
-    │   │   │   │   └── build_script_build-19f50f410f692006.d
+    │   │   │   │   ├── build_script_build-19f50f410f692006.d
+    │   │   │   │   └── build-script-build
     │   │   │   ├── rustversion-0b61a89ae4829985
-    │   │   │   │   ├── build-script-build
     │   │   │   │   ├── build_script_build-0b61a89ae4829985
-    │   │   │   │   └── build_script_build-0b61a89ae4829985.d
+    │   │   │   │   ├── build_script_build-0b61a89ae4829985.d
+    │   │   │   │   └── build-script-build
     │   │   │   ├── rustversion-4ff7cdd9c85fae52
     │   │   │   │   ├── invoked.timestamp
     │   │   │   │   ├── out
@@ -1730,22 +1739,22 @@
     │   │   │   │   ├── output
     │   │   │   │   ├── root-output
     │   │   │   │   └── stderr
-    │   │   │   ├── serde-3fdf0a3de6c5822a
-    │   │   │   │   ├── build-script-build
-    │   │   │   │   ├── build_script_build-3fdf0a3de6c5822a
-    │   │   │   │   └── build_script_build-3fdf0a3de6c5822a.d
     │   │   │   ├── serde_json-e2882374c39623c4
-    │   │   │   │   ├── build-script-build
     │   │   │   │   ├── build_script_build-e2882374c39623c4
-    │   │   │   │   └── build_script_build-e2882374c39623c4.d
+    │   │   │   │   ├── build_script_build-e2882374c39623c4.d
+    │   │   │   │   └── build-script-build
+    │   │   │   ├── serde-3fdf0a3de6c5822a
+    │   │   │   │   ├── build_script_build-3fdf0a3de6c5822a
+    │   │   │   │   ├── build_script_build-3fdf0a3de6c5822a.d
+    │   │   │   │   └── build-script-build
     │   │   │   ├── wasm-bindgen-2261b84c7c8b0eb8
-    │   │   │   │   ├── build-script-build
     │   │   │   │   ├── build_script_build-2261b84c7c8b0eb8
-    │   │   │   │   └── build_script_build-2261b84c7c8b0eb8.d
+    │   │   │   │   ├── build_script_build-2261b84c7c8b0eb8.d
+    │   │   │   │   └── build-script-build
     │   │   │   ├── wasm-bindgen-shared-313d811992b4f920
-    │   │   │   │   ├── build-script-build
     │   │   │   │   ├── build_script_build-313d811992b4f920
-    │   │   │   │   └── build_script_build-313d811992b4f920.d
+    │   │   │   │   ├── build_script_build-313d811992b4f920.d
+    │   │   │   │   └── build-script-build
     │   │   │   ├── wasm-bindgen-shared-7bb60db9c601cbbd
     │   │   │   │   ├── invoked.timestamp
     │   │   │   │   ├── out
@@ -1753,9 +1762,9 @@
     │   │   │   │   ├── root-output
     │   │   │   │   └── stderr
     │   │   │   └── wee_alloc-5e7aa028fe1f68ae
-    │   │   │       ├── build-script-build
     │   │   │       ├── build_script_build-5e7aa028fe1f68ae
-    │   │   │       └── build_script_build-5e7aa028fe1f68ae.d
+    │   │   │       ├── build_script_build-5e7aa028fe1f68ae.d
+    │   │   │       └── build-script-build
     │   │   ├── deps
     │   │   │   ├── bumpalo-3ade4d8d76ec897a.d
     │   │   │   ├── libbumpalo-3ade4d8d76ec897a.rlib
@@ -1774,9 +1783,9 @@
     │   │   │   ├── libunicode_ident-0f74552dac3da829.rmeta
     │   │   │   ├── libwasm_bindgen_backend-395b8b813ceed145.rlib
     │   │   │   ├── libwasm_bindgen_backend-395b8b813ceed145.rmeta
-    │   │   │   ├── libwasm_bindgen_macro-96ddb5dc3f1cc638.dylib
     │   │   │   ├── libwasm_bindgen_macro_support-1d3cb610ab4d5fb4.rlib
     │   │   │   ├── libwasm_bindgen_macro_support-1d3cb610ab4d5fb4.rmeta
+    │   │   │   ├── libwasm_bindgen_macro-96ddb5dc3f1cc638.dylib
     │   │   │   ├── libwasm_bindgen_shared-752eba4336df8f4e.rlib
     │   │   │   ├── libwasm_bindgen_shared-752eba4336df8f4e.rmeta
     │   │   │   ├── libwasm_bindgen_test_macro-9663494963667680.dylib
@@ -1788,8 +1797,8 @@
     │   │   │   ├── syn-b052a0f01efeaa38.d
     │   │   │   ├── unicode_ident-0f74552dac3da829.d
     │   │   │   ├── wasm_bindgen_backend-395b8b813ceed145.d
-    │   │   │   ├── wasm_bindgen_macro-96ddb5dc3f1cc638.d
     │   │   │   ├── wasm_bindgen_macro_support-1d3cb610ab4d5fb4.d
+    │   │   │   ├── wasm_bindgen_macro-96ddb5dc3f1cc638.d
     │   │   │   ├── wasm_bindgen_shared-752eba4336df8f4e.d
     │   │   │   └── wasm_bindgen_test_macro-9663494963667680.d
     │   │   ├── examples
@@ -1854,14 +1863,6 @@
     │       │   │   │   ├── invoked.timestamp
     │       │   │   │   ├── lib-ryu
     │       │   │   │   └── lib-ryu.json
-    │       │   │   ├── serde-07559021149c1328
-    │       │   │   │   ├── run-build-script-build-script-build
-    │       │   │   │   └── run-build-script-build-script-build.json
-    │       │   │   ├── serde-e2a196ffa6e9c270
-    │       │   │   │   ├── dep-lib-serde
-    │       │   │   │   ├── invoked.timestamp
-    │       │   │   │   ├── lib-serde
-    │       │   │   │   └── lib-serde.json
     │       │   │   ├── serde_json-06cf5d1ecbfb7941
     │       │   │   │   ├── run-build-script-build-script-build
     │       │   │   │   └── run-build-script-build-script-build.json
@@ -1870,24 +1871,14 @@
     │       │   │   │   ├── invoked.timestamp
     │       │   │   │   ├── lib-serde_json
     │       │   │   │   └── lib-serde_json.json
-    │       │   │   ├── wasm-bindgen-b564a9bbc22ae19c
-    │       │   │   │   ├── dep-lib-wasm_bindgen
-    │       │   │   │   ├── invoked.timestamp
-    │       │   │   │   ├── lib-wasm_bindgen
-    │       │   │   │   └── lib-wasm_bindgen.json
-    │       │   │   ├── wasm-bindgen-f9bdc0d4bd99ff82
+    │       │   │   ├── serde-07559021149c1328
     │       │   │   │   ├── run-build-script-build-script-build
     │       │   │   │   └── run-build-script-build-script-build.json
-    │       │   │   ├── wasm-bindgen-futures-77d98bb1a9876959
-    │       │   │   │   ├── dep-lib-wasm_bindgen_futures
+    │       │   │   ├── serde-e2a196ffa6e9c270
+    │       │   │   │   ├── dep-lib-serde
     │       │   │   │   ├── invoked.timestamp
-    │       │   │   │   ├── lib-wasm_bindgen_futures
-    │       │   │   │   └── lib-wasm_bindgen_futures.json
-    │       │   │   ├── wasm-bindgen-test-0bafcf8280fa29d7
-    │       │   │   │   ├── dep-lib-wasm_bindgen_test
-    │       │   │   │   ├── invoked.timestamp
-    │       │   │   │   ├── lib-wasm_bindgen_test
-    │       │   │   │   └── lib-wasm_bindgen_test.json
+    │       │   │   │   ├── lib-serde
+    │       │   │   │   └── lib-serde.json
     │       │   │   ├── wasm_mini_server-0006ce5dd643cdef
     │       │   │   │   ├── dep-test-integration-test-wasm_mini_server_tests
     │       │   │   │   ├── invoked.timestamp
@@ -1906,6 +1897,24 @@
     │       │   │   │   ├── output-test-lib-wasm_mini_server
     │       │   │   │   ├── test-lib-wasm_mini_server
     │       │   │   │   └── test-lib-wasm_mini_server.json
+    │       │   │   ├── wasm-bindgen-b564a9bbc22ae19c
+    │       │   │   │   ├── dep-lib-wasm_bindgen
+    │       │   │   │   ├── invoked.timestamp
+    │       │   │   │   ├── lib-wasm_bindgen
+    │       │   │   │   └── lib-wasm_bindgen.json
+    │       │   │   ├── wasm-bindgen-f9bdc0d4bd99ff82
+    │       │   │   │   ├── run-build-script-build-script-build
+    │       │   │   │   └── run-build-script-build-script-build.json
+    │       │   │   ├── wasm-bindgen-futures-77d98bb1a9876959
+    │       │   │   │   ├── dep-lib-wasm_bindgen_futures
+    │       │   │   │   ├── invoked.timestamp
+    │       │   │   │   ├── lib-wasm_bindgen_futures
+    │       │   │   │   └── lib-wasm_bindgen_futures.json
+    │       │   │   ├── wasm-bindgen-test-0bafcf8280fa29d7
+    │       │   │   │   ├── dep-lib-wasm_bindgen_test
+    │       │   │   │   ├── invoked.timestamp
+    │       │   │   │   ├── lib-wasm_bindgen_test
+    │       │   │   │   └── lib-wasm_bindgen_test.json
     │       │   │   ├── web-sys-b078d558b816f7c9
     │       │   │   │   ├── dep-lib-web_sys
     │       │   │   │   ├── invoked.timestamp
@@ -1920,13 +1929,13 @@
     │       │   │       ├── run-build-script-build-script-build
     │       │   │       └── run-build-script-build-script-build.json
     │       │   ├── build
-    │       │   │   ├── serde-07559021149c1328
+    │       │   │   ├── serde_json-06cf5d1ecbfb7941
     │       │   │   │   ├── invoked.timestamp
     │       │   │   │   ├── out
     │       │   │   │   ├── output
     │       │   │   │   ├── root-output
     │       │   │   │   └── stderr
-    │       │   │   ├── serde_json-06cf5d1ecbfb7941
+    │       │   │   ├── serde-07559021149c1328
     │       │   │   │   ├── invoked.timestamp
     │       │   │   │   ├── out
     │       │   │   │   ├── output
@@ -1975,16 +1984,16 @@
     │       │   │   ├── libonce_cell-218c5c0aa8bba9c9.rmeta
     │       │   │   ├── libryu-06d4f95030e24514.rlib
     │       │   │   ├── libryu-06d4f95030e24514.rmeta
-    │       │   │   ├── libserde-e2a196ffa6e9c270.rlib
-    │       │   │   ├── libserde-e2a196ffa6e9c270.rmeta
     │       │   │   ├── libserde_json-e70e9eec2c5f8e3f.rlib
     │       │   │   ├── libserde_json-e70e9eec2c5f8e3f.rmeta
-    │       │   │   ├── libwasm_bindgen-b564a9bbc22ae19c.rlib
-    │       │   │   ├── libwasm_bindgen-b564a9bbc22ae19c.rmeta
+    │       │   │   ├── libserde-e2a196ffa6e9c270.rlib
+    │       │   │   ├── libserde-e2a196ffa6e9c270.rmeta
     │       │   │   ├── libwasm_bindgen_futures-77d98bb1a9876959.rlib
     │       │   │   ├── libwasm_bindgen_futures-77d98bb1a9876959.rmeta
     │       │   │   ├── libwasm_bindgen_test-0bafcf8280fa29d7.rlib
     │       │   │   ├── libwasm_bindgen_test-0bafcf8280fa29d7.rmeta
+    │       │   │   ├── libwasm_bindgen-b564a9bbc22ae19c.rlib
+    │       │   │   ├── libwasm_bindgen-b564a9bbc22ae19c.rmeta
     │       │   │   ├── libwasm_mini_server.rlib
     │       │   │   ├── libweb_sys-b078d558b816f7c9.rlib
     │       │   │   ├── libweb_sys-b078d558b816f7c9.rmeta
@@ -1994,21 +2003,58 @@
     │       │   │   ├── memory_units-614494c8acb32d32.d
     │       │   │   ├── once_cell-218c5c0aa8bba9c9.d
     │       │   │   ├── ryu-06d4f95030e24514.d
-    │       │   │   ├── serde-e2a196ffa6e9c270.d
     │       │   │   ├── serde_json-e70e9eec2c5f8e3f.d
-    │       │   │   ├── wasm_bindgen-b564a9bbc22ae19c.d
+    │       │   │   ├── serde-e2a196ffa6e9c270.d
     │       │   │   ├── wasm_bindgen_futures-77d98bb1a9876959.d
     │       │   │   ├── wasm_bindgen_test-0bafcf8280fa29d7.d
+    │       │   │   ├── wasm_bindgen-b564a9bbc22ae19c.d
+    │       │   │   ├── wasm_mini_server_tests-0006ce5dd643cdef.d
+    │       │   │   ├── wasm_mini_server_tests-0006ce5dd643cdef.wasm
     │       │   │   ├── wasm_mini_server-fdfe0f937250697d.d
     │       │   │   ├── wasm_mini_server-fdfe0f937250697d.wasm
     │       │   │   ├── wasm_mini_server.d
     │       │   │   ├── wasm_mini_server.wasm
-    │       │   │   ├── wasm_mini_server_tests-0006ce5dd643cdef.d
-    │       │   │   ├── wasm_mini_server_tests-0006ce5dd643cdef.wasm
     │       │   │   ├── web_sys-b078d558b816f7c9.d
     │       │   │   └── wee_alloc-30476d9c49f71ba8.d
     │       │   ├── examples
     │       │   └── incremental
+    │       │       ├── wasm_mini_server_tests-0ycshdm4kjtkz
+    │       │       │   ├── s-h4obvgbraw-1eltyt2-epikh1erjoogzhhasbaukxjt1
+    │       │       │   │   ├── 0bqkz5l5e9o05i50kioyuhn3a.o
+    │       │       │   │   ├── 0m5t6ytuqe6w9gkutu3n8etnk.o
+    │       │       │   │   ├── 0z1zxun7p2lz51i86oeahccl5.o
+    │       │       │   │   ├── 1bhgyu2oxf2hswz6uxkx08dab.o
+    │       │       │   │   ├── 1g9wuza8qlyy79qmn1mie8230.o
+    │       │       │   │   ├── 1mr9yex6mbjey0lbp1xaqblge.o
+    │       │       │   │   ├── 1sbu9a3qt74275ifhu13l29sh.o
+    │       │       │   │   ├── 1zo79vni952jcnexkifvym5w7.o
+    │       │       │   │   ├── 21cyi1kr103zx4dueq47qkecn.o
+    │       │       │   │   ├── 2bqo9j8inlt2vxj7upqtaaqz6.o
+    │       │       │   │   ├── 2ilsk7h7frquapg98h3gpf2cs.o
+    │       │       │   │   ├── 2l7z21kq45n16zx001nv7guky.o
+    │       │       │   │   ├── 42v6qi9vm5bftwfuhyjldxh5c.o
+    │       │       │   │   ├── 4uybef19bnslycwqz3wjjabq8.o
+    │       │       │   │   ├── 4vwe3mubt80xuglygxqon0rg7.o
+    │       │       │   │   ├── 6rr2jinwiv8g4eimmya5pjitz.o
+    │       │       │   │   ├── 71710u8aqwevoiz6bn2g9fqoo.o
+    │       │       │   │   ├── 7azccpno9ha64byj44vqpz1lu.o
+    │       │       │   │   ├── 8bsgjvmio4gvpunmu4u1ao108.o
+    │       │       │   │   ├── 8iarpfvhmcvwdarazo0uyg928.o
+    │       │       │   │   ├── 8mmuggr0r0w4y8u9y4b11bww6.o
+    │       │       │   │   ├── 9n8h12rsxmlnc3unwhohwresw.o
+    │       │       │   │   ├── asc26l7j8xei3cszqibvy9u8q.o
+    │       │       │   │   ├── beitq54oqp2lv4ur2qqsdzlxs.o
+    │       │       │   │   ├── bvvfql60awwwdpvc6fsjb3wpn.o
+    │       │       │   │   ├── bzxv29pjlomluklmlx5o41q7r.o
+    │       │       │   │   ├── ch5rtsf5rxps0txe0cdzpxiw7.o
+    │       │       │   │   ├── cmo9gg8uv4hwft2v8ubt32vnp.o
+    │       │       │   │   ├── coqw6d8opxtdeeqtymg5zn8f6.o
+    │       │       │   │   ├── d1re9tddcvl0atjrbva74wu82.o
+    │       │       │   │   ├── d795dkfu7u62wstulrtez8nio.o
+    │       │       │   │   ├── dep-graph.bin
+    │       │       │   │   ├── query-cache.bin
+    │       │       │   │   └── work-products.bin
+    │       │       │   └── s-h4obvgbraw-1eltyt2.lock
     │       │       ├── wasm_mini_server-0e61fedfyceix
     │       │       │   ├── s-h4obtbkpnh-0aff3d1-emijvu7h7c7z2plky5qy59c5u
     │       │       │   │   ├── 0djcr6zvzi27h7ikt8h62boap.o
@@ -2070,107 +2116,70 @@
     │       │       │   │   ├── query-cache.bin
     │       │       │   │   └── work-products.bin
     │       │       │   └── s-h4obtbkpnh-0aff3d1.lock
-    │       │       ├── wasm_mini_server-3onipqs27r93e
-    │       │       │   ├── s-h4obtbkpnh-05qav4f-9afdnrykcm19cdnn92p7kz3u4
-    │       │       │   │   ├── 06s9uqbutnt0k0om9sbdhwpfd.o
-    │       │       │   │   ├── 16ok0ldrvuuogkrylmpl0ou4x.o
-    │       │       │   │   ├── 17rgiufvzj83lgd7troniara6.o
-    │       │       │   │   ├── 1iord0pt4s6j30se3kl9yzmjz.o
-    │       │       │   │   ├── 21pplo2cb9x210j2l3wvwgp4m.o
-    │       │       │   │   ├── 252mz3ts6fnxl012thhcpiqqk.o
-    │       │       │   │   ├── 2k1ie0bv0n9iy26ajj71kfq84.o
-    │       │       │   │   ├── 2nn84xabyp9hebvfwe30l3dt6.o
-    │       │       │   │   ├── 2soo6yz8o5ubr0vpy9yjs5e05.o
-    │       │       │   │   ├── 31f4sxvwe2pk00lfftgbee309.o
-    │       │       │   │   ├── 3htgguw2so8gy3xum4nx0410o.o
-    │       │       │   │   ├── 3phrwzodjw83x2k1oatxknh8g.o
-    │       │       │   │   ├── 3sj8sbcbie5qkulurplz1k8f0.o
-    │       │       │   │   ├── 3xcpmjv4l9yaf52t8l3clxvcu.o
-    │       │       │   │   ├── 49asqzc6qiq0tjncp7t0ld7fe.o
-    │       │       │   │   ├── 4ch1ytmurfeusni7pb55v0z8z.o
-    │       │       │   │   ├── 4fmorjp2qvzrfr2micn744nyb.o
-    │       │       │   │   ├── 4h8s2bkfqx0x2gvtdhuu9dxvl.o
-    │       │       │   │   ├── 4l9p7rsoa459z8xhcxgirlbjt.o
-    │       │       │   │   ├── 4me5vyeqw2bgux1dvaykuf0nm.o
-    │       │       │   │   ├── 4n34eg84zktjjhim5pses12nu.o
-    │       │       │   │   ├── 4qnsbixq4enjnmpbmuowdnfb3.o
-    │       │       │   │   ├── 6tp2ppvrh2klvf9rnozaztv8j.o
-    │       │       │   │   ├── 7a4zicyg03kgtz59wyhla73f5.o
-    │       │       │   │   ├── 7a7lm62m8vnetn40lwtwo04uk.o
-    │       │       │   │   ├── 7gu8t6l0wx21oupttv99186qz.o
-    │       │       │   │   ├── 7kpnp3xkti54siyqyi3mig3ky.o
-    │       │       │   │   ├── 7pwgxwtpywck8fvz44to837hk.o
-    │       │       │   │   ├── 8oss1dvjxkl5mkwzlnfof2m9z.o
-    │       │       │   │   ├── 98rvf0b2s6cb94ckv64935d7z.o
-    │       │       │   │   ├── 9balkucty4w81s1uk8bfgun86.o
-    │       │       │   │   ├── 9qy9lnz6e7o276kjcsrvp7gu5.o
-    │       │       │   │   ├── 9uz48rr6ucg2vfaxu3tidyoxl.o
-    │       │       │   │   ├── 9yzq1hr7ucsqlsobva5jmrkoz.o
-    │       │       │   │   ├── abp0q5kngjm85z4bcw7jycxzf.o
-    │       │       │   │   ├── afi5brtd6pga3bn4r2ib6gkti.o
-    │       │       │   │   ├── ajsrf4ztuueft7ycejkjwxzgu.o
-    │       │       │   │   ├── b47103bu86xrfli29gg5iiwni.o
-    │       │       │   │   ├── bf4wivrgtup0i9r4xnkulypy2.o
-    │       │       │   │   ├── blks5d0h2jtdkyt1qy483jh74.o
-    │       │       │   │   ├── bpdzcut7vled2lh4ee4zhb777.o
-    │       │       │   │   ├── brihw4kz8lseama9t317xvxm9.o
-    │       │       │   │   ├── btxnlpylyil3i380u4gs3ed6z.o
-    │       │       │   │   ├── c5sbs7ads7afvi6xi9au0w9ri.o
-    │       │       │   │   ├── ciwd47uldn4z6xplbhygayazu.o
-    │       │       │   │   ├── cm4rvx3o3x5gcddtfdjjl9rrx.o
-    │       │       │   │   ├── cnbd9lpll1fkf1zu9fi51pq1w.o
-    │       │       │   │   ├── cv5x4zi3z2ycd5rby1rk13yur.o
-    │       │       │   │   ├── czuq55iec696993fxd202afbw.o
-    │       │       │   │   ├── d7ugrfd99yvyvk6a8td8dl6ji.o
-    │       │       │   │   ├── dep-graph.bin
-    │       │       │   │   ├── dkspfr8rvlugj127limdocvwx.o
-    │       │       │   │   ├── eeesbw7z7h7luqp7t0zw7homl.o
-    │       │       │   │   ├── eh7gverzvu2mctktb7mtl1m6o.o
-    │       │       │   │   ├── elokcrvjy2dq0dfesv960qzr9.o
-    │       │       │   │   ├── enyifdpu1h57jthrpltjnxash.o
-    │       │       │   │   ├── er07f0u7xaegc32yjixmja0rv.o
-    │       │       │   │   ├── exjtu8up8qbnqv5wtyjk3mpyq.o
-    │       │       │   │   ├── f0q31rxix0p1s5qh2w6r82s9x.o
-    │       │       │   │   ├── query-cache.bin
-    │       │       │   │   └── work-products.bin
-    │       │       │   └── s-h4obtbkpnh-05qav4f.lock
-    │       │       └── wasm_mini_server_tests-0ycshdm4kjtkz
-    │       │           ├── s-h4obvgbraw-1eltyt2-epikh1erjoogzhhasbaukxjt1
-    │       │           │   ├── 0bqkz5l5e9o05i50kioyuhn3a.o
-    │       │           │   ├── 0m5t6ytuqe6w9gkutu3n8etnk.o
-    │       │           │   ├── 0z1zxun7p2lz51i86oeahccl5.o
-    │       │           │   ├── 1bhgyu2oxf2hswz6uxkx08dab.o
-    │       │           │   ├── 1g9wuza8qlyy79qmn1mie8230.o
-    │       │           │   ├── 1mr9yex6mbjey0lbp1xaqblge.o
-    │       │           │   ├── 1sbu9a3qt74275ifhu13l29sh.o
-    │       │           │   ├── 1zo79vni952jcnexkifvym5w7.o
-    │       │           │   ├── 21cyi1kr103zx4dueq47qkecn.o
-    │       │           │   ├── 2bqo9j8inlt2vxj7upqtaaqz6.o
-    │       │           │   ├── 2ilsk7h7frquapg98h3gpf2cs.o
-    │       │           │   ├── 2l7z21kq45n16zx001nv7guky.o
-    │       │           │   ├── 42v6qi9vm5bftwfuhyjldxh5c.o
-    │       │           │   ├── 4uybef19bnslycwqz3wjjabq8.o
-    │       │           │   ├── 4vwe3mubt80xuglygxqon0rg7.o
-    │       │           │   ├── 6rr2jinwiv8g4eimmya5pjitz.o
-    │       │           │   ├── 71710u8aqwevoiz6bn2g9fqoo.o
-    │       │           │   ├── 7azccpno9ha64byj44vqpz1lu.o
-    │       │           │   ├── 8bsgjvmio4gvpunmu4u1ao108.o
-    │       │           │   ├── 8iarpfvhmcvwdarazo0uyg928.o
-    │       │           │   ├── 8mmuggr0r0w4y8u9y4b11bww6.o
-    │       │           │   ├── 9n8h12rsxmlnc3unwhohwresw.o
-    │       │           │   ├── asc26l7j8xei3cszqibvy9u8q.o
-    │       │           │   ├── beitq54oqp2lv4ur2qqsdzlxs.o
-    │       │           │   ├── bvvfql60awwwdpvc6fsjb3wpn.o
-    │       │           │   ├── bzxv29pjlomluklmlx5o41q7r.o
-    │       │           │   ├── ch5rtsf5rxps0txe0cdzpxiw7.o
-    │       │           │   ├── cmo9gg8uv4hwft2v8ubt32vnp.o
-    │       │           │   ├── coqw6d8opxtdeeqtymg5zn8f6.o
-    │       │           │   ├── d1re9tddcvl0atjrbva74wu82.o
-    │       │           │   ├── d795dkfu7u62wstulrtez8nio.o
+    │       │       └── wasm_mini_server-3onipqs27r93e
+    │       │           ├── s-h4obtbkpnh-05qav4f-9afdnrykcm19cdnn92p7kz3u4
+    │       │           │   ├── 06s9uqbutnt0k0om9sbdhwpfd.o
+    │       │           │   ├── 16ok0ldrvuuogkrylmpl0ou4x.o
+    │       │           │   ├── 17rgiufvzj83lgd7troniara6.o
+    │       │           │   ├── 1iord0pt4s6j30se3kl9yzmjz.o
+    │       │           │   ├── 21pplo2cb9x210j2l3wvwgp4m.o
+    │       │           │   ├── 252mz3ts6fnxl012thhcpiqqk.o
+    │       │           │   ├── 2k1ie0bv0n9iy26ajj71kfq84.o
+    │       │           │   ├── 2nn84xabyp9hebvfwe30l3dt6.o
+    │       │           │   ├── 2soo6yz8o5ubr0vpy9yjs5e05.o
+    │       │           │   ├── 31f4sxvwe2pk00lfftgbee309.o
+    │       │           │   ├── 3htgguw2so8gy3xum4nx0410o.o
+    │       │           │   ├── 3phrwzodjw83x2k1oatxknh8g.o
+    │       │           │   ├── 3sj8sbcbie5qkulurplz1k8f0.o
+    │       │           │   ├── 3xcpmjv4l9yaf52t8l3clxvcu.o
+    │       │           │   ├── 49asqzc6qiq0tjncp7t0ld7fe.o
+    │       │           │   ├── 4ch1ytmurfeusni7pb55v0z8z.o
+    │       │           │   ├── 4fmorjp2qvzrfr2micn744nyb.o
+    │       │           │   ├── 4h8s2bkfqx0x2gvtdhuu9dxvl.o
+    │       │           │   ├── 4l9p7rsoa459z8xhcxgirlbjt.o
+    │       │           │   ├── 4me5vyeqw2bgux1dvaykuf0nm.o
+    │       │           │   ├── 4n34eg84zktjjhim5pses12nu.o
+    │       │           │   ├── 4qnsbixq4enjnmpbmuowdnfb3.o
+    │       │           │   ├── 6tp2ppvrh2klvf9rnozaztv8j.o
+    │       │           │   ├── 7a4zicyg03kgtz59wyhla73f5.o
+    │       │           │   ├── 7a7lm62m8vnetn40lwtwo04uk.o
+    │       │           │   ├── 7gu8t6l0wx21oupttv99186qz.o
+    │       │           │   ├── 7kpnp3xkti54siyqyi3mig3ky.o
+    │       │           │   ├── 7pwgxwtpywck8fvz44to837hk.o
+    │       │           │   ├── 8oss1dvjxkl5mkwzlnfof2m9z.o
+    │       │           │   ├── 98rvf0b2s6cb94ckv64935d7z.o
+    │       │           │   ├── 9balkucty4w81s1uk8bfgun86.o
+    │       │           │   ├── 9qy9lnz6e7o276kjcsrvp7gu5.o
+    │       │           │   ├── 9uz48rr6ucg2vfaxu3tidyoxl.o
+    │       │           │   ├── 9yzq1hr7ucsqlsobva5jmrkoz.o
+    │       │           │   ├── abp0q5kngjm85z4bcw7jycxzf.o
+    │       │           │   ├── afi5brtd6pga3bn4r2ib6gkti.o
+    │       │           │   ├── ajsrf4ztuueft7ycejkjwxzgu.o
+    │       │           │   ├── b47103bu86xrfli29gg5iiwni.o
+    │       │           │   ├── bf4wivrgtup0i9r4xnkulypy2.o
+    │       │           │   ├── blks5d0h2jtdkyt1qy483jh74.o
+    │       │           │   ├── bpdzcut7vled2lh4ee4zhb777.o
+    │       │           │   ├── brihw4kz8lseama9t317xvxm9.o
+    │       │           │   ├── btxnlpylyil3i380u4gs3ed6z.o
+    │       │           │   ├── c5sbs7ads7afvi6xi9au0w9ri.o
+    │       │           │   ├── ciwd47uldn4z6xplbhygayazu.o
+    │       │           │   ├── cm4rvx3o3x5gcddtfdjjl9rrx.o
+    │       │           │   ├── cnbd9lpll1fkf1zu9fi51pq1w.o
+    │       │           │   ├── cv5x4zi3z2ycd5rby1rk13yur.o
+    │       │           │   ├── czuq55iec696993fxd202afbw.o
+    │       │           │   ├── d7ugrfd99yvyvk6a8td8dl6ji.o
     │       │           │   ├── dep-graph.bin
+    │       │           │   ├── dkspfr8rvlugj127limdocvwx.o
+    │       │           │   ├── eeesbw7z7h7luqp7t0zw7homl.o
+    │       │           │   ├── eh7gverzvu2mctktb7mtl1m6o.o
+    │       │           │   ├── elokcrvjy2dq0dfesv960qzr9.o
+    │       │           │   ├── enyifdpu1h57jthrpltjnxash.o
+    │       │           │   ├── er07f0u7xaegc32yjixmja0rv.o
+    │       │           │   ├── exjtu8up8qbnqv5wtyjk3mpyq.o
+    │       │           │   ├── f0q31rxix0p1s5qh2w6r82s9x.o
     │       │           │   ├── query-cache.bin
     │       │           │   └── work-products.bin
-    │       │           └── s-h4obvgbraw-1eltyt2.lock
+    │       │           └── s-h4obtbkpnh-05qav4f.lock
     │       ├── release
     │       │   ├── .cargo-lock
     │       │   ├── .fingerprint
@@ -2229,14 +2238,6 @@
     │       │   │   │   ├── invoked.timestamp
     │       │   │   │   ├── lib-ryu
     │       │   │   │   └── lib-ryu.json
-    │       │   │   ├── serde-5c31b43195d39eb4
-    │       │   │   │   ├── dep-lib-serde
-    │       │   │   │   ├── invoked.timestamp
-    │       │   │   │   ├── lib-serde
-    │       │   │   │   └── lib-serde.json
-    │       │   │   ├── serde-a884b033fe8a39d7
-    │       │   │   │   ├── run-build-script-build-script-build
-    │       │   │   │   └── run-build-script-build-script-build.json
     │       │   │   ├── serde_json-2cb6fa7c04da1b49
     │       │   │   │   ├── dep-lib-serde_json
     │       │   │   │   ├── invoked.timestamp
@@ -2245,6 +2246,20 @@
     │       │   │   ├── serde_json-8751da1b9265f65d
     │       │   │   │   ├── run-build-script-build-script-build
     │       │   │   │   └── run-build-script-build-script-build.json
+    │       │   │   ├── serde-5c31b43195d39eb4
+    │       │   │   │   ├── dep-lib-serde
+    │       │   │   │   ├── invoked.timestamp
+    │       │   │   │   ├── lib-serde
+    │       │   │   │   └── lib-serde.json
+    │       │   │   ├── serde-a884b033fe8a39d7
+    │       │   │   │   ├── run-build-script-build-script-build
+    │       │   │   │   └── run-build-script-build-script-build.json
+    │       │   │   ├── wasm_mini_server-146dcec947325570
+    │       │   │   │   ├── dep-lib-wasm_mini_server
+    │       │   │   │   ├── invoked.timestamp
+    │       │   │   │   ├── lib-wasm_mini_server
+    │       │   │   │   ├── lib-wasm_mini_server.json
+    │       │   │   │   └── output-lib-wasm_mini_server
     │       │   │   ├── wasm-bindgen-7169fe69989426c8
     │       │   │   │   ├── run-build-script-build-script-build
     │       │   │   │   └── run-build-script-build-script-build.json
@@ -2263,12 +2278,6 @@
     │       │   │   │   ├── invoked.timestamp
     │       │   │   │   ├── lib-wasm_bindgen_test
     │       │   │   │   └── lib-wasm_bindgen_test.json
-    │       │   │   ├── wasm_mini_server-146dcec947325570
-    │       │   │   │   ├── dep-lib-wasm_mini_server
-    │       │   │   │   ├── invoked.timestamp
-    │       │   │   │   ├── lib-wasm_mini_server
-    │       │   │   │   ├── lib-wasm_mini_server.json
-    │       │   │   │   └── output-lib-wasm_mini_server
     │       │   │   ├── web-sys-4b3131d14e95e929
     │       │   │   │   ├── dep-lib-web_sys
     │       │   │   │   ├── invoked.timestamp
@@ -2288,13 +2297,13 @@
     │       │   │       ├── lib-wee_alloc
     │       │   │       └── lib-wee_alloc.json
     │       │   ├── build
-    │       │   │   ├── serde-a884b033fe8a39d7
+    │       │   │   ├── serde_json-8751da1b9265f65d
     │       │   │   │   ├── invoked.timestamp
     │       │   │   │   ├── out
     │       │   │   │   ├── output
     │       │   │   │   ├── root-output
     │       │   │   │   └── stderr
-    │       │   │   ├── serde_json-8751da1b9265f65d
+    │       │   │   ├── serde-a884b033fe8a39d7
     │       │   │   │   ├── invoked.timestamp
     │       │   │   │   ├── out
     │       │   │   │   ├── output
@@ -2343,16 +2352,16 @@
     │       │   │   ├── libonce_cell-b2d76d70ef6e1b5d.rmeta
     │       │   │   ├── libryu-4f93dbc5e2165fe6.rlib
     │       │   │   ├── libryu-4f93dbc5e2165fe6.rmeta
-    │       │   │   ├── libserde-5c31b43195d39eb4.rlib
-    │       │   │   ├── libserde-5c31b43195d39eb4.rmeta
     │       │   │   ├── libserde_json-2cb6fa7c04da1b49.rlib
     │       │   │   ├── libserde_json-2cb6fa7c04da1b49.rmeta
-    │       │   │   ├── libwasm_bindgen-ada32127af0fa8a7.rlib
-    │       │   │   ├── libwasm_bindgen-ada32127af0fa8a7.rmeta
+    │       │   │   ├── libserde-5c31b43195d39eb4.rlib
+    │       │   │   ├── libserde-5c31b43195d39eb4.rmeta
     │       │   │   ├── libwasm_bindgen_futures-83b7272de0d8d1c6.rlib
     │       │   │   ├── libwasm_bindgen_futures-83b7272de0d8d1c6.rmeta
     │       │   │   ├── libwasm_bindgen_test-a2272c2197e62ac5.rlib
     │       │   │   ├── libwasm_bindgen_test-a2272c2197e62ac5.rmeta
+    │       │   │   ├── libwasm_bindgen-ada32127af0fa8a7.rlib
+    │       │   │   ├── libwasm_bindgen-ada32127af0fa8a7.rmeta
     │       │   │   ├── libwasm_mini_server.rlib
     │       │   │   ├── libweb_sys-4b3131d14e95e929.rlib
     │       │   │   ├── libweb_sys-4b3131d14e95e929.rmeta
@@ -2364,11 +2373,11 @@
     │       │   │   ├── memory_units-ee2eab4e9008d2f4.d
     │       │   │   ├── once_cell-b2d76d70ef6e1b5d.d
     │       │   │   ├── ryu-4f93dbc5e2165fe6.d
-    │       │   │   ├── serde-5c31b43195d39eb4.d
     │       │   │   ├── serde_json-2cb6fa7c04da1b49.d
-    │       │   │   ├── wasm_bindgen-ada32127af0fa8a7.d
+    │       │   │   ├── serde-5c31b43195d39eb4.d
     │       │   │   ├── wasm_bindgen_futures-83b7272de0d8d1c6.d
     │       │   │   ├── wasm_bindgen_test-a2272c2197e62ac5.d
+    │       │   │   ├── wasm_bindgen-ada32127af0fa8a7.d
     │       │   │   ├── wasm_mini_server.d
     │       │   │   ├── wasm_mini_server.wasm
     │       │   │   ├── web_sys-4b3131d14e95e929.d
@@ -2384,4 +2393,4 @@
     └── tests
         └── tests.rs
 
-382 directories, 2003 files
+384 directories, 2010 files

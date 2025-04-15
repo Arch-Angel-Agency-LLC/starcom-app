@@ -18,13 +18,13 @@ class Cache<T> {
     if (!key) throw new Error('Key cannot be empty');
     const expiry = Date.now() + (ttl || this.defaultTTL);
     this.cache.set(key, { value, expiry });
-    console.log(`Cache set: ${key} with TTL: ${ttl || this.defaultTTL}`);
+    //console.log(`Cache set: ${key} with TTL: ${ttl || this.defaultTTL}`);
   }
 
   get(key: string): T | null {
     const entry = this.cache.get(key);
     if (!entry) {
-      console.warn(`Cache miss: ${key}`);
+      //console.warn(`Cache miss: ${key}`);
       return null;
     }
     if (Date.now() > entry.expiry) {

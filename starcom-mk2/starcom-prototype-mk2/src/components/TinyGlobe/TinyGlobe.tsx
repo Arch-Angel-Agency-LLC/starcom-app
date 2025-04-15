@@ -1,9 +1,10 @@
-import React, { useEffect, useRef, useState, Suspense } from 'react';
+import React, { useEffect, useRef, useState, Suspense, useMemo } from 'react';
 import { useGlobeContext } from '../../context/GlobeContext';
 import styles from './TinyGlobe.module.css'; // Assuming you have CSS modules
 import * as THREE from 'three'; // Import the THREE namespace
-import { DirectionalLight, Vector3, TextureLoader, ShaderMaterial, Vector2 } from 'three';
 import Globe, { GlobeMethods } from 'react-globe.gl';
+import { Vector3, Vector2 } from 'three';
+import { TextureLoader, ShaderMaterial, DirectionalLight } from 'three';
 
 const dayNightShader = {
     vertexShader: `
@@ -57,23 +58,6 @@ const dayNightShader = {
             vec4 nightColor = texture2D(nightTexture, vUv);
             float blendFactor = smoothstep(-0.5, 0.5, intensity);
             gl_FragColor = mix(nightColor, dayColor, blendFactor);
-        }
-    `
-};
-
-const hologramShader = {
-    vertexShader: `
-        varying vec3 vNormal;
-        void main() {
-            vNormal = normalize(normalMatrix * normal);
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        }
-    `,
-    fragmentShader: `
-        varying vec3 vNormal;
-        void main() {
-            float intensity = pow(1.0 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.0);
-            gl_FragColor = vec4(0.0, 1.0, 1.0, 1.0) * intensity; // Teal glow
         }
     `
 };
@@ -165,16 +149,21 @@ const sunPosAt = () => {
     return [0, 0]; // Basic value
 };
 
+const interfaceModes = {
+    geoMagnetics: 'dayNight',
+    intelReports: 'hologram',
+    solarSystem: 'blueMarble'
+};
+
 const TinyGlobe: React.FC = () => {
     const { focusLocation } = useGlobeContext();
     const globeRef = useRef<GlobeMethods>();
     const [globeReady, setGlobeReady] = useState(false);
     const [globeMaterial, setGlobeMaterial] = useState<ShaderMaterial | null>(null);
-    const [shaderMode, setShaderMode] = useState<'dayNight' | 'hologram' | 'blueMarble'>('dayNight');
+    const [interfaceMode, setInterfaceMode] = useState<'geoMagnetics' | 'intelReports' | 'solarSystem'>('intelReports');
     const texturesRef = useRef<{ dayTexture: THREE.Texture; nightTexture: THREE.Texture; blueMarbleTexture: THREE.Texture; earthDarkTexture: THREE.Texture } | null>(null);
 
-    // External data source for sun's location
-    const sunPosition = new Vector3(5, 3, 5); // Example position, should be replaced with actual data
+    const sunPosition = useMemo(() => new Vector3(5, 3, 5), []); // Example position, should be replaced with actual data
 
     useEffect(() => {
         const loader = new TextureLoader();
@@ -205,16 +194,18 @@ const TinyGlobe: React.FC = () => {
                     fragmentShader: blueMarbleShader.fragmentShader
                 })
             };
-            setGlobeMaterial(materials[shaderMode]);
+
+            const selectedMaterial = materials[interfaceModes[interfaceMode] as keyof typeof materials];
+            setGlobeMaterial(selectedMaterial);
         }
-    }, [shaderMode]);
+    }, [interfaceMode]);
 
     useEffect(() => {
         // Update Sun position
-        if (shaderMode === 'dayNight' && globeMaterial?.uniforms?.sunPosition) {
+        if (interfaceMode === 'geoMagnetics' && globeMaterial?.uniforms?.sunPosition) {
             globeMaterial.uniforms.sunPosition.value.set(...sunPosAt());
         }
-    }, [globeMaterial, shaderMode]);
+    }, [globeMaterial, interfaceMode]);
 
     useEffect(() => {
         if (globeReady && globeRef.current) {
@@ -225,35 +216,35 @@ const TinyGlobe: React.FC = () => {
                     }
                 });
 
-                if (shaderMode === 'dayNight') {
+                if (interfaceMode === 'geoMagnetics') {
                     const directionalLight = new DirectionalLight(0xffffff, 1);
                     directionalLight.position.copy(sunPosition); // Use sun's position
                     globeRef.current.scene().add(directionalLight);
                 }
             }
         }
-    }, [globeReady, sunPosition, globeMaterial, shaderMode]);
+    }, [globeReady, sunPosition, globeMaterial, interfaceMode]);
 
     useEffect(() => {
         if (globeReady && globeRef.current && focusLocation) {
             // Rotate TinyGlobe to match the main globe's focus
             globeRef.current.pointOfView({ lat: focusLocation.lat, lng: focusLocation.lng + 90, altitude: 2 });
-            if (shaderMode === 'dayNight' && globeMaterial?.uniforms?.globeRotation) {
+            if (interfaceMode === 'geoMagnetics' && globeMaterial?.uniforms?.globeRotation) {
                 globeMaterial.uniforms.globeRotation.value.set(focusLocation.lng + 90, focusLocation.lat);
             }
         }
-    }, [globeReady, focusLocation, globeMaterial, shaderMode]);
+    }, [globeReady, focusLocation, globeMaterial, interfaceMode]);
 
     useEffect(() => {
         // Animate the hologram material
         const animate = () => {
-            if (globeMaterial && shaderMode === 'hologram' && globeMaterial.uniforms?.time) {
+            if (globeMaterial && interfaceMode === 'intelReports' && globeMaterial.uniforms?.time) {
                 globeMaterial.uniforms.time.value += 0.01; // Increment time for animation
             }
             requestAnimationFrame(animate);
         };
         animate();
-    }, [globeMaterial, shaderMode]);
+    }, [globeMaterial, interfaceMode]);
 
     return (
         <div className={`${styles.tinyGlobeContainer}`}>
@@ -275,24 +266,24 @@ const TinyGlobe: React.FC = () => {
             <div className={styles.buttonContainer}>
                 <button 
                     className={styles.shaderButton} 
-                    data-interface-button="dayNight" 
-                    onClick={() => setShaderMode('dayNight')}
-                >
-                    🌗
-                </button>
-                <button 
-                    className={styles.shaderButton} 
-                    data-interface-button="hologram" 
-                    onClick={() => setShaderMode('hologram')}
-                >
-                    🏝️
-                </button>
-                <button 
-                    className={styles.shaderButton} 
-                    data-interface-button="blueMarble" 
-                    onClick={() => setShaderMode('blueMarble')}
+                    data-interface-button="geoMagnetics" 
+                    onClick={() => setInterfaceMode('geoMagnetics')}
                 >
                     🌎
+                </button>
+                <button 
+                    className={styles.shaderButton} 
+                    data-interface-button="intelReports" 
+                    onClick={() => setInterfaceMode('intelReports')}
+                >
+                    📑
+                </button>
+                <button 
+                    className={styles.shaderButton} 
+                    data-interface-button="solarSystem" 
+                    onClick={() => setInterfaceMode('solarSystem')}
+                >
+                    ☀️
                 </button>
             </div>
         </div>

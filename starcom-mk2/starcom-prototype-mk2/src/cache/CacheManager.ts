@@ -19,31 +19,34 @@ class CacheManager {
     if (this.caches.has(name)) {
       throw new Error(`Cache with name ${name} already exists`);
     }
+    if (defaultTTL !== undefined && (typeof defaultTTL !== 'number' || defaultTTL <= 0)) {
+      throw new Error(`Invalid TTL value: ${defaultTTL}. TTL must be a positive number.`);
+    }
     const cache = new Cache<T>(defaultTTL);
     this.caches.set(name, cache);
-    console.log(`Cache created: ${name} with TTL: ${defaultTTL}`);
+    this.log(`Cache created: ${name} with TTL: ${defaultTTL}`);
     return cache;
   }
 
   getCache<T>(name: string): Cache<T> | null {
     const cache = this.caches.get(name) as Cache<T> || null;
     if (!cache) {
-      console.warn(`Cache not found: ${name}`);
+      this.warn(`Cache not found: ${name}`);
     }
     return cache;
   }
 
   deleteCache(name: string) {
     if (this.caches.delete(name)) {
-      console.log(`Cache deleted: ${name}`);
+      this.log(`Cache deleted: ${name}`);
     } else {
-      console.warn(`Cache delete failed: ${name} not found`);
+      this.warn(`Cache delete failed: ${name} not found`);
     }
   }
 
   clearAllCaches() {
     this.caches.forEach(cache => cache.clear());
-    console.log('All caches cleared');
+    this.log('All caches cleared');
   }
 
   getAllCacheNames(): string[] {
@@ -52,6 +55,14 @@ class CacheManager {
 
   hasCache(name: string): boolean {
     return this.caches.has(name);
+  }
+
+  private log(message: string) {
+    console.log(`[CacheManager] ${message}`);
+  }
+
+  private warn(message: string) {
+    console.warn(`[CacheManager] ${message}`);
   }
 }
 
