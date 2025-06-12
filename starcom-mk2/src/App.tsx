@@ -12,6 +12,7 @@ import { RainbowKitProvider, getDefaultConfig } from "@rainbow-me/rainbowkit";
 import { WagmiProvider } from "wagmi";
 import { mainnet, sepolia } from "wagmi/chains";
 import { http } from "wagmi";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const config = getDefaultConfig({
   appName: "Starcom dApp",
@@ -22,6 +23,8 @@ const config = getDefaultConfig({
     [sepolia.id]: http(),
   },
 });
+
+const queryClient = new QueryClient();
 
 const AppContent: React.FC = () => {
   const { fetchFromMiniServer, wasmReady } = useWASM();
@@ -87,21 +90,23 @@ const AppContent: React.FC = () => {
 };
 
 const App: React.FC = () => (
-  <WagmiProvider config={config}>
-    <RainbowKitProvider>
-      <AuthProvider>
-        <WASMProvider>
-          <DashboardProvider>
-            <GlobeProvider>
-              <MarketplaceProvider>
-                <AppContent />
-              </MarketplaceProvider>
-            </GlobeProvider>
-          </DashboardProvider>
-        </WASMProvider>
-      </AuthProvider>
-    </RainbowKitProvider>
-  </WagmiProvider>
+  <QueryClientProvider client={queryClient}>
+    <WagmiProvider config={config}>
+      <RainbowKitProvider>
+        <AuthProvider>
+          <WASMProvider>
+            <DashboardProvider>
+              <GlobeProvider>
+                <MarketplaceProvider>
+                  <AppContent />
+                </MarketplaceProvider>
+              </GlobeProvider>
+            </DashboardProvider>
+          </WASMProvider>
+        </AuthProvider>
+      </RainbowKitProvider>
+    </WagmiProvider>
+  </QueryClientProvider>
 );
 
 export default App;
