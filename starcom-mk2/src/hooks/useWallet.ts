@@ -1,20 +1,23 @@
-import { useCallback, useEffect, useState } from 'react';
-import { fetchWalletBalance, switchNetwork } from '../middleware/web3Middleware';
+import { useAuth } from '../context/AuthContext.tsx';
+import { useCallback, useState } from 'react';
+import { fetchWalletBalance } from '../middleware/web3Middleware';
 
-interface WalletState {
+export interface WalletState {
   balance: string | null;
   isLoading: boolean;
   error: string | null;
 }
 
 export const useWallet = () => {
+  const { address, provider } = useAuth();
   const [walletState, setWalletState] = useState<WalletState>({
     balance: null,
     isLoading: false,
     error: null,
   });
 
-  const fetchBalance = useCallback(async (address: string) => {
+  const fetchBalance = useCallback(async () => {
+    if (!address || !provider) return;
     setWalletState((prev) => ({ ...prev, isLoading: true, error: null }));
     try {
       const balance = await fetchWalletBalance(address);
@@ -26,22 +29,12 @@ export const useWallet = () => {
         isLoading: false,
       }));
     }
-  }, []);
-
-  const validateNetwork = useCallback(async (expectedChainId: number) => {
-    try {
-      await switchNetwork(expectedChainId);
-    } catch (error) {
-      setWalletState((prev) => ({
-        ...prev,
-        error: error instanceof Error ? error.message : 'Failed to switch network',
-      }));
-    }
-  }, []);
+  }, [address, provider]);
 
   return {
     ...walletState,
     fetchBalance,
-    validateNetwork,
+    address,
+    provider,
   };
 };

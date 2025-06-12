@@ -21,7 +21,7 @@ const TopBar: React.FC = () => {
         ) : error ? (
           <span className={styles.error}>{error}</span>
         ) : (
-          <span>${oilPrice?.toFixed(2)} / barrel</span>
+          <span>{typeof oilPrice === 'number' ? `$${oilPrice.toFixed(2)} / barrel` : 'N/A'}</span>
         )}
       </div>
       <div className={styles.resourceSection}>
@@ -53,6 +53,11 @@ const TopBar: React.FC = () => {
         ) : (
           <span>{naturalGasStorage?.toFixed(2)} BCF</span>
         )}
+      </div>
+      <div className={styles.tokenGateNav}>
+        <a href="/token-gated" className={styles.tokenGateLink}>
+          🔑 Token-Gated Demo
+        </a>
       </div>
     </div>
   );

@@ -1,0 +1,34 @@
+# starcom-mk2 Data Service Observability.artifact
+
+## Purpose
+Specify observability requirements for all providers and caches, with actionable contracts and validation steps.
+
+## Observability Requirements
+- Implement a DataServiceObserver interface (see interfaces artifact) for logging, metrics, and tracing.
+- Use standard libraries (e.g., Winston for logging, OpenTelemetry for tracing/metrics) or provide custom hooks.
+- All providers/caches must call observer hooks on fetch, hit, miss, error, eviction, etc.
+- Add health check endpoints or methods for each provider/cache.
+- Integrate observability checks into CI (e.g., test that logs/metrics are emitted).
+- Document how to monitor and alert on provider/cache health (e.g., Prometheus, Grafana).
+
+## Example Log/Metric/Trace Code
+```ts
+observer.onFetchStart?.(key);
+const start = Date.now();
+try {
+  const result = await provider.fetchData(key);
+  observer.onFetchEnd?.(key, Date.now() - start);
+  return result;
+} catch (e) {
+  observer.onError?.(key, e);
+  throw e;
+}
+```
+
+## Tooling Recommendations
+- Logging: Winston, pino
+- Metrics/Tracing: OpenTelemetry, Prometheus
+
+## Alerting/Health Checks
+- Define what constitutes "healthy" (e.g., error rate < 1%, latency < 500ms).
+- Add alerting rules for unhealthy states.

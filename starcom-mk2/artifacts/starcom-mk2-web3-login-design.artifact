@@ -1,0 +1,76 @@
+# starcom-mk2-web3-login-design.artifact
+
+### How to Use This Artifact
+- Use this file to understand the high-level design, requirements, and architecture for the web3 login system.
+- Reference this artifact before making architectural or dependency changes.
+
+### Cross-References
+- Related artifacts: `starcom-mk2-web3-login-api.artifact`, `starcom-mk2-web3-login-implementation-plan.artifact`, `starcom-mk2-web3-login-ui-flows.artifact`, `starcom-mk2-web3-login-test-plan.artifact`, `starcom-mk2-web3-login-known-issues.artifact`, `starcom-mk2-web3-login-changelog.artifact`
+
+---
+
+## Purpose
+High-level design, requirements, and architecture for the unified web3 login system.
+
+---
+
+### Goals
+- Provide seamless, secure, and user-friendly web3 wallet login (MetaMask, WalletConnect, etc.)
+- Support multiple EVM chains and network switching
+- Modular, extensible, and artifact-driven implementation
+- Clear error handling and user feedback
+
+---
+
+### User Stories
+- As a user, I want to connect my wallet and see my address and network.
+- As a user, I want to disconnect my wallet at any time.
+- As a user, I must accept terms before connecting my wallet.
+- As a developer/agent, I want all login logic to be modular and testable.
+
+---
+
+### Architecture
+- React Context for authentication state
+- Hooks for wallet logic
+- UI components for status, modals, and errors
+- Middleware for wallet-required actions
+- 100% decentralized: No backend for authentication/session. All auth/session logic is client-side (wallet signatures, SIWE, localStorage) or on-chain (role checks, token gating).
+- See docs/Decentralized Web3 dApp Development Guide.markdown for best practices and code patterns.
+
+### Authentication & Session Management (Decentralized)
+- Use wallet connection and client-side signature verification (e.g., SIWE) for authentication.
+- Persist sessions in localStorage with expiry, never on a server.
+- Use on-chain data for authorization and access control.
+
+### Backend Auth Flow (REMOVED)
+This section intentionally left blank to document removal of backend auth/session flows for decentralization.
+
+---
+
+### Dependencies
+- ethers.js, wagmi, RainbowKit/Web3Modal (for wallet modal)
+- React Context, React Router
+
+---
+
+### Security
+- Validate network and address
+- (Optional) Signature-based authentication for backend/session
+
+---
+
+### Diagram
+- [TODO: Add system architecture diagram here, including backend auth flow.]
+
+---
+
+### AI-NOTE
+- If you change the architecture or dependencies, update this artifact and reference the change in the changelog.
+
+---
+
+### Update Protocol
+- Update this artifact for any major design or architectural change.
+- Add a `TODO:` if you are unsure about a design decision.
+- Reference the changelog artifact for all updates.

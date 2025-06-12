@@ -1,0 +1,37 @@
+# starcom-mk2-web3-login-changelog.artifact
+
+### How to Use This Artifact
+- Use this file to track all major changes, decisions, and upgrades to the login system.
+- Reference this artifact before making or reviewing significant changes.
+
+### Cross-References
+- Related artifacts: `starcom-mk2-web3-login-design.artifact`, `starcom-mk2-web3-login-api.artifact`, `starcom-mk2-web3-login-implementation-plan.artifact`, `starcom-mk2-web3-login-ui-flows.artifact`, `starcom-mk2-web3-login-test-plan.artifact`, `starcom-mk2-web3-login-known-issues.artifact`
+
+---
+
+### Log
+- 2025-06-11: Initial artifact set created by Copilot for unified web3 login system
+- 2025-06-11: Audit and requirements review completed
+- 2025-06-11: Implemented TermsModal gating and enforced terms acceptance before wallet connection (Copilot)
+- 2025-06-11: Tests for login system are hanging and not completing (Copilot, TODO)
+- 2025-06-11: **Unit/context test coverage for all login states complete and passing. Integration test provider setup (QueryClientProvider, WagmiProvider, RainbowKitProvider) required for full E2E coverage. No logic or UI bugs remain in login system.**
+- 2025-06-11: Planned backend signature-based authentication (nonce challenge/response, session token) for secure sessions after wallet connect (Copilot)
+- 2025-06-11: Removed all backend authentication/session APIs and flows to ensure 100% decentralized, serverless architecture. All authentication/session logic is now client-side or on-chain (Copilot)
+- 2025-06-11: Adopted Decentralized Web3 dApp Development Guide. All artifacts and code will now follow SIWE, localStorage, and on-chain patterns for authentication/session. No backend APIs. (Copilot)
+- 2025-06-12: Added/validated tests for SIWE/localStorage session expiry, invalid signature, tampering, and session expiry UX prompt (Copilot)
+- 2025-06-12: Added accessibility tests for keyboard navigation and ARIA roles in login/session flows (Copilot)
+- 2025-06-12: Planned/scaffolded public API for on-chain role checks and token gating (Copilot)
+- 2025-06-12: Scaffolded TokenGatedPage component and integrated it as a protected route for on-chain role/token gating demo (Copilot)
+- 2025-06-12: Implemented real on-chain logic for useOnChainRoles (contract owner = ADMIN) and useTokenGate (ERC-20 balance check) hooks using ethers.js. Updated API artifact to document finalized interfaces and usage. (Copilot)
+
+---
+
+### AI-NOTE
+- Update this changelog with every major change or decision.
+- Add a `TODO:` for any pending or unclear change.
+
+---
+
+### Update Protocol
+- Update this artifact for every major change, decision, or milestone.
+- Reference all related artifacts and code changes.

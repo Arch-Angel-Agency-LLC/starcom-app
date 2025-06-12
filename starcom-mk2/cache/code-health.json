@@ -4,10 +4,142 @@
     "error": "Command failed: npx eslint src --format json -o cache/eslint-report.json"
   },
   "test": {
-    "success": false,
-    "error": "Command failed: npx vitest run --reporter=json --outputFile=cache/vitest-report.json"
+    "success": true,
+    "numFailed": 0
   },
-  "todos": [],
-  "aiNotes": [],
-  "generatedAt": "2025-06-12T03:41:48.180Z"
+  "todos": [
+    {
+      "file": "src/hooks/useOnChainRoles.ts",
+      "line": 6,
+      "text": "TODO: Replace with real deployed address"
+    },
+    {
+      "file": "src/services/data-services.all.test.ts",
+      "line": 18,
+      "text": "TODO: Add imports for all future domain/provider/cache/adapters tests"
+    },
+    {
+      "file": "src/services/eia/EIADataCacheService.observability.test.ts",
+      "line": 23,
+      "text": "TODO: Add tests for observer hooks on TTL expiry"
+    },
+    {
+      "file": "src/services/eia/EIADataCacheService.observability.test.ts",
+      "line": 24,
+      "text": "TODO: Assert logs/metrics/traces are emitted as expected (see observability artifact)"
+    },
+    {
+      "file": "src/services/eia/EIADataCacheService.observability.test.ts",
+      "line": 25,
+      "text": "TODO: Test health check endpoint/method"
+    },
+    {
+      "file": "src/services/eia/EIADataProvider.observability.test.ts",
+      "line": 20,
+      "text": "TODO: Add tests for observer hooks on fetch error"
+    },
+    {
+      "file": "src/services/eia/EIADataProvider.observability.test.ts",
+      "line": 21,
+      "text": "TODO: Assert logs/metrics/traces are emitted as expected (see observability artifact)"
+    },
+    {
+      "file": "src/services/eia/EIADataProvider.observability.test.ts",
+      "line": 22,
+      "text": "TODO: Test health check endpoint/method"
+    },
+    {
+      "file": "src/services/eia/EIAService.e2e.test.ts",
+      "line": 4,
+      "text": "TODO: Simulate real consumer usage of EIAService (static and instance APIs)"
+    },
+    {
+      "file": "src/services/eia/EIAService.e2e.test.ts",
+      "line": 5,
+      "text": "TODO: Test migration scenarios, feature flags, and rollback"
+    },
+    {
+      "file": "src/services/eia/EIAService.e2e.test.ts",
+      "line": 6,
+      "text": "TODO: Test integration with adapters and legacy consumers"
+    },
+    {
+      "file": "src/services/market/MarketDataCacheService.unit.test.ts",
+      "line": 3,
+      "text": "TODO: Implement MarketDataCacheService and its tests as for EIADataCacheService"
+    },
+    {
+      "file": "src/services/market/MarketDataCacheService.unit.test.ts",
+      "line": 4,
+      "text": "TODO: Add tests for TTL, eviction, observer hooks, edge cases"
+    },
+    {
+      "file": "src/services/market/MarketDataProvider.unit.test.ts",
+      "line": 3,
+      "text": "TODO: Implement MarketDataProvider and its tests as for EIADataProvider"
+    },
+    {
+      "file": "src/services/market/MarketDataProvider.unit.test.ts",
+      "line": 4,
+      "text": "TODO: Add tests for error handling, streaming/subscription, observer hooks, edge cases"
+    },
+    {
+      "file": "src/services/shared/FallbackProvider.unit.test.ts",
+      "line": 23,
+      "text": "TODO: Add tests for observer hooks (see observability artifact)"
+    },
+    {
+      "file": "src/services/shared/FallbackProvider.unit.test.ts",
+      "line": 24,
+      "text": "TODO: Add tests for streaming/subscription support (see interfaces artifact)"
+    }
+  ],
+  "aiNotes": [
+    {
+      "file": "src/App.tsx",
+      "line": 90,
+      "text": "AI-NOTE: Block app UI until terms are accepted (artifact-driven gating)"
+    },
+    {
+      "file": "src/components/Auth/AuthErrorBoundary.tsx",
+      "line": 3,
+      "text": "AI-NOTE: Error boundary for authentication and wallet errors (see artifacts)"
+    },
+    {
+      "file": "src/components/Auth/TermsModal.tsx",
+      "line": 3,
+      "text": "AI-NOTE: TermsModal enforces user acceptance of terms before wallet connection (see artifacts)"
+    },
+    {
+      "file": "src/routes/ProtectedRoute.tsx",
+      "line": 5,
+      "text": "AI-NOTE: Protects routes by requiring authentication (see artifacts)"
+    },
+    {
+      "file": "src/services/EIAService.ts",
+      "line": 55,
+      "text": "AI-NOTE: This class now uses artifact-driven provider/cache abstractions. Legacy static API is preserved for now. Migrate consumers to instance-based API in future steps."
+    },
+    {
+      "file": "src/services/data-service-interfaces.ts",
+      "line": 48,
+      "text": "AI-NOTE: This file is artifact-driven and should be updated if the interfaces artifact changes."
+    },
+    {
+      "file": "src/services/eia/EIADataCacheService.ts",
+      "line": 47,
+      "text": "AI-NOTE: This is a minimal, artifact-driven implementation. Add persistence or advanced invalidation as needed."
+    },
+    {
+      "file": "src/services/eia/EIADataProvider.ts",
+      "line": 43,
+      "text": "AI-NOTE: This is a minimal, artifact-driven implementation. Replace mock logic with real API integration."
+    },
+    {
+      "file": "src/services/eia/LegacyEIAServiceAdapter.ts",
+      "line": 34,
+      "text": "AI-NOTE: This adapter preserves the legacy API shape but delegates to the new artifact-driven service."
+    }
+  ],
+  "generatedAt": "2025-06-12T12:33:01.284Z"
 }

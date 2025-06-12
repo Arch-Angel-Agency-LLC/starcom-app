@@ -1,0 +1,28 @@
+# starcom-mk2 Data Service Migration Checklist.artifact
+
+## Purpose
+Track the phased migration for each data domain and consumer, with actionable steps, ownership, and validation.
+
+## Migration Checklist
+| Service/Domain      | Abstraction Implemented | Adapter in Place | Tests Updated | Consumers Migrated | Legacy Removed | Rollback/Validation | File(s)/PR(s) | Engineer | Blockers | Notes |
+|--------------------|------------------------|------------------|--------------|--------------------|---------------|---------------------|---------------|----------|----------|-------|
+| EIA                | ✅                     | ✅               | ✅           |                    |               |                     | src/services/eia/EIADataProvider.ts, src/services/eia/EIADataCacheService.ts, src/services/eia/LegacyEIAServiceAdapter.ts, src/services/EIAService.ts, src/services/eia/EIADataProvider.unit.test.ts, src/services/eia/EIADataCacheService.unit.test.ts, src/services/EIAService.integration.test.ts, src/services/eia/EIADataProvider.contract.test.ts, src/services/eia/LegacyEIAServiceAdapter.contract.test.ts | Copilot  |          | Legacy consumers and removal pending |
+| Market             |                        |                  |              |                    |               |                     |               |          |          |       |
+| Intelligence       |                        |                  |              |                    |               |                     |               |          |          |       |
+| RSS/News           |                        |                  |              |                    |               |                     |               |          |          |       |
+| Weather            |                        |                  |              |                    |               |                     |               |          |          |       |
+| Conflict Zones     |                        |                  |              |                    |               |                     |               |          |          |       |
+| UCDP               |                        |                  |              |                    |               |                     |               |          |          |       |
+| FeedsService       |                        |                  |              |                    |               |                     |               |          |          |       |
+| ...                |                        |                  |              |                    |               |                     |               |          |          |       |
+
+## Validation Steps
+- For each phase, specify integration test, canary deploy, and artifact update requirements.
+- Link to relevant test cases and CI jobs.
+- Document rollback plan (feature flag, revert, etc.) for each domain.
+
+## Lessons Learned
+- Record issues, blockers, and best practices discovered during migration.
+
+## Artifact Cross-Links
+- See also: data-service-interfaces, testing-strategy, observability artifacts for requirements and test cases.

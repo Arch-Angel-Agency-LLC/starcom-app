@@ -2,7 +2,6 @@
   "version": "1.0.0",
   "structure": {
     "src": [
-      "__tests__",
       "api",
       "assets",
       "cache",
@@ -12,11 +11,16 @@
       "contracts",
       "data",
       "hooks",
+      "interfaces",
       "...truncated"
     ],
     "scripts": [
       "deploy.ts",
+      "mock-api-server.js",
       "onboard.cjs"
+    ],
+    "docs": [
+      "Decentralized Web3 dApp Development Guide.markdown"
     ],
     "public": [
       "starcom.ico",
@@ -30,7 +34,23 @@
   },
   "artifacts": [
     "onboarding-copilot-improvement.artifact",
-    "starcom-mk2-repo-migration.artifact"
+    "starcom-mk2-auth-login-audit.artifact",
+    "starcom-mk2-data-service-interfaces.artifact",
+    "starcom-mk2-data-service-migration-checklist.artifact",
+    "starcom-mk2-data-service-observability.artifact",
+    "starcom-mk2-data-service-refactor-plan.artifact",
+    "starcom-mk2-data-service-testing-strategy.artifact",
+    "starcom-mk2-repo-migration.artifact",
+    "starcom-mk2-web3-login-api.artifact",
+    "starcom-mk2-web3-login-changelog.artifact",
+    "starcom-mk2-web3-login-design.artifact",
+    "starcom-mk2-web3-login-implementation-plan.artifact",
+    "starcom-mk2-web3-login-known-issues.artifact",
+    "starcom-mk2-web3-login-test-plan.artifact",
+    "starcom-mk2-web3-login-ui-flows.artifact",
+    "test-suite-conventions.artifact",
+    "test-suite-directory-structure.artifact",
+    "test-suite-migration-plan.artifact"
   ],
   "aiHints": {
     "mainAppDir": "src",
@@ -41,5 +61,5 @@
       "src/main.tsx"
     ]
   },
-  "generatedAt": "2025-06-12T03:41:44.216Z"
+  "generatedAt": "2025-06-12T12:32:07.562Z"
 }

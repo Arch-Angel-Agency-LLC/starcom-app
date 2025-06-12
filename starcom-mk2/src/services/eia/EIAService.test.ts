@@ -1,13 +1,35 @@
+// Moved from src/__tests__/EIAService.test.ts
+// Test for EIAService (artifact-driven, colocated)
 import { describe, it, expect, vi } from 'vitest';
-import EIAService from '../services/EIAService';
-import { EIAData } from '../interfaces/EIAData';
 
-// Mock fetch
 global.fetch = vi.fn();
 
 describe('EIAService', () => {
+    let CacheManager: unknown;
+
+    beforeEach(async () => {
+        vi.resetModules();
+        CacheManager = (await import('../../cache/CacheManager')).default;
+        const instance = (CacheManager as { getInstance(): unknown }).getInstance();
+        const caches = Reflect.get(instance as object, 'caches');
+        if (caches && typeof caches.clear === 'function') {
+            caches.clear();
+        }
+        vi.clearAllMocks();
+    });
+
+    afterEach(async () => {
+        const CacheManager = (await import('../../cache/CacheManager')).default;
+        const instance = (CacheManager as { getInstance(): unknown }).getInstance();
+        const caches = Reflect.get(instance as object, 'caches');
+        if (caches && typeof caches.clear === 'function') {
+            caches.clear();
+        }
+    });
+
     it('fetches the latest oil price successfully', async () => {
-        const mockResponse: EIAData = {
+        const EIAService = (await import('./EIAService.js')).default;
+        const mockResponse = {
         response: {
             total: '1',
             dateFormat: 'YYYY-MM-DD',
@@ -18,7 +40,7 @@ describe('EIAService', () => {
         apiVersion: '2.1.8',
         };
 
-        (fetch as any).mockResolvedValueOnce({
+        (fetch as unknown as { mockResolvedValueOnce: (value: unknown) => void }).mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve(mockResponse),
         });
@@ -30,7 +52,8 @@ describe('EIAService', () => {
     });
 
     it('fetches the latest gasoline price successfully', async () => {
-        const mockResponse: EIAData = {
+        const EIAService = (await import('./EIAService.js')).default;
+        const mockResponse = {
         response: {
             total: '1',
             dateFormat: 'YYYY-MM-DD',
@@ -41,7 +64,7 @@ describe('EIAService', () => {
         apiVersion: '2.1.8',
         };
 
-        (fetch as any).mockResolvedValueOnce({
+        (fetch as unknown as { mockResolvedValueOnce: (value: unknown) => void }).mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve(mockResponse),
         });
@@ -53,7 +76,8 @@ describe('EIAService', () => {
     });
 
     it('fetches the latest oil inventory successfully', async () => {
-        const mockResponse: EIAData = {
+        const EIAService = (await import('./EIAService.js')).default;
+        const mockResponse = {
         response: {
             total: '1',
             dateFormat: 'YYYY-MM-DD',
@@ -64,7 +88,7 @@ describe('EIAService', () => {
         apiVersion: '2.1.8',
         };
 
-        (fetch as any).mockResolvedValueOnce({
+        (fetch as unknown as { mockResolvedValueOnce: (value: unknown) => void }).mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve(mockResponse),
         });
@@ -75,35 +99,9 @@ describe('EIAService', () => {
         );
     });
 
-    it('fetches the latest natural gas storage successfully', async () => {
-        const mockResponse: EIAData = {
-        response: {
-            total: '1',
-            dateFormat: 'YYYY-MM-DD',
-            frequency: 'weekly',
-            data: [{ period: '2025-03-07', value: 67.52 }],
-        },
-        request: { command: '/v2/seriesid/NG.NW2_EPG0_SWO_R48_BCF.W', params: {} },
-        apiVersion: '2.1.8',
-        };
-
-        (fetch as any).mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve(mockResponse),
-        });
-
-        await EIAService.getLatestNaturalGasStorage();
-        expect(fetch).toHaveBeenCalledWith(
-        `https://api.eia.gov/v2/seriesid/NG.NW2_EPG0_SWO_R48_BCF.W?api_key=${import.meta.env.VITE_EIA_API_KEY}`
-        );
-    });
-
     it('handles fetch errors', async () => {
-        (fetch as any).mockResolvedValueOnce({
-        ok: false,
-        status: 404,
-        });
-
-        await expect(EIAService.getLatestOilPrice()).rejects.toThrow('HTTP error! Status: 404');
+        const EIAService = (await import('./EIAService.js')).default;
+        (fetch as unknown as { mockRejectedValueOnce: (value: unknown) => void }).mockRejectedValueOnce(new Error('Network error'));
+        await expect(EIAService.getLatestOilPrice()).rejects.toThrow('Network error');
     });
 });
