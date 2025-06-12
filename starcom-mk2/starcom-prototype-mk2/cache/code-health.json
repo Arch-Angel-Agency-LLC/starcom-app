@@ -1,0 +1,13 @@
+{
+  "lint": {
+    "success": false,
+    "error": "Command failed: npx eslint src --format json -o cache/eslint-report.json"
+  },
+  "test": {
+    "success": false,
+    "error": "Command failed: npx vitest run --reporter=json --outputFile=cache/vitest-report.json"
+  },
+  "todos": [],
+  "aiNotes": [],
+  "generatedAt": "2025-06-12T01:58:01.666Z"
+}

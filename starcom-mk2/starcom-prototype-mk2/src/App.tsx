@@ -2,11 +2,26 @@ import React, { useEffect, useState } from "react";
 import { BrowserRouter } from "react-router-dom";
 import AppRoutes from "./routes/routes";
 import { WASMProvider, useWASM } from "./context/WASMContext";
-import { DashboardProvider } from "./context/DashboardContext"
-import { GlobeProvider } from './context/GlobeContext.tsx';
-import { VisualizationModeProvider } from './context/VisualizationModeContext';
-import { AuthProvider } from './context/AuthContext.tsx';
+import { DashboardProvider } from "./context/DashboardContext";
+import { GlobeProvider } from "./context/GlobeContext.tsx";
+import { VisualizationModeProvider } from "./context/VisualizationModeContext";
+import { AuthProvider } from "./context/AuthContext.tsx";
+import { MarketplaceProvider } from "./context/MarketplaceContext";
 import "./styles/globals.css";
+import { RainbowKitProvider, getDefaultConfig } from "@rainbow-me/rainbowkit";
+import { WagmiProvider } from "wagmi";
+import { mainnet, sepolia } from "wagmi/chains";
+import { http } from "wagmi";
+
+const config = getDefaultConfig({
+  appName: "Starcom dApp",
+  projectId: import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID || "06f5dc3f3e7a9680c053d22f0ec1d242",
+  chains: [mainnet, sepolia],
+  transports: {
+    [mainnet.id]: http(),
+    [sepolia.id]: http(),
+  },
+});
 
 const AppContent: React.FC = () => {
   const { fetchFromMiniServer, wasmReady } = useWASM();
@@ -24,7 +39,6 @@ const AppContent: React.FC = () => {
       } catch (error) {
         if (isMounted) {
           console.error("Error fetching data:", error);
-          // Retry logic with exponential backoff
           let retryCount = 0;
           const maxRetries = 5;
           const retryFetch = async () => {
@@ -73,15 +87,21 @@ const AppContent: React.FC = () => {
 };
 
 const App: React.FC = () => (
-  <AuthProvider>
-    <WASMProvider>
-      <DashboardProvider>
-        <GlobeProvider>
-          <AppContent />
-        </GlobeProvider>
-      </DashboardProvider>
-    </WASMProvider>
-  </AuthProvider>
+  <WagmiProvider config={config}>
+    <RainbowKitProvider>
+      <AuthProvider>
+        <WASMProvider>
+          <DashboardProvider>
+            <GlobeProvider>
+              <MarketplaceProvider>
+                <AppContent />
+              </MarketplaceProvider>
+            </GlobeProvider>
+          </DashboardProvider>
+        </WASMProvider>
+      </AuthProvider>
+    </RainbowKitProvider>
+  </WagmiProvider>
 );
 
 export default App;

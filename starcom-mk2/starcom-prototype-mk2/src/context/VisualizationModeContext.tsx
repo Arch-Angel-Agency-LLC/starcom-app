@@ -1,7 +1,10 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 
-// Define the VisualizationMode type
-export type VisualizationMode = 'geoMagnetics' | 'intelReports' | 'solarSystem';
+// Extend VisualizationMode to include sub-modes
+export type VisualizationMode =
+  | { mode: 'CyberCommand'; subMode: 'IntelReports' | 'Timelines' | 'CrisisZones' }
+  | { mode: 'GeoPolitical'; subMode: 'NationalTerritories' | 'DiplomaticEvents' | 'ResourceZones' }
+  | { mode: 'EcoNatural'; subMode: 'SpaceWeather' | 'EcologicalDisasters' | 'EarthWeather' };
 
 // Create a context for VisualizationMode
 interface VisualizationModeContextProps {
@@ -14,14 +17,14 @@ const VisualizationModeContext = createContext<VisualizationModeContextProps | u
 
 // Provider component
 export const VisualizationModeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [visualizationMode, setVisualizationMode] = useState<VisualizationMode>('geoMagnetics');
+  const [visualizationMode, setVisualizationMode] = useState<VisualizationMode>({ mode: 'CyberCommand', subMode: 'IntelReports' });
 
   const resetVisualizationMode = () => {
-    setVisualizationMode('geoMagnetics'); // Default mode
+    setVisualizationMode({ mode: 'CyberCommand', subMode: 'IntelReports' }); // Default mode with sub-mode
   };
 
   useEffect(() => {
-    console.log(`VisualizationMode changed to: ${visualizationMode}`);
+    console.log(`VisualizationMode changed to: ${visualizationMode.mode}, SubMode: ${visualizationMode.subMode}`);
   }, [visualizationMode]);
 
   return (
