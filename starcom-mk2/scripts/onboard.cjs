@@ -38,15 +38,112 @@ function extractComments(file, patterns) {
   return results;
 }
 
+// Utility to get immediate subfolders (not files) of a directory
+function getImmediateSubfolders(dir) {
+  if (!fs.existsSync(dir)) return [];
+  return fs.readdirSync(dir).filter(f => {
+    const full = path.join(dir, f);
+    return fs.statSync(full).isDirectory() && !f.startsWith('.');
+  });
+}
+
+// Utility to get immediate subfolders/files of a directory
+function getImmediateChildren(dir) {
+  if (!fs.existsSync(dir)) return [];
+  return fs.readdirSync(dir).filter(f => !f.startsWith('.'));
+}
+
+// Utility to get immediate files of a directory
+function getImmediateFiles(dir) {
+  if (!fs.existsSync(dir)) return [];
+  return fs.readdirSync(dir).filter(f => {
+    const full = path.join(dir, f);
+    return fs.statSync(full).isFile() && !f.startsWith('.');
+  });
+}
+
 function summarizeStructure() {
   const files = walk(SRC);
   const summary = files.map(f => path.relative(ROOT, f));
   return { files: summary };
 }
 
+function summarizeStructureV2() {
+  // Only top-level folders and their immediate subfolders/files
+  const structure = {};
+  // src
+  structure.src = getImmediateChildren(SRC);
+  // scripts
+  structure.scripts = getImmediateChildren(path.join(ROOT, 'scripts'));
+  // docs
+  structure.docs = getImmediateChildren(path.join(ROOT, 'docs'));
+  // public
+  structure.public = getImmediateChildren(path.join(ROOT, 'public'));
+  // rust (list only top-level folders)
+  const rustDir = path.join(ROOT, 'rust');
+  structure.rust = getImmediateChildren(rustDir);
+  return structure;
+}
+
+function summarizeStructureV3() {
+  const structure = {};
+  structure.src = getImmediateSubfolders(SRC);
+  structure.scripts = getImmediateChildren(path.join(ROOT, 'scripts'));
+  structure.docs = getImmediateChildren(path.join(ROOT, 'docs'));
+  structure.public = getImmediateChildren(path.join(ROOT, 'public'));
+  structure.rust = getImmediateSubfolders(path.join(ROOT, 'rust'));
+  return structure;
+}
+
+function summarizeStructureV4() {
+  const structure = {};
+  // Only include non-empty subfolder arrays
+  const src = getImmediateSubfolders(SRC);
+  if (src.length) structure.src = src;
+  const scripts = getImmediateSubfolders(path.join(ROOT, 'scripts'));
+  if (scripts.length) structure.scripts = scripts;
+  const docs = getImmediateSubfolders(path.join(ROOT, 'docs'));
+  if (docs.length) structure.docs = docs;
+  const publicDir = getImmediateSubfolders(path.join(ROOT, 'public'));
+  if (publicDir.length) structure.public = publicDir;
+  const rust = getImmediateSubfolders(path.join(ROOT, 'rust'));
+  if (rust.length) structure.rust = rust;
+  return structure;
+}
+
+function truncateList(arr, max = 10) {
+  if (arr.length > max) return arr.slice(0, max).concat('...truncated');
+  return arr;
+}
+
+function summarizeStructureFinal() {
+  const structure = {};
+  // src: only subfolders, truncated
+  const src = truncateList(getImmediateSubfolders(SRC), 10);
+  if (src.length) structure.src = src;
+  // scripts: only files
+  const scripts = getImmediateFiles(path.join(ROOT, 'scripts'));
+  if (scripts.length) structure.scripts = scripts;
+  // docs: only files
+  const docs = getImmediateFiles(path.join(ROOT, 'docs'));
+  if (docs.length) structure.docs = docs;
+  // public: only files
+  const publicDir = getImmediateFiles(path.join(ROOT, 'public'));
+  if (publicDir.length) structure.public = publicDir;
+  // rust: only subfolders, truncated
+  const rust = truncateList(getImmediateSubfolders(path.join(ROOT, 'rust')), 10);
+  if (rust.length) structure.rust = rust;
+  return structure;
+}
+
 function summarizeArtifacts() {
   if (!fs.existsSync(ARTIFACTS)) return [];
   return walk(ARTIFACTS).map(f => path.relative(ROOT, f));
+}
+
+function summarizeArtifactsV2() {
+  // Only top-level artifacts
+  return getImmediateChildren(ARTIFACTS).filter(f => f.endsWith('.artifact'));
 }
 
 function summarizeDocs() {
@@ -89,20 +186,37 @@ function runTests() {
   }
 }
 
+function getAiHints() {
+  return {
+    mainAppDir: 'src',
+    contractsDir: 'src/contracts',
+    docsDir: 'docs',
+    entryPoints: ['src/App.tsx', 'src/main.tsx']
+  };
+}
+
 function main() {
   if (process.env.AI_AGENT === '1') {
     // AI agent mode: force non-interactive, no prompts, no confirmations
     // (No prompts exist, but this is a future-proof hook)
   }
   if (!fs.existsSync(CACHE)) fs.mkdirSync(CACHE);
-  // code-summary.json
+  // code-summary.json (improved, folders only)
   const codeSummary = {
-    structure: summarizeStructure(),
-    artifacts: summarizeArtifacts(),
-    docs: summarizeDocs(),
+    version: '1.0.0',
+    structure: summarizeStructureFinal(),
+    artifacts: summarizeArtifactsV2(),
+    aiHints: getAiHints(),
     generatedAt: new Date().toISOString()
   };
-  fs.writeFileSync(path.join(CACHE, 'code-summary.json'), JSON.stringify(codeSummary, null, 2));
+  const summaryStr = JSON.stringify(codeSummary, null, 2);
+  // Enforce size limit: 50 lines or 4KB
+  const lineCount = summaryStr.split('\n').length;
+  const byteSize = Buffer.byteLength(summaryStr, 'utf8');
+  if (lineCount > 50 || byteSize > 4096) {
+    throw new Error(`code-summary.json exceeds size limit: ${lineCount} lines, ${byteSize} bytes. Reduce detail.`);
+  }
+  fs.writeFileSync(path.join(CACHE, 'code-summary.json'), summaryStr);
 
   // code-health.json
   const { todos, aiNotes } = collectTodosAndNotes();

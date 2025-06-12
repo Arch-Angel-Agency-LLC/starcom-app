@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Run onboarding script for Copilot AI Agent automation
+npm run onboard || npx tsx scripts/onboard.cjs
