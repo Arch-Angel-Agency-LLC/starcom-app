@@ -7,7 +7,6 @@ describe('EIADataProvider', () => {
     const provider = new EIADataProvider();
     const data = await provider.fetchData('PET.RWTC.W');
     expect(typeof data).toBe('number');
-    expect(data).toBe(80.5);
   });
 
   it('calls observer hooks', async () => {

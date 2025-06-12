@@ -1,4 +1,4 @@
-import { BrowserProvider, Signer } from 'ethers';
+import { BrowserProvider, Signer, Eip1193Provider } from 'ethers';
 
 export interface WalletConnection {
   address: string;
@@ -7,8 +7,9 @@ export interface WalletConnection {
 }
 
 // Updated type definition for Ethereum to match ethers' Eip1193Provider
-interface Ethereum extends ethers.Eip1193Provider {
+interface Ethereum extends Eip1193Provider {
   isMetaMask?: boolean;
+  request: (args: { method: string; params?: Array<unknown> | object }) => Promise<unknown>;
 }
 
 declare global {
@@ -45,23 +46,19 @@ export const connectToWallet = async (targetChainId: number): Promise<WalletConn
   if (!window.ethereum) {
     throw new Error('MetaMask is not installed. Please install MetaMask to continue.');
   }
-
   const provider = new BrowserProvider(window.ethereum);
   const accounts = await provider.send('eth_requestAccounts', []);
-
-  if (!accounts || accounts.length === 0) {
-    throw new Error('No accounts found. Please ensure your wallet is unlocked.');
-  }
-
-  const signer = await provider.getSigner();
-  const address = accounts[0];
-
   const network = await provider.getNetwork();
-  if (network.chainId !== targetChainId) {
-    throw new Error(`Please switch to the correct network. Expected chainId: ${targetChainId}`);
+  // Convert network.chainId to number for comparison
+  if (Number(network.chainId) !== targetChainId) {
+    throw new Error(`Please switch to the correct network (chainId: ${targetChainId})`);
   }
-
-  return { address, provider, signer };
+  const signer = await provider.getSigner();
+  return {
+    address: accounts[0],
+    provider,
+    signer,
+  };
 };
 
 export const disconnectWallet = async (): Promise<void> => {

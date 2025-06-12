@@ -11,8 +11,8 @@ describe('EIADataProvider observability', () => {
       onError: vi.fn(),
     };
     provider.setObserver(observer);
-    await provider.fetchData('obs-key');
-    expect(observer.onFetchStart).toHaveBeenCalledWith('obs-key');
+    await provider.fetchData('PET.RWTC.W'); // Use a real EIA key
+    expect(observer.onFetchStart).toHaveBeenCalledWith('PET.RWTC.W');
     expect(observer.onFetchEnd).toHaveBeenCalled();
     expect(observer.onError).not.toHaveBeenCalled();
   });

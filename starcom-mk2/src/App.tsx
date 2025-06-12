@@ -32,11 +32,10 @@ const TERMS_KEY = 'starcom-terms-accepted';
 
 const AppContent: React.FC = () => {
   const { fetchFromMiniServer, wasmReady } = useWASM();
-  const [fetchPromise, setFetchPromise] = useState<Promise<void> | null>(null);
   const [termsAccepted, setTermsAccepted] = useState(() => !!localStorage.getItem(TERMS_KEY));
 
   useEffect(() => {
-    let isMounted = true;
+    // Removed unused isMounted variable
 
     // Commented out to avoid CORS error in local dev
     // const fetchData = async () => {
@@ -82,9 +81,9 @@ const AppContent: React.FC = () => {
     // }
 
     return () => {
-      isMounted = false;
+      // No cleanup needed
     };
-  }, [wasmReady, fetchFromMiniServer, fetchPromise]);
+  }, [wasmReady, fetchFromMiniServer]);
 
   if (!termsAccepted) {
     // AI-NOTE: Block app UI until terms are accepted (artifact-driven gating)

@@ -97,7 +97,7 @@
   "aiNotes": [
     {
       "file": "src/App.tsx",
-      "line": 90,
+      "line": 89,
       "text": "AI-NOTE: Block app UI until terms are accepted (artifact-driven gating)"
     },
     {
@@ -117,7 +117,7 @@
     },
     {
       "file": "src/services/EIAService.ts",
-      "line": 55,
+      "line": 53,
       "text": "AI-NOTE: This class now uses artifact-driven provider/cache abstractions. Legacy static API is preserved for now. Migrate consumers to instance-based API in future steps."
     },
     {
@@ -132,7 +132,7 @@
     },
     {
       "file": "src/services/eia/EIADataProvider.ts",
-      "line": 43,
+      "line": 53,
       "text": "AI-NOTE: This is a minimal, artifact-driven implementation. Replace mock logic with real API integration."
     },
     {
@@ -141,5 +141,5 @@
       "text": "AI-NOTE: This adapter preserves the legacy API shape but delegates to the new artifact-driven service."
     }
   ],
-  "generatedAt": "2025-06-12T12:33:01.284Z"
+  "generatedAt": "2025-06-12T14:37:10.234Z"
 }

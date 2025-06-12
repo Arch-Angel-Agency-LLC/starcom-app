@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 const API_BASE_URL = 'https://api.eia.gov/v2';
-const API_KEY = process.env.EIA_API_KEY || 'ZJD7rrc41ozM4JikBBOM3Q4CAeEVYhdmxaHemuGo'; 
+const API_KEY = import.meta.env.VITE_EIA_API_KEY || 'ZJD7rrc41ozM4JikBBOM3Q4CAeEVYhdmxaHemuGo'; 
 
 export const fetchEIAData = async (endpoint: string, params: Record<string, string> = {}) => {
     try {

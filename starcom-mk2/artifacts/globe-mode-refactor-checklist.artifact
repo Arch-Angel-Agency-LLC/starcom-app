@@ -1,0 +1,44 @@
+# Globe Mode Refactor Checklist Artifact
+
+**Version:** 2.1  
+**Last Updated:** 2025-06-12  
+**Maintainer:** Copilot
+
+## Purpose
+Track the concrete steps and code locations for refactoring globe mode switching to a unified, context-driven system.
+
+## Checklist
+- [x] Remove local interfaceMode state from `src/components/TinyGlobe/TinyGlobe.tsx` (lines ~163, 270, 277, 284)
+- [x] Add and use `mapVisualizationModeToTinyGlobeMode` from `src/components/TinyGlobe/modeMapping.ts`
+- [x] Update TinyGlobe to read mode/subMode from `useVisualizationMode()` context
+- [x] Refactor mode-switching UI to use `setVisualizationMode` from context (not local state)
+- [x] Ensure main Globe and TinyGlobe both update visuals/data on context change
+- [x] Add/Update tests: switching modes updates both globes, fallback works, UI buttons call context
+- [x] Update this checklist and related artifacts after implementation
+
+## Test Steps
+- Switch to each mode via UI; verify both globes update instantly and consistently
+- Trigger an unknown mode; verify fallback and warning
+- Run/extend automated tests if available
+
+## Rollback/Debug
+- Commit after each checklist step
+- If a step fails, revert to previous commit and consult artifacts
+- Log all errors/warnings for unknown modes
+
+## Key Files
+- src/components/TinyGlobe/TinyGlobe.tsx
+- src/components/TinyGlobe/modeMapping.ts
+- src/components/Globe/Globe.tsx
+- src/context/VisualizationModeContext.tsx
+- src/components/TinyGlobe/TinyGlobe.test.tsx (added)
+
+## Notes / Issues Encountered
+- All local state removed from TinyGlobe; context is now the only source of truth.
+- Canonical mapping function created and referenced in both code and artifacts.
+- Vitest-only test environment enforced; all Jest config and dependencies removed.
+- CSS module mocking and TypeScript config fixes applied for test compatibility.
+- All tests pass in a clean Vitest environment.
+
+## AI-NOTE
+All checklist items are now complete. This artifact is up to date as of 2025-06-12. Any future changes to globe mode logic, mapping, or test environment must update this artifact and the mapping reference.

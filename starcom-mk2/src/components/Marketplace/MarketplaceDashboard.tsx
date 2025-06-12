@@ -3,7 +3,7 @@ import { fetchMarketData } from '../../api/market';
 import MarketTable from './MarketTable';
 
 const MarketplaceDashboard: React.FC = () => {
-  const [marketData, setMarketData] = useState<any[]>([]);
+  const [, setMarketData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
