@@ -1,0 +1,14 @@
+#!/bin/sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+npx eslint src
+npx prettier --check .
+npm test
+npm run build
+npm audit --audit-level=high
+if git diff --cached --name-only | grep -q '^contracts/'; then
+  npx hardhat test
+fi
+
+# Run onboarding script for Copilot AI Agent automation
+npm run onboard || npx tsx scripts/onboard.cjs
