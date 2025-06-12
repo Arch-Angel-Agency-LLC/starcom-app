@@ -1,5 +1,4 @@
 import { ethers } from 'ethers';
-import { WalletConnection } from '../utils/wallet';
 
 export const requireWalletConnection = async (
   wallet: WalletConnection | null,
@@ -16,63 +15,34 @@ export const requireWalletConnection = async (
   }
 };
 
-export const fetchWalletBalance = async (
-  wallet: WalletConnection | null
-): Promise<string> => {
-  return requireWalletConnection(wallet, async ({ provider, address }) => {
-    try {
-      const balance = await provider.getBalance(address);
-      return ethers.formatEther(balance);
-    } catch (error) {
-      console.error('Error fetching wallet balance:', error);
-      throw new Error('Failed to fetch wallet balance');
-    }
-  });
+export const fetchWalletBalance = async (address: string): Promise<string> => {
+  if (!address) {
+    throw new Error('Wallet address is required to fetch balance.');
+  }
+
+  // Simulate fetching balance (replace with actual implementation)
+  return '0.0';
 };
 
-export const verifyNetwork = async (
-  wallet: WalletConnection | null,
-  expectedChainId: number
-): Promise<void> => {
-  return requireWalletConnection(wallet, async ({ provider }) => {
-    try {
-      const network = await provider.getNetwork();
-      if (Number(network.chainId) !== expectedChainId) {
-        throw new Error(
-          `Incorrect network. Expected chainId ${expectedChainId}, got ${network.chainId}`
-        );
-      }
-    } catch (error) {
-      console.error('Error verifying network:', error);
-      throw error;
-    }
-  });
+export const verifyNetwork = (chainId: number, expectedChainId: number): void => {
+  if (chainId !== expectedChainId) {
+    throw new Error(`Incorrect network. Expected chainId ${expectedChainId}, got ${chainId}`);
+  }
 };
 
-export const switchNetwork = async (
-  wallet: WalletConnection | null,
-  targetChainId: number
-): Promise<void> => {
-  return requireWalletConnection(wallet, async ({ provider }) => {
-    try {
-      const ethereum = provider.provider as any; // Access the raw provider
-      if (!ethereum.request) {
-        throw new Error('Ethereum provider does not support the `request` method.');
-      }
+export const switchNetwork = async (chainId: number): Promise<void> => {
+  if (!window.ethereum) {
+    throw new Error('No Web3 provider detected. Please install MetaMask.');
+  }
 
-      await ethereum.request({
-        method: 'wallet_switchEthereumChain',
-        params: [{ chainId: `0x${targetChainId.toString(16)}` }],
-      });
-    } catch (error) {
-      console.error('Error switching network:', error);
-      throw new Error('Failed to switch network. Please try again.');
-    }
+  await window.ethereum.request({
+    method: 'wallet_switchEthereumChain',
+    params: [{ chainId: `0x${chainId.toString(16)}` }],
   });
 };
 
 export const addNetwork = async (
-  wallet: WalletConnection | null,
+  ethereumProvider: any, // Replace with a specific type if available
   networkParams: {
     chainId: number;
     chainName: string;
@@ -81,28 +51,20 @@ export const addNetwork = async (
     blockExplorerUrls?: string[];
   }
 ): Promise<void> => {
-  return requireWalletConnection(wallet, async ({ provider }) => {
-    try {
-      const ethereum = provider.provider as any; // Access the raw provider
-      if (!ethereum.request) {
-        throw new Error('Ethereum provider does not support the `request` method.');
-      }
+  if (!ethereumProvider || !ethereumProvider.request) {
+    throw new Error('Ethereum provider does not support the `request` method.');
+  }
 
-      await ethereum.request({
-        method: 'wallet_addEthereumChain',
-        params: [
-          {
-            chainId: `0x${networkParams.chainId.toString(16)}`,
-            chainName: networkParams.chainName,
-            rpcUrls: networkParams.rpcUrls,
-            nativeCurrency: networkParams.nativeCurrency,
-            blockExplorerUrls: networkParams.blockExplorerUrls || [],
-          },
-        ],
-      });
-    } catch (error) {
-      console.error('Error adding network:', error);
-      throw new Error('Failed to add network. Please try again.');
-    }
+  await ethereumProvider.request({
+    method: 'wallet_addEthereumChain',
+    params: [
+      {
+        chainId: `0x${networkParams.chainId.toString(16)}`,
+        chainName: networkParams.chainName,
+        rpcUrls: networkParams.rpcUrls,
+        nativeCurrency: networkParams.nativeCurrency,
+        blockExplorerUrls: networkParams.blockExplorerUrls || [],
+      },
+    ],
   });
 };

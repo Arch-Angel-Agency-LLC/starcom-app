@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthContext.tsx';
 
 const WalletStatus: React.FC = () => {
   const {
@@ -7,6 +7,7 @@ const WalletStatus: React.FC = () => {
     address,
     isLoading,
     error,
+    connectionStatus,
     connectWallet,
     disconnectWallet,
     switchNetwork,
@@ -39,15 +40,24 @@ const WalletStatus: React.FC = () => {
   return (
     <div className="wallet-status">
       {isLoading && <p>Loading...</p>}
-      {error && <p className="error">Error: {error}</p>}
+      {error && (
+        <div className="error">
+          <p>Error: {error}</p>
+          {connectionStatus === 'error' && (
+            <button onClick={handleConnect}>Retry</button>
+          )}
+        </div>
+      )}
 
-      {isAuthenticated ? (
+      {connectionStatus === 'connecting' && <p>Connecting to wallet...</p>}
+      {connectionStatus === 'connected' && isAuthenticated && (
         <div>
           <p>Connected: {address}</p>
           <button onClick={handleDisconnect}>Disconnect</button>
           <button onClick={handleSwitchNetwork}>Switch Network</button>
         </div>
-      ) : (
+      )}
+      {connectionStatus === 'idle' && !isAuthenticated && (
         <button onClick={handleConnect}>Connect Wallet</button>
       )}
     </div>

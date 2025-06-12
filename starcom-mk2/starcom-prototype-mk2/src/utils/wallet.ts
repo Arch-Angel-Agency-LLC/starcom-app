@@ -1,9 +1,9 @@
-import { ethers } from 'ethers';
+import { BrowserProvider, Signer } from 'ethers';
 
 export interface WalletConnection {
   address: string;
-  provider: ethers.BrowserProvider;
-  signer: ethers.Signer;
+  provider: BrowserProvider;
+  signer: Signer;
 }
 
 // Updated type definition for Ethereum to match ethers' Eip1193Provider
@@ -17,41 +17,51 @@ declare global {
   }
 }
 
-export const connectToWallet = async (): Promise<WalletConnection> => {
-  try {
-    if (!window.ethereum) {
-      throw new Error('No Web3 provider detected. Please install MetaMask.');
-    }
+// Added index signature to SUPPORTED_NETWORKS type
+export const SUPPORTED_NETWORKS: {
+  [chainId: number]: {
+    name: string;
+    rpcUrls: string[];
+    nativeCurrency: { name: string; symbol: string; decimals: number };
+    blockExplorerUrls: string[];
+  };
+} = {
+  1: {
+    name: 'Ethereum Mainnet',
+    rpcUrls: ['https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID'],
+    nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+    blockExplorerUrls: ['https://etherscan.io'],
+  },
+  11155111: {
+    name: 'Sepolia Testnet',
+    rpcUrls: ['https://sepolia.infura.io/v3/YOUR_INFURA_PROJECT_ID'],
+    nativeCurrency: { name: 'Sepolia Ether', symbol: 'ETH', decimals: 18 },
+    blockExplorerUrls: ['https://sepolia.etherscan.io'],
+  },
+  // Add more networks as needed
+};
 
-    const ethereum = window.ethereum;
-
-    const provider = new ethers.BrowserProvider(ethereum);
-
-    const accounts = (await ethereum.request({
-      method: 'eth_requestAccounts',
-    })) as string[];
-
-    if (!accounts || accounts.length === 0) {
-      throw new Error('No accounts found.');
-    }
-
-    const signer = await provider.getSigner();
-    const address = accounts[0];
-
-    const network = await provider.getNetwork();
-    if (network.chainId !== BigInt(1)) {
-      throw new Error(`Please switch to Ethereum Mainnet. Detected chainId: ${network.chainId}`);
-    }
-
-    return { address, provider, signer };
-  } catch (error) {
-    console.error('Error connecting to wallet:', error);
-    if (error instanceof Error) {
-      throw new Error(error.message);
-    } else {
-      throw new Error('An unknown error occurred while connecting to the wallet.');
-    }
+export const connectToWallet = async (targetChainId: number): Promise<WalletConnection> => {
+  if (!window.ethereum) {
+    throw new Error('MetaMask is not installed. Please install MetaMask to continue.');
   }
+
+  const provider = new BrowserProvider(window.ethereum);
+  const accounts = await provider.send('eth_requestAccounts', []);
+
+  if (!accounts || accounts.length === 0) {
+    throw new Error('No accounts found. Please ensure your wallet is unlocked.');
+  }
+
+  const signer = await provider.getSigner();
+  const address = accounts[0];
+
+  const network = await provider.getNetwork();
+  if (network.chainId !== targetChainId) {
+    throw new Error(`Please switch to the correct network. Expected chainId: ${targetChainId}`);
+  }
+
+  return { address, provider, signer };
 };
 
 export const disconnectWallet = async (): Promise<void> => {
@@ -63,7 +73,7 @@ export const isWalletConnected = async (): Promise<boolean> => {
     if (!window.ethereum) {
       return false;
     }
-    const provider = new ethers.BrowserProvider(window.ethereum);
+    const provider = new BrowserProvider(window.ethereum);
     const accounts = await provider.listAccounts();
     return accounts.length > 0;
   } catch (error) {

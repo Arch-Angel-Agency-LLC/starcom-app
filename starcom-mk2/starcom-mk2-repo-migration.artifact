@@ -1,0 +1,73 @@
+# Artifact: starcom-mk2-repo-migration.artifact
+
+## Title
+Migration Plan: Flatten starcom-mk2 Repository Structure
+
+## Context
+The current repository structure places the main application (`starcom-prototype-mk2/`) inside a subfolder of the root repository (`starcom-mk2/`). This causes confusion, redundant configuration, and friction for onboarding, automation, and development. Rust/WASM modules and a test project are also scattered between the root and subfolders. See ONBOARDING.md for artifact-driven workflow and best practices.
+
+## Problems Identified
+- Main app is not at the repo root; scripts, docs, and config are buried in a subfolder.
+- Two `package.json`/`node_modules`/lockfiles (root and subfolder).
+- `.vscode/` is in the subfolder, not the root.
+- Rust projects are split between root and subfolders.
+- Automation, onboarding, and discoverability are negatively impacted.
+
+## Migration Plan (Step-by-Step for Copilot)
+
+### 1. Preparation
+- [ ] **Backup**: Ensure the repository is committed and pushed before migration.
+- [ ] **Create a migration branch**: `git checkout -b repo-flatten-migration`
+
+### 2. Flatten the Structure
+- [ ] Move all contents of `starcom-prototype-mk2/` (including hidden files/folders) to the repo root (`starcom-mk2/`).
+- [ ] If files/folders already exist at the root, compare and merge as needed. Prefer the more complete or up-to-date version.
+- [ ] Remove the now-empty `starcom-prototype-mk2/` folder.
+- [ ] Move `.vscode/` to the root (merge with existing if present).
+
+### 3. Organize Rust/WASM Projects
+- [ ] Create a new folder at the root called `rust/`.
+- [ ] Move `wasm-ephemeris/`, `wasm-mini-server/`, and `fetch-test/` into `rust/`.
+- [ ] Update any scripts, paths, or documentation that reference the old locations.
+
+### 4. Single Source of Truth for Node
+- [ ] Keep only one `package.json` and `node_modules` at the root.
+- [ ] If both exist, merge dependencies and scripts. Remove duplicates and resolve conflicts (prefer the more complete set).
+- [ ] Remove the redundant `package.json`, `package-lock.json`, and `node_modules`.
+
+### 5. Centralize Docs and Artifacts
+- [ ] Move `docs/`, `artifacts/`, and `scripts/` to the root if not already there.
+- [ ] Update references in code, scripts, and documentation to new locations.
+
+### 6. Update References
+- [ ] Search for all references to `starcom-prototype-mk2/` and update to the new root-relative paths.
+- [ ] Update CI/CD configs, onboarding docs, and any scripts with hardcoded paths.
+
+### 7. Test and Validate
+- [ ] Run onboarding: `npm run onboard` from the root.
+- [ ] Run lint: `npm run lint` from the root.
+- [ ] Run build: `npm run build` from the root.
+- [ ] Run tests: `npm test` or `npm run test` from the root.
+- [ ] Confirm all scripts, links, and documentation work as expected.
+
+### 8. Finalize
+- [ ] Commit all changes: `git add . && git commit -m "Flatten repo structure and centralize config"`
+- [ ] Push the migration branch and open a pull request.
+- [ ] Link this artifact in the PR description.
+
+## Checklist (for Copilot/Agents)
+- [ ] All app files/directories moved to root
+- [ ] `.vscode/` moved to root
+- [ ] Rust/WASM projects grouped under `rust/`
+- [ ] Only one `package.json`/`node_modules` at root
+- [ ] Docs, artifacts, scripts at root
+- [ ] All references and configs updated
+- [ ] Onboarding, lint, build, and tests pass from root
+- [ ] Migration branch created and PR opened
+
+## AI-NOTE
+- Use this artifact as the single source of truth for the migration process.
+- Leave `TODO:` and `AI-NOTE:` comments in code and docs for any uncertainties or non-obvious logic.
+- If you encounter merge conflicts or ambiguous files, prefer the more complete or up-to-date version, and document your decision.
+- Update this artifact with any deviations or important context during migration.
+- Notify maintainers and contributors of the new structure after merging.

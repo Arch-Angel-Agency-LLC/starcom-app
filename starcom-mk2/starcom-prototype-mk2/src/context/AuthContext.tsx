@@ -1,27 +1,34 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { connectToWallet, disconnectWallet, isWalletConnected } from '../utils/wallet';
-import { verifyNetwork, switchNetwork } from '../middleware/web3Middleware';
+import { switchNetwork } from '../middleware/web3Middleware';
 import { AuthContext } from './AuthContext';
+import { ethers } from 'ethers';
+
+declare global {
+  interface Window {
+    ethereum?: ethers.providers.ExternalProvider;
+  }
+}
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [wallet, setWallet] = useState(() => {
-    const savedWallet = localStorage.getItem('wallet');
-    return savedWallet ? JSON.parse(savedWallet) : null;
-  });
+  const [wallet, setWallet] = useState<{
+    provider: ethers.providers.Web3Provider | null;
+    address: string | null;
+    signer: ethers.Signer | null;
+  }>({ provider: null, address: null, signer: null });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const connectWalletHandler = useCallback(async () => {
     setIsLoading(true);
     setError(null);
+
     try {
-      const connection = await connectToWallet();
-      await verifyNetwork(connection, 1); // Example: Validate Ethereum Mainnet
+      const targetChainId = 1; // Example: Ethereum Mainnet
+      const connection = await connectToWallet(targetChainId);
       setWallet(connection);
-      localStorage.setItem('wallet', JSON.stringify(connection));
     } catch (error) {
-      console.error('Wallet connection failed:', error);
-      setError(error instanceof Error ? error.message : 'Unknown error');
+      setError(error instanceof Error ? error.message : 'An unknown error occurred.');
     } finally {
       setIsLoading(false);
     }
@@ -32,29 +39,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setError(null);
     try {
       await disconnectWallet();
-      setWallet(null);
-      localStorage.removeItem('wallet');
+      setWallet({ provider: null, address: null, signer: null });
     } catch (error) {
-      console.error('Wallet disconnection failed:', error);
-      setError(error instanceof Error ? error.message : 'Unknown error');
+      setError(error instanceof Error ? error.message : 'An unknown error occurred.');
     } finally {
       setIsLoading(false);
     }
   }, []);
-
-  const switchNetworkHandler = useCallback(async (targetChainId: number) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      if (!wallet) throw new Error('No wallet connected.');
-      await switchNetwork(targetChainId);
-    } catch (error) {
-      console.error('Network switch failed:', error);
-      setError(error instanceof Error ? error.message : 'Unknown error');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [wallet]);
 
   useEffect(() => {
     const checkConnection = async () => {
@@ -65,38 +56,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     checkConnection();
   }, [connectWalletHandler]);
 
-  useEffect(() => {
-    if (window.ethereum) {
-      const handleAccountsChanged = (accounts: string[]) => {
-        if (accounts.length === 0) {
-          disconnectWalletHandler();
-        } else if (accounts[0] !== wallet?.address) {
-          connectWalletHandler();
-        }
-      };
-
-      const handleChainChanged = () => {
-        connectWalletHandler();
-      };
-
-      window.ethereum.on('accountsChanged', handleAccountsChanged);
-      window.ethereum.on('chainChanged', handleChainChanged);
-
-      return () => {
-        window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
-        window.ethereum.removeListener('chainChanged', handleChainChanged);
-      };
-    }
-  }, [connectWalletHandler, disconnectWalletHandler, wallet?.address]);
-
   const value = {
-    isAuthenticated: !!wallet?.address,
-    address: wallet?.address ?? null,
-    provider: wallet?.provider ?? null,
-    signer: wallet?.signer ?? null,
+    isAuthenticated: !!wallet.address,
+    address: wallet.address,
+    provider: wallet.provider,
+    signer: wallet.signer,
     connectWallet: connectWalletHandler,
     disconnectWallet: disconnectWalletHandler,
-    switchNetwork: switchNetworkHandler,
     isLoading,
     error,
   };

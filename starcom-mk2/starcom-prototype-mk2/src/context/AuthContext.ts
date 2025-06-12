@@ -1,12 +1,17 @@
 import { createContext } from 'react';
+import { Provider, Signer } from 'ethers';
 
 interface AuthContextType {
   isAuthenticated: boolean;
   address: string | null;
-  provider: any;
-  signer: any;
+  provider: Provider | null;
+  signer: Signer | null;
   connectWallet: () => Promise<void>;
   disconnectWallet: () => Promise<void>;
+  isLoading: boolean;
+  error: string | null;
+  connectionStatus: 'idle' | 'connecting' | 'connected' | 'error';
+  switchNetwork: (targetChainId: number) => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);

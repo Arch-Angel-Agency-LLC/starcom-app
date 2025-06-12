@@ -1,16 +1,59 @@
 // src/components/Globe/Globe.tsx
 import React, { useState, useEffect, useRef } from 'react';
 import Globe from 'react-globe.gl';
-
-// Assuming you have a GlobeContext for sharing state
 import { useGlobeContext } from '../../context/GlobeContext';
 import { useVisualizationMode } from '../../context/VisualizationModeContext';
 
+const visualizationConfig = {
+  CyberCommand: {
+    IntelReports: {
+      globeImageUrl: '//unpkg.com/three-globe/example/img/earth-dark.jpg',
+      eventData: [/* Example IntelReports events */],
+    },
+    Timelines: {
+      globeImageUrl: '//unpkg.com/three-globe/example/img/earth-dark.jpg',
+      eventData: [/* Example Timelines events */],
+    },
+    CrisisZones: {
+      globeImageUrl: '//unpkg.com/three-globe/example/img/earth-dark.jpg',
+      eventData: [/* Example CrisisZones events */],
+    },
+  },
+  GeoPolitical: {
+    NationalTerritories: {
+      globeImageUrl: '//unpkg.com/three-globe/example/img/earth-blue-marble.jpg',
+      eventData: [/* Example NationalTerritories events */],
+    },
+    DiplomaticEvents: {
+      globeImageUrl: '//unpkg.com/three-globe/example/img/earth-blue-marble.jpg',
+      eventData: [/* Example DiplomaticEvents events */],
+    },
+    ResourceZones: {
+      globeImageUrl: '//unpkg.com/three-globe/example/img/earth-blue-marble.jpg',
+      eventData: [/* Example ResourceZones events */],
+    },
+  },
+  EcoNatural: {
+    SpaceWeather: {
+      globeImageUrl: '//unpkg.com/three-globe/example/img/earth-day.jpg',
+      eventData: [/* Example SpaceWeather events */],
+    },
+    EcologicalDisasters: {
+      globeImageUrl: '//unpkg.com/three-globe/example/img/earth-day.jpg',
+      eventData: [/* Example EcologicalDisasters events */],
+    },
+    EarthWeather: {
+      globeImageUrl: '//unpkg.com/three-globe/example/img/earth-day.jpg',
+      eventData: [/* Example EarthWeather events */],
+    },
+  },
+};
+
 const GlobeView: React.FC = () => {
-  const [globeData, setGlobeData] = useState<any[]>([]); // Markers data
+  const [globeData, setGlobeData] = useState<any[]>([]);
   const globeRef = useRef<any>(null);
-  const { setFocusLocation } = useGlobeContext(); // Context to share focus
-  const { visualizationMode } = useVisualizationMode(); // Access global visualization mode
+  const { setFocusLocation } = useGlobeContext();
+  const { visualizationMode } = useVisualizationMode();
 
   useEffect(() => {
     const handleResize = () => {
@@ -27,63 +70,21 @@ const GlobeView: React.FC = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  useEffect(() => {
-    if (globeRef.current) {
-      const globeInstance = globeRef.current;
-
-      // Check if the globe instance has a method to set the globe image URL
-      if (typeof globeInstance.setGlobeImageUrl === 'function') {
-        switch (visualizationMode) {
-          case 'geoMagnetics':
-            globeInstance.setGlobeImageUrl('//unpkg.com/three-globe/example/img/earth-day.jpg');
-            break;
-          case 'intelReports':
-            globeInstance.setGlobeImageUrl('//unpkg.com/three-globe/example/img/earth-dark.jpg');
-            break;
-          case 'solarSystem':
-            globeInstance.setGlobeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg');
-            break;
-          default:
-            console.warn(`Unknown visualization mode: ${visualizationMode}`);
-            break;
-        }
-      } else {
-        console.error('setGlobeImageUrl is not a function on the globe instance.');
-      }
-    }
-  }, [visualizationMode]);
+  const currentConfig = visualizationConfig[visualizationMode.mode][visualizationMode.subMode];
 
   useEffect(() => {
-    if (globeRef.current) {
-      const globeInstance = globeRef.current;
-
-      // Ensure the globe instance is properly initialized
-      if (!globeInstance.scene || !globeInstance.renderer) {
-        console.error('Globe instance is not fully initialized.');
-        return;
-      }
-
-      // Add additional error handling for Intel Reports and Solar System modes
-      if (visualizationMode === 'intelReports' || visualizationMode === 'solarSystem') {
-        try {
-          // Perform any specific setup for these modes
-          console.log(`Switching to ${visualizationMode} mode.`);
-        } catch (error) {
-          console.error(`Error while switching to ${visualizationMode} mode:`, error);
-        }
-      }
+    if (currentConfig) {
+      setGlobeData(currentConfig.eventData);
+    } else {
+      console.warn(`Unknown visualization mode or sub-mode: ${visualizationMode.mode}, ${visualizationMode.subMode}`);
     }
   }, [visualizationMode]);
 
   const handleGlobeClick = ({ lat, lng }: { lat: number; lng: number }) => {
-    // Add a marker at the clicked location
     const newMarker = { lat, lng, size: 0.5, color: 'red' };
-    setGlobeData([newMarker]); // For now, single marker; extend for multiple if needed
-
-    // Update focus location in context
+    setGlobeData((prevData) => [...prevData, newMarker]);
     setFocusLocation({ lat, lng });
 
-    // Optionally, rotate the globe to focus on the clicked location
     if (globeRef.current) {
       globeRef.current.pointOfView({ lat, lng, altitude: 1.5 });
     }
@@ -96,8 +97,8 @@ const GlobeView: React.FC = () => {
         pointsData={globeData}
         pointAltitude="size"
         pointColor="color"
-        globeImageUrl="//unpkg.com/three-globe/example/img/earth-day.jpg" // Default texture
-        onGlobeClick={handleGlobeClick} // Add click handler
+        globeImageUrl={currentConfig?.globeImageUrl}
+        onGlobeClick={handleGlobeClick}
       />
     </div>
   );
