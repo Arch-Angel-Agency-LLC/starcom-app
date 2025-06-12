@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext.tsx';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 const WalletStatus: React.FC = () => {
   const {
@@ -11,7 +12,19 @@ const WalletStatus: React.FC = () => {
     connectWallet,
     disconnectWallet,
     switchNetwork,
+    authenticate,
+    logout,
+    isSessionValid,
+    authError,
   } = useAuth();
+
+  const authButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (connectionStatus === 'connected' && isAuthenticated && !isSessionValid()) {
+      authButtonRef.current?.focus();
+    }
+  }, [connectionStatus, isAuthenticated, isSessionValid]);
 
   const handleConnect = async () => {
     try {
@@ -24,6 +37,7 @@ const WalletStatus: React.FC = () => {
   const handleDisconnect = async () => {
     try {
       await disconnectWallet();
+      logout();
     } catch (err) {
       console.error('Error disconnecting wallet:', err);
     }
@@ -34,6 +48,14 @@ const WalletStatus: React.FC = () => {
       await switchNetwork(1); // Example: Switch to Ethereum Mainnet
     } catch (err) {
       console.error('Error switching network:', err);
+    }
+  };
+
+  const handleAuthenticate = async () => {
+    try {
+      await authenticate();
+    } catch (err) {
+      console.error('Error authenticating:', err);
     }
   };
 
@@ -48,17 +70,33 @@ const WalletStatus: React.FC = () => {
           )}
         </div>
       )}
-
       {connectionStatus === 'connecting' && <p>Connecting to wallet...</p>}
       {connectionStatus === 'connected' && isAuthenticated && (
         <div>
           <p>Connected: {address}</p>
           <button onClick={handleDisconnect}>Disconnect</button>
           <button onClick={handleSwitchNetwork}>Switch Network</button>
+          {/* SIWE/localStorage session UI */}
+          {isSessionValid() ? (
+            <p>Session active (client-side, expires in localStorage)</p>
+          ) : (
+            <>
+              <p className="error">Session expired. Please re-authenticate.</p>
+              <button
+                ref={authButtonRef}
+                onClick={handleAuthenticate}
+                aria-label="Authenticate (Sign-In with Ethereum)"
+              >
+                Authenticate (Sign-In with Ethereum)
+              </button>
+            </>
+          )}
+          {authError && <p className="error">Auth error: {authError}</p>}
         </div>
       )}
       {connectionStatus === 'idle' && !isAuthenticated && (
-        <button onClick={handleConnect}>Connect Wallet</button>
+        // Use RainbowKit ConnectButton for wallet modal per artifact-driven flow
+        <ConnectButton />
       )}
     </div>
   );

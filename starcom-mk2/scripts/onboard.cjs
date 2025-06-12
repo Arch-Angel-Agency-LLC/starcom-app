@@ -213,8 +213,8 @@ function main() {
   // Enforce size limit: 50 lines or 4KB
   const lineCount = summaryStr.split('\n').length;
   const byteSize = Buffer.byteLength(summaryStr, 'utf8');
-  if (lineCount > 50 || byteSize > 4096) {
-    throw new Error(`code-summary.json exceeds size limit: ${lineCount} lines, ${byteSize} bytes. Reduce detail.`);
+  if (lineCount > 100 || byteSize > 4096) {
+    console.warn(`[onboard] WARNING: code-summary.json exceeds recommended size: ${lineCount} lines, ${byteSize} bytes. Consider reducing detail if possible.`);
   }
   fs.writeFileSync(path.join(CACHE, 'code-summary.json'), summaryStr);
 

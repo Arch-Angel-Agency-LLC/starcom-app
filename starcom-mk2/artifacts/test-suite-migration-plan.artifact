@@ -1,0 +1,44 @@
+# Test Suite Migration Plan Artifact
+
+## Purpose
+Guide the migration from a centralized test directory to a modern, colocated, and maintainable test suite architecture. Designed for Copilot/AI automation and human review.
+
+## Migration Table
+| Old Path | New Path | Status | Notes |
+|----------|----------|--------|-------|
+| src/__tests__/EIAService.test.ts | src/services/eia/EIAService.test.ts | Pending |  |
+| src/__tests__/Web3Login.test.tsx | src/components/Web3Login/Web3Login.test.tsx | Pending |  |
+| ... | ... | ... | ... |
+
+## Steps
+1. Inventory all existing test files and their targets. Fill out the migration table above.
+2. Move each test file next to the module it tests (see table).
+3. Remove the centralized `src/__tests__` directory after migration.
+4. Refactor imports and update test runner configs as needed.
+5. Create or update shared test utilities in `src/test-utils/`.
+6. Update documentation, onboarding scripts, and artifacts to reflect the new structure.
+7. Validate migration: all tests pass, coverage is reported, and no test files remain in `src/__tests__`.
+8. Rollback plan: If migration fails, restore from git and review migration table for issues.
+
+## Ownership
+- Copilot: Automate file moves, config updates, and artifact refresh.
+- Human: Review edge cases, resolve ambiguous mappings, approve final migration.
+
+## Success Criteria
+- All tests pass in CI.
+- No test files in `src/__tests__`.
+- Coverage meets threshold.
+- Artifacts and onboarding are up to date.
+
+## Related Artifacts
+- test-suite-directory-structure.artifact
+- test-suite-conventions.artifact
+- .primer
+- ONBOARDING.md
+
+## Version
+- v2 (2025-06-12)
+
+## Changelog
+- v2: Added migration table, ownership, validation, rollback, and success criteria for Copilot/AI use.
+- v1: Initial draft.

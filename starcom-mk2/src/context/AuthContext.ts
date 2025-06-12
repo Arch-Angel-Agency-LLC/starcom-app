@@ -1,7 +1,7 @@
 import { createContext } from 'react';
 import { Provider, Signer } from 'ethers';
 
-interface AuthContextType {
+export interface AuthContextType {
   isAuthenticated: boolean;
   address: string | null;
   provider: Provider | null;
@@ -12,6 +12,11 @@ interface AuthContextType {
   error: string | null;
   connectionStatus: 'idle' | 'connecting' | 'connected' | 'error';
   switchNetwork: (targetChainId: number) => Promise<void>;
+  // Add SIWE/localStorage session helpers for decentralized login
+  authenticate: () => Promise<boolean>;
+  logout: () => void;
+  isSessionValid: () => boolean;
+  authError: string | null;
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);

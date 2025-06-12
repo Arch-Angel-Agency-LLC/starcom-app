@@ -11,7 +11,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "onboard": "tsx scripts/onboard.cjs",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "mock-api": "node scripts/mock-api-server.js"
   },
   "dependencies": {
     "@pinata/sdk": "^2.1.0",

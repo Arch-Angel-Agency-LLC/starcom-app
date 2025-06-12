@@ -10,10 +10,13 @@ export const EnergyCard: React.FC = () => {
         <h3>Oil Price (WTI)</h3>
         {loading && <p>Loading...</p>}
         {error && <p className="error">{error}</p>}
-        {oilPrice !== null && !loading && !error && (
+        {typeof oilPrice === 'number' && !loading && !error && (
             <p>
             ${oilPrice.toFixed(2)} <span>/ barrel</span>
             </p>
+        )}
+        {oilPrice !== null && typeof oilPrice !== 'number' && !loading && !error && (
+            <p>N/A</p>
         )}
         </Card>
     );

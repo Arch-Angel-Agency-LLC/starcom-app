@@ -1,0 +1,114 @@
+# starcom-mk2 Data Service Refactor Plan.artifact
+
+## Title
+Refactor Data Service Architecture for Extensibility, Testability, and Multi-Provider Support
+
+## Context
+The current EIAService and cache system is tightly coupled, singleton-based, and not designed for extensibility or testability. This makes it difficult to reliably test, extend, or maintain—especially as more data sources and services are added. The following plan addresses these issues and aligns with the project's artifact-driven workflow.
+
+## Goals
+- Decouple data providers, caches, and services
+- Enable support for multiple data sources (not just EIA)
+- Make all services and caches easily testable (no singletons, no static state)
+- Organize code for clarity and maintainability
+
+## Supported Data Services (Scope of Refactor)
+The new architecture must support all current and future data services, including but not limited to:
+- EIA (Energy Information Administration)
+- Market Data (stocks, crypto, commodities)
+- Intelligence (smart contract, on-chain, OSINT, etc.)
+- RSS/News Feeds
+- Weather Data
+- Conflict Zones (ACLED, UCDP, HOT, ReliefWeb, GDACS, etc.)
+- UCDP Data
+- FeedsService (aggregated feeds, disaster zones, etc.)
+- Any additional domain-specific or external data sources (IPFS, Nostr, etc.)
+
+All abstractions (DataProvider, DataCacheService, etc.) must be generic and extensible to support these domains. Each service should have its own provider(s) and cache(s) as needed, and the architecture should allow for easy addition of new data domains without major refactor.
+
+## Improved Step-by-Step Plan
+
+### 1. Phased Migration Strategy
+- **Phase 1:** Introduce new abstractions (DataProvider, DataCacheService) alongside existing code. Do not remove or break old code yet.
+- **Phase 2:** Migrate EIAService to use new abstractions, but keep the old API as a wrapper for backward compatibility.
+- **Phase 3:** Gradually migrate all consumers to the new API. Remove old code only after all usages are updated and tested.
+
+### 2. Transitional APIs and Adapters
+- Provide adapter classes or shims so legacy code can use the new services without a full rewrite.
+- Example: `LegacyEIAServiceAdapter` that implements the old static API but delegates to the new instance-based service.
+
+### 3. Explicit Interface Contracts
+- Define clear TypeScript interfaces for DataProvider, including error handling, configuration, and result typing.
+- Document expected behaviors (e.g., what happens on network failure, what is cached, etc.).
+- Example:
+  ```ts
+  export interface DataProvider<T = unknown> {
+    fetchData(seriesId: string, options?: Record<string, unknown>): Promise<T>;
+  }
+  ```
+
+### 4. Cache Layer Details
+- Specify cache invalidation strategies (TTL, manual, etc.).
+- Decide if cache should be in-memory only, or support persistent/distributed backends.
+- Add hooks for cache events (miss, hit, eviction) and observability.
+
+### 5. Directory Structure by Domain/Feature
+- Consider grouping by feature/domain, not just by type, for scalability.
+- Example:
+  ```
+  src/
+    features/
+      eia/
+        EIAService.ts
+        EIADataProvider.ts
+        EIAService.test.ts
+      ...other features...
+    shared/
+      cache/
+      data/
+      utils/
+  ```
+
+### 6. Testing Strategy
+- Provide concrete examples for unit, integration, and contract tests.
+- Use dependency injection for all services in tests.
+- Add test coverage for error cases, provider failures, and cache edge cases.
+- Automate test runs and linting in CI.
+
+### 7. Observability and Performance
+- Add logging, metrics, and tracing hooks to all providers and caches.
+- Document how to monitor provider latency, cache hit/miss rates, and error rates.
+
+### 8. Artifact-Driven Process Automation
+- Automate artifact updates (e.g., via git hooks or CI) to ensure `code-summary.json` and `code-health.json` are always current.
+- Add a checklist for artifact updates after each migration step.
+
+### 9. Rollback and Validation
+- For each migration phase, define a rollback plan (e.g., feature flag, revert to old API).
+- Add validation steps (integration tests, canary deploys) before removing old code.
+
+### 10. Team and Stakeholder Buy-In
+- Propose an RFC or design doc for the refactor and circulate for feedback.
+- Schedule code reviews and pair programming sessions for critical migration steps.
+
+## Example: Concrete Migration Steps
+
+1. **Introduce DataProvider and DataCacheService (no usage yet).**
+2. **Write new EIADataProvider and DataCacheService implementations.**
+3. **Refactor EIAService to accept dependencies, but keep old static API as a wrapper.**
+4. **Write adapter for legacy consumers.**
+5. **Update a single test to use the new system.**
+6. **Validate with integration tests and artifact updates.**
+7. **Migrate all tests and consumers incrementally.**
+8. **Remove old code and adapters only after full migration and validation.**
+
+## Deliverables
+- Refactored codebase with new directory structure and abstractions
+- Updated and passing tests for EIAService
+- Documentation for adding new providers/services
+- Updated artifacts reflecting the new architecture
+- Migration/rollback plan and validation checklist
+- RFC/design doc and team sign-off
+
+## AI-NOTE
+This improved plan addresses migration risk, real-world constraints, and operational needs. All changes should be tracked and referenced in this artifact and the onboarding protocol. See the checklist for artifact updates and validation at each step.

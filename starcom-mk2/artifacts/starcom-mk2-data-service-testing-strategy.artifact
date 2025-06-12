@@ -1,0 +1,51 @@
+# starcom-mk2 Data Service Testing Strategy.artifact
+
+## Purpose
+Document the testing approach for the new data service architecture, with actionable examples and CI integration.
+
+## Testing Strategy
+- Use dependency injection for all providers and caches in tests.
+- Write unit tests for each provider and cache implementation (e.g., `EIADataProvider.unit.test.ts`, `MarketDataProvider.unit.test.ts`, ...).
+- Write integration tests for service-provider-cache interaction (e.g., `EIAService.integration.test.ts`, `MarketService.integration.test.ts`, ...).
+- Add contract tests for interface compliance and adapters (e.g., `LegacyEIAServiceAdapter.contract.test.ts`, ...).
+- Add observability/health tests for all providers and caches (e.g., `EIADataProvider.observability.test.ts`, ...).
+- Add fallback/composition tests (e.g., `FallbackProvider.unit.test.ts`).
+- Add end-to-end/consumer tests for migration and feature-flag scenarios (e.g., `EIAService.e2e.test.ts`).
+- Mock providers/caches for error and edge case testing.
+- Ensure test coverage for all supported data domains (target: 90%+ lines/branches).
+- Integrate tests with CI (see `.github/workflows/ci.yml`).
+- Test observability: assert logs/metrics/traces are emitted as expected.
+- Manage test data via fixtures/mocks; avoid real API calls in unit tests.
+
+## Example Test Cases
+```ts
+// EIADataProvider.unit.test.ts
+it('returns data on success', async () => { /* ... */ });
+it('handles network error', async () => { /* ... */ });
+// TODO: Add tests for streaming/subscription, observer hooks, edge cases
+
+// DataCacheService.unit.test.ts
+it('returns cached value on hit', () => { /* ... */ });
+it('expires value after TTL', () => { /* ... */ });
+// TODO: Add tests for eviction, observer hooks, edge cases
+
+// EIAService.integration.test.ts
+it('composes provider and cache correctly', async () => { /* ... */ });
+// TODO: Add tests for fallback, error propagation, observer integration
+
+// FallbackProvider.unit.test.ts
+it('returns data from the first successful provider', async () => { /* ... */ });
+// TODO: Add tests for observer hooks, streaming/subscription
+
+// Observability
+describe('EIADataProvider.observability', () => { /* ... */ });
+// TODO: Assert logs/metrics/traces, health checks
+
+// EIAService.e2e.test.ts
+// TODO: Simulate real consumer usage, migration, feature flags, rollback
+```
+
+## Test Data Management
+- Use fixtures/mocks for deterministic tests.
+- Document and version test data for integration tests.
+- TODO: Add domain-specific fixtures for each provider/service.

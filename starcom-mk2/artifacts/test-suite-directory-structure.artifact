@@ -1,0 +1,44 @@
+# Test Suite Directory Structure Artifact
+
+## Recommended Structure (2025)
+
+src/
+  components/
+    Web3Login/
+      Web3Login.tsx
+      Web3Login.test.tsx
+  services/
+    eia/
+      EIAService.ts
+      EIAService.test.ts
+  test-utils/
+    renderWithProviders.tsx
+    mockApi.ts
+  ...
+cypress/
+  integration/
+    app.e2e.ts
+rust/
+  wasm-ephemeris/
+    tests/
+      fetch_tests.rs
+coverage/
+
+## Directory Guidance
+- Colocate tests with the code they test (unit/integration).
+- Use `test-utils/` for shared helpers and mocks.
+- Place E2E tests in `cypress/`.
+- For cross-cutting or shared tests, use `src/shared-tests/`.
+- For legacy/obsolete tests, use `src/legacy-tests/` and flag for review.
+
+## Test Discovery Patterns
+- Vitest/Jest: `src/**/*.{test,spec}.{ts,tsx}`
+- E2E: `cypress/integration/**/*.e2e.{ts,js}`
+- Rust: `rust/**/tests/*.rs`
+
+## Version
+- v2 (2025-06-12)
+
+## Changelog
+- v2: Expanded for Copilot/AI, added shared/legacy guidance, test discovery patterns.
+- v1: Initial draft.

@@ -3,7 +3,10 @@ import react from '@vitejs/plugin-react-swc';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
 // Load environment variables
-const API_MARKET_URL = process.env.VITE_MARKET_API_URL || 'https://real-market-data.com';
+const isProd = process.env.NODE_ENV === 'production';
+const API_MARKET_URL = isProd
+  ? process.env.VITE_MARKET_API_URL || 'https://real-market-data.com'
+  : 'http://localhost:3001';
 const API_INTELLIGENCE_URL = process.env.VITE_INTELLIGENCE_API_URL || 'https://osint-data-provider.com';
 
 export default defineConfig({
@@ -30,21 +33,5 @@ export default defineConfig({
         format: 'esm', // Ensure ESM output
       },
     },
-  },
-  server: {
-    proxy: {
-      '/api/market': {
-        target: API_MARKET_URL,
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
-        secure: process.env.NODE_ENV === 'production',
-      },
-      '/api/intelligence': {
-        target: API_INTELLIGENCE_URL,
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
-        secure: process.env.NODE_ENV === 'production',
-      },
-    },
-  },
+  }
 });
