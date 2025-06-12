@@ -54,11 +54,6 @@ const TopBar: React.FC = () => {
           <span>{naturalGasStorage?.toFixed(2)} BCF</span>
         )}
       </div>
-      <div className={styles.tokenGateNav}>
-        <a href="/token-gated" className={styles.tokenGateLink}>
-          🔑 Token-Gated Demo
-        </a>
-      </div>
     </div>
   );
 };

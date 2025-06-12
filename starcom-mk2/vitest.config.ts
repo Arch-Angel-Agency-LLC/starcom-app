@@ -10,5 +10,11 @@ export default defineConfig({
         env: {
         VITE_EIA_API_KEY: 'ZJD7rrc41ozM4JikBBOM3Q4CAeEVYhdmxaHemuGo', // Mock env for tests
         },
+        deps: {
+            inline: [/@testing-library/, 'react', 'react-dom'],
+        },
+        include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
+        exclude: ['node_modules', 'dist'],
+        tsconfig: './tsconfig.vitest.json',
     },
 });

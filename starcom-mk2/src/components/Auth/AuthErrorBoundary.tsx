@@ -13,9 +13,8 @@ class AuthErrorBoundary extends React.Component<{
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: any) {
-    // Optionally log error
-    // console.error('AuthErrorBoundary caught:', error, errorInfo);
+  componentDidCatch() {
+    // No-op: error boundary logic does not use these parameters
   }
 
   handleRetry = () => {

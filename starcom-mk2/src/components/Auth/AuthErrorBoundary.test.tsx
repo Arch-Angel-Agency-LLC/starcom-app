@@ -1,6 +1,5 @@
 // Moved from src/__tests__/Web3Login.error-boundary.test.tsx
 // Tests for AuthErrorBoundary and error UI
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import AuthErrorBoundary from './AuthErrorBoundary';

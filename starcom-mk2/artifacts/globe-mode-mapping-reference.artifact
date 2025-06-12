@@ -1,0 +1,27 @@
+# Globe Mode Mapping Reference Artifact
+
+**Version:** 2.1  
+**Last Updated:** 2025-06-12  
+**Maintainer:** Copilot
+
+## Purpose
+Document the canonical mapping function for translating VisualizationModeContext state to TinyGlobe visual modes.
+
+## Canonical Mapping Function
+- Implemented in `src/components/TinyGlobe/modeMapping.ts`
+- Used by TinyGlobe to select visual mode based on context
+- All UI and logic must use this mapping for consistency
+
+## Example Usage
+```ts
+import { mapVisualizationModeToTinyGlobeMode } from './modeMapping';
+const tinyGlobeMode = mapVisualizationModeToTinyGlobeMode(visualizationMode, subMode);
+```
+
+## Requirements
+- [x] All TinyGlobe visual mode selection must use this function
+- [x] Mapping must be referenced in both code and artifacts
+- [x] Tests must verify correct mapping and fallback
+
+## AI-NOTE
+Mapping function is implemented, referenced, and tested as of 2025-06-12. This artifact is current and must be updated if the mapping logic changes.

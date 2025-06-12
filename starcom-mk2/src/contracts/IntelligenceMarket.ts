@@ -3,8 +3,9 @@ import IntelligenceMarketABI from './IntelligenceMarketABI.json';
 
 const CONTRACT_ADDRESS = '0xYourContractAddressHere';
 
-export const getIntelligenceMarketContract = (provider: BrowserProvider) => {
-  return new Contract(CONTRACT_ADDRESS, IntelligenceMarketABI, provider.getSigner());
+export const getIntelligenceMarketContract = async (provider: BrowserProvider) => {
+  const signer = await provider.getSigner();
+  return new Contract(CONTRACT_ADDRESS, IntelligenceMarketABI, signer);
 };
 
 export const buyAsset = async (
@@ -12,7 +13,7 @@ export const buyAsset = async (
   assetId: string,
   price: bigint
 ) => {
-  const contract = getIntelligenceMarketContract(provider);
+  const contract = await getIntelligenceMarketContract(provider);
   const tx = await contract.buyAsset(assetId, { value: price });
   await tx.wait();
   return tx;
@@ -23,7 +24,7 @@ export const sellAsset = async (
   assetId: string,
   price: bigint
 ) => {
-  const contract = getIntelligenceMarketContract(provider);
+  const contract = await getIntelligenceMarketContract(provider);
   const tx = await contract.sellAsset(assetId, price);
   await tx.wait();
   return tx;
@@ -35,7 +36,7 @@ export const listAsset = async (
   price: bigint
 ): Promise<void> => {
   try {
-    const contract = getIntelligenceMarketContract(provider);
+    const contract = await getIntelligenceMarketContract(provider);
     const tx = await contract.listAsset(name, price);
     await tx.wait();
     console.log(`Asset listed: ${name} for price: ${price}`);
@@ -50,7 +51,7 @@ export const purchaseAsset = async (
   assetId: number
 ): Promise<void> => {
   try {
-    const contract = getIntelligenceMarketContract(provider);
+    const contract = await getIntelligenceMarketContract(provider);
     const tx = await contract.purchaseAsset(assetId);
     await tx.wait();
     console.log(`Asset purchased: ${assetId}`);
@@ -65,7 +66,7 @@ export const getAssetDetails = async (
   assetId: number
 ): Promise<any> => {
   try {
-    const contract = getIntelligenceMarketContract(provider);
+    const contract = await getIntelligenceMarketContract(provider);
     const asset = await contract.assets(assetId);
     console.log(`Asset details:`, asset);
     return asset;

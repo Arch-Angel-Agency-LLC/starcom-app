@@ -33,6 +33,8 @@
     ]
   },
   "artifacts": [
+    "globe-mode-mapping-reference.artifact",
+    "globe-mode-refactor-checklist.artifact",
     "onboarding-copilot-improvement.artifact",
     "starcom-mk2-auth-login-audit.artifact",
     "starcom-mk2-data-service-interfaces.artifact",
@@ -50,7 +52,8 @@
     "starcom-mk2-web3-login-ui-flows.artifact",
     "test-suite-conventions.artifact",
     "test-suite-directory-structure.artifact",
-    "test-suite-migration-plan.artifact"
+    "test-suite-migration-plan.artifact",
+    "unified-globe-mode-synchronization.artifact"
   ],
   "aiHints": {
     "mainAppDir": "src",
@@ -61,5 +64,5 @@
       "src/main.tsx"
     ]
   },
-  "generatedAt": "2025-06-12T12:32:07.562Z"
+  "generatedAt": "2025-06-12T14:36:44.060Z"
 }

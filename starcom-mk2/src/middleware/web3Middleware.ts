@@ -1,4 +1,4 @@
-import { ethers } from 'ethers';
+import type { WalletConnection } from '../utils/wallet';
 
 export const requireWalletConnection = async (
   wallet: WalletConnection | null,

@@ -30,9 +30,7 @@ export class EIAService {
             return cachedData;
         }
         // Use provider to fetch
-        const data = await this.provider.fetchData(seriesId);
-        // Assume data.value for compatibility (mock returns {key, data})
-        const value = (data && data.value !== undefined) ? data.value : data.data;
+        const value = await this.provider.fetchData(seriesId);
         this.cache.set(seriesId, value);
         return value;
     }
