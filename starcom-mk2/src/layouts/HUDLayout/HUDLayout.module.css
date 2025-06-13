@@ -82,9 +82,6 @@
   left: 0;
   width: 5%; /* Adjust width as needed */
   bottom: 0; /* Dynamically stop at the top of the BottomBar */
-  background-image: url('../../assets/images/Starcom-UI_ConceptArt-sideLeft.png');
-  background-size: contain;
-  background-repeat: no-repeat;
 }
 
 .rightSideBar {
