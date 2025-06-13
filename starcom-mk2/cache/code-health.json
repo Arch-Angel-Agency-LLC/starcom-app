@@ -4,14 +4,34 @@
     "error": "Command failed: npx eslint src --format json -o cache/eslint-report.json"
   },
   "test": {
-    "success": true,
-    "numFailed": 0
+    "success": false,
+    "error": "Command failed: npx vitest run --reporter=json --outputFile=cache/vitest-report.json"
   },
   "todos": [
+    {
+      "file": "src/components/Globe/Globe.tsx",
+      "line": 73,
+      "text": "TODO: Use overlay/event data from GlobeEngine if needed"
+    },
+    {
+      "file": "src/components/HUD/Bars/TopBar/useTopBarData.ts",
+      "line": 20,
+      "text": "TODO: Replace with real API calls"
+    },
+    {
+      "file": "src/components/HUD/Bars/TopBar/useTopBarPreferences.ts",
+      "line": 28,
+      "text": "TODO: handle migration/versioning"
+    },
     {
       "file": "src/components/TinyGlobe/TinyGlobe.test.tsx",
       "line": 46,
       "text": "TODO: Add more tests to check globe material changes and fallback behavior"
+    },
+    {
+      "file": "src/globe-engine/GlobeEngine.ts",
+      "line": 63,
+      "text": "TODO: Initialize overlays"
     },
     {
       "file": "src/hooks/useOnChainRoles.ts",
@@ -116,6 +136,111 @@
       "text": "AI-NOTE: TermsModal enforces user acceptance of terms before wallet connection (see artifacts)"
     },
     {
+      "file": "src/components/Globe/Globe.tsx",
+      "line": 57,
+      "text": "AI-NOTE: Integration with GlobeEngine per globe-engine-api.artifact"
+    },
+    {
+      "file": "src/components/Globe/Globe.tsx",
+      "line": 345,
+      "text": "AI-NOTE: Refactored to use GlobeEngine. See globe-engine-api.artifact for integration details."
+    },
+    {
+      "file": "src/components/HUD/Bars/TopBar/Marquee.tsx",
+      "line": 104,
+      "text": "AI-NOTE: Marquee is accessible, pauses on hover/focus, loops, and is responsive."
+    },
+    {
+      "file": "src/components/HUD/Bars/TopBar/SettingsPopup.tsx",
+      "line": 5,
+      "text": "AI-NOTE: Replace with local type if needed"
+    },
+    {
+      "file": "src/components/HUD/Bars/TopBar/SettingsPopup.tsx",
+      "line": 88,
+      "text": "AI-NOTE: Modal is accessible, focus-trapped, ESC/outside-click dismiss, and scrollable for long lists."
+    },
+    {
+      "file": "src/components/HUD/Bars/TopBar/TopBar.test.tsx",
+      "line": 104,
+      "text": "AI-NOTE: Tests accessibility, toggling, and integration per artifact requirements."
+    },
+    {
+      "file": "src/components/HUD/Bars/TopBar/useTopBarPreferences.ts",
+      "line": 57,
+      "text": "AI-NOTE: Handles loading, saving, and updating user preferences for TopBar categories."
+    },
+    {
+      "file": "src/components/TinyGlobe/TinyGlobe.tsx",
+      "line": 21,
+      "text": "AI-NOTE: Integration with GlobeEngine per globe-engine-api.artifact"
+    },
+    {
+      "file": "src/components/TinyGlobe/TinyGlobe.tsx",
+      "line": 41,
+      "text": "AI-NOTE: Integration with GlobeEngine per globe-engine-api.artifact"
+    },
+    {
+      "file": "src/components/TinyGlobe/TinyGlobe.tsx",
+      "line": 108,
+      "text": "AI-NOTE: Refactored to use GlobeEngine. See globe-engine-api.artifact for integration details."
+    },
+    {
+      "file": "src/globe-engine/GlobeEngine.ts",
+      "line": 2,
+      "text": "AI-NOTE: See globe-engine-architecture.artifact and globe-engine-api.artifact for design and API rationale."
+    },
+    {
+      "file": "src/globe-engine/GlobeEngine.ts",
+      "line": 55,
+      "text": "AI-NOTE: See globe-mode-mapping-reference.artifact, globe-modes.artifact, globe-shaders.artifact, globe-textures.artifact"
+    },
+    {
+      "file": "src/globe-engine/GlobeEngine.ts",
+      "line": 137,
+      "text": "AI-NOTE: See globe-overlays.artifact for overlay logic and data sources."
+    },
+    {
+      "file": "src/globe-engine/GlobeEngine.ts",
+      "line": 248,
+      "text": "AI-NOTE: Overlay data structure and update mechanism should be defined in globe-overlays.artifact"
+    },
+    {
+      "file": "src/globe-engine/GlobeEngine.ts",
+      "line": 256,
+      "text": "AI-NOTE: Overlay data update mechanism should be defined in globe-overlays.artifact"
+    },
+    {
+      "file": "src/globe-engine/GlobeMaterialManager.ts",
+      "line": 2,
+      "text": "AI-NOTE: See globe-shaders.artifact for shader/material documentation."
+    },
+    {
+      "file": "src/globe-engine/GlobeMaterialManager.ts",
+      "line": 16,
+      "text": "AI-NOTE: See globe-shaders.artifact for shader/material documentation."
+    },
+    {
+      "file": "src/globe-engine/GlobeModeMapping.ts",
+      "line": 2,
+      "text": "AI-NOTE: See globe-mode-mapping-reference.artifact for mapping logic."
+    },
+    {
+      "file": "src/globe-engine/GlobeModeMapping.ts",
+      "line": 14,
+      "text": "AI-NOTE: See globe-mode-mapping-reference.artifact and globe-modes.artifact for mapping logic."
+    },
+    {
+      "file": "src/globe-engine/GlobeTextureLoader.ts",
+      "line": 2,
+      "text": "AI-NOTE: See globe-textures.artifact for asset manifest and usage mapping."
+    },
+    {
+      "file": "src/globe-engine/GlobeTextureLoader.ts",
+      "line": 11,
+      "text": "AI-NOTE: See globe-textures.artifact for asset manifest and usage mapping."
+    },
+    {
       "file": "src/routes/ProtectedRoute.tsx",
       "line": 5,
       "text": "AI-NOTE: Protects routes by requiring authentication (see artifacts)"
@@ -146,5 +271,5 @@
       "text": "AI-NOTE: This adapter preserves the legacy API shape but delegates to the new artifact-driven service."
     }
   ],
-  "generatedAt": "2025-06-12T23:19:19.543Z"
+  "generatedAt": "2025-06-13T15:01:02.888Z"
 }

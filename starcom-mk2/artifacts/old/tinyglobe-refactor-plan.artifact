@@ -1,0 +1,29 @@
+# TinyGlobe Refactor Plan (2025-06-13)
+
+## Goal
+Make TinyGlobe visualizations match the main Globe as closely as possible, using the same rendering pipeline, materials, and configuration.
+
+## Steps
+1. Remove custom shader/material assignment in TinyGlobe except for special modes.
+2. Pass the same props to TinyGlobe as the main Globe (globeImageUrl, showAtmosphere, etc.).
+3. Sync visualization mode and submode logic with the main Globe.
+4. Align lighting setup with the main Globe (remove extra lights if present).
+5. Clean up unused state, refs, and effect hooks related to custom shaders/materials.
+6. Optionally, increase TinyGlobe canvas size for clarity.
+7. Test TinyGlobe in all modes for visual consistency.
+
+## Notes
+- Only use custom shaders in TinyGlobe for special visualization modes (e.g., hologram).
+- Default to react-globe.gl's built-in material and atmosphere for standard modes.
+- Document any deviations or issues during the refactor.
+
+---
+
+# Checklist
+- [ ] Remove custom material assignment (except special modes)
+- [ ] Pass same props as main Globe
+- [ ] Sync mode/submode logic
+- [ ] Align lighting
+- [ ] Clean up code
+- [ ] Test all modes
+- [ ] Document results

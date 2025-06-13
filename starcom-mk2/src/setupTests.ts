@@ -24,3 +24,19 @@ if (!window.matchMedia) {
 if (window.HTMLCanvasElement && !window.HTMLCanvasElement.prototype.getContext) {
   window.HTMLCanvasElement.prototype.getContext = () => null;
 }
+
+// Mock THREE.TextureLoader for artifact-driven globe tests (see globe-testing-plan.artifact)
+vi.mock('three', async (importOriginal) => {
+  const actual = (await importOriginal()) as Record<string, unknown>;
+  return {
+    ...actual,
+    TextureLoader: class {
+      load(url: string, onLoad: (texture: unknown) => void) {
+        // Return a dummy texture object
+        const TextureCtor = actual.Texture as { new (): object };
+        const dummyTexture = Object.assign({}, { image: { src: url } }, new TextureCtor());
+        onLoad(dummyTexture);
+      }
+    }
+  };
+});

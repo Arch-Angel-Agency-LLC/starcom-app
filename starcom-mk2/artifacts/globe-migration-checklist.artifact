@@ -1,0 +1,14 @@
+# Globe Migration/Refactor Checklist
+
+## Purpose
+Tracks the migration from the old globe system to the new engine-based architecture.
+
+## Contents
+- Step-by-step migration tasks
+- Progress tracking
+- Known issues and blockers
+- AI-NOTE: Refactor PRs should reference this artifact
+
+## Migration Tasks
+- [x] Integrate overlays with real data sources for 'weather' and 'alerts' overlays using artifact-driven API services (WeatherDataService, AlertsService)
+- [x] Integrate overlays with real data sources for 'naturalEvents' overlay using artifact-driven API service (GeoEventsService)

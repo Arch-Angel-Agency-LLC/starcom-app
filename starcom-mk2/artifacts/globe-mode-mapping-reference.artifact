@@ -1,0 +1,21 @@
+# Globe Mode Mapping Reference Artifact
+
+## Purpose
+Documents the mapping logic from Starcom visualization modes to globe rendering modes, shaders, and overlays.
+
+## Mapping Table
+| Mode          | Shader/Material | Texture      | Overlays                        | Rationale                                                      |
+|---------------|-----------------|-------------|----------------------------------|----------------------------------------------------------------|
+| CyberCommand  | hologram        | earthDark   | alerts, intelMarkers, markers    | High-contrast, futuristic look for cyber ops.                  |
+| EcoNatural    | dayNight        | earthDay    | weather, naturalEvents, markers  | Realistic globe for environmental monitoring.                  |
+| GeoPolitical  | blueMarble      | blueMarble  | borders, territories, markers    | Clear, classic look for geopolitical analysis.                 |
+
+## Example Scenarios
+- If mode is CyberCommand, use hologram shader, earthDark texture, and overlays for alerts/intel.
+- If mode is EcoNatural, use dayNight shader, earthDay texture, and overlays for weather/natural events.
+- If mode is GeoPolitical, use blueMarble shader, blueMarble texture, and overlays for borders/territories.
+
+## Rationale
+- Each mapping is chosen for visual clarity, workflow fit, and artifact traceability.
+
+## AI-NOTE: Mode mapping code should reference this artifact

@@ -11,7 +11,7 @@
       "context",
       "contracts",
       "data",
-      "hooks",
+      "globe-engine",
       "...truncated"
     ],
     "scripts": [
@@ -24,8 +24,10 @@
       "testing-policy.md"
     ],
     "public": [
+      "borders.geojson",
       "starcom.ico",
-      "starcom.png"
+      "starcom.png",
+      "territories.geojson"
     ],
     "rust": [
       "fetch-test",
@@ -34,27 +36,15 @@
     ]
   },
   "artifacts": [
+    "globe-engine-api.artifact",
+    "globe-engine-architecture.artifact",
+    "globe-migration-checklist.artifact",
     "globe-mode-mapping-reference.artifact",
-    "globe-mode-refactor-checklist.artifact",
-    "onboarding-copilot-improvement.artifact",
-    "starcom-mk2-auth-login-audit.artifact",
-    "starcom-mk2-data-service-interfaces.artifact",
-    "starcom-mk2-data-service-migration-checklist.artifact",
-    "starcom-mk2-data-service-observability.artifact",
-    "starcom-mk2-data-service-refactor-plan.artifact",
-    "starcom-mk2-data-service-testing-strategy.artifact",
-    "starcom-mk2-repo-migration.artifact",
-    "starcom-mk2-web3-login-api.artifact",
-    "starcom-mk2-web3-login-changelog.artifact",
-    "starcom-mk2-web3-login-design.artifact",
-    "starcom-mk2-web3-login-implementation-plan.artifact",
-    "starcom-mk2-web3-login-known-issues.artifact",
-    "starcom-mk2-web3-login-test-plan.artifact",
-    "starcom-mk2-web3-login-ui-flows.artifact",
-    "test-suite-conventions.artifact",
-    "test-suite-directory-structure.artifact",
-    "test-suite-migration-plan.artifact",
-    "unified-globe-mode-synchronization.artifact"
+    "globe-modes.artifact",
+    "globe-overlays.artifact",
+    "globe-shaders.artifact",
+    "globe-testing-plan.artifact",
+    "globe-textures.artifact"
   ],
   "aiHints": {
     "mainAppDir": "src",
@@ -65,5 +55,5 @@
       "src/main.tsx"
     ]
   },
-  "generatedAt": "2025-06-12T23:19:05.416Z"
+  "generatedAt": "2025-06-13T15:00:37.192Z"
 }
