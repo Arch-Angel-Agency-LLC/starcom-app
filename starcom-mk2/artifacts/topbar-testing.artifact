@@ -1,0 +1,27 @@
+# TopBar Testing & QA Artifact (Canonical)
+
+## Purpose
+Define the testing strategy, required test cases, and coverage goals for the TopBar settings and marquee features. All tests must target TopBar.tsx and its components.
+
+## Test Strategy
+- Unit tests for all new components (SettingsPopup, Marquee, TopBar logic)
+- Integration tests for state management and data flow
+- E2E tests for user interaction (settings, toggling, marquee updates)
+- All tests must use real data, not placeholders.
+
+## Required Test Cases
+- Modal opens/closes via button, ESC, and outside click
+- Checkbox toggles update state and persist to localStorage
+- Marquee displays only enabled categories and updates in real time
+- Accessibility: keyboard navigation, focus trap, ARIA roles
+- Error handling: missing data, failed fetch, missing icons/labels
+- Responsiveness: mobile/desktop layout, overflow handling
+- Performance: smooth marquee with many data points, no excessive re-renders
+
+## Coverage Goals
+- 100% unit test coverage for new logic
+- 90%+ integration/E2E coverage for user flows and edge cases
+
+## Tools
+- React Testing Library, Jest, Cypress (or Playwright)
+- Axe for accessibility checks

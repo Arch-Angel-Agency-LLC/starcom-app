@@ -2,6 +2,7 @@
   "version": "1.0.0",
   "structure": {
     "src": [
+      "__mocks__",
       "api",
       "assets",
       "cache",
@@ -11,7 +12,6 @@
       "contracts",
       "data",
       "hooks",
-      "interfaces",
       "...truncated"
     ],
     "scripts": [
@@ -20,7 +20,8 @@
       "onboard.cjs"
     ],
     "docs": [
-      "Decentralized Web3 dApp Development Guide.markdown"
+      "Decentralized Web3 dApp Development Guide.markdown",
+      "testing-policy.md"
     ],
     "public": [
       "starcom.ico",
@@ -64,5 +65,5 @@
       "src/main.tsx"
     ]
   },
-  "generatedAt": "2025-06-12T14:36:44.060Z"
+  "generatedAt": "2025-06-12T23:19:05.416Z"
 }

@@ -1,0 +1,43 @@
+# TopBar State Management Artifact (Canonical)
+
+## Purpose
+Specify state management for user preferences and data toggling in the TopBar. All logic must be implemented in TopBar.tsx and its hooks.
+
+## State Shape
+```
+{
+  enabledCategories: {
+    commodities: boolean,
+    indices: boolean,
+    crypto: boolean,
+    forex: boolean,
+    economic: boolean,
+    news: boolean,
+    sentiment: boolean
+  }
+}
+```
+
+## TypeScript State Shape
+
+```ts
+export interface TopBarPreferences {
+  enabledCategories: Record<string, boolean>;
+  version: number;
+}
+```
+
+## Persistence
+- Store enabledCategories in React state and persist to localStorage.
+- On load, initialize from localStorage or use defaults from data categories artifact.
+- All logic must be in TopBar.tsx and its hooks.
+
+## State Updates
+- Toggling a checkbox updates enabledCategories immediately.
+- TopBar and Marquee read from enabledCategories to determine what to display.
+- Settings modal and marquee are always in sync.
+
+## Edge Cases
+- If a category is missing from preferences, use defaultEnabled from categories artifact.
+- If preferences are corrupted, reset to defaults.
+- If categories change, update preferences on next load.

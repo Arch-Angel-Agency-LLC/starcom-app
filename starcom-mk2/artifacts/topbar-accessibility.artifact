@@ -1,0 +1,42 @@
+# TopBar Accessibility Artifact (Canonical)
+
+## Purpose
+Document accessibility requirements and best practices for the TopBar settings modal, checkboxes, and marquee. All requirements apply to TopBar.tsx and its components.
+
+## Modal/Popup
+- Use ARIA role="dialog" and aria-modal="true".
+- Trap focus within modal when open.
+- Dismissible by ESC key and clicking outside.
+- Label modal with a heading (e.g., "Settings").
+
+## Checkbox List
+- Each checkbox has a label and is keyboard accessible.
+- Use aria-checked and aria-labelledby as needed.
+
+## Marquee
+- Pauses on hover for screen readers and keyboard users.
+- Use aria-live="polite" for dynamic updates.
+- Ensure sufficient color contrast and readable font size.
+
+## General
+- All interactive elements are reachable by keyboard.
+- Provide visible focus indicators.
+
+## Implementation Steps
+- Use `focus-trap-react` or similar for modal focus management.
+- Modal: `role="dialog"`, `aria-modal="true"`, labelled by heading.
+- ESC key and outside click close modal (test with screen reader).
+- Tab/Shift+Tab cycles through modal controls only.
+- Checkboxes: `<input type="checkbox">` with `aria-checked`, labelled by category label and icon.
+- Marquee: `aria-live="polite"`, pause on hover/tap, ensure keyboard access.
+- Test with Axe, VoiceOver/NVDA, and keyboard only.
+
+## Screen Reader Checklist
+- Modal opens/closes are announced.
+- Checkbox state changes are announced.
+- Marquee updates are announced but not spammy.
+
+## Library Recommendations
+- `focus-trap-react` for modal
+- `react-aria-live` for dynamic updates
+- `@testing-library/jest-dom` for accessibility assertions

@@ -1,60 +1,76 @@
-import React from 'react';
-import styles from './TopBar.module.css';
-import { useDashboard } from '../../../../context/DashboardContext';
+import React, { useState, useMemo } from 'react';
 import wingCommanderLogo from '../../../../assets/images/WingCommanderLogo-288x162.gif';
+import { TOPBAR_CATEGORIES } from './topbarCategories';
+import { useTopBarPreferences } from './useTopBarPreferences';
+import SettingsPopup from './SettingsPopup';
+import Marquee from './Marquee';
+import { useTopBarData } from './useTopBarData';
+import styles from './TopBar.module.css';
 
 const TopBar: React.FC = () => {
-  const { oilPrice, gasolinePrice, oilInventory, naturalGasStorage, loading, error } = useDashboard();
+  const { preferences, setCategoryEnabled } = useTopBarPreferences();
+  const [modalOpen, setModalOpen] = useState(false);
+  // Use all real data from useTopBarData
+  const {
+    commodities,
+    indices,
+    crypto,
+    forex,
+    economic,
+    news,
+    sentiment,
+    loading
+  } = useTopBarData();
+
+  // Compose data points for the marquee with real data
+  const dataPoints = useMemo(() => {
+    if (loading) return [];
+    return TOPBAR_CATEGORIES.filter(cat => preferences.enabledCategories[cat.id])
+      .map(cat => {
+        let value = '';
+        switch (cat.id) {
+          case 'commodities': value = commodities || 'N/A'; break;
+          case 'indices': value = indices || 'N/A'; break;
+          case 'crypto': value = crypto || 'N/A'; break;
+          case 'forex': value = forex || 'N/A'; break;
+          case 'economic': value = economic || 'N/A'; break;
+          case 'news': value = news || 'N/A'; break;
+          case 'sentiment': value = sentiment || 'N/A'; break;
+          default: value = 'N/A';
+        }
+        return { id: cat.id, label: cat.label, icon: cat.icon, value };
+      });
+  }, [preferences.enabledCategories, commodities, indices, crypto, forex, economic, news, sentiment, loading]);
+
   return (
-    <div className={styles.topBar}>
-      <div className={styles.logoSection}>
-        <img 
-          src={wingCommanderLogo} 
-          alt="Wing Commander Logo" 
-          className={styles.logo} 
-        />
+    <header
+      className={styles.topBar}
+      role="banner"
+      aria-label="Top navigation bar"
+      data-testid="topbar-root"
+    >
+      <div className={styles.marqueeSection} aria-label="News and data marquee">
+        <Marquee dataPoints={dataPoints} />
       </div>
-      <div className={styles.resourceSection}>
-        <span>🛢️ Oil Price: </span>
-        {loading ? (
-          <span>Loading...</span>
-        ) : error ? (
-          <span className={styles.error}>{error}</span>
-        ) : (
-          <span>{typeof oilPrice === 'number' ? `$${oilPrice.toFixed(2)} / barrel` : 'N/A'}</span>
-        )}
-      </div>
-      <div className={styles.resourceSection}>
-        <span>⛽ Gasoline Price: </span>
-        {loading ? (
-          <span>Loading...</span>
-        ) : error ? (
-          <span className={styles.error}>{error}</span>
-        ) : (
-          <span>${gasolinePrice?.toFixed(2)} / gallon</span>
-        )}
-      </div>
-      <div className={styles.resourceSection}>
-        <span>📦 Oil Inventory: </span>
-        {loading ? (
-          <span>Loading...</span>
-        ) : error ? (
-          <span className={styles.error}>{error}</span>
-        ) : (
-          <span>{oilInventory?.toFixed(2)} barrels</span>
-        )}
-      </div>
-      <div className={styles.resourceSection}>
-        <span>🔥 Natural Gas Storage: </span>
-        {loading ? (
-          <span>Loading...</span>
-        ) : error ? (
-          <span className={styles.error}>{error}</span>
-        ) : (
-          <span>{naturalGasStorage?.toFixed(2)} BCF</span>
-        )}
-      </div>
-    </div>
+      <button
+        className={styles.settingsButton}
+        aria-label="Open settings"
+        aria-haspopup="dialog"
+        aria-expanded={modalOpen}
+        onClick={() => setModalOpen(true)}
+        tabIndex={0}
+        data-testid="topbar-settings-btn"
+      >
+        <span role="img" aria-label="Settings">⚙️</span>
+      </button>
+      <SettingsPopup
+        open={modalOpen}
+        enabledCategories={preferences.enabledCategories}
+        onCategoryToggle={setCategoryEnabled}
+        onClose={() => setModalOpen(false)}
+        categories={TOPBAR_CATEGORIES}
+      />
+    </header>
   );
 };
 

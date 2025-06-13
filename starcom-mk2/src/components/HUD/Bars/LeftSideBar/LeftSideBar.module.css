@@ -27,7 +27,25 @@
 .content {
   display: flex;
   flex-direction: column;
-  gap: 10px; /* Spacing between elements */
+  align-items: center;
+  gap: 5px;
+  width: 100%;
+}
+
+.logo {
+  width: 80px;
+  height: auto;
+  box-shadow: 0 2px 8px #0ea5e9;
+  background: #0f172a;
+  border-radius: 5px; /* Slightly rounded corners */
+}
+
+.starcomText {
+  font-family: 'Orbitron', 'Aldrich', Arial, sans-serif;
+  font-weight: bold;
+  color: #38bdf8;
+  letter-spacing: 0.1em;
+  text-shadow: 0 2px 8px #0ea5e9;
 }
 
 .text {
