@@ -2,8 +2,16 @@
 // Artifact-driven: modal for toggling TopBar data categories
 import React, { useRef, useEffect } from 'react';
 import FocusTrap from 'focus-trap-react';
-import { SettingsPopupProps } from '../../../../artifacts/topbar-component-api.artifact'; // AI-NOTE: Replace with local type if needed
+// AI-NOTE: The artifact 'topbar-component-api.artifact' does not exist. Using local type for SettingsPopupProps.
 import { TopBarCategory } from './topbarCategories';
+
+export interface SettingsPopupProps {
+  open: boolean;
+  enabledCategories: Record<string, boolean>;
+  onCategoryToggle: (id: string, enabled: boolean) => void;
+  onClose: () => void;
+  categories: TopBarCategory[];
+}
 
 const SettingsPopup: React.FC<SettingsPopupProps> = ({
   open,

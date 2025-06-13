@@ -2,11 +2,11 @@
 // Artifact-driven tests for GlobeEngine (see globe-testing-plan.artifact, globe-engine-api.artifact, globe-overlays.artifact)
 import { GlobeEngine } from './GlobeEngine';
 import { vi } from 'vitest';
-import { beforeEach, afterEach } from 'vitest';
 
 // Mock API services for artifact-driven integration tests
 vi.mock('../services/WeatherDataService', () => ({
   fetchWeatherData: async (_lat: number, _lng: number) => ({
+    // _lat and _lng are intentionally unused for mock
     location: 'Test City',
     temperature: 20,
     description: 'Clear',
@@ -27,7 +27,7 @@ vi.mock('../services/SpaceAssetsService', () => ({
   ])
 }));
 // Mock fetch for borders/territories overlays
-(globalThis as any).fetch = async (_url: string) => ({
+(globalThis as unknown as { fetch: () => Promise<{ json: () => Promise<{ features: unknown[] }> }> }).fetch = async () => ({
   json: async () => ({
     features: [
       { properties: { name: 'TestBorder' }, geometry: { type: 'LineString', coordinates: [[0,0],[1,1]] } },
@@ -113,11 +113,10 @@ describe('GlobeEngine Integration (artifact-driven)', () => {
     await new Promise((resolve) => setTimeout(resolve, 600));
     const data = engine.getOverlayData('spaceAssets');
     expect(Array.isArray(data)).toBe(true);
-    expect((data as any[])[0]?.type).toBe('satellite');
+    expect((data as { type?: string }[])[0]?.type).toBe('satellite');
   });
 
   it('should emit overlayDataLoading and overlayDataError for spaceAssets', async () => {
-    const { fetchSpaceAssets } = await import('../services/SpaceAssetsService');
     const spy = vi.spyOn(await import('../services/SpaceAssetsService'), 'fetchSpaceAssets').mockRejectedValue(new Error('Test error'));
     const engine = new GlobeEngine({ mode: 'CyberCommand' });
     let loading = false;
