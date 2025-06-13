@@ -9,6 +9,11 @@
   },
   "todos": [
     {
+      "file": "src/components/TinyGlobe/TinyGlobe.test.tsx",
+      "line": 46,
+      "text": "TODO: Add more tests to check globe material changes and fallback behavior"
+    },
+    {
       "file": "src/hooks/useOnChainRoles.ts",
       "line": 6,
       "text": "TODO: Replace with real deployed address"
@@ -141,5 +146,5 @@
       "text": "AI-NOTE: This adapter preserves the legacy API shape but delegates to the new artifact-driven service."
     }
   ],
-  "generatedAt": "2025-06-12T14:37:10.234Z"
+  "generatedAt": "2025-06-12T23:19:19.543Z"
 }

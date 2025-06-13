@@ -1,0 +1,73 @@
+# TopBar Component API Artifact (Canonical)
+
+## Purpose
+Define the API (props, events, context) for TopBar, SettingsPopup, and Marquee components. All API requirements apply to TopBar.tsx and its components.
+
+## TopBar Component
+- Props: none (uses context or hooks)
+- State: enabledCategories, modalOpen
+- Events: onSettingsOpen, onSettingsClose, onCategoryToggle
+- Children: Logo, SettingsButton, Marquee
+- All data must be real/live, not placeholder.
+
+## SettingsPopup Component
+- Props:
+  - open: boolean
+  - enabledCategories: object
+  - onCategoryToggle: (id: string, enabled: boolean) => void
+  - onClose: () => void
+  - categories: TopBarCategory[]
+- Renders: scrollable checkbox list
+
+## Marquee Component
+- Props:
+  - dataPoints: array of { id, label, icon, value }
+- Behavior:
+  - Scrolls horizontally, pauses on hover
+  - Updates in real time as data changes
+
+## Data Flow
+- TopBar manages state and passes props to SettingsPopup and Marquee.
+- Toggling a category updates state and re-renders Marquee.
+- All logic and data flow must be in TopBar.tsx and its hooks.
+
+## TypeScript Types
+
+```ts
+export interface SettingsPopupProps {
+  open: boolean;
+  enabledCategories: Record<string, boolean>;
+  onCategoryToggle: (id: string, enabled: boolean) => void;
+  onClose: () => void;
+  categories: TopBarCategory[];
+}
+
+export interface MarqueeProps {
+  dataPoints: Array<{ id: string; label: string; icon: string; value: string }>;
+}
+```
+
+## Example Usage
+
+```tsx
+<TopBar>
+  <SettingsPopup
+    open={modalOpen}
+    enabledCategories={enabledCategories}
+    onCategoryToggle={handleToggle}
+    onClose={closeModal}
+    categories={TOPBAR_CATEGORIES}
+  />
+  <Marquee dataPoints={visibleDataPoints} />
+</TopBar>
+```
+
+## Integration Diagram
+- TopBar manages state and passes props to SettingsPopup and Marquee.
+- SettingsPopup toggles update TopBar state, which updates Marquee.
+- Data flow: Context/props → Marquee → UI
+- Event flow: User → SettingsPopup → TopBar → Marquee
+
+## External Integration
+- TopBar can consume data from context/provider or props.
+- Marquee can be reused elsewhere with different data sets.

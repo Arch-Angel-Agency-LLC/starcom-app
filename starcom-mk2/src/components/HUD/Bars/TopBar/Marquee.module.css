@@ -1,0 +1,73 @@
+/* Marquee.module.css - News-blotter style auto-animating marquee */
+.marquee {
+  width: 100%;
+  height: 40px;
+  background: linear-gradient(90deg, rgba(15,23,42,0.7) 0%, rgba(22,78,99,0.7) 100%);
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+  pointer-events: auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(14,165,233,0.12);
+  /* Remove scroll bar for all browsers */
+  scrollbar-width: none;
+}
+.marquee::-webkit-scrollbar {
+  display: none;
+}
+
+.marqueeContent {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  will-change: transform;
+  transition: none;
+}
+
+.marqueeItem {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 2.5rem;
+  color: #67e8f9;
+  font-size: 1rem;
+  font-family: 'Aldrich', 'Orbitron', monospace, sans-serif;
+  font-weight: 500;
+  background: rgba(8,145,178,0.08);
+  border-radius: 4px;
+  padding: 0 0.75rem;
+  height: 32px;
+  line-height: 32px;
+}
+
+.marqueeIcon {
+  margin-right: 0.5rem;
+  font-size: 1.2em;
+}
+
+.marqueeValue {
+  margin-left: 0.5rem;
+  font-weight: bold;
+}
+
+.marqueeEmpty {
+  color: #94a3b8;
+  padding: 0 1rem;
+  font-size: 1rem;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  background: rgba(15,23,42,0.7);
+  border-radius: 8px;
+}
+
+.marqueeError {
+  color: #f87171;
+  padding: 0 1rem;
+  font-size: 1rem;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  background: rgba(15,23,42,0.7);
+  border-radius: 8px;
+}

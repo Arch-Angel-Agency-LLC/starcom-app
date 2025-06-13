@@ -243,9 +243,6 @@ const TinyGlobe: React.FC = () => {
 
     return (
         <div className={`${styles.tinyGlobeContainer}`}>
-            <div className={`${styles.title}`}>
-                <h1>Starcom</h1>
-            </div>
             <Suspense fallback={<div>Loading...</div>}>
                 <Globe
                     ref={globeRef}

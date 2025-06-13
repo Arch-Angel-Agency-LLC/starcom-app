@@ -1,0 +1,75 @@
+# TopBar UI Wireframe Artifact
+
+## Purpose
+Provide a wireframe/mockup description for the upgraded TopBar, including settings button, modal popup, scrollable checkbox list, and marquee.
+
+## TopBar Layout (ASCII)
+
+[Logo] [Settings ⚙️] [Marquee: | 🛢️ Oil $82 | 📈 S&P500 +0.5% | ₿ BTC $67k | ... ]
+
+- The settings button (⚙️) is right of the logo, left of the marquee.
+- The marquee is a horizontally scrolling ticker showing enabled data points.
+
+## Settings Modal Wireframe
+
++-----------------------------+
+|        Settings ⚙️          |
+|-----------------------------|
+| [x] Commodities   🛢️        |
+| [x] Indices       📈        |
+| [x] Crypto        ₿         |
+| [ ] Forex         💱        |
+| [x] Economic      📊        |
+| [x] News          📰        |
+| [x] Sentiment     📢        |
+|-----------------------------|
+|   (scrolls if long)         |
++-----------------------------+
+
+- Modal is dismissible by clicking outside or pressing ESC.
+- Checkboxes update state immediately.
+- Modal is mobile-friendly and accessible.
+
+## Marquee Behavior
+- Horizontally scrolls all enabled data points.
+- Pauses on hover.
+- Responsive for desktop/mobile.
+
+---
+
+## Desktop Layout (Markdown Wireframe)
+
+```
++-------------------------------------------------------------+
+| [Logo] [Settings ⚙️] [   🛢️ Oil $82 | 📈 S&P500 +0.5% ...  ] |
++-------------------------------------------------------------+
+| [Modal: Settings ⚙️]                                        |
+| +-----------------------------+                             |
+| | [x] Commodities   🛢️        |                             |
+| | [x] Indices       📈        |                             |
+| | [x] Crypto        ₿         |                             |
+| | [ ] Forex         💱        |                             |
+| | [x] Economic      📊        |                             |
+| | [x] News          📰        |                             |
+| | [x] Sentiment     📢        |                             |
+| +-----------------------------+                             |
++-------------------------------------------------------------+
+```
+
+## Mobile Layout
+- Logo and settings stack vertically.
+- Marquee scrolls below settings.
+- Modal is full-screen with large touch targets.
+
+## Animation/Transition
+- Modal fades in/out, slides from top on mobile.
+- Marquee scrolls smoothly, pauses on hover/tap.
+- Overflow: marquee loops or fades out/in at edges.
+
+## Color/Font
+- Use theme colors for background, border, and text.
+- Font: Orbitron or system sans-serif, 16px+ for readability.
+
+## Edge Cases
+- If no categories enabled, show a message: "No data selected."
+- If data is loading, show animated skeletons or spinners.
