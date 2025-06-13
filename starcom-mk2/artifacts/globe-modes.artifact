@@ -1,0 +1,42 @@
+# Globe Modes Artifact
+
+## Purpose
+Defines all supported globe modes, their use cases, and configuration.
+
+## Modes
+- **CyberCommand**
+  - Description: For cyber investigations, intelligence, and monitoring. High-contrast, hologram-style globe. Overlays: alerts, intelMarkers, markers, spaceAssets.
+  - Workflow: Analysts monitor cyber alerts, place investigation markers, and review intelligence reports.
+  - Shader/Material: hologram
+  - Overlays: alerts, intelMarkers, markers, spaceAssets
+- **EcoNatural**
+  - Description: For environmental and natural event monitoring. Realistic day/night globe. Overlays: weather, naturalEvents, markers, spaceAssets.
+  - Workflow: Analysts track weather, earthquakes, and other natural events.
+  - Shader/Material: dayNight
+  - Overlays: weather, naturalEvents, markers, spaceAssets
+- **GeoPolitical**
+  - Description: For geopolitical analysis and territory monitoring. Blue marble globe with borders and territories overlays.
+  - Workflow: Analysts review borders, territories, and place markers for incidents.
+  - Shader/Material: blueMarble
+  - Overlays: borders, territories, markers, spaceAssets
+
+## Example Config Objects
+{
+  "mode": "CyberCommand",
+  "shader": "hologram",
+  "overlays": ["alerts", "intelMarkers", "markers", "spaceAssets"]
+}
+
+{
+  "mode": "EcoNatural",
+  "shader": "dayNight",
+  "overlays": ["weather", "naturalEvents", "markers", "spaceAssets"]
+}
+
+{
+  "mode": "GeoPolitical",
+  "shader": "blueMarble",
+  "overlays": ["borders", "territories", "markers", "spaceAssets"]
+}
+
+## AI-NOTE: Each mode in code should reference this artifact

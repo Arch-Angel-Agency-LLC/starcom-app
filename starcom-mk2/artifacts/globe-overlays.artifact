@@ -1,0 +1,57 @@
+# Globe Overlay & Annotation Artifact
+
+## Purpose
+Defines all overlays, annotations, and interactive layers available on the globes.
+
+## Overlays
+- **markers**: User-placed or data-driven markers (e.g., investigation points, incidents)
+  - Data source: User interaction, API
+  - Update: Real-time, user events
+  - Modes: All
+- **alerts**: Cyber or system alerts
+  - Data source: Websocket feed, API
+  - Update: Real-time
+  - Modes: CyberCommand
+- **intelMarkers**: Intelligence report locations
+  - Data source: Intelligence API
+  - Update: Periodic, on-demand
+  - Modes: CyberCommand
+- **weather**: Weather overlays (clouds, storms)
+  - Data source: Weather API
+  - Update: Periodic
+  - Modes: EcoNatural
+- **naturalEvents**: Earthquakes, volcanoes, etc.
+  - Data source: GeoEvents API
+  - Update: Real-time
+  - Modes: EcoNatural
+- **borders**: Country/region borders
+  - Data source: Static geojson
+  - Update: On mode change
+  - Modes: GeoPolitical
+- **territories**: National territories
+  - Data source: Static geojson
+  - Update: On mode change
+  - Modes: GeoPolitical
+- **spaceAssets**: Satellites, space debris, and other orbital objects
+  - Data source: Space API (e.g., NORAD, Celestrak)
+  - Update: Periodic, real-time
+  - Modes: All (optional, can be toggled in any mode)
+
+## UI/UX Guidelines
+- Overlays should be toggleable per mode.
+- Overlay data should be cached and updated efficiently.
+- Visual clarity and non-intrusiveness are priorities.
+
+## Mapping to Globe Modes
+| Overlay        | CyberCommand | EcoNatural | GeoPolitical |
+|---------------|--------------|------------|--------------|
+| markers       | ✓            | ✓          | ✓            |
+| alerts        | ✓            |            |              |
+| intelMarkers  | ✓            |            |              |
+| weather       |              | ✓          |              |
+| naturalEvents |              | ✓          |              |
+| borders       |              |            | ✓            |
+| territories   |              |            | ✓            |
+| spaceAssets   | ✓            | ✓          | ✓            |
+
+## AI-NOTE: Overlay logic should reference this artifact
