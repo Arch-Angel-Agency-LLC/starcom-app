@@ -10,7 +10,7 @@
   "todos": [
     {
       "file": "src/components/Globe/Globe.tsx",
-      "line": 73,
+      "line": 75,
       "text": "TODO: Use overlay/event data from GlobeEngine if needed"
     },
     {
@@ -137,12 +137,12 @@
     },
     {
       "file": "src/components/Globe/Globe.tsx",
-      "line": 57,
+      "line": 59,
       "text": "AI-NOTE: Integration with GlobeEngine per globe-engine-api.artifact"
     },
     {
       "file": "src/components/Globe/Globe.tsx",
-      "line": 345,
+      "line": 401,
       "text": "AI-NOTE: Refactored to use GlobeEngine. See globe-engine-api.artifact for integration details."
     },
     {
@@ -271,5 +271,5 @@
       "text": "AI-NOTE: This adapter preserves the legacy API shape but delegates to the new artifact-driven service."
     }
   ],
-  "generatedAt": "2025-06-13T15:01:02.888Z"
+  "generatedAt": "2025-06-13T15:11:43.634Z"
 }

@@ -1,5 +1,4 @@
 import React, { useState, useMemo } from 'react';
-import wingCommanderLogo from '../../../../assets/images/WingCommanderLogo-288x162.gif';
 import { TOPBAR_CATEGORIES } from './topbarCategories';
 import { useTopBarPreferences } from './useTopBarPreferences';
 import SettingsPopup from './SettingsPopup';

@@ -1,7 +1,6 @@
-// ...existing code...
 // State management for TopBar preferences (artifact-driven)
 import { useState, useEffect } from 'react';
-import { TOPBAR_CATEGORIES, TopBarCategory } from './topbarCategories';
+import { TOPBAR_CATEGORIES } from './topbarCategories';
 
 export interface TopBarPreferences {
   enabledCategories: Record<string, boolean>;
@@ -55,4 +54,3 @@ export function useTopBarPreferences() {
   };
 }
 // AI-NOTE: Handles loading, saving, and updating user preferences for TopBar categories.
-// ...existing code...
