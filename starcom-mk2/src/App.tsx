@@ -24,6 +24,7 @@ const config = getDefaultConfig({
     [mainnet.id]: http(),
     [sepolia.id]: http(),
   },
+  appUrl: "http://localhost:5173", // Explicitly set to match actual page URL, no trailing slash
 });
 
 const queryClient = new QueryClient();

@@ -20,7 +20,7 @@
     },
     {
       "file": "src/components/HUD/Bars/TopBar/useTopBarPreferences.ts",
-      "line": 28,
+      "line": 27,
       "text": "TODO: handle migration/versioning"
     },
     {
@@ -122,7 +122,7 @@
   "aiNotes": [
     {
       "file": "src/App.tsx",
-      "line": 89,
+      "line": 90,
       "text": "AI-NOTE: Block app UI until terms are accepted (artifact-driven gating)"
     },
     {
@@ -153,11 +153,11 @@
     {
       "file": "src/components/HUD/Bars/TopBar/SettingsPopup.tsx",
       "line": 5,
-      "text": "AI-NOTE: Replace with local type if needed"
+      "text": "AI-NOTE: The artifact 'topbar-component-api.artifact' does not exist. Using local type for SettingsPopupProps."
     },
     {
       "file": "src/components/HUD/Bars/TopBar/SettingsPopup.tsx",
-      "line": 88,
+      "line": 96,
       "text": "AI-NOTE: Modal is accessible, focus-trapped, ESC/outside-click dismiss, and scrollable for long lists."
     },
     {
@@ -167,7 +167,7 @@
     },
     {
       "file": "src/components/HUD/Bars/TopBar/useTopBarPreferences.ts",
-      "line": 57,
+      "line": 56,
       "text": "AI-NOTE: Handles loading, saving, and updating user preferences for TopBar categories."
     },
     {
@@ -271,5 +271,5 @@
       "text": "AI-NOTE: This adapter preserves the legacy API shape but delegates to the new artifact-driven service."
     }
   ],
-  "generatedAt": "2025-06-13T15:11:43.634Z"
+  "generatedAt": "2025-06-14T07:09:21.776Z"
 }
