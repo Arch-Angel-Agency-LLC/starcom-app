@@ -41,6 +41,9 @@ const defaultAuthValue: AuthContextType = {
   logout: vi.fn(),
   isSessionValid: vi.fn(() => false),
   authError: null,
+  expectedChainId: 1,
+  expectedNetworkName: 'Mainnet',
+  setError: vi.fn(),
 };
 const renderWithProviders = (authValue: Partial<AuthContextType> = {}) => {
   return render(

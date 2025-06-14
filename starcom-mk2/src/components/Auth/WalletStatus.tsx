@@ -25,12 +25,9 @@ const WalletStatus: React.FC<WalletStatusProps> = ({ sessionWarningThreshold = 5
     authError,
     expectedChainId,
     expectedNetworkName,
-    provider,
     setError, // Add setError to context destructure
   } = useAuth();
 
-  const [currentNetwork, setCurrentNetwork] = React.useState<string>('');
-  const [currentChainId, setCurrentChainId] = React.useState<number | null>(null);
   const [snackbarOpen, setSnackbarOpen] = React.useState(false);
   const [snackbarMessage, setSnackbarMessage] = React.useState('');
   const [snackbarType, setSnackbarType] = React.useState<'success' | 'info' | 'error'>('info');
@@ -39,18 +36,6 @@ const WalletStatus: React.FC<WalletStatusProps> = ({ sessionWarningThreshold = 5
   const [showDisconnectConfirm, setShowDisconnectConfirm] = React.useState(false);
   const [showSwitchNetworkConfirm, setShowSwitchNetworkConfirm] = React.useState(false);
   const authButtonRef = React.useRef<HTMLButtonElement>(null);
-
-  React.useEffect(() => {
-    if (provider && provider.getNetwork) {
-      provider.getNetwork().then((net) => {
-        setCurrentNetwork(net.name || 'Unknown');
-        setCurrentChainId(Number(net.chainId));
-      });
-    } else {
-      setCurrentNetwork('');
-      setCurrentChainId(null);
-    }
-  }, [provider]);
 
   React.useEffect(() => {
     if (connectionStatus === 'connected' && isAuthenticated && !isSessionValid()) {

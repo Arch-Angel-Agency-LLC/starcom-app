@@ -33,7 +33,6 @@ const Web3LoginPanel: React.FC = () => {
     connectWallet,
     disconnectWallet,
     switchNetwork,
-    provider,
   } = useAuth();
   const [showAccount, setShowAccount] = useState(false);
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; type: 'success' | 'info' | 'error' }>({ open: false, message: '', type: 'info' });
