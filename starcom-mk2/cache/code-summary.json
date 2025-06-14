@@ -36,12 +36,10 @@
     ]
   },
   "artifacts": [
-    "web3-login-testing-plan.artifact",
-    "web3-login-ux-flow.artifact",
-    "web3-network-config.artifact",
-    "web3-ui-components-v2.artifact",
-    "web3-ui-testing-v2.artifact",
-    "web3-ui-ux-flow-v2.artifact"
+    "web3-login-testing-plan-v3.artifact",
+    "web3-login-ux-flow-v3.artifact",
+    "web3-network-config-v3.artifact",
+    "web3-ui-components-v3.artifact"
   ],
   "aiHints": {
     "mainAppDir": "src",
@@ -52,5 +50,5 @@
       "src/main.tsx"
     ]
   },
-  "generatedAt": "2025-06-14T15:14:54.721Z"
+  "generatedAt": "2025-06-14T16:09:36.309Z"
 }

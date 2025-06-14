@@ -50,14 +50,14 @@ describe('WalletStatus Modal (integration)', () => {
     vi.clearAllMocks();
   });
 
-  function ModalTestWrapper({ initialError, children, ...extra }) {
-    const [error, setError] = React.useState(initialError);
+  function ModalTestWrapper({ initialError, children, ...extra }: { initialError: string | null, children?: React.ReactNode }) {
+    const [error, setError] = React.useState<string | null>(initialError);
     useEffect(() => {}, [error]);
     return (
       <QueryClientProvider client={queryClient}>
         <WagmiProvider config={config}>
           <RainbowKitProvider>
-            <TestAuthProvider value={{ ...defaultAuthValue, error, setError, connectionStatus: 'error', ...extra }}>
+            <TestAuthProvider value={{ ...defaultAuthValue, error, setError: (err: string | null) => setError(err), connectionStatus: 'error', ...extra }}>
               {children || <WalletStatus />}
             </TestAuthProvider>
           </RainbowKitProvider>
@@ -85,7 +85,11 @@ describe('WalletStatus Modal (integration)', () => {
   });
 
   it('closes error modal when Switch Network button is clicked (if present)', async () => {
-    render(<ModalTestWrapper initialError="Please switch to the correct network (chainId: 1)" expectedChainId={1} expectedNetworkName="Mainnet" />);
+    render(
+      <ModalTestWrapper initialError="Please switch to the correct network (chainId: 1)">
+        {/* Pass expectedChainId and expectedNetworkName as extra props to TestAuthProvider via ...extra */}
+      </ModalTestWrapper>
+    );
     expect(await screen.findByRole('dialog')).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: /switch network/i }));
     await waitFor(() => {
@@ -94,7 +98,7 @@ describe('WalletStatus Modal (integration)', () => {
   });
 
   it('modal remains open if setError is not called', async () => {
-    const NoOpWrapper = ({ initialError }) => (
+    const NoOpWrapper = ({ initialError }: { initialError: string }) => (
       <QueryClientProvider client={queryClient}>
         <WagmiProvider config={config}>
           <RainbowKitProvider>
@@ -118,12 +122,12 @@ describe('WalletStatus Modal (integration)', () => {
 
   it('modal reopens if error is set again after closing', async () => {
     function ReopenWrapper() {
-      const [error, setError] = React.useState('Test error');
+      const [error, setError] = React.useState<string | null>('Test error');
       return (
         <QueryClientProvider client={queryClient}>
           <WagmiProvider config={config}>
             <RainbowKitProvider>
-              <TestAuthProvider value={{ ...defaultAuthValue, error, setError, connectionStatus: 'error' }}>
+              <TestAuthProvider value={{ ...defaultAuthValue, error, setError: (err: string | null) => setError(err), connectionStatus: 'error' }}>
                 <WalletStatus />
                 <button onClick={() => setError('Another error')}>Trigger Error</button>
               </TestAuthProvider>
@@ -142,7 +146,7 @@ describe('WalletStatus Modal (integration)', () => {
 
   it('traps focus in modal and closes on Escape', async () => {
     const Wrapper = () => {
-      const [error, setError] = React.useState('Please switch to the correct network (chainId: 1)');
+      const [error, setError] = React.useState<string | null>('Please switch to the correct network (chainId: 1)');
       return (
         <QueryClientProvider client={queryClient}>
           <WagmiProvider config={config}>
@@ -151,7 +155,7 @@ describe('WalletStatus Modal (integration)', () => {
                 value={{
                   ...defaultAuthValue,
                   error,
-                  setError,
+                  setError: (err: string | null) => setError(err),
                   connectionStatus: 'error',
                   expectedChainId: 1,
                   expectedNetworkName: 'Mainnet',

@@ -44,6 +44,9 @@ const renderWithAuth = (authValue: Partial<AuthContextType>, children: React.Rea
             logout: vi.fn(),
             isSessionValid: vi.fn(() => false),
             authError: null,
+            expectedChainId: 1,
+            expectedNetworkName: 'Mainnet',
+            setError: vi.fn(),
             ...authValue,
           }}>
             {children}

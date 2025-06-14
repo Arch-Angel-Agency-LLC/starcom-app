@@ -10,8 +10,8 @@ import { WagmiProvider } from 'wagmi';
 import { RainbowKitProvider, getDefaultConfig } from '@rainbow-me/rainbowkit';
 import { mainnet, sepolia } from 'wagmi/chains';
 import { http } from 'wagmi';
-import userEvent from '@testing-library/user-event';
-import { Provider } from 'ethers';
+// import userEvent from '@testing-library/user-event';
+// import { Provider } from 'ethers';
 import { TestAuthProvider } from '../../context/AuthContext.tsx';
 
 const config = getDefaultConfig({
@@ -45,8 +45,8 @@ const defaultAuthValue: AuthContextType = {
   setError: vi.fn(),
 };
 
-function renderWithProviders(authValue = {}) {
-  function Wrapper({ children }) {
+function renderWithProviders(authValue: Partial<AuthContextType> = {}) {
+  function Wrapper({ children }: { children?: React.ReactNode }) {
     const [error, setError] = React.useState(authValue.error ?? null);
     const mergedAuthValue = {
       ...defaultAuthValue,
@@ -101,7 +101,7 @@ describe('WalletStatus (unit)', () => {
   });
 
   it('shows network info banner', () => {
-    const provider: Provider = {
+    const provider = {
       getNetwork: () => Promise.resolve({ name: 'Mainnet', chainId: 1 }),
     };
     renderWithProviders({
@@ -110,7 +110,7 @@ describe('WalletStatus (unit)', () => {
       connectionStatus: 'connected',
       expectedChainId: 1,
       expectedNetworkName: 'Mainnet',
-      provider,
+      provider: provider as unknown as import('ethers').Provider,
     });
     const mainnetEls = screen.getAllByText(/mainnet/i);
     expect(mainnetEls.length).toBeGreaterThanOrEqual(1);

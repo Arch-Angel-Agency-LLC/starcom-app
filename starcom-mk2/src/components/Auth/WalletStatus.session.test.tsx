@@ -1,6 +1,5 @@
 // Tests for WalletStatus session expiry, countdown, and related warnings
-import React from 'react';
-import { render, screen, act, waitFor } from '@testing-library/react';
+import { render, screen, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import WalletStatus from './WalletStatus';
 import { vi } from 'vitest';
@@ -12,6 +11,7 @@ import { mainnet, sepolia } from 'wagmi/chains';
 import { http } from 'wagmi';
 import { TestAuthProvider } from '../../context/AuthContext.tsx';
 import userEvent from '@testing-library/user-event';
+import { Provider } from 'ethers';
 
 const config = getDefaultConfig({
   appName: 'Starcom dApp',
@@ -47,7 +47,7 @@ const defaultAuthValue: AuthContextType = {
 const providerMock = {
   getNetwork: () => Promise.resolve({ chainId: 1, name: 'mainnet' }),
   // Add any other required methods as no-ops
-};
+} as unknown as Provider;
 
 describe('WalletStatus Session Expiry', () => {
   afterEach(() => {
@@ -60,7 +60,7 @@ describe('WalletStatus Session Expiry', () => {
     vi.useFakeTimers();
     const expiry = Date.now() + 2000;
     localStorage.setItem('auth', JSON.stringify({ expiry }));
-    const mockAuthValue = {
+    const mockAuthValue: AuthContextType = {
       ...defaultAuthValue,
       isAuthenticated: true,
       isSessionValid: () => true,
@@ -94,12 +94,25 @@ describe('WalletStatus Session Expiry', () => {
 
   it('shows session expiry warning even if error modal is open', async () => {
     const expiry = Date.now() + 1000;
-    const mockAuthValue = {
+    const mockAuthValue: AuthContextType = {
       ...defaultAuthValue,
       isAuthenticated: true,
       isSessionValid: () => true,
       error: 'Please switch to the correct network (chainId: 1)',
       connectionStatus: 'error',
+      address: null,
+      provider: null,
+      signer: null,
+      connectWallet: vi.fn(),
+      disconnectWallet: vi.fn(),
+      isLoading: false,
+      switchNetwork: vi.fn(),
+      authenticate: vi.fn(async () => true),
+      logout: vi.fn(),
+      authError: null,
+      expectedChainId: 1,
+      expectedNetworkName: 'Mainnet',
+      setError: vi.fn(),
     };
     localStorage.setItem('auth', JSON.stringify({ expiry }));
     render(
@@ -126,7 +139,7 @@ describe('WalletStatus Session Expiry', () => {
     const expiry = Date.now() + 2000;
     const authenticate = vi.fn();
     localStorage.setItem('auth', JSON.stringify({ expiry }));
-    const mockAuthValue = {
+    const mockAuthValue: AuthContextType = {
       ...defaultAuthValue,
       isAuthenticated: true,
       isSessionValid: () => true,
@@ -137,6 +150,14 @@ describe('WalletStatus Session Expiry', () => {
       connectionStatus: 'connected',
       error: null,
       authenticate,
+      signer: null,
+      connectWallet: vi.fn(),
+      disconnectWallet: vi.fn(),
+      isLoading: false,
+      switchNetwork: vi.fn(),
+      logout: vi.fn(),
+      authError: null,
+      setError: vi.fn(),
     };
     render(
       <QueryClientProvider client={queryClient}>
@@ -237,7 +258,7 @@ it('calls onWarning in WalletStatus when countdown crosses warning threshold', a
   vi.useFakeTimers();
   const expiry = Date.now() + 2000;
   localStorage.setItem('auth', JSON.stringify({ expiry }));
-  const mockAuthValue = {
+  const mockAuthValue: AuthContextType = {
     ...defaultAuthValue,
     isAuthenticated: true,
     isSessionValid: () => true,
@@ -275,7 +296,7 @@ it('renders the session expiry warning modal in WalletStatus when showSessionWar
   vi.useFakeTimers();
   const expiry = Date.now() + 2000;
   localStorage.setItem('auth', JSON.stringify({ expiry }));
-  const mockAuthValue = {
+  const mockAuthValue: AuthContextType = {
     ...defaultAuthValue,
     isAuthenticated: true,
     isSessionValid: () => true,

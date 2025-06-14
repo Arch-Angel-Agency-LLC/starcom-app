@@ -160,7 +160,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode; value?: AuthCon
       ...contextValue,
       ...value,
       expectedChainId: (value as Partial<typeof contextValue>).expectedChainId ?? expectedChainId,
-      expectedNetworkName: (value as Partial<typeof contextValue>).expectedNetworkName ?? (SUPPORTED_NETWORKS[expectedChainId]?.name || `Chain ${expectedChainId}`),
+      expectedNetworkName: value?.expectedNetworkName ?? (SUPPORTED_NETWORKS[expectedChainId]?.name || `Chain ${expectedChainId}`),
     };
   }
 

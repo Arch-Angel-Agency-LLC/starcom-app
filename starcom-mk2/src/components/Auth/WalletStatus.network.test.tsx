@@ -1,5 +1,5 @@
 // Tests for WalletStatus network switching, banners, and network-related UI
-import React from 'react';
+// import React from 'react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import WalletStatus from './WalletStatus';
@@ -11,7 +11,6 @@ import { RainbowKitProvider, getDefaultConfig } from '@rainbow-me/rainbowkit';
 import { mainnet, sepolia } from 'wagmi/chains';
 import { http } from 'wagmi';
 import userEvent from '@testing-library/user-event';
-import { Provider } from 'ethers';
 import { TestAuthProvider } from '../../context/AuthContext.tsx';
 
 const config = getDefaultConfig({
@@ -46,9 +45,12 @@ const defaultAuthValue: AuthContextType = {
 
 describe('WalletStatus Network', () => {
   it('updates network info banner on network change', async () => {
-    const provider: Provider & { getNetwork: ReturnType<typeof vi.fn> } = {
+    const provider = {
       getNetwork: vi.fn().mockResolvedValue({ name: 'Mainnet', chainId: 1 }),
-    } as any;
+    };
+    const providerSepolia = {
+      getNetwork: vi.fn().mockResolvedValue({ name: 'Sepolia', chainId: 11155111 }),
+    };
     render(
       <QueryClientProvider client={queryClient}>
         <WagmiProvider config={config}>
@@ -60,7 +62,7 @@ describe('WalletStatus Network', () => {
               connectionStatus: 'connected',
               expectedChainId: 1,
               expectedNetworkName: 'Mainnet',
-              provider,
+              provider: provider as unknown as import('ethers').Provider,
             }}>
               <WalletStatus />
             </TestAuthProvider>
@@ -69,7 +71,7 @@ describe('WalletStatus Network', () => {
       </QueryClientProvider>
     );
     expect(screen.getAllByText(/mainnet/i).length).toBeGreaterThanOrEqual(1);
-    provider.getNetwork.mockResolvedValueOnce({ name: 'Sepolia', chainId: 11155111 });
+    // Use a new provider mock for Sepolia
     render(
       <QueryClientProvider client={queryClient}>
         <WagmiProvider config={config}>
@@ -81,7 +83,7 @@ describe('WalletStatus Network', () => {
               connectionStatus: 'connected',
               expectedChainId: 11155111,
               expectedNetworkName: 'Sepolia',
-              provider,
+              provider: providerSepolia as unknown as import('ethers').Provider,
             }}>
               <WalletStatus />
             </TestAuthProvider>
@@ -93,11 +95,22 @@ describe('WalletStatus Network', () => {
   });
 
   it('shows confirmation dialog before switch network', async () => {
+    const provider = {
+      getNetwork: vi.fn().mockResolvedValue({ name: 'Mainnet', chainId: 1 }),
+    };
     render(
       <QueryClientProvider client={queryClient}>
         <WagmiProvider config={config}>
           <RainbowKitProvider>
-            <TestAuthProvider value={{ isAuthenticated: true, address: '0x123', connectionStatus: 'connected', ...defaultAuthValue }}>
+            <TestAuthProvider value={{
+              ...defaultAuthValue,
+              isAuthenticated: true,
+              address: '0x123',
+              connectionStatus: 'connected',
+              expectedChainId: 1,
+              expectedNetworkName: 'Mainnet',
+              provider: provider as unknown as import('ethers').Provider,
+            }}>
               <WalletStatus />
             </TestAuthProvider>
           </RainbowKitProvider>

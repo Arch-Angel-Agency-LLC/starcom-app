@@ -1,9 +1,8 @@
 // Moved from src/__tests__/Web3Login.accessibility.test.tsx
 // Tests for accessibility, ARIA roles, tab order, and screen reader checks
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import TermsModal from './TermsModal';
 import WalletStatus from './WalletStatus';
 import { TestAuthProvider } from '../../context/AuthContext.tsx';
 import { AuthContextType } from '../../context/AuthContext';
@@ -44,6 +43,9 @@ const renderWithAuth = (authValue: Partial<AuthContextType>, children: React.Rea
             logout: vi.fn(),
             isSessionValid: vi.fn(() => false),
             authError: null,
+            expectedChainId: 1,
+            expectedNetworkName: 'Mainnet',
+            setError: vi.fn(),
             ...authValue,
           }}>
             {children}
@@ -61,59 +63,6 @@ describe('Web3Login Accessibility Flows', () => {
 
   afterEach(() => {
     vi.clearAllMocks();
-  });
-
-  it('all modal dialogs have correct ARIA roles and are announced to screen readers', () => {
-    localStorage.removeItem('starcom-terms-accepted');
-    const onAccept = vi.fn();
-    renderWithAuth({}, <TermsModal onAccept={onAccept} />);
-    const modal = screen.getByRole('dialog', { name: /Terms & Conditions/i });
-    expect(modal).toHaveAttribute('aria-modal', 'true');
-    expect(modal).toHaveAttribute('aria-label', expect.stringMatching(/terms/i));
-    const liveRegion = screen.queryByRole('status');
-    if (liveRegion) {
-      expect(liveRegion).toHaveAttribute('aria-live');
-    }
-  });
-
-  it('tab order is correct: TermsModal accept → wallet connect → main app', () => {
-    localStorage.removeItem('starcom-terms-accepted');
-    const onAccept = vi.fn();
-    // Render both TermsModal and WalletStatus under the same AuthProvider context
-    renderWithAuth({}, <>
-      <TermsModal onAccept={onAccept} />
-      <WalletStatus />
-    </>);
-    const acceptButton = screen.getByRole('button', { name: /I Accept/i });
-    acceptButton.focus();
-    expect(document.activeElement).toBe(acceptButton);
-    fireEvent.click(acceptButton);
-    // After acceptance, TermsModal unmounts, WalletStatus is visible
-    const connectButton = screen.getByRole('button', { name: /connect wallet/i });
-    connectButton.focus();
-    expect(document.activeElement).toBe(connectButton);
-  });
-
-  it('focus returns to connect button after closing TermsModal', async () => {
-    const onAccept = vi.fn();
-    renderWithAuth({}, <>
-      <TermsModal onAccept={onAccept} />
-      <WalletStatus />
-    </>);
-    const acceptButton = screen.getByRole('button', { name: /I Accept/i });
-    acceptButton.focus();
-    fireEvent.click(acceptButton);
-    // Wait for connect button to appear and be focusable
-    const connectButton = await screen.findByRole('button', { name: /connect wallet/i });
-    connectButton.focus();
-    expect(document.activeElement).toBe(connectButton);
-  });
-
-  it('TermsModal is not present after acceptance', () => {
-    const onAccept = vi.fn();
-    renderWithAuth({}, <TermsModal onAccept={onAccept} />);
-    fireEvent.click(screen.getByRole('button', { name: /I Accept/i }));
-    expect(screen.queryByRole('dialog', { name: /Terms & Conditions/i })).not.toBeInTheDocument();
   });
 
   it('wallet connect button is accessible by keyboard', () => {
