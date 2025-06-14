@@ -1,6 +1,5 @@
 import React, { useRef, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext.tsx';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 const WalletStatus: React.FC = () => {
   const {
@@ -95,8 +94,14 @@ const WalletStatus: React.FC = () => {
         </div>
       )}
       {connectionStatus === 'idle' && !isAuthenticated && (
-        // Use RainbowKit ConnectButton for wallet modal per artifact-driven flow
-        <ConnectButton />
+        // Custom wallet connect button replaces RainbowKit ConnectButton
+        <button
+          className="wallet-connect-btn"
+          onClick={handleConnect}
+          aria-label="Connect Wallet"
+        >
+          Connect Wallet
+        </button>
       )}
     </div>
   );
