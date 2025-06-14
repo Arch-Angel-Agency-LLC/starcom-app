@@ -1,0 +1,16 @@
+# Web3 UI Components v3 Artifact
+
+## Purpose
+Documents reusable UI components for wallet feedback and notifications in the v3 UI.
+
+## Components
+- **Web3LoginPanel:** Unified panel for Login/Logout, current login details, and Account Info Popup.
+- **Snackbar:** For all transient feedback (success, error, info) in the bottom bar.
+- **Account Info Popup:** Shows wallet address, network, and actions (e.g., switch network).
+
+## Requirements
+- All components must be accessible and responsive.
+- Popups must trap focus and use ARIA roles.
+
+## AI-NOTE:
+Update this artifact as new components are added or requirements change.

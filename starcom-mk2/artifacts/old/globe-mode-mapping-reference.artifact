@@ -1,27 +1,21 @@
 # Globe Mode Mapping Reference Artifact
 
-**Version:** 2.1  
-**Last Updated:** 2025-06-12  
-**Maintainer:** Copilot
-
 ## Purpose
-Document the canonical mapping function for translating VisualizationModeContext state to TinyGlobe visual modes.
+Documents the mapping logic from Starcom visualization modes to globe rendering modes, shaders, and overlays.
 
-## Canonical Mapping Function
-- Implemented in `src/components/TinyGlobe/modeMapping.ts`
-- Used by TinyGlobe to select visual mode based on context
-- All UI and logic must use this mapping for consistency
+## Mapping Table
+| Mode          | Shader/Material | Texture      | Overlays                        | Rationale                                                      |
+|---------------|-----------------|-------------|----------------------------------|----------------------------------------------------------------|
+| CyberCommand  | hologram        | earthDark   | alerts, intelMarkers, markers    | High-contrast, futuristic look for cyber ops.                  |
+| EcoNatural    | dayNight        | earthDay    | weather, naturalEvents, markers  | Realistic globe for environmental monitoring.                  |
+| GeoPolitical  | blueMarble      | blueMarble  | borders, territories, markers    | Clear, classic look for geopolitical analysis.                 |
 
-## Example Usage
-```ts
-import { mapVisualizationModeToTinyGlobeMode } from './modeMapping';
-const tinyGlobeMode = mapVisualizationModeToTinyGlobeMode(visualizationMode, subMode);
-```
+## Example Scenarios
+- If mode is CyberCommand, use hologram shader, earthDark texture, and overlays for alerts/intel.
+- If mode is EcoNatural, use dayNight shader, earthDay texture, and overlays for weather/natural events.
+- If mode is GeoPolitical, use blueMarble shader, blueMarble texture, and overlays for borders/territories.
 
-## Requirements
-- [x] All TinyGlobe visual mode selection must use this function
-- [x] Mapping must be referenced in both code and artifacts
-- [x] Tests must verify correct mapping and fallback
+## Rationale
+- Each mapping is chosen for visual clarity, workflow fit, and artifact traceability.
 
-## AI-NOTE
-Mapping function is implemented, referenced, and tested as of 2025-06-12. This artifact is current and must be updated if the mapping logic changes.
+## AI-NOTE: Mode mapping code should reference this artifact

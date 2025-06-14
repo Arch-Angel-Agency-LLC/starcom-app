@@ -1,0 +1,34 @@
+# Web3 UI Testing v2 Artifact
+
+## Purpose
+Outlines test cases for the expanded UI/UX, including popups, dialogs, and feedback flows.
+
+## Test Cases
+1. **Success Popups:**
+   - Show on wallet connect/auth success.
+   - Dismiss automatically or by user action.
+2. **Error Popups:**
+   - Show on all error states, with correct message and actions.
+   - Modal is accessible and traps focus.
+3. **Confirmation Dialogs:**
+   - Appear before disconnect/network switch.
+   - Confirm/cancel actions work as expected.
+4. **Session Expiry Warning:**
+   - Popup appears as session nears expiry.
+   - "Re-authenticate" action works.
+5. **Network Info Banner:**
+   - Always displays current and expected network.
+   - Updates on network change.
+6. **Tooltips:**
+   - Appear on hover/focus for all major actions.
+7. **Accessibility:**
+   - All dialogs/popups have correct ARIA roles and are keyboard navigable.
+8. **Responsiveness:**
+   - UI adapts to mobile and desktop.
+
+## Tools/Frameworks
+- Vitest
+- React Testing Library
+
+## AI-NOTE:
+Update this artifact as new test scenarios are added or requirements change.

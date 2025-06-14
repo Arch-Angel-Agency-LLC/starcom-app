@@ -10,6 +10,7 @@
     position: fixed; /* Fix the BottomBar to the bottom of the viewport */
     bottom: 0;
     left: 0;
+    pointer-events: auto; /* Enable clicks on HUD components */
 }
 
 .resourceSection {
