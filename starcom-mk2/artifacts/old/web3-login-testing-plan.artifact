@@ -1,0 +1,28 @@
+# Web3 Login Testing Plan Artifact
+
+## Purpose
+Outlines test cases for wallet connection, account info popup, network switching, and error handling in the new UI.
+
+## Test Cases
+1. **Login Button:**
+   - User clicks Login, wallet connect flow starts.
+   - App shows loading indicator, then address/network on success.
+   - **Expected UI:** Login button replaced by address/network and Logout button.
+2. **Logout Button:**
+   - User clicks Logout, wallet disconnects.
+   - **Expected UI:** UI returns to Login button.
+3. **Account Info Popup:**
+   - User clicks address, popup shows account details (address, network, etc.).
+   - If on wrong network, popup offers Switch Network action.
+4. **Snackbar Feedback:**
+   - On login/logout success or error, Snackbar appears in bottom bar with correct message and type.
+   - On network errors, Snackbar shows error and popup offers retry/switch.
+5. **Error Handling:**
+   - Simulate wallet/network errors, ensure Snackbar and popup display correct info and actions.
+
+## Tools/Frameworks
+- Vitest
+- React Testing Library
+
+## AI-NOTE:
+Update this artifact as new test scenarios are added or logic changes.

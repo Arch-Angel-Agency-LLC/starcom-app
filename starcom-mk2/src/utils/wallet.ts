@@ -43,17 +43,25 @@ export const SUPPORTED_NETWORKS: {
 };
 
 export const connectToWallet = async (targetChainId: number): Promise<WalletConnection> => {
+  console.log('[wallet] connectToWallet: start', { targetChainId });
   if (!window.ethereum) {
+    console.error('[wallet] No MetaMask detected');
     throw new Error('MetaMask is not installed. Please install MetaMask to continue.');
   }
   const provider = new BrowserProvider(window.ethereum);
+  console.log('[wallet] Provider created:', provider);
   const accounts = await provider.send('eth_requestAccounts', []);
+  console.log('[wallet] Accounts:', accounts);
   const network = await provider.getNetwork();
+  console.log('[wallet] Network:', network);
   // Convert network.chainId to number for comparison
   if (Number(network.chainId) !== targetChainId) {
+    console.error('[wallet] Wrong network:', network.chainId, 'expected', targetChainId);
     throw new Error(`Please switch to the correct network (chainId: ${targetChainId})`);
   }
   const signer = await provider.getSigner();
+  console.log('[wallet] Signer:', signer);
+  console.log('[wallet] connectToWallet: success');
   return {
     address: accounts[0],
     provider,

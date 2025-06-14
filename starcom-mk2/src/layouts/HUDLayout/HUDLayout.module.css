@@ -38,6 +38,7 @@
   bottom: 3%;
   background: rgba(0, 0, 0, 0.8); /* transparent background */
   left: 6%; /* Ensure it aligns with the left side */
+  pointer-events: auto; /* Enable clicks on HUD components */
 }
 
 .bottomRightCorner {
@@ -67,6 +68,7 @@
   width: 100%; /* Stretch across the full width of the screen */
   height: 5%; /* Adjust height as needed */
   z-index: 3;
+  pointer-events: auto; /* Enable clicks on HUD components */
 }
 
 .leftSideBar, .rightSideBar {

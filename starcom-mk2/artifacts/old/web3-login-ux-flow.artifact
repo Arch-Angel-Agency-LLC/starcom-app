@@ -1,0 +1,37 @@
+# Web3 Login UX Flow Artifact
+
+## Purpose
+Describes the user experience for wallet connection, account info, and feedback mechanisms in the new UI.
+
+## UI States
+- **Idle:** Show "Login" button (triggers wallet connect).
+- **Connecting:** Show loading indicator on Login button.
+- **Connected:**
+  - Show wallet address and network name.
+  - Show "Logout" button.
+  - Address is clickable for Account Information Popup.
+- **Error:**
+  - Show error details in Snackbar at the bottom bar.
+  - Account Info Popup may offer retry/switch network if needed.
+
+## User Actions
+- Login (connect wallet)
+- Logout (disconnect wallet)
+- View Account Info (popup)
+- Switch Network (from popup, if needed)
+
+## Accessibility Considerations
+- All buttons and popups are keyboard accessible.
+- Use ARIA roles for popups and error messages.
+- Snackbar is announced to screen readers.
+
+## Visual Reference
+- [TODO: Add wireframe sketches or Figma links here.]
+
+## Code Reference
+- UI logic: `Web3LoginPanel.tsx` (new)
+- State management: `src/context/AuthContext.tsx`
+- Snackbar: `src/components/Shared/Snackbar.tsx`
+
+## AI-NOTE:
+Update this artifact if the UX flow, popup logic, or accessibility requirements change.

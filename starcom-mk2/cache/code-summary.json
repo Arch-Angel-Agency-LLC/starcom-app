@@ -36,15 +36,12 @@
     ]
   },
   "artifacts": [
-    "globe-engine-api.artifact",
-    "globe-engine-architecture.artifact",
-    "globe-migration-checklist.artifact",
-    "globe-mode-mapping-reference.artifact",
-    "globe-modes.artifact",
-    "globe-overlays.artifact",
-    "globe-shaders.artifact",
-    "globe-testing-plan.artifact",
-    "globe-textures.artifact"
+    "web3-login-testing-plan.artifact",
+    "web3-login-ux-flow.artifact",
+    "web3-network-config.artifact",
+    "web3-ui-components-v2.artifact",
+    "web3-ui-testing-v2.artifact",
+    "web3-ui-ux-flow-v2.artifact"
   ],
   "aiHints": {
     "mainAppDir": "src",
@@ -55,5 +52,5 @@
       "src/main.tsx"
     ]
   },
-  "generatedAt": "2025-06-14T07:09:02.265Z"
+  "generatedAt": "2025-06-14T15:14:54.721Z"
 }

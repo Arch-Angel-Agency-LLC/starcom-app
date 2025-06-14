@@ -11,12 +11,16 @@ export interface AuthContextType {
   isLoading: boolean;
   error: string | null;
   connectionStatus: 'idle' | 'connecting' | 'connected' | 'error';
-  switchNetwork: (targetChainId: number) => Promise<void>;
+  switchNetwork: () => Promise<void>;
   // Add SIWE/localStorage session helpers for decentralized login
   authenticate: () => Promise<boolean>;
   logout: () => void;
   isSessionValid: () => boolean;
   authError: string | null;
+  expectedChainId: number;
+  expectedNetworkName: string;
+  setError: (err: string | null) => void;
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);
+export { useAuth } from './AuthContext.tsx';

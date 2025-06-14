@@ -121,19 +121,9 @@
   ],
   "aiNotes": [
     {
-      "file": "src/App.tsx",
-      "line": 90,
-      "text": "AI-NOTE: Block app UI until terms are accepted (artifact-driven gating)"
-    },
-    {
       "file": "src/components/Auth/AuthErrorBoundary.tsx",
       "line": 3,
       "text": "AI-NOTE: Error boundary for authentication and wallet errors (see artifacts)"
-    },
-    {
-      "file": "src/components/Auth/TermsModal.tsx",
-      "line": 3,
-      "text": "AI-NOTE: TermsModal enforces user acceptance of terms before wallet connection (see artifacts)"
     },
     {
       "file": "src/components/Globe/Globe.tsx",
@@ -271,5 +261,5 @@
       "text": "AI-NOTE: This adapter preserves the legacy API shape but delegates to the new artifact-driven service."
     }
   ],
-  "generatedAt": "2025-06-14T07:09:21.776Z"
+  "generatedAt": "2025-06-14T15:15:13.808Z"
 }
