@@ -1,0 +1,19 @@
+# Intelligence Exchange Market (IEM) — Artifact Index
+
+This artifact lists and describes all artifacts related to the Intelligence Exchange Market (IEM) and Intel Report system, including code audits, plans, and checklists for Stage 1 development.
+
+## Artifacts
+- `intel-report-code-audit-stage1.artifact`: Code audit summary and checklist for the IEM and Intel Report system (current state, TODOs, AI-NOTE references, next steps).
+- `intel-report-stage1-plan.artifact`: Stage 1 development plan, including Grok AI session notes and actionable steps for the IEM.
+- `intel-report-stage1-checklist.artifact`: Task checklist for Stage 1, tracking progress on setup, contracts, integration, and documentation.
+
+## Usage
+- Update these artifacts as the codebase and project evolve.
+- Link code, tests, and documentation to relevant artifacts.
+- Reference this index for onboarding and coordination.
+- For full context, see referenced markdown docs and code audit artifact.
+
+---
+
+*Generated: 2025-06-14 (Upgraded for IEM scope)*
+*Owner: AI Agent (Copilot)*
