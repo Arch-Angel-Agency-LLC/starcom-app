@@ -54,6 +54,8 @@ const GlobeView: React.FC = () => {
   const [overlayLastUpdated, setOverlayLastUpdated] = useState<Record<string, number>>({});
   const [legendOpen, setLegendOpen] = useState(false); // Legend is closed by default
   const [overlayPanelOpen, setOverlayPanelOpen] = useState(false); // Overlay controls panel is minimized by default
+  const [containerSize, setContainerSize] = useState({ width: window.innerWidth, height: window.innerHeight });
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // AI-NOTE: Integration with GlobeEngine per globe-engine-api.artifact
@@ -179,8 +181,22 @@ const GlobeView: React.FC = () => {
     setModalPage(0);
   }, [inspectOverlay]);
 
+  useEffect(() => {
+    function handleResize() {
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        setContainerSize({ width: rect.width, height: rect.height });
+      } else {
+        setContainerSize({ width: window.innerWidth, height: window.innerHeight });
+      }
+    }
+    window.addEventListener('resize', handleResize);
+    handleResize(); // Initial
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
-    <div style={{ height: '100vh', width: '100%', position: 'relative' }}>
+    <div ref={containerRef} style={{ height: '100vh', width: '100%', position: 'relative' }}>
       {/* Overlay Controls Panel (minimizable, repositioned) */}
       <div
         style={{
@@ -376,6 +392,8 @@ const GlobeView: React.FC = () => {
       </Modal>
       <Globe
         ref={globeRef}
+        width={containerSize.width}
+        height={containerSize.height}
         pointsData={globeData.filter((d: { lat?: number; lng?: number }) => d.lat !== undefined && d.lng !== undefined)}
         pointAltitude={(d: { size?: number }) => d.size || 0.5}
         pointColor={(d: { type?: string; color?: string }) => {
