@@ -24,3 +24,6 @@ export interface AuthContextType {
 
 export const AuthContext = createContext<AuthContextType | null>(null);
 export { useAuth } from './AuthContext.tsx';
+
+// TODO: Solana wallet context in progress. See artifacts/intel-report-stage1-plan.artifact
+// AI-NOTE: EVM/ethers.js version archived in legacy-evm/AuthContext.ts. Implement Solana logic here.

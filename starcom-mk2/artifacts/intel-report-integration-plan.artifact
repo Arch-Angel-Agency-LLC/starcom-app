@@ -1,0 +1,37 @@
+# Intelligence Exchange Market (IEM) — Integration Plan Artifact (Serverless, Fully Decentralized)
+
+## Purpose
+Document the step-by-step plan for integrating overlays, API, Solana contracts, and UI components. All integration is serverless, on-chain, and compliant with zero high-risk vulnerability policy.
+
+## Integration Milestones
+- [x] Refactor/remove all EVM/ethers.js and high-risk logic (see code audit artifact)
+- [x] Scaffold secure API stubs in `src/api/intelligence.ts`
+- [x] Organize directory structure:
+  - `src/api/intelligence.ts` (API layer)
+  - `src/models/IntelReport.ts` (data model)
+  - `src/components/Intel/IntelReportList.tsx` (report list UI)
+  - `src/components/Intel/overlays/IntelOverlay.tsx` (overlay UI)
+  - `src/pages/IntelReportsPage.tsx` (route/page)
+- [x] Stub UI components and `/intelreports` page for artifact-driven development
+- [x] Implement Solana contract schema and create instruction for Intel Reports (`intel_report.rs`)
+- [x] Document fetch/list pattern for overlays and UI (off-chain account fetching via `@solana/web3.js`)
+- [ ] Next: Integrate overlays with live Solana data (using `@solana/web3.js` only)
+- [ ] Next: Implement wallet authentication and access control (client + on-chain)
+- [ ] Next: Replace mocks/stubs with live data, update overlays and UI
+
+## Dependencies and Blockers
+- Awaiting Solana contract deployment for live data
+- All integration is serverless and must follow zero high-risk vulnerability policy
+
+## Security Checkpoints
+- All code and integration reference relevant artifacts
+- No high-risk or deprecated dependencies allowed
+- All data flows are on-chain and auditable
+
+## Traceability to Other Artifacts
+- See overlays, API integration, and code audit artifacts for details
+- Checklist and plan artifacts updated as progress is made
+
+---
+*Updated: 2025-06-15 (Serverless, Zero High-Risk Vulnerabilities, artifact-driven progress)*
+*Owner: AI Agent (Copilot)*

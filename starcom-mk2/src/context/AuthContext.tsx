@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { connectToWallet, disconnectWallet, isWalletConnected, SUPPORTED_NETWORKS } from '../utils/wallet';
+import { connectToWallet, disconnectWallet, isWalletConnected } from '../utils/wallet';
 import { switchNetwork } from '../middleware/web3Middleware';
 import { AuthContext, AuthContextType } from './AuthContext';
 import { Provider, Signer } from 'ethers';
@@ -18,7 +18,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode; value?: AuthCon
   const [authError, setAuthError] = useState<string | null>(null);
 
   // SIWE/localStorage session helpers for decentralized login
-  function isSessionValid() {
+  const isSessionValid = useCallback(() => {
     const auth = JSON.parse(localStorage.getItem('auth') || '{}');
     if (!auth.signature || auth.expiry < Date.now()) return false;
     if (!wallet.address) return false;
@@ -28,8 +28,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode; value?: AuthCon
     } catch {
       return false;
     }
-  }
-  async function authenticate(walletOverride?: typeof wallet) {
+  }, [wallet.address]);
+
+  const authenticate = useCallback(async (walletOverride?: typeof wallet) => {
     const w = walletOverride || wallet;
     if (!w.address || !w.signer) {
       setAuthError('Wallet not connected');
@@ -52,7 +53,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode; value?: AuthCon
       setAuthError(err instanceof Error ? err.message : 'Authentication failed');
       return false;
     }
-  }
+  }, [wallet]);
+
   function logout() {
     localStorage.removeItem('auth');
   }
@@ -67,11 +69,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode; value?: AuthCon
     setConnectionStatus('connecting');
     try {
       console.log('[Auth] Calling connectToWallet with chainId', expectedChainId);
-      const connection = await connectToWallet(expectedChainId);
-      console.log('[Auth] Wallet connected:', connection);
-      setWallet(connection);
+      await connectToWallet();
+      console.log('[Auth] Wallet connected');
+      setWallet({ provider: null, address: null, signer: null });
       // Authenticate using the fresh connection object
-      const authSuccess = await authenticate(connection);
+      const authSuccess = await authenticate();
       if (!authSuccess) {
         setError('Authentication failed.');
         setConnectionStatus('error');
@@ -150,7 +152,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode; value?: AuthCon
     isSessionValid,
     authError,
     expectedChainId,
-    expectedNetworkName: SUPPORTED_NETWORKS[expectedChainId]?.name || `Chain ${expectedChainId}`,
+    expectedNetworkName: `Chain ${expectedChainId}`,
     setError, // Expose setError for error modal actions
   };
 
@@ -160,7 +162,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode; value?: AuthCon
       ...contextValue,
       ...value,
       expectedChainId: (value as Partial<typeof contextValue>).expectedChainId ?? expectedChainId,
-      expectedNetworkName: value?.expectedNetworkName ?? (SUPPORTED_NETWORKS[expectedChainId]?.name || `Chain ${expectedChainId}`),
+      expectedNetworkName: value?.expectedNetworkName ?? `Chain ${expectedChainId}`,
     };
   }
 
@@ -178,3 +180,6 @@ export const useAuth = () => {
   }
   return context;
 };
+
+// TODO: Solana wallet context provider in progress. See artifacts/intel-report-stage1-plan.artifact
+// AI-NOTE: EVM/ethers.js version archived in legacy-evm/AuthContext.tsx. Implement Solana logic here.

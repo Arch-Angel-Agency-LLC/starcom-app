@@ -11,10 +11,9 @@ import { http } from 'wagmi';
 import { AuthProvider } from '../../context/AuthContext.tsx';
 import { AuthContextType } from '../../context/AuthContext';
 import { OnChainRole } from '../../hooks/useOnChainRoles';
-import { TokenGate as TokenGateType } from '../../hooks/useTokenGate';
 
 let mockRoles: OnChainRole[] = [];
-let mockTokenGate: TokenGateType = { tokenAddress: '', requiredBalance: '', hasAccess: false };
+let mockTokenGate = { hasAccess: false, loading: false, error: null };
 
 const config = getDefaultConfig({
   appName: 'Starcom dApp',
@@ -80,7 +79,7 @@ vi.mock('../../hooks/useSIWEAuth', () => ({
 describe('TokenGatedPage', () => {
   afterEach(() => {
     mockRoles = [];
-    mockTokenGate = { tokenAddress: '', requiredBalance: '', hasAccess: false };
+    mockTokenGate = { hasAccess: false, loading: false, error: null };
     vi.clearAllMocks();
   });
 
@@ -90,20 +89,20 @@ describe('TokenGatedPage', () => {
   });
 
   it('shows NFT access denied if user does not have NFT', () => {
-    mockTokenGate = { tokenAddress: '0xNFT', requiredBalance: '1', hasAccess: false };
+    mockTokenGate = { hasAccess: false, loading: false, error: null };
     renderWithProviders({ address: '0x123' });
     expect(screen.getByText(/access denied: you need the nft/i)).toBeInTheDocument();
   });
 
   it('shows admin access denied if user has NFT but not admin', () => {
-    mockTokenGate = { tokenAddress: '0xNFT', requiredBalance: '1', hasAccess: true };
+    mockTokenGate = { hasAccess: true, loading: false, error: null };
     mockRoles = [ { role: 'USER', hasRole: true }, { role: 'ADMIN', hasRole: false } ];
     renderWithProviders({ address: '0x123' });
     expect(screen.getByText(/access denied: admins only/i)).toBeInTheDocument();
   });
 
   it('shows protected content if user has NFT and admin role', () => {
-    mockTokenGate = { tokenAddress: '0xNFT', requiredBalance: '1', hasAccess: true };
+    mockTokenGate = { hasAccess: true, loading: false, error: null };
     mockRoles = [ { role: 'USER', hasRole: true }, { role: 'ADMIN', hasRole: true } ];
     renderWithProviders({ address: '0x123' });
     expect(screen.getByText(/protected token-gated page/i)).toBeInTheDocument();

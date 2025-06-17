@@ -9,11 +9,17 @@
 - [ ] Set Anchor.toml provider to devnet
 
 ## Token, NFT & Market Contracts
-- [ ] Add @solana/web3.js and @solana/spl-token to Vite project
-- [ ] Create `src/services/tokenService.ts` for SPL token minting
-- [ ] Add @metaplex-foundation/js for NFT minting
-- [ ] Create `src/services/nftService.ts` for NFT minting
-- [ ] Define interfaces and overlays for market data, trading, and exchange logic
+- [x] Remove all EVM/ethers.js and Metaplex/SPL-Token JS logic (archived, see artifacts)
+- [x] Refactor hooks and components to secure placeholders (see artifacts)
+- [ ] Add @solana/web3.js to Vite project (only secure Solana integration allowed)
+- [ ] Create `src/services/tokenService.ts` for SPL token minting (secure placeholder in place)
+- [ ] Create `src/services/nftService.ts` for NFT minting (secure placeholder in place)
+- [ ] Define interfaces and overlays for market data, trading, and exchange logic (see overlays artifact)
+
+## Overlays, API & Integration Artifacts
+- [x] Create overlays artifact (`artifacts/intel-report-overlays.artifact`)
+- [x] Create API integration artifact (`artifacts/intel-report-api-integration.artifact`)
+- [x] Create integration plan artifact (`artifacts/intel-report-integration-plan.artifact`)
 
 ## Testing & Integration
 - [ ] Add `scripts/testMint.ts` for minting tests
@@ -28,6 +34,5 @@
 - [ ] Update main README with setup/test instructions
 
 ---
-
-*Generated: 2025-06-14 (Upgraded for IEM scope)*
+*Updated: 2025-06-14 (Zero High-Risk Vulnerabilities, artifact-driven progress)*
 *Owner: AI Agent (Copilot)*

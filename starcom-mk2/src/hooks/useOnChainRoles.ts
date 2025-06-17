@@ -1,9 +1,7 @@
 // src/hooks/useOnChainRoles.ts
 import { useEffect, useState } from 'react';
-import { ethers } from 'ethers';
-import IntelligenceMarketABI from '../contracts/IntelligenceMarketABI.json';
-
-const CONTRACT_ADDRESS = '0xYourContractAddressHere'; // TODO: Replace with real deployed address
+// TODO: Solana/Anchor/Metaplex version in progress. See artifacts/intel-report-stage1-plan.artifact
+// AI-NOTE: EVM/ethers.js version archived in legacy-evm/useOnChainRoles.ts. Implement Solana logic here.
 
 /**
  * useOnChainRoles
@@ -37,13 +35,7 @@ export function useOnChainRoles(address: string | null): OnChainRole[] {
     }
     async function fetchRoles() {
       try {
-        const provider = new ethers.BrowserProvider(window.ethereum as any);
-        const contract = new ethers.Contract(CONTRACT_ADDRESS, IntelligenceMarketABI, provider);
-        const owner = await contract.owner();
-        setRoles([
-          { role: 'USER', hasRole: true },
-          { role: 'ADMIN', hasRole: owner && address ? owner.toLowerCase() === address.toLowerCase() : false },
-        ]);
+        // TODO: Implement Solana logic here
       } catch {
         setRoles([
           { role: 'USER', hasRole: true },
@@ -56,3 +48,5 @@ export function useOnChainRoles(address: string | null): OnChainRole[] {
 
   return roles;
 }
+
+// Only one export for useOnChainRoles. Placeholder removed.

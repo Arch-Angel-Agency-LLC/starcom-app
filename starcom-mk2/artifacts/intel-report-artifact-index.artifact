@@ -1,19 +1,32 @@
-# Intelligence Exchange Market (IEM) — Artifact Index
+# Intelligence Exchange Market (IEM) — Implementation Status & Action Plan (Zero High-Risk Vulnerabilities)
 
-This artifact lists and describes all artifacts related to the Intelligence Exchange Market (IEM) and Intel Report system, including code audits, plans, and checklists for Stage 1 development.
+## What Exists Already
+- **Models:** `IntelReport` class (geolocation, metadata, tags, content) exists in `src/models/IntelReport.ts`.
+- **Globe Engine:** Overlays for `intelMarkers` (SIGINT/HUMINT) are implemented as mocks in `GlobeEngine.ts` and mapped in `GlobeModeMapping.ts`.
+- **UI/UX:** Extensive markdown documentation for intelligence overlays, metrics, dashboards, and tactical sidebars. UI logic for switching to intelligence overlays in TinyGlobe.
+- **API:** Stub for intelligence data (`src/api/intelligence.ts`).
+- **Routes:** `/intelreports` route exists but is not fully implemented.
+- **Artifacts:** Plans, checklists, and audits are in place for Stage 1.
 
-## Artifacts
-- `intel-report-code-audit-stage1.artifact`: Code audit summary and checklist for the IEM and Intel Report system (current state, TODOs, AI-NOTE references, next steps).
-- `intel-report-stage1-plan.artifact`: Stage 1 development plan, including Grok AI session notes and actionable steps for the IEM.
-- `intel-report-stage1-checklist.artifact`: Task checklist for Stage 1, tracking progress on setup, contracts, integration, and documentation.
+## What Still Needs Doing
+- **Solana Integration:** Blockchain logic for minting, storing, or displaying Intel Reports as NFTs/tokens must use only `@solana/web3.js` (no SPL-Token JS, Metaplex, or other high-risk packages). Consider offloading minting to a secure backend or CLI if needed.
+- **Live Data:** Connect overlays and models to real data sources (blockchain, APIs, backend).
+- **UI Implementation:** Build out React components for dashboards, overlays, and intelligence report views (beyond markdown and stubs).
+- **Testing:** Add tests for new Solana logic and UI components.
+- **Artifact Completion:** Create missing artifacts for overlays, API, and integration logic.
 
-## Usage
-- Update these artifacts as the codebase and project evolve.
-- Link code, tests, and documentation to relevant artifacts.
-- Reference this index for onboarding and coordination.
-- For full context, see referenced markdown docs and code audit artifact.
+## What Needs Refactor
+- **EVM/Ethers.js Logic:** Replace or refactor all EVM/ethers.js-based hooks and components (e.g., `useOnChainRoles`, `useTokenGate`, `TokenGatedPage`) to use Solana primitives only.
+- **Globe Overlays:** Refactor overlays to fetch and display live intelligence data, not just mocks.
+- **API Layer:** Refactor `src/api/intelligence.ts` to connect to real smart contracts or backend.
+- **Component Integration:** Refactor TinyGlobe and related UI to use real overlays and data.
+
+## What Needs Deleting
+- **Obsolete EVM/ethers.js Code:** Remove or archive any code, hooks, or components that are strictly for EVM/ethers.js and not reusable for Solana.
+- **Unused Mocks:** Delete or replace mock overlays and data sources once live integrations are in place.
+- **Redundant Docs:** Remove or update markdown docs that are superseded by real UI/components.
 
 ---
 
-*Generated: 2025-06-14 (Upgraded for IEM scope)*
+*Updated: 2025-06-14 (Zero High-Risk Vulnerabilities)*
 *Owner: AI Agent (Copilot)*
