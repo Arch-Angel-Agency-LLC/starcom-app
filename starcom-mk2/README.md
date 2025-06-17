@@ -48,3 +48,15 @@ export default tseslint.config({
   },
 })
 ```
+
+# Intelligence Exchange Market (IEM) — Stage 1 Integration
+
+This project now includes Solana/Anchor/Metaplex integration for the IEM and Intel Report system.
+
+## Quick Start (Stage 1)
+
+- Install dependencies: `npm install`
+- Test minting (Devnet): `npm run test:mint`
+- UI minting test: Launch the app and use the MintTest component
+- See `contracts/intel-market/README.md` for Solana/Anchor contract setup
+- See `artifacts/intel-report-stage1-plan.artifact` and `artifacts/intel-report-stage1-checklist.artifact` for full plan and checklist

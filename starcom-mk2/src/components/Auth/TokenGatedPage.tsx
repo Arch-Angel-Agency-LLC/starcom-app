@@ -6,13 +6,12 @@ import { useTokenGate } from '../../hooks/useTokenGate';
 
 // Example NFT address and required balance (replace with real values)
 const NFT_ADDRESS = '0x0000000000000000000000000000000000000000';
-const REQUIRED_BALANCE = '1';
 
 const TokenGatedPage: React.FC = () => {
   const { address } = useAuth();
-  const roles = useOnChainRoles(address);
+  const roles = useOnChainRoles(address || '');
   const isAdmin = roles.find(r => r.role === 'ADMIN')?.hasRole;
-  const tokenGate = useTokenGate(address, NFT_ADDRESS, REQUIRED_BALANCE);
+  const tokenGate = useTokenGate(address || '', NFT_ADDRESS); // Only 2 args
 
   if (!address) {
     return <p>Please connect your wallet to access this page.</p>;
@@ -35,3 +34,5 @@ const TokenGatedPage: React.FC = () => {
 };
 
 export default TokenGatedPage;
+
+// AI-NOTE: This component is EVM/ethers.js-based and not compatible with the serverless, on-chain Solana architecture. Refactor or remove this file. All token/NFT gating should use Solana primitives and wallet-based access control, enforced on-chain and in the client per the updated artifacts.

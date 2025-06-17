@@ -1,67 +1,29 @@
-# Intelligence Exchange Market (IEM) Code Audit (Stage 1)
+# Intelligence Exchange Market (IEM) Code Audit (Stage 1, Serverless, Zero High-Risk Vulnerabilities)
 
 ## Purpose
-This artifact documents the current state of the Intelligence Exchange Market (IEM) and Intel Report system codebase, summarizes previous attempts, and identifies areas for improvement and next steps for Stage 1 development.
+This artifact documents the current state of the Intelligence Exchange Market (IEM) and Intel Report system codebase, summarizes previous attempts, and identifies areas for improvement and next steps for Stage 1 development, with a focus on zero high-risk vulnerabilities and a fully serverless, on-chain architecture.
 
-## Audit Scope
-- Review all code, tests, and artifacts related to the IEM and Intel Report system (including token/NFT logic, UI, and integration points).
-- Identify incomplete, deprecated, or experimental code.
-- Note all TODOs and AI-NOTE comments relevant to the IEM and Intel Report system.
-- Summarize current architecture and entry points.
-- Reference previous attempts and lessons learned.
+## Security-Driven Changes
+- All high-risk dependencies (Metaplex, SPL-Token JS, etc.) have been removed.
+- SPL token and NFT logic must use only `@solana/web3.js` and on-chain programs.
+- All future blockchain logic must avoid high-risk or deprecated packages.
+- No backend, CLI, or server is used; all logic is on-chain or in the client.
 
-## Audit Checklist
-- [x] List all relevant files and modules (TypeScript, Rust, scripts, tests, artifacts).
-- [x] Summarize current implementation and gaps.
-- [x] List all TODOs and AI-NOTE comments related to IEM/Intel Report.
-- [x] Identify dependencies and integration points (Solana, Anchor, Metaplex, etc).
-- [x] Recommend next steps for Stage 1.
-- [ ] Link to plan and checklist artifacts for traceability.
-
-## Relevant Files & Modules
-- API: `src/api/intelligence.ts`, `src/api/market.mock.ts`
-- Hooks: `src/hooks/useOnChainRoles.ts`, `src/hooks/useTokenGate.ts`
-- Interfaces: `src/interfaces/Marketplace.ts`, `src/interfaces/MarketData.ts`
-- Components: `src/components/Auth/TokenGatedPage.tsx`, `src/components/HUD/Bars/BottomBar/BottomBar.md`, `src/components/HUD/Bars/LeftSideBar/LeftSideBar.md`, `src/components/Globe/Globe.md`
-- Globe Engine: `src/globe-engine/GlobeEngine.ts`, overlays for `intelMarkers`, market overlays
-- Store: `src/store/store.md` (Zustand market store)
-- Routes: `src/routes/routes.tsx`
-- Artifacts: See `artifacts/intel-report-stage1-plan.artifact`, `artifacts/intel-report-stage1-checklist.artifact`, `artifacts/intel-report-artifact-index.artifact`
-
-## Current Implementation & Gaps
-- **Intel Report and IEM logic is partially implemented:**
-  - Token/NFT gating and role-based access exist (see `useTokenGate`, `useOnChainRoles`, `TokenGatedPage`).
-  - Market data mocks and interfaces are present, but no live Solana/Anchor/Metaplex integration yet.
-  - Globe overlays for intelligence markers and market data are stubbed/mocked.
-  - UI/UX for market and intelligence overlays is described in markdown docs, but not fully implemented in code.
-- **Gaps:**
-  - No Solana/Anchor/Metaplex contracts or client integration yet.
-  - No real token/NFT minting or market exchange logic.
-  - Some TODOs for contract addresses, overlays, and artifact-driven logic remain.
-
-## TODOs & AI-NOTE Comments
-- `useOnChainRoles.ts`: TODO for real contract address.
-- `GlobeEngine.ts`: TODOs for initializing overlays, AI-NOTEs for artifact-driven overlays and API.
-- Markdown docs and code reference artifact-driven overlays, but some artifacts are missing or incomplete.
+## Gaps
+- No SPL-Token JS or Metaplex logic allowed; only minimal, custom, or on-chain minting.
+- Some TODOs for overlays, artifact-driven logic, and metadata remain.
 
 ## Dependencies & Integration Points
-- Planned: Solana CLI, Anchor, Metaplex, @solana/web3.js, @solana/spl-token, @metaplex-foundation/js
-- Current: ethers.js for EVM compatibility, Zustand for state, React/TypeScript for UI
-
-## Previous Attempts & Lessons Learned
-- Previous code attempts focused on EVM/ethers.js for token gating and roles, not Solana/Anchor.
-- Market and intelligence overlays are mocked, not live.
-- UI/UX is well-documented in markdown, but code is incomplete.
-- Next attempt should focus on Solana/Anchor/Metaplex integration and artifact-driven overlays.
+- Allowed: Solana CLI (for local dev), Anchor, @solana/web3.js
+- Disallowed: Metaplex, SPL-Token JS, deprecated or high-risk packages, any backend/server
 
 ## Next Steps (Stage 1)
-- Implement Solana/Anchor/Metaplex integration for token/NFT minting and market logic.
-- Replace mocks with live data and overlays.
+- Implement Solana integration for token/NFT minting and market logic using only secure, on-chain approaches.
+- Replace mocks with live data and overlays, all fetched on-chain.
 - Complete missing artifacts for overlays and API.
 - Link this audit to the plan and checklist artifacts for traceability.
 - Update this artifact as the codebase evolves.
 
 ---
-
-*Generated: 2025-06-14 (Upgraded for IEM scope)*
+*Updated: 2025-06-15 (Serverless, Zero High-Risk Vulnerabilities)*
 *Owner: AI Agent (Copilot)*

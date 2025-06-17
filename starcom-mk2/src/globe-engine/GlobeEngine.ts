@@ -15,6 +15,7 @@ import { fetchWeatherData } from '../services/WeatherDataService';
 import { fetchAlerts } from '../services/AlertsService';
 import { fetchNaturalEvents } from '../services/GeoEventsService';
 import { fetchSpaceAssets } from '../services/SpaceAssetsService';
+import type { IntelReportOverlayMarker } from '../interfaces/IntelReportOverlay';
 
 export type GlobeEvent = { type: string; payload?: unknown };
 
@@ -197,15 +198,25 @@ export class GlobeEngine {
           });
       }
       if (overlay === 'intelMarkers') {
-        // Mock: fetch intel markers from API (see globe-overlays.artifact)
-        setTimeout(() => {
-          const data = [
-            { id: 1, lat: 48.85, lng: 2.35, type: 'intel', label: 'SIGINT Report' },
-            { id: 2, lat: 34.05, lng: -118.25, type: 'intel', label: 'HUMINT Source' }
-          ];
-          this.overlayDataCache['intelMarkers'] = data;
-          this.setOverlayData('intelMarkers', data);
-        }, 500);
+        // AI-NOTE: Fetch intel markers from secure API (see overlays artifact)
+        // TODO: Replace mock with live fetch from API/backend/Solana
+        import('../api/intelligence').then(({ fetchIntelReports }) => {
+          fetchIntelReports().then((reports: any[]) => {
+            // Map IntelReport to IntelReportOverlayMarker
+            const overlayMarkers = reports.map((r) => ({
+              pubkey: r.pubkey || '',
+              title: r.title || r.label || '',
+              content: r.content || '',
+              tags: r.tags || [],
+              latitude: r.lat ?? r.latitude ?? 0,
+              longitude: r.long ?? r.longitude ?? 0,
+              timestamp: r.timestamp || Date.parse(r.date || '') || 0,
+              author: r.author || '',
+            }));
+            this.overlayDataCache['intelMarkers'] = overlayMarkers;
+            this.setOverlayData('intelMarkers', overlayMarkers);
+          });
+        });
       }
       if (overlay === 'naturalEvents') {
         // Fetch natural events from real API (artifact-driven)
@@ -284,3 +295,12 @@ export class GlobeEngine {
 // Artifact references:
 // - Overlay logic and periodic updates: globe-overlays.artifact
 // - API/events: globe-engine-api.artifact
+
+// AI-NOTE: Overlays for intelligence markers (SIGINT/HUMINT) are currently mocked.
+// Per artifact-driven migration, overlays will fetch live data from Solana or secure backend only.
+// See artifacts/intel-report-overlays.artifact for overlay types, data sources, and migration plan.
+
+export const intelMarkersOverlay = {
+  // TODO: Replace mock data with live Solana/secure backend integration.
+  markers: [] as IntelReportOverlayMarker[],
+};

@@ -80,7 +80,7 @@ describe('TokenGatedPage Protected Route Flows', () => {
 
   it('shows protected content if user is authenticated and has access', () => {
     // Mock useTokenGate and useOnChainRoles to grant access
-    vi.spyOn(useTokenGateModule, 'useTokenGate').mockReturnValue({ tokenAddress: '', requiredBalance: '', hasAccess: true });
+    vi.spyOn(useTokenGateModule, 'useTokenGate').mockReturnValue({ hasAccess: true, loading: false, error: null });
     vi.spyOn(useOnChainRolesModule, 'useOnChainRoles').mockReturnValue([{ role: 'ADMIN', hasRole: true }]);
     renderWithAuth({ isAuthenticated: true, address: '0x123' }, <TokenGatedPage />);
     expect(screen.queryByText(/access denied|connect your wallet/i)).not.toBeInTheDocument();

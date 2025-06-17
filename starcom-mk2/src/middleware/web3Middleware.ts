@@ -1,8 +1,13 @@
-import type { WalletConnection } from '../utils/wallet';
+// Define a Wallet type for this middleware
+export type Wallet = {
+  address: string;
+  provider: unknown;
+  signer: unknown;
+};
 
 export const requireWalletConnection = async (
-  wallet: WalletConnection | null,
-  callback: (connection: WalletConnection) => Promise<any>
+  wallet: Wallet | null,
+  callback: (connection: Wallet) => Promise<unknown>
 ) => {
   if (!wallet || !wallet.address || !wallet.provider || !wallet.signer) {
     throw new Error('Wallet not connected. Please connect your wallet.');
@@ -42,7 +47,7 @@ export const switchNetwork = async (chainId: number): Promise<void> => {
 };
 
 export const addNetwork = async (
-  ethereumProvider: any, // Replace with a specific type if available
+  ethereumProvider: unknown, // Replace with a specific type if available
   networkParams: {
     chainId: number;
     chainName: string;
@@ -51,20 +56,11 @@ export const addNetwork = async (
     blockExplorerUrls?: string[];
   }
 ): Promise<void> => {
-  if (!ethereumProvider || !ethereumProvider.request) {
+  if (!ethereumProvider || typeof (ethereumProvider as { request?: unknown }).request !== 'function') {
     throw new Error('Ethereum provider does not support the `request` method.');
   }
-
-  await ethereumProvider.request({
+  await (ethereumProvider as { request: (args: unknown) => Promise<unknown> }).request({
     method: 'wallet_addEthereumChain',
-    params: [
-      {
-        chainId: `0x${networkParams.chainId.toString(16)}`,
-        chainName: networkParams.chainName,
-        rpcUrls: networkParams.rpcUrls,
-        nativeCurrency: networkParams.nativeCurrency,
-        blockExplorerUrls: networkParams.blockExplorerUrls || [],
-      },
-    ],
+    params: [networkParams],
   });
 };

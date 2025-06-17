@@ -10,3 +10,5 @@ const mockMarketData = [
 export function getMockMarketData() {
 	return mockMarketData;
 }
+
+// AI-NOTE: This file is for local development only. All live market data should be fetched from on-chain or decentralized sources in production, per the serverless, on-chain policy in the updated artifacts.

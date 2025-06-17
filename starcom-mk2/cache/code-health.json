@@ -9,6 +9,16 @@
   },
   "todos": [
     {
+      "file": "src/api/intelligence.ts",
+      "line": 4,
+      "text": "TODO: Implement secure Solana integration using @solana/web3.js or backend/CLI only."
+    },
+    {
+      "file": "src/api/intelligence.ts",
+      "line": 37,
+      "text": "TODO: Replace with real Solana or backend integration."
+    },
+    {
       "file": "src/components/Globe/Globe.tsx",
       "line": 75,
       "text": "TODO: Use overlay/event data from GlobeEngine if needed"
@@ -24,9 +34,79 @@
       "text": "TODO: handle migration/versioning"
     },
     {
+      "file": "src/components/Intel/IntelReportList.tsx",
+      "line": 4,
+      "text": "TODO: Integrate with Solana/secure backend and overlays when live."
+    },
+    {
+      "file": "src/components/Intel/overlays/IntelOverlay.tsx",
+      "line": 4,
+      "text": "TODO: Integrate with live Solana/secure backend overlays when available."
+    },
+    {
+      "file": "src/components/IntelOverlay.tsx",
+      "line": 4,
+      "text": "TODO: Integrate with live Solana/secure backend overlays when available."
+    },
+    {
+      "file": "src/components/IntelReportList.tsx",
+      "line": 4,
+      "text": "TODO: Integrate with Solana/secure backend and overlays when live."
+    },
+    {
+      "file": "src/components/MintTest.tsx",
+      "line": 15,
+      "text": "TODO: Replace with real wallet integration"
+    },
+    {
+      "file": "src/components/MintTest.tsx",
+      "line": 25,
+      "text": "TODO: Replace with real wallet integration"
+    },
+    {
       "file": "src/components/TinyGlobe/TinyGlobe.test.tsx",
       "line": 46,
       "text": "TODO: Add more tests to check globe material changes and fallback behavior"
+    },
+    {
+      "file": "src/context/AuthContext.ts",
+      "line": 28,
+      "text": "TODO: Solana wallet context in progress. See artifacts/intel-report-stage1-plan.artifact"
+    },
+    {
+      "file": "src/context/AuthContext.tsx",
+      "line": 182,
+      "text": "TODO: Solana wallet context provider in progress. See artifacts/intel-report-stage1-plan.artifact"
+    },
+    {
+      "file": "src/contracts/IntelligenceMarket.ts",
+      "line": 1,
+      "text": "TODO: Solana/Anchor/Metaplex contract logic in progress. See artifacts/intel-report-stage1-plan.artifact"
+    },
+    {
+      "file": "src/contracts/IntelligenceMarket.ts",
+      "line": 9,
+      "text": "TODO: Implement buyAsset logic for Solana"
+    },
+    {
+      "file": "src/contracts/IntelligenceMarket.ts",
+      "line": 17,
+      "text": "TODO: Implement sellAsset logic for Solana"
+    },
+    {
+      "file": "src/contracts/IntelligenceMarket.ts",
+      "line": 25,
+      "text": "TODO: Implement listAsset logic for Solana"
+    },
+    {
+      "file": "src/contracts/IntelligenceMarket.ts",
+      "line": 32,
+      "text": "TODO: Implement purchaseAsset logic for Solana"
+    },
+    {
+      "file": "src/contracts/IntelligenceMarket.ts",
+      "line": 39,
+      "text": "TODO: Implement getAssetDetails logic for Solana"
     },
     {
       "file": "src/globe-engine/GlobeEngine.ts",
@@ -34,9 +114,44 @@
       "text": "TODO: Initialize overlays"
     },
     {
+      "file": "src/globe-engine/GlobeEngine.ts",
+      "line": 293,
+      "text": "TODO: Replace mock data with live Solana/secure backend integration."
+    },
+    {
+      "file": "src/globe-engine/GlobeModeMapping.ts",
+      "line": 37,
+      "text": "TODO: Connect to live Solana/secure backend overlays."
+    },
+    {
       "file": "src/hooks/useOnChainRoles.ts",
+      "line": 3,
+      "text": "TODO: Solana/Anchor/Metaplex version in progress. See artifacts/intel-report-stage1-plan.artifact"
+    },
+    {
+      "file": "src/hooks/useOnChainRoles.ts",
+      "line": 38,
+      "text": "TODO: Implement Solana logic here"
+    },
+    {
+      "file": "src/hooks/useOnChainRoles.ts",
+      "line": 54,
+      "text": "TODO: Implement Solana-based role logic using @solana/web3.js or secure backend/CLI only. See artifacts/intel-report-artifact-index.artifact."
+    },
+    {
+      "file": "src/hooks/useSIWEAuth.ts",
       "line": 6,
-      "text": "TODO: Replace with real deployed address"
+      "text": "TODO: Implement Solana-compatible authentication if needed. See artifacts/intel-report-artifact-index.artifact."
+    },
+    {
+      "file": "src/hooks/useTokenGate.ts",
+      "line": 5,
+      "text": "TODO: Implement Solana-based token gate logic using @solana/web3.js or secure backend/CLI only. See artifacts/intel-report-artifact-index.artifact."
+    },
+    {
+      "file": "src/pages/IntelReportsPage.tsx",
+      "line": 4,
+      "text": "TODO: Integrate with Solana/secure backend and live overlays when available."
     },
     {
       "file": "src/services/data-services.all.test.ts",
@@ -109,6 +224,11 @@
       "text": "TODO: Add tests for error handling, streaming/subscription, observer hooks, edge cases"
     },
     {
+      "file": "src/services/nftService.ts",
+      "line": 3,
+      "text": "TODO: Implement NFT minting via backend or CLI for zero high-risk vulnerabilities."
+    },
+    {
       "file": "src/services/shared/FallbackProvider.unit.test.ts",
       "line": 23,
       "text": "TODO: Add tests for observer hooks (see observability artifact)"
@@ -117,9 +237,24 @@
       "file": "src/services/shared/FallbackProvider.unit.test.ts",
       "line": 24,
       "text": "TODO: Add tests for streaming/subscription support (see interfaces artifact)"
+    },
+    {
+      "file": "src/services/tokenService.ts",
+      "line": 3,
+      "text": "TODO: Implement token minting via backend or CLI for zero high-risk vulnerabilities."
+    },
+    {
+      "file": "src/utils/wallet.ts",
+      "line": 1,
+      "text": "TODO: Solana wallet integration in progress. See artifacts/intel-report-stage1-plan.artifact"
     }
   ],
   "aiNotes": [
+    {
+      "file": "src/api/intelligence.ts",
+      "line": 1,
+      "text": "AI-NOTE: Intelligence API stub for artifact-driven Solana migration."
+    },
     {
       "file": "src/components/Auth/AuthErrorBoundary.tsx",
       "line": 3,
@@ -161,6 +296,26 @@
       "text": "AI-NOTE: Handles loading, saving, and updating user preferences for TopBar categories."
     },
     {
+      "file": "src/components/Intel/IntelReportList.tsx",
+      "line": 1,
+      "text": "AI-NOTE: Artifact-driven UI stub for intelligence report list."
+    },
+    {
+      "file": "src/components/Intel/overlays/IntelOverlay.tsx",
+      "line": 1,
+      "text": "AI-NOTE: Artifact-driven UI stub for intelligence overlays (SIGINT/HUMINT)."
+    },
+    {
+      "file": "src/components/IntelOverlay.tsx",
+      "line": 1,
+      "text": "AI-NOTE: Artifact-driven UI stub for intelligence overlays (SIGINT/HUMINT)."
+    },
+    {
+      "file": "src/components/IntelReportList.tsx",
+      "line": 1,
+      "text": "AI-NOTE: Artifact-driven UI stub for intelligence report list."
+    },
+    {
       "file": "src/components/TinyGlobe/TinyGlobe.tsx",
       "line": 21,
       "text": "AI-NOTE: Integration with GlobeEngine per globe-engine-api.artifact"
@@ -174,6 +329,21 @@
       "file": "src/components/TinyGlobe/TinyGlobe.tsx",
       "line": 108,
       "text": "AI-NOTE: Refactored to use GlobeEngine. See globe-engine-api.artifact for integration details."
+    },
+    {
+      "file": "src/context/AuthContext.ts",
+      "line": 29,
+      "text": "AI-NOTE: EVM/ethers.js version archived in legacy-evm/AuthContext.ts. Implement Solana logic here."
+    },
+    {
+      "file": "src/context/AuthContext.tsx",
+      "line": 183,
+      "text": "AI-NOTE: EVM/ethers.js version archived in legacy-evm/AuthContext.tsx. Implement Solana logic here."
+    },
+    {
+      "file": "src/contracts/IntelligenceMarket.ts",
+      "line": 2,
+      "text": "AI-NOTE: EVM/ethers.js version archived in legacy-evm/IntelligenceMarket.ts. Implement Solana logic here."
     },
     {
       "file": "src/globe-engine/GlobeEngine.ts",
@@ -199,6 +369,11 @@
       "file": "src/globe-engine/GlobeEngine.ts",
       "line": 256,
       "text": "AI-NOTE: Overlay data update mechanism should be defined in globe-overlays.artifact"
+    },
+    {
+      "file": "src/globe-engine/GlobeEngine.ts",
+      "line": 288,
+      "text": "AI-NOTE: Overlays for intelligence markers (SIGINT/HUMINT) are currently mocked."
     },
     {
       "file": "src/globe-engine/GlobeMaterialManager.ts",
@@ -231,6 +406,31 @@
       "text": "AI-NOTE: See globe-textures.artifact for asset manifest and usage mapping."
     },
     {
+      "file": "src/hooks/useOnChainRoles.ts",
+      "line": 4,
+      "text": "AI-NOTE: EVM/ethers.js version archived in legacy-evm/useOnChainRoles.ts. Implement Solana logic here."
+    },
+    {
+      "file": "src/hooks/useOnChainRoles.ts",
+      "line": 52,
+      "text": "AI-NOTE: Archived EVM/ethers.js logic. This hook previously returned on-chain roles for a given address using EVM/ethers.js."
+    },
+    {
+      "file": "src/hooks/useSIWEAuth.ts",
+      "line": 4,
+      "text": "AI-NOTE: Archived EVM/ethers.js SIWE (Sign-In With Ethereum) logic. "
+    },
+    {
+      "file": "src/hooks/useTokenGate.ts",
+      "line": 3,
+      "text": "AI-NOTE: Archived EVM/ethers.js logic. This hook previously checked token/NFT balance using EVM/ethers.js."
+    },
+    {
+      "file": "src/pages/IntelReportsPage.tsx",
+      "line": 1,
+      "text": "AI-NOTE: Artifact-driven route/page for intelligence reports and overlays."
+    },
+    {
       "file": "src/routes/ProtectedRoute.tsx",
       "line": 5,
       "text": "AI-NOTE: Protects routes by requiring authentication (see artifacts)"
@@ -259,7 +459,22 @@
       "file": "src/services/eia/LegacyEIAServiceAdapter.ts",
       "line": 34,
       "text": "AI-NOTE: This adapter preserves the legacy API shape but delegates to the new artifact-driven service."
+    },
+    {
+      "file": "src/services/nftService.ts",
+      "line": 4,
+      "text": "AI-NOTE: SPL-Token JS and Metaplex are not allowed due to security policy."
+    },
+    {
+      "file": "src/services/tokenService.ts",
+      "line": 4,
+      "text": "AI-NOTE: SPL-Token JS and Metaplex are not allowed due to security policy."
+    },
+    {
+      "file": "src/utils/wallet.ts",
+      "line": 2,
+      "text": "AI-NOTE: EVM/ethers.js version archived in legacy-evm/wallet.ts. Implement Solana logic here."
     }
   ],
-  "generatedAt": "2025-06-14T23:08:20.202Z"
+  "generatedAt": "2025-06-15T02:35:22.480Z"
 }

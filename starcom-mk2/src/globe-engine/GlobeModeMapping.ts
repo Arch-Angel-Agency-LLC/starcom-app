@@ -32,6 +32,12 @@ export class GlobeModeMapping {
         texture: 'blueMarble',
         rationale: 'GeoPolitical uses the blue marble texture for clarity and overlays for borders and territories.'
       },
+      INTEL: {
+        shader: 'intelShader',
+        overlays: ['intelMarkersOverlay'],
+        texture: 'intelTexture',
+        rationale: 'INTEL mode uses overlays for intelligence markers.'
+      },
     };
     return mapping[mode] || mapping['EcoNatural']; // fallback
   }

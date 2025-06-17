@@ -16,8 +16,10 @@
     ],
     "scripts": [
       "deploy.ts",
+      "intelReportBackend.ts",
       "mock-api-server.js",
-      "onboard.cjs"
+      "onboard.cjs",
+      "testMint.ts"
     ],
     "docs": [
       "Decentralized Web3 dApp Development Guide.markdown",
@@ -35,7 +37,17 @@
       "wasm-mini-server"
     ]
   },
-  "artifacts": [],
+  "artifacts": [
+    "intel-report-api-integration.artifact",
+    "intel-report-artifact-index.artifact",
+    "intel-report-code-audit-stage1.artifact",
+    "intel-report-deep-code-audit.artifact",
+    "intel-report-integration-plan.artifact",
+    "intel-report-overlays.artifact",
+    "intel-report-preexisting-code-audit.artifact",
+    "intel-report-stage1-checklist.artifact",
+    "intel-report-stage1-plan.artifact"
+  ],
   "aiHints": {
     "mainAppDir": "src",
     "contractsDir": "src/contracts",
@@ -45,5 +57,5 @@
       "src/main.tsx"
     ]
   },
-  "generatedAt": "2025-06-14T23:08:08.674Z"
+  "generatedAt": "2025-06-15T02:35:13.380Z"
 }

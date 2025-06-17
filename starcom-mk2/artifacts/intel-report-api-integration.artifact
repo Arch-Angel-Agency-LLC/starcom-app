@@ -1,0 +1,29 @@
+# Intelligence Exchange Market (IEM) — API Integration Artifact (Serverless, Fully Decentralized)
+
+## Purpose
+Document the API layer for intelligence data, including direct connections to Solana smart contracts and UI. All logic is on-chain or in the client; no backend, CLI, or server is used or required.
+
+## API Endpoints and Data Flows
+- `fetchIntelReports()`: Fetches all intelligence reports directly from Solana accounts using `@solana/web3.js`.
+- `submitIntelReport(report)`: Submits a new intelligence report by sending a transaction to the Solana program using `@solana/web3.js` and wallet signature.
+
+**Data Flow:**
+- UI calls API functions in `src/api/intelligence.ts`.
+- API functions interact directly with Solana smart contracts via `@solana/web3.js`.
+- All authentication, access control, and validation are enforced by wallet signatures and on-chain program logic.
+
+## Serverless Security and Access Control
+- All actions require wallet authentication (signature) via the user's wallet (e.g., Phantom).
+- Access control is enforced by the Solana program (e.g., only the author can edit/delete their report).
+- All data is validated both client-side and on-chain.
+- No sensitive data is ever exposed or handled by a server.
+
+## Migration Plan (Stubs → Live Serverless API)
+1. Maintain current stubs for frontend development.
+2. Implement direct Solana contract endpoints for fetching and submitting reports using `@solana/web3.js`.
+3. Integrate wallet authentication and access control in the client and on-chain.
+4. Replace stubs with live, on-chain integration; update this artifact and code comments.
+
+---
+*Updated: 2025-06-15 (Serverless, Zero High-Risk Vulnerabilities, artifact-driven progress)*
+*Owner: AI Agent (Copilot)*

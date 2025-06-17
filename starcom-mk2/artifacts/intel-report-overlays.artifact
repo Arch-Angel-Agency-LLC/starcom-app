@@ -1,0 +1,37 @@
+# Intelligence Exchange Market (IEM) — Overlays Artifact (Serverless, Fully Decentralized)
+
+## Purpose
+Document the design, implementation, and integration of intelligence overlays (SIGINT, HUMINT, etc.) for the Globe Engine and UI. All overlays fetch live data directly from Solana accounts; no backend or server is used.
+
+## Overlay Types and Data Sources
+- **SIGINT Overlay:** Signals intelligence markers, geolocated on the globe. Data source: Solana contract (on-chain accounts).
+- **HUMINT Overlay:** Human intelligence markers, geolocated. Data source: Solana contract (on-chain accounts).
+- **Other Overlays:** Future overlays for cyber, financial, or open-source intelligence (OSINT), all on-chain.
+
+## On-Chain Data Mapping
+- The Anchor contract schema for Intel Reports is defined in `contracts/intel-market/intel_report.rs`.
+- Each overlay marker (SIGINT, HUMINT, etc.) maps to an `IntelReport` account on Solana with fields:
+  - `title`, `content`, `tags`, `latitude`, `longitude`, `timestamp`, `author`
+- Overlays in the UI fetch and display these reports as markers, filtering by `tags` (e.g., SIGINT, HUMINT) using `@solana/web3.js`.
+- All overlays validate provenance and cryptographic signatures via on-chain logic.
+
+## Integration with GlobeEngine and TinyGlobe
+- Overlays are currently mocked in `GlobeEngine.ts` and mapped in `GlobeModeMapping.ts`.
+- Migration plan: Replace mocks with live data from Solana using only secure, minimal dependencies.
+- All overlay integration references this artifact and follows serverless, on-chain security policy.
+
+## Security and Data Provenance
+- All overlay data is cryptographically signed and validated on-chain.
+- No untrusted or unauthenticated data sources allowed.
+- Provenance and auditability are guaranteed by the blockchain.
+
+## Migration Plan (Mocks → Live Overlays)
+1. Maintain current mocks for UI development.
+2. Define Solana contract schema for overlay data (**done: see `intel_report.rs`**).
+3. Implement secure data fetching in overlays using `@solana/web3.js`, replacing mocks.
+4. Validate and audit overlay data provenance on-chain.
+5. Update this artifact and code comments as overlays go live.
+
+---
+*Updated: 2025-06-15 (Serverless, Zero High-Risk Vulnerabilities, artifact-driven progress)*
+*Owner: AI Agent (Copilot)*
