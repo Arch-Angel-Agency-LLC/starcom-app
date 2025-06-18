@@ -2,16 +2,19 @@
   background: rgba(0, 0, 0, 0.8); /* Updated background */
   border: 2px solid #00C4FF; /* Neon Blue */
   border-radius: 5px; /* Slightly rounded corners */
-  padding: 10px;
+  padding: 2px; /* Reduced padding for compact view */
   box-shadow: 0 0 10px #00C4FF; /* Glow effect */
   color: #00C4FF; /* Neon Blue text */
   font-family: 'Orbitron', Arial, sans-serif; /* Futuristic font */
-  width: 100px; /* Match TinyGlobe width */
+  width: 110px; /* More compact width */
   height: auto; /* Adjust height */
   position: absolute; /* Updated position */
   top: 0;
   bottom: 40px; /* Stop at the top of the BottomBar */
   left: 0;
+  pointer-events: auto; /* Allow interaction */
+  overflow-x: hidden; /* Allow scrolling for compact content */
+  overflow-y: hidden; /* Allow scrolling for compact content */
 }
 
 .header {
@@ -28,12 +31,12 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 5px;
+  gap: 2px; /* Reduced gap for compact layout */
   width: 100%;
 }
 
 .logo {
-  width: 80px;
+  width: 85px;
   height: auto;
   box-shadow: 0 2px 8px #0ea5e9;
   background: #0f172a;
@@ -44,8 +47,11 @@
   font-family: 'Orbitron', 'Aldrich', Arial, sans-serif;
   font-weight: bold;
   color: #38bdf8;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   text-shadow: 0 2px 8px #0ea5e9;
+  font-size: 12px;
+  margin-top: 1px; /* Reduced margin for compact layout */
+  margin-bottom: 1px; /* Add small bottom margin */
 }
 
 .text {

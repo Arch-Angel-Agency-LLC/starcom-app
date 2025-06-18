@@ -11,7 +11,7 @@ type OverlayPayload = { overlay: string; data: object[] };
 
 const TinyGlobe: React.FC = () => {
     const { focusLocation } = useGlobeContext();
-    const { visualizationMode, setVisualizationMode } = useVisualizationMode();
+    const { visualizationMode, setVisualizationMode, setPrimaryMode } = useVisualizationMode();
     const globeRef = useRef<GlobeMethods>();
     const [globeReady, setGlobeReady] = useState(false);
     const [material, setMaterial] = useState<THREE.Material | null>(null);
@@ -64,12 +64,12 @@ const TinyGlobe: React.FC = () => {
             <Suspense fallback={<div>Loading...</div>}>
                 <Globe
                     ref={globeRef}
-                    width={100}
-                    height={100}
+                    width={110} // Slightly larger for better visibility
+                    height={110} // Slightly larger for better visibility
                     backgroundColor="rgba(0, 0, 0, 0)"
                     showAtmosphere={true}
                     atmosphereColor="#00C4FF"
-                    atmosphereAltitude={0.15}
+                    atmosphereAltitude={0.18} // Enhanced atmosphere for better 3D effect
                     globeMaterial={material || undefined}
                     pointsData={globeData}
                     pointAltitude="size"
@@ -79,26 +79,110 @@ const TinyGlobe: React.FC = () => {
             </Suspense>
             <div className={styles.buttonContainer}>
                 <button 
-                    className={styles.shaderButton} 
+                    className={`${styles.shaderButton} ${visualizationMode.mode === 'EcoNatural' ? styles.active : ''}`}
                     data-interface-button="geoMagnetics" 
-                    onClick={() => setVisualizationMode({ mode: 'EcoNatural', subMode: 'EarthWeather' })}
+                    onClick={() => setPrimaryMode('EcoNatural')}
                 >
                     🌎
                 </button>
                 <button 
-                    className={styles.shaderButton} 
+                    className={`${styles.shaderButton} ${visualizationMode.mode === 'CyberCommand' ? styles.active : ''}`}
                     data-interface-button="intelReports" 
-                    onClick={() => setVisualizationMode({ mode: 'CyberCommand', subMode: 'IntelReports' })}
+                    onClick={() => setPrimaryMode('CyberCommand')}
                 >
                     📑
                 </button>
                 <button 
-                    className={styles.shaderButton} 
+                    className={`${styles.shaderButton} ${visualizationMode.mode === 'GeoPolitical' ? styles.active : ''}`}
                     data-interface-button="solarSystem" 
-                    onClick={() => setVisualizationMode({ mode: 'GeoPolitical', subMode: 'NationalTerritories' })}
+                    onClick={() => setPrimaryMode('GeoPolitical')}
                 >
                     ☀️
                 </button>
+            </div>
+            
+            {/* Secondary Mode Buttons - 3 buttons that change based on primary mode selection */}
+            <div className={styles.secondaryButtonContainer}>
+                {/* CyberCommand submodes */}
+                {visualizationMode.mode === 'CyberCommand' && (
+                    <>
+                        <button 
+                            className={`${styles.secondaryButton} ${visualizationMode.subMode === 'IntelReports' ? styles.active : ''}`}
+                            onClick={() => setVisualizationMode({ mode: 'CyberCommand', subMode: 'IntelReports' })}
+                            title="Intel Reports"
+                        >
+                            📑
+                        </button>
+                        <button 
+                            className={`${styles.secondaryButton} ${visualizationMode.subMode === 'Timelines' ? styles.active : ''}`}
+                            onClick={() => setVisualizationMode({ mode: 'CyberCommand', subMode: 'Timelines' })}
+                            title="Timelines"
+                        >
+                            ⏱️
+                        </button>
+                        <button 
+                            className={`${styles.secondaryButton} ${visualizationMode.subMode === 'CrisisZones' ? styles.active : ''}`}
+                            onClick={() => setVisualizationMode({ mode: 'CyberCommand', subMode: 'CrisisZones' })}
+                            title="Crisis Zones"
+                        >
+                            🚨
+                        </button>
+                    </>
+                )}
+                
+                {/* GeoPolitical submodes */}
+                {visualizationMode.mode === 'GeoPolitical' && (
+                    <>
+                        <button 
+                            className={`${styles.secondaryButton} ${visualizationMode.subMode === 'NationalTerritories' ? styles.active : ''}`}
+                            onClick={() => setVisualizationMode({ mode: 'GeoPolitical', subMode: 'NationalTerritories' })}
+                            title="National Territories"
+                        >
+                            🗺️
+                        </button>
+                        <button 
+                            className={`${styles.secondaryButton} ${visualizationMode.subMode === 'DiplomaticEvents' ? styles.active : ''}`}
+                            onClick={() => setVisualizationMode({ mode: 'GeoPolitical', subMode: 'DiplomaticEvents' })}
+                            title="Diplomatic Events"
+                        >
+                            🤝
+                        </button>
+                        <button 
+                            className={`${styles.secondaryButton} ${visualizationMode.subMode === 'ResourceZones' ? styles.active : ''}`}
+                            onClick={() => setVisualizationMode({ mode: 'GeoPolitical', subMode: 'ResourceZones' })}
+                            title="Resource Zones"
+                        >
+                            💎
+                        </button>
+                    </>
+                )}
+                
+                {/* EcoNatural submodes */}
+                {visualizationMode.mode === 'EcoNatural' && (
+                    <>
+                        <button 
+                            className={`${styles.secondaryButton} ${visualizationMode.subMode === 'SpaceWeather' ? styles.active : ''}`}
+                            onClick={() => setVisualizationMode({ mode: 'EcoNatural', subMode: 'SpaceWeather' })}
+                            title="Space Weather"
+                        >
+                            🌎
+                        </button>
+                        <button 
+                            className={`${styles.secondaryButton} ${visualizationMode.subMode === 'EcologicalDisasters' ? styles.active : ''}`}
+                            onClick={() => setVisualizationMode({ mode: 'EcoNatural', subMode: 'EcologicalDisasters' })}
+                            title="Ecological Disasters"
+                        >
+                            🌪️
+                        </button>
+                        <button 
+                            className={`${styles.secondaryButton} ${visualizationMode.subMode === 'EarthWeather' ? styles.active : ''}`}
+                            onClick={() => setVisualizationMode({ mode: 'EcoNatural', subMode: 'EarthWeather' })}
+                            title="Earth Weather"
+                        >
+                            🌤️
+                        </button>
+                    </>
+                )}
             </div>
         </div>
     );

@@ -29,8 +29,13 @@
       "text": "TODO: Use @solana/web3.js to create and send transaction to the program"
     },
     {
+      "file": "src/components/Auth/TokenGatedPage.test.tsx",
+      "line": 8,
+      "text": "TODO: Implement proper TokenGatedPage tests without RainbowKit/Wagmi circular deps"
+    },
+    {
       "file": "src/components/Globe/Globe.tsx",
-      "line": 77,
+      "line": 89,
       "text": "TODO: Use overlay/event data from GlobeEngine if needed"
     },
     {
@@ -64,13 +69,18 @@
       "text": "TODO: Integrate with Solana/secure backend and overlays when live."
     },
     {
+      "file": "src/components/SpaceWeather/SpaceWeatherStatus.tsx",
+      "line": 6,
+      "text": "TODO: Integrate with existing HUD system and globe overlays"
+    },
+    {
       "file": "src/components/TinyGlobe/TinyGlobe.test.tsx",
       "line": 46,
       "text": "TODO: Add more tests to check globe material changes and fallback behavior"
     },
     {
       "file": "src/context/AuthContext.ts",
-      "line": 28,
+      "line": 27,
       "text": "TODO: Solana wallet context in progress. See artifacts/intel-report-stage1-plan.artifact"
     },
     {
@@ -110,17 +120,17 @@
     },
     {
       "file": "src/globe-engine/GlobeEngine.ts",
-      "line": 64,
+      "line": 74,
       "text": "TODO: Initialize overlays"
     },
     {
       "file": "src/globe-engine/GlobeEngine.ts",
-      "line": 202,
+      "line": 263,
       "text": "TODO: Replace mock with live fetch from API/backend/Solana"
     },
     {
       "file": "src/globe-engine/GlobeEngine.ts",
-      "line": 304,
+      "line": 430,
       "text": "TODO: Replace mock data with live Solana/secure backend integration."
     },
     {
@@ -139,6 +149,11 @@
       "text": "TODO: Implement Solana-compatible authentication if needed. See artifacts/intel-report-artifact-index.artifact."
     },
     {
+      "file": "src/hooks/useSpaceWeatherData.ts",
+      "line": 7,
+      "text": "TODO: Integrate with existing globe overlays and intelligence context"
+    },
+    {
       "file": "src/hooks/useTokenGate.ts",
       "line": 5,
       "text": "TODO: Implement Solana-based token gate logic using @solana/web3.js or secure backend/CLI only. See artifacts/intel-report-artifact-index.artifact."
@@ -147,6 +162,11 @@
       "file": "src/pages/IntelReportsPage.tsx",
       "line": 4,
       "text": "TODO: Integrate with Solana/secure backend and live overlays when available."
+    },
+    {
+      "file": "src/services/NOAAGeomagneticService.test.ts",
+      "line": 8,
+      "text": "TODO: Implement NOAAGeomagneticService tests"
     },
     {
       "file": "src/services/data-services.all.test.ts",
@@ -271,19 +291,49 @@
       "text": "AI-NOTE: Error boundary for authentication and wallet errors (see artifacts)"
     },
     {
+      "file": "src/components/Auth/TermsModal.test.tsx",
+      "line": 2,
+      "text": "AI-NOTE: This feature was removed, adding placeholder test"
+    },
+    {
+      "file": "src/components/Auth/TokenGatedPage.test.minimal.tsx",
+      "line": 2,
+      "text": "AI-NOTE: Minimal test to avoid stack overflow from RainbowKit/Wagmi"
+    },
+    {
+      "file": "src/components/Auth/TokenGatedPage.test.tsx",
+      "line": 2,
+      "text": "AI-NOTE: Simplified version to prevent stack overflow caused by RainbowKit/Wagmi circular dependencies"
+    },
+    {
       "file": "src/components/Auth/TokenGatedPage.tsx",
       "line": 38,
       "text": "AI-NOTE: This component is EVM/ethers.js-based and not compatible with the serverless, on-chain Solana architecture. Refactor or remove this file. All token/NFT gating should use Solana primitives and wallet-based access control, enforced on-chain and in the client per the updated artifacts."
     },
     {
+      "file": "src/components/Auth/WalletStatus.test.tsx",
+      "line": 2,
+      "text": "AI-NOTE: Tests split into category files, adding placeholder"
+    },
+    {
       "file": "src/components/Globe/Globe.tsx",
-      "line": 61,
+      "line": 73,
       "text": "AI-NOTE: Integration with GlobeEngine per globe-engine-api.artifact"
     },
     {
       "file": "src/components/Globe/Globe.tsx",
-      "line": 419,
+      "line": 474,
       "text": "AI-NOTE: Refactored to use GlobeEngine. See globe-engine-api.artifact for integration details."
+    },
+    {
+      "file": "src/components/HUD/Bars/LeftSideBar/ModeSettingsPanel.tsx",
+      "line": 8,
+      "text": "AI-NOTE: Dynamic settings panel that displays different controls based on visualization mode"
+    },
+    {
+      "file": "src/components/HUD/Bars/TopBar/EnhancedSettingsPopup.tsx",
+      "line": 8,
+      "text": "AI-NOTE: Enhanced settings popup with tabs for quick settings that benefit from real-time preview"
     },
     {
       "file": "src/components/HUD/Bars/TopBar/Marquee.tsx",
@@ -302,13 +352,18 @@
     },
     {
       "file": "src/components/HUD/Bars/TopBar/TopBar.test.tsx",
-      "line": 104,
+      "line": 114,
       "text": "AI-NOTE: Tests accessibility, toggling, and integration per artifact requirements."
     },
     {
       "file": "src/components/HUD/Bars/TopBar/useTopBarPreferences.ts",
       "line": 56,
       "text": "AI-NOTE: Handles loading, saving, and updating user preferences for TopBar categories."
+    },
+    {
+      "file": "src/components/HUD/Settings/SpaceWeatherSettings/SpaceWeatherSettings.tsx",
+      "line": 6,
+      "text": "AI-NOTE: EcoNatural visualization settings panel for all natural/environmental data"
     },
     {
       "file": "src/components/Intel/IntelReportList.tsx",
@@ -331,6 +386,21 @@
       "text": "AI-NOTE: Artifact-driven UI stub for intelligence report list."
     },
     {
+      "file": "src/components/SettingsInitializer.tsx",
+      "line": 8,
+      "text": "AI-NOTE: Component to ensure all persistent settings are properly initialized and reflected in the UI"
+    },
+    {
+      "file": "src/components/SettingsStatusIndicator.tsx",
+      "line": 5,
+      "text": "AI-NOTE: Component to show users the status of their persistent settings"
+    },
+    {
+      "file": "src/components/SpaceWeather/SpaceWeatherStatus.tsx",
+      "line": 5,
+      "text": "AI-NOTE: Demo component for NOAA space weather integration - shows electric field data and alerts"
+    },
+    {
       "file": "src/components/TinyGlobe/TinyGlobe.tsx",
       "line": 21,
       "text": "AI-NOTE: Integration with GlobeEngine per globe-engine-api.artifact"
@@ -342,12 +412,12 @@
     },
     {
       "file": "src/components/TinyGlobe/TinyGlobe.tsx",
-      "line": 108,
+      "line": 192,
       "text": "AI-NOTE: Refactored to use GlobeEngine. See globe-engine-api.artifact for integration details."
     },
     {
       "file": "src/context/AuthContext.ts",
-      "line": 29,
+      "line": 28,
       "text": "AI-NOTE: EVM/ethers.js version archived in legacy-evm/AuthContext.ts. Implement Solana logic here."
     },
     {
@@ -356,9 +426,24 @@
       "text": "AI-NOTE: EVM/ethers.js version archived in legacy-evm/AuthContext.tsx. Implement Solana logic here."
     },
     {
+      "file": "src/context/SpaceWeatherContext.tsx",
+      "line": 2,
+      "text": "AI-NOTE: Context for sharing space weather data and settings across components"
+    },
+    {
       "file": "src/contracts/IntelligenceMarket.ts",
       "line": 2,
       "text": "AI-NOTE: EVM/ethers.js version archived in legacy-evm/IntelligenceMarket.ts. Implement Solana logic here."
+    },
+    {
+      "file": "src/globe-engine/GlobeEngine.spaceWeather.test.ts",
+      "line": 2,
+      "text": "AI-NOTE: Tests the complete data flow from NOAA API to Globe visualization"
+    },
+    {
+      "file": "src/globe-engine/GlobeEngine.spaceWeather.test.ts",
+      "line": 247,
+      "text": "AI-NOTE: This test suite verifies the complete integration of NOAA space weather data"
     },
     {
       "file": "src/globe-engine/GlobeEngine.ts",
@@ -367,32 +452,47 @@
     },
     {
       "file": "src/globe-engine/GlobeEngine.ts",
-      "line": 56,
+      "line": 66,
       "text": "AI-NOTE: See globe-mode-mapping-reference.artifact, globe-modes.artifact, globe-shaders.artifact, globe-textures.artifact"
     },
     {
       "file": "src/globe-engine/GlobeEngine.ts",
-      "line": 138,
+      "line": 118,
+      "text": "AI-NOTE: Space weather periodic update methods"
+    },
+    {
+      "file": "src/globe-engine/GlobeEngine.ts",
+      "line": 199,
       "text": "AI-NOTE: See globe-overlays.artifact for overlay logic and data sources."
     },
     {
       "file": "src/globe-engine/GlobeEngine.ts",
-      "line": 201,
+      "line": 262,
       "text": "AI-NOTE: Fetch intel markers from secure API (see overlays artifact)"
     },
     {
       "file": "src/globe-engine/GlobeEngine.ts",
-      "line": 259,
-      "text": "AI-NOTE: Overlay data structure and update mechanism should be defined in globe-overlays.artifact"
-    },
-    {
-      "file": "src/globe-engine/GlobeEngine.ts",
-      "line": 267,
-      "text": "AI-NOTE: Overlay data update mechanism should be defined in globe-overlays.artifact"
+      "line": 294,
+      "text": "AI-NOTE: Fetch NOAA space weather data (electric field InterMag & US-Canada)"
     },
     {
       "file": "src/globe-engine/GlobeEngine.ts",
       "line": 299,
+      "text": "AI-NOTE: Space weather overlays integration (see NOAA-TDD-Implementation-Summary.md)"
+    },
+    {
+      "file": "src/globe-engine/GlobeEngine.ts",
+      "line": 385,
+      "text": "AI-NOTE: Overlay data structure and update mechanism should be defined in globe-overlays.artifact"
+    },
+    {
+      "file": "src/globe-engine/GlobeEngine.ts",
+      "line": 393,
+      "text": "AI-NOTE: Overlay data update mechanism should be defined in globe-overlays.artifact"
+    },
+    {
+      "file": "src/globe-engine/GlobeEngine.ts",
+      "line": 425,
       "text": "AI-NOTE: Overlays for intelligence markers (SIGINT/HUMINT) are currently mocked."
     },
     {
@@ -426,6 +526,21 @@
       "text": "AI-NOTE: See globe-textures.artifact for asset manifest and usage mapping."
     },
     {
+      "file": "src/hooks/useCyberCommandSettings.ts",
+      "line": 4,
+      "text": "AI-NOTE: Hook to manage CyberCommand visualization settings with localStorage persistence"
+    },
+    {
+      "file": "src/hooks/useEcoNaturalSettings.ts",
+      "line": 4,
+      "text": "AI-NOTE: Hook to manage EcoNatural visualization settings with localStorage persistence"
+    },
+    {
+      "file": "src/hooks/useGeoPoliticalSettings.ts",
+      "line": 4,
+      "text": "AI-NOTE: Hook to manage GeoPolitical visualization settings with localStorage persistence"
+    },
+    {
       "file": "src/hooks/useOnChainRoles.ts",
       "line": 4,
       "text": "AI-NOTE: EVM/ethers.js version archived in legacy-evm/useOnChainRoles.ts. Implement Solana logic here."
@@ -434,6 +549,16 @@
       "file": "src/hooks/useSIWEAuth.ts",
       "line": 4,
       "text": "AI-NOTE: Archived EVM/ethers.js SIWE (Sign-In With Ethereum) logic. "
+    },
+    {
+      "file": "src/hooks/useSpaceWeatherData.ts",
+      "line": 6,
+      "text": "AI-NOTE: Updated to use proper caching service for better performance and data persistence"
+    },
+    {
+      "file": "src/hooks/useSpaceWeatherSettings.ts",
+      "line": 4,
+      "text": "AI-NOTE: Hook to manage space weather visualization settings with localStorage persistence"
     },
     {
       "file": "src/hooks/useTokenGate.ts",
@@ -459,6 +584,21 @@
       "file": "src/services/EIAService.ts",
       "line": 53,
       "text": "AI-NOTE: This class now uses artifact-driven provider/cache abstractions. Legacy static API is preserved for now. Migrate consumers to instance-based API in future steps."
+    },
+    {
+      "file": "src/services/NOAAGeomagneticService.test.ts",
+      "line": 2,
+      "text": "AI-NOTE: This service test file was empty, adding placeholder"
+    },
+    {
+      "file": "src/services/SpaceWeatherCacheService.ts",
+      "line": 2,
+      "text": "AI-NOTE: Following the same pattern as EIADataCacheService for consistency"
+    },
+    {
+      "file": "src/services/SpaceWeatherCacheService.ts",
+      "line": 81,
+      "text": "AI-NOTE: This implements proper caching for space weather data following the established pattern."
     },
     {
       "file": "src/services/data-service-interfaces.ts",
@@ -496,6 +636,21 @@
       "text": "AI-NOTE: All NFT minting logic must be implemented client-side using @solana/web3.js and wallet signatures only. No backend or CLI is allowed per the serverless, on-chain policy in the updated artifacts."
     },
     {
+      "file": "src/services/noaaSpaceWeather.test.ts",
+      "line": 13,
+      "text": "AI-NOTE: Starting with integration test to understand actual NOAA API behavior"
+    },
+    {
+      "file": "src/services/noaaSpaceWeather.ts",
+      "line": 2,
+      "text": "AI-NOTE: Building up functionality test by test"
+    },
+    {
+      "file": "src/services/testNoaaFunctions.mjs",
+      "line": 4,
+      "text": "AI-NOTE: This bypasses the complex test suite to verify basic functionality"
+    },
+    {
       "file": "src/services/tokenService.ts",
       "line": 4,
       "text": "AI-NOTE: SPL-Token JS and Metaplex are not allowed due to security policy."
@@ -511,10 +666,25 @@
       "text": "AI-NOTE: All minting logic must be implemented client-side using @solana/web3.js and wallet signatures only. No backend or CLI is allowed per the serverless, on-chain policy in the updated artifacts."
     },
     {
+      "file": "src/types/spaceWeather.ts",
+      "line": 2,
+      "text": "AI-NOTE: Based on analysis of NOAA SWPC electric field datasets"
+    },
+    {
+      "file": "src/utils/settingsStorage.ts",
+      "line": 1,
+      "text": "AI-NOTE: Centralized settings persistence utility for all visualization mode settings"
+    },
+    {
+      "file": "src/utils/uiSettingsReflection.ts",
+      "line": 1,
+      "text": "AI-NOTE: Utility functions to ensure UI state reflects persistent settings"
+    },
+    {
       "file": "src/utils/wallet.ts",
       "line": 2,
       "text": "AI-NOTE: EVM/ethers.js version archived in legacy-evm/wallet.ts. Implement Solana logic here."
     }
   ],
-  "generatedAt": "2025-06-17T03:20:27.015Z"
+  "generatedAt": "2025-06-18T18:22:30.842Z"
 }

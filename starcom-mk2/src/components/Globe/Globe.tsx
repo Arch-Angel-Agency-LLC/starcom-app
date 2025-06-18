@@ -1,10 +1,11 @@
 // src/components/Globe/Globe.tsx
 import React, { useState, useEffect, useRef } from 'react';
 import Globe, { GlobeMethods } from 'react-globe.gl';
+import * as THREE from 'three';
 import { useGlobeContext } from '../../context/GlobeContext';
 import { useVisualizationMode } from '../../context/VisualizationModeContext';
-import { GlobeEngine, GlobeEvent } from '../../globe-engine/GlobeEngine';
-import * as THREE from 'three';
+import { GlobeEngine, type GlobeEvent } from '../../globe-engine/GlobeEngine';
+import { useSpaceWeatherContext } from '../../context/SpaceWeatherContext';
 import Modal from 'react-modal';
 import { Tooltip } from 'react-tooltip';
 
@@ -18,6 +19,7 @@ const ALL_OVERLAYS = [
   'borders',
   'territories',
   'spaceAssets',
+  'spaceWeather',
 ];
 
 // Artifact-driven overlay legend (see globe-overlays.artifact)
@@ -30,9 +32,10 @@ const OVERLAY_LEGEND: Record<string, { label: string; color: string; description
   borders: { label: 'Borders', color: 'red', description: 'Country/region borders' },
   territories: { label: 'Territories', color: 'green', description: 'National territories' },
   spaceAssets: { label: 'Space Assets', color: 'lime', description: 'Satellites, space debris, and orbital objects' },
+  spaceWeather: { label: 'Space Weather', color: 'purple', description: 'NOAA electric field data (InterMag & US-Canada)' },
 };
 
-const PERIODIC_OVERLAYS = ['spaceAssets', 'weather', 'naturalEvents']; // Artifact-driven: overlays with periodic/real-time updates (see globe-overlays.artifact)
+const PERIODIC_OVERLAYS = ['spaceAssets', 'weather', 'naturalEvents', 'spaceWeather']; // Artifact-driven: overlays with periodic/real-time updates (see globe-overlays.artifact)
 
 const GlobeView: React.FC = () => {
   const [globeData, setGlobeData] = useState<object[]>([]);
@@ -43,6 +46,15 @@ const GlobeView: React.FC = () => {
   const [material, setMaterial] = useState<THREE.Material | null>(null);
   const bordersRef = useRef<THREE.Group>(null);
   const territoriesRef = useRef<THREE.Group>(null);
+  
+  // Space weather integration via context
+  const { 
+    shouldShowOverlay, 
+    visualizationVectors, 
+    isLoading: _spaceWeatherLoading,
+    error: _spaceWeatherError 
+  } = useSpaceWeatherContext();
+  
   // Merge all overlays for UI, but only enable those mapped to the current mode by default
   const availableOverlays = ALL_OVERLAYS;
   const [activeOverlays, setActiveOverlays] = useState<string[]>([]);
@@ -194,6 +206,49 @@ const GlobeView: React.FC = () => {
     handleResize(); // Initial
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Space weather settings integration effect
+  useEffect(() => {
+    if (!globeEngine) return;
+    
+    // Control space weather overlay based on settings from context
+    const shouldShowSpaceWeather = shouldShowOverlay && 
+                                   visualizationMode.mode === 'EcoNatural' &&
+                                   visualizationMode.subMode === 'SpaceWeather';
+    
+    const currentOverlays = globeEngine.getOverlays();
+    const hasSpaceWeather = currentOverlays.includes('spaceWeather');
+    
+    if (shouldShowSpaceWeather && !hasSpaceWeather) {
+      globeEngine.addOverlay('spaceWeather');
+      setActiveOverlays(prev => [...prev, 'spaceWeather']);
+    } else if (!shouldShowSpaceWeather && hasSpaceWeather) {
+      globeEngine.removeOverlay('spaceWeather');
+      setActiveOverlays(prev => prev.filter(o => o !== 'spaceWeather'));
+    }
+    
+  }, [globeEngine, shouldShowOverlay, visualizationMode.mode, visualizationMode.subMode]);
+  
+  // Space weather data visualization effect
+  useEffect(() => {
+    if (!globeEngine || !visualizationVectors.length) return;
+    
+    // Use pre-processed visualization vectors from context
+    const spaceWeatherMarkers = visualizationVectors.map(vector => ({
+      lat: vector.latitude,
+      lng: vector.longitude,
+      size: vector.size,
+      color: vector.color,
+      label: `E-Field: ${vector.magnitude.toFixed(2)} V/m`,
+      magnitude: vector.magnitude,
+      direction: vector.direction,
+      quality: vector.quality
+    }));
+    
+    // Update the overlay data using the new method
+    globeEngine.updateSpaceWeatherVisualization(spaceWeatherMarkers);
+    
+  }, [globeEngine, visualizationVectors]);
 
   return (
     <div ref={containerRef} style={{ height: '100vh', width: '100%', position: 'relative' }}>

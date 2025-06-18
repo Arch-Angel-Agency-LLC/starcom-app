@@ -1,0 +1,47 @@
+The JSON file secondary_solar_wind_density.json contains solar wind plasma data recorded by space weather monitoring satellites, most likely NOAA’s GOES or NASA’s ACE and DSCOVR missions. The data in this file helps track solar wind density, speed, and temperature, which are critical factors in understanding space weather and geomagnetic storms.
+
+Breakdown of Key Fields:
+	1.	time_tag – Timestamp (UTC) of the recorded measurement.
+	2.	dsflag – Data status flag (used to indicate possible data quality issues).
+	3.	dens – Solar wind density in particles per cubic centimeter (cm³).
+	4.	speed – Solar wind speed in kilometers per second (km/s).
+	5.	temperature – Plasma temperature in Kelvin (K).
+
+Purpose of This Data:
+	•	Monitoring Space Weather:
+	•	Solar wind density and speed help predict geomagnetic storms caused by coronal mass ejections (CMEs) and high-speed solar wind streams.
+	•	Protecting Satellites & Power Grids:
+	•	High-density solar wind impacts Earth’s magnetosphere, potentially disrupting GPS, power grids, and communication systems.
+	•	Predicting Auroras:
+	•	Increased solar wind activity intensifies auroral activity, shifting aurora borealis and aurora australis closer to the equator.
+	•	Understanding Solar Activity:
+	•	Variations in solar wind parameters help track solar cycles and space weather trends.
+
+Understanding Solar Wind Conditions:
+
+Parameter	Normal Range	High Impact Levels	Effects
+Density (particles/cm³)	1 - 10	> 20	Can indicate a CME shockwave
+Speed (km/s)	300 - 500	> 700	Strong solar wind from coronal holes
+Temperature (K)	10,000 - 100,000	> 500,000	Sign of increased solar wind energy
+
+Recent Data Observations (Feb 23, 2025):
+
+Date (UTC)	Density (particles/cm³)	Speed (km/s)	Temperature (K)
+2025-02-23 01:00	2.31	300.2	29,294
+2025-02-23 00:00	2.47	300.3	23,768
+2025-02-22 22:00	2.89	303.0	26,256
+2025-02-22 19:00	3.23	302.5	34,400
+2025-02-22 17:00	2.40	313.1	59,342
+2025-02-22 12:00	0.82	295.6	41,104
+
+🔹 Current Conditions:
+	•	Solar wind density is stable (~2-3 cm³).
+	•	Speed is low (~300 km/s), indicating no strong solar wind stream.
+	•	Temperature is within normal range (~30,000-60,000 K).
+
+How This Data Is Used:
+	•	NOAA & NASA: Space weather forecasting and early warnings.
+	•	Satellite Operators: Helps prevent disruptions from geomagnetic storms.
+	•	Amateur Radio & GPS Users: Predicts signal interference and disruptions.
+	•	Aurora Watchers: Determines aurora visibility.
+	•	Power Grid Operators: Prepares for geomagnetic-induced currents (GICs).

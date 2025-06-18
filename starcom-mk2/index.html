@@ -6,6 +6,15 @@
     <link rel="icon" type="image/png" href="/starcom.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Starcom</title>
+    <script>
+      // Polyfill for Buffer and process for browser compatibility
+      if (typeof global === 'undefined') {
+        var global = globalThis;
+      }
+      if (typeof process === 'undefined') {
+        var process = { env: {} };
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

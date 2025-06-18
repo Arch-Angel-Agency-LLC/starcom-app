@@ -1,0 +1,31 @@
+The JSON file primary_solar_wind_swepam.json contains solar wind data from NOAA, likely sourced from the Solar Wind Electron, Proton, and Alpha Monitor (SWEPAM) instrument on the ACE (Advanced Composition Explorer) spacecraft or a similar satellite.
+
+Breakdown of Key Fields:
+	1.	time_tag – The timestamp (UTC) when the measurement was recorded.
+	2.	dsflag – A data status flag, indicating the quality or validity of the reading.
+	3.	dens – Solar wind proton density in particles per cubic centimeter (cm³).
+	4.	speed – Solar wind speed in kilometers per second (km/s).
+	5.	temperature – Solar wind temperature, measured in Kelvin (K).
+
+Purpose of This Data:
+	•	Monitoring Solar Wind Conditions: Helps track the speed, density, and temperature of solar wind particles as they reach Earth’s magnetosphere.
+	•	Space Weather Forecasting: Used to predict geomagnetic storms, which can affect satellites, GPS, and power grids.
+	•	Understanding the Solar Cycle: Variations in solar wind properties correlate with solar activity, coronal mass ejections (CMEs), and solar flares.
+	•	Assessing Radiation Hazards: Important for protecting astronauts and spacecraft from solar radiation storms.
+
+Understanding Solar Wind Measurements:
+
+Solar Wind Speed (km/s)	Impact on Earth
+< 400 km/s	Normal/Quiet
+400 - 600 km/s	Active Conditions
+600 - 800 km/s	Geomagnetic Disturbance Possible
+> 800 km/s	Strong Geomagnetic Storm Likely
+
+	•	High solar wind speeds (>600 km/s) and high densities (>10 particles/cm³) often indicate a coronal mass ejection (CME) is arriving at Earth.
+	•	Sharp temperature increases suggest interactions with solar energetic particles.
+
+How This Data Is Used:
+	•	NASA & NOAA use it for space weather alerts.
+	•	Satellite Operators monitor it to prevent electrical anomalies due to solar storms.
+	•	Power Grid Protection: Helps forecast possible geomagnetic-induced currents (GICs) that could disrupt transformers.
+	•	Aurora Prediction: Higher solar wind speeds contribute to stronger auroras visible at lower latitudes.

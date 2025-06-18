@@ -3,7 +3,9 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import { BrowserRouter } from 'react-router-dom';
 import TopBar from './TopBar';
+import { vi } from 'vitest';
 
 // Mock logo import
 vi.mock('../../../../assets/images/WingCommanderLogo-288x162.gif', () => ({ default: 'logo.png' }));
@@ -48,15 +50,23 @@ vi.mock('focus-trap-react', () => ({
 }));
 
 describe('TopBar artifact-driven', () => {
+  const renderWithRouter = (component: React.ReactElement) => {
+    return render(
+      <BrowserRouter>
+        {component}
+      </BrowserRouter>
+    );
+  };
+
   it('renders logo, settings button, and marquee', () => {
-    render(<TopBar />);
+    renderWithRouter(<TopBar />);
     expect(screen.getByAltText(/wing commander logo/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /settings/i })).toBeInTheDocument();
     expect(screen.getByRole('region', { name: /marquee/i })).toBeInTheDocument();
   });
 
   it('opens and closes the settings modal', () => {
-    render(<TopBar />);
+    renderWithRouter(<TopBar />);
     fireEvent.click(screen.getByRole('button', { name: /settings/i }));
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     fireEvent.keyDown(document, { key: 'Escape' });
@@ -64,7 +74,7 @@ describe('TopBar artifact-driven', () => {
   });
 
   it('toggles a category and updates marquee', () => {
-    render(<TopBar />);
+    renderWithRouter(<TopBar />);
     fireEvent.click(screen.getByRole('button', { name: /settings/i }));
     const checkbox = screen.getByRole('checkbox', { name: /forex/i });
     expect(checkbox).toBeChecked();
@@ -76,7 +86,7 @@ describe('TopBar artifact-driven', () => {
   });
 
   it('marquee pauses on hover and resumes on mouse leave', () => {
-    render(<TopBar />);
+    renderWithRouter(<TopBar />);
     const marquee = screen.getByRole('region', { name: /marquee/i });
     fireEvent.mouseEnter(marquee);
     // No error = pass; actual animation not tested here
@@ -85,7 +95,7 @@ describe('TopBar artifact-driven', () => {
 
   it('shows "No data selected" when all categories are disabled', () => {
     // Render with all categories disabled
-    render(<TopBar />);
+    renderWithRouter(<TopBar />);
     fireEvent.click(screen.getByRole('button', { name: /settings/i }));
     // Uncheck all checkboxes
     const checkboxes = screen.getAllByRole('checkbox');

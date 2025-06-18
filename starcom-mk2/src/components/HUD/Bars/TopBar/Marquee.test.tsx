@@ -13,7 +13,9 @@ describe('Marquee', () => {
     render(<Marquee dataPoints={dataPoints} />);
     expect(screen.getByLabelText('marquee')).toBeInTheDocument();
     dataPoints.forEach(dp => {
-      expect(screen.getByLabelText(`${dp.label}: ${dp.value}`)).toBeInTheDocument();
+      // Use getAllByLabelText since marquee duplicates elements for animation
+      const elements = screen.getAllByLabelText(`${dp.label}: ${dp.value}`);
+      expect(elements.length).toBeGreaterThan(0);
     });
   });
 
