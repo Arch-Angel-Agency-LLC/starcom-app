@@ -7,6 +7,9 @@ import { GlobeProvider } from "./context/GlobeContext.tsx";
 import { VisualizationModeProvider } from "./context/VisualizationModeContext";
 import { AuthProvider } from "./context/AuthContext.tsx";
 import { MarketplaceProvider } from "./context/MarketplaceContext";
+import { SpaceWeatherProvider } from "./context/SpaceWeatherContext";
+import SettingsInitializer from "./components/SettingsInitializer";
+import SettingsStatusIndicator from "./components/SettingsStatusIndicator";
 import "./styles/globals.css";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AuthErrorBoundary from './components/Auth/AuthErrorBoundary';
@@ -25,9 +28,11 @@ const AppContent: React.FC = () => {
   return (
     <>
       <VisualizationModeProvider>
+        <SettingsInitializer />
         <BrowserRouter>
           <AppRoutes />
         </BrowserRouter>
+        <SettingsStatusIndicator />
       </VisualizationModeProvider>
     </>
   );
@@ -40,9 +45,11 @@ const App: React.FC = () => (
         <WASMProvider>
           <DashboardProvider>
             <GlobeProvider>
-              <MarketplaceProvider>
-                <AppContent />
-              </MarketplaceProvider>
+              <SpaceWeatherProvider>
+                <MarketplaceProvider>
+                  <AppContent />
+                </MarketplaceProvider>
+              </SpaceWeatherProvider>
             </GlobeProvider>
           </DashboardProvider>
         </WASMProvider>

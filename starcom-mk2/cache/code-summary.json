@@ -23,8 +23,14 @@
     ],
     "docs": [
       "Decentralized Web3 dApp Development Guide.markdown",
+      "NOAA-TDD-Implementation-Summary.md",
+      "geomagnetic-display-upgrade-summary.md",
       "intelligence-exchange-marketplace-defensive-publication.md",
-      "testing-policy.md"
+      "leftsidebar-layout-optimization.md",
+      "primary-button-active-state-enhancement.md",
+      "testing-policy.md",
+      "tinyglobe-layout-optimization.md",
+      "ux-enhancement-report.md"
     ],
     "public": [
       "borders.geojson",
@@ -43,11 +49,14 @@
     "intel-report-artifact-index.artifact",
     "intel-report-code-audit-stage1.artifact",
     "intel-report-deep-code-audit.artifact",
+    "intel-report-geomagnetic-integration.artifact",
     "intel-report-integration-plan.artifact",
+    "intel-report-noaa-data-analysis.artifact",
     "intel-report-overlays.artifact",
     "intel-report-preexisting-code-audit.artifact",
     "intel-report-stage1-checklist.artifact",
-    "intel-report-stage1-plan.artifact"
+    "intel-report-stage1-plan.artifact",
+    "intel-report-tdd-critique.artifact"
   ],
   "aiHints": {
     "mainAppDir": "src",
@@ -58,5 +67,5 @@
       "src/main.tsx"
     ]
   },
-  "generatedAt": "2025-06-17T03:20:19.286Z"
+  "generatedAt": "2025-06-18T18:22:12.774Z"
 }

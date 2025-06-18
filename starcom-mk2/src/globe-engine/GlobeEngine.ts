@@ -15,7 +15,9 @@ import { fetchWeatherData } from '../services/WeatherDataService';
 import { fetchAlerts } from '../services/AlertsService';
 import { fetchNaturalEvents } from '../services/GeoEventsService';
 import { fetchSpaceAssets } from '../services/SpaceAssetsService';
+import { fetchLatestElectricFieldData, transformNOAAToIntelMarkers } from '../services/noaaSpaceWeather';
 import type { IntelReportOverlayMarker } from '../interfaces/IntelReportOverlay';
+import type { ProcessedElectricFieldData } from '../types/spaceWeather';
 
 export type GlobeEvent = { type: string; payload?: unknown };
 
@@ -43,11 +45,19 @@ export class GlobeEngine {
   // Overlay data cache (see globe-overlays.artifact, UI/UX guidelines)
   private overlayDataCache: Record<string, unknown> = {};
   private spaceAssetsInterval: NodeJS.Timeout | null = null; // For periodic updates
+  private spaceWeatherInterval: NodeJS.Timeout | null = null; // For space weather updates
 
   constructor(config: GlobeEngineConfig) {
     this.mode = config.mode;
     this.overlays = config.overlays || [];
-    if (config.onEvent) this.on('event', config.onEvent);
+    if (config.onEvent) {
+      // Register the event handler for all event types
+      this.on('overlayDataLoading', config.onEvent);
+      this.on('overlayDataUpdated', config.onEvent);
+      this.on('overlayDataError', config.onEvent);
+      this.on('overlayAdded', config.onEvent);
+      this.on('overlayRemoved', config.onEvent);
+    }
     // Async init
     this.init();
   }
@@ -67,6 +77,13 @@ export class GlobeEngine {
       this.startSpaceAssetsUpdates();
     } else {
       this.stopSpaceAssetsUpdates();
+    }
+    
+    // Start space weather updates if any space weather overlays are active
+    if (this.overlays.some(o => o.startsWith('spaceWeather'))) {
+      this.startSpaceWeatherUpdates();
+    } else {
+      this.stopSpaceWeatherUpdates();
     }
   }
 
@@ -98,6 +115,49 @@ export class GlobeEngine {
       });
   }
 
+  // AI-NOTE: Space weather periodic update methods
+  private startSpaceWeatherUpdates() {
+    this.stopSpaceWeatherUpdates();
+    // Fetch immediately, then every 5 minutes (matches NOAA update frequency)
+    this.fetchAndUpdateSpaceWeather();
+    this.spaceWeatherInterval = setInterval(() => {
+      this.fetchAndUpdateSpaceWeather();
+    }, 5 * 60 * 1000); // 5 minutes
+  }
+
+  private stopSpaceWeatherUpdates() {
+    if (this.spaceWeatherInterval) {
+      clearInterval(this.spaceWeatherInterval);
+      this.spaceWeatherInterval = null;
+    }
+  }
+
+  private async fetchAndUpdateSpaceWeather() {
+    try {
+      this.emit('overlayDataLoading', { overlay: 'spaceWeather' });
+      
+      // Fetch both InterMag and US-Canada data
+      const [interMagData, usCanadaData] = await Promise.all([
+        fetchLatestElectricFieldData('InterMag'),
+        fetchLatestElectricFieldData('US-Canada')
+      ]);
+
+      // Transform to intelligence markers for globe visualization
+      const interMagMarkers = transformNOAAToIntelMarkers(interMagData, 'electric-field-intermag');
+      const usCanadaMarkers = transformNOAAToIntelMarkers(usCanadaData, 'electric-field-us-canada');
+      
+      // Combine both datasets
+      const combinedMarkers = [...interMagMarkers, ...usCanadaMarkers];
+      
+      // Cache and update - Note: actual rendering will be controlled by Globe component with settings
+      this.overlayDataCache['spaceWeather'] = combinedMarkers;
+      this.setOverlayData('spaceWeather', combinedMarkers);
+      
+    } catch (err) {
+      this.emit('overlayDataError', { overlay: 'spaceWeather', error: err instanceof Error ? err.message : String(err) });
+    }
+  }
+
   /**
    * Switch globe mode (see globe-modes.artifact)
    */
@@ -105,8 +165,8 @@ export class GlobeEngine {
     this.mode = mode;
     // Artifact-driven: Reset overlays to mode defaults (see globe-modes.artifact, globe-mode-mapping-reference.artifact)
     const modeDefaults: Record<string, string[]> = {
-      CyberCommand: ['alerts', 'intelMarkers', 'markers'],
-      EcoNatural: ['weather', 'naturalEvents', 'markers'],
+      CyberCommand: ['alerts', 'intelMarkers', 'markers', 'spaceWeather'],
+      EcoNatural: ['weather', 'naturalEvents', 'markers', 'spaceWeather'],
       GeoPolitical: ['borders', 'territories', 'markers'],
     };
     const newOverlays = modeDefaults[mode] || [];
@@ -131,8 +191,9 @@ export class GlobeEngine {
       if (this.overlayDataCache[overlay]) {
         this.setOverlayData(overlay, this.overlayDataCache[overlay]);
         this.emit('overlayAdded', overlay);
-        // Start/stop periodic updates for spaceAssets
+        // Start/stop periodic updates for spaceAssets and spaceWeather
         if (overlay === 'spaceAssets') this.startSpaceAssetsUpdates();
+        if (overlay === 'spaceWeather') this.startSpaceWeatherUpdates();
         return;
       }
       // AI-NOTE: See globe-overlays.artifact for overlay logic and data sources.
@@ -229,6 +290,57 @@ export class GlobeEngine {
         this.startSpaceAssetsUpdates();
         return;
       }
+      if (overlay === 'spaceWeather') {
+        // AI-NOTE: Fetch NOAA space weather data (electric field InterMag & US-Canada)
+        this.startSpaceWeatherUpdates();
+        return;
+      }
+      
+      // AI-NOTE: Space weather overlays integration (see NOAA-TDD-Implementation-Summary.md)
+      if (overlay === 'spaceWeatherInterMag') {
+        this.emit('overlayDataLoading', { overlay: 'spaceWeatherInterMag' });
+        fetchLatestElectricFieldData('InterMag')
+          .then((data) => {
+            // Transform to intelligence markers for visualization
+            const markers = transformNOAAToIntelMarkers(data, 'electric-field-intermag');
+            this.overlayDataCache['spaceWeatherInterMag'] = markers;
+            this.setOverlayData('spaceWeatherInterMag', markers);
+          })
+          .catch((err) => {
+            this.emit('overlayDataError', { 
+              overlay: 'spaceWeatherInterMag', 
+              error: err?.message || String(err) 
+            });
+          });
+        // Start space weather updates if not already running
+        if (!this.spaceWeatherInterval) {
+          this.startSpaceWeatherUpdates();
+        }
+        return;
+      }
+      
+      if (overlay === 'spaceWeatherUSCanada') {
+        this.emit('overlayDataLoading', { overlay: 'spaceWeatherUSCanada' });
+        fetchLatestElectricFieldData('US-Canada')  
+          .then((data) => {
+            // Transform to intelligence markers for visualization
+            const markers = transformNOAAToIntelMarkers(data, 'electric-field-us-canada');
+            this.overlayDataCache['spaceWeatherUSCanada'] = markers;
+            this.setOverlayData('spaceWeatherUSCanada', markers);
+          })
+          .catch((err) => {
+            this.emit('overlayDataError', { 
+              overlay: 'spaceWeatherUSCanada', 
+              error: err?.message || String(err) 
+            });
+          });
+        // Start space weather updates if not already running
+        if (!this.spaceWeatherInterval) {
+          this.startSpaceWeatherUpdates();
+        }
+        return;
+      }
+      
       this.emit('overlayAdded', overlay);
     }
   }
@@ -241,8 +353,22 @@ export class GlobeEngine {
     // Optionally clear overlay data (but keep cache for efficiency)
     this.setOverlayData(overlay, undefined);
     this.emit('overlayRemoved', overlay);
-    // Stop periodic updates for spaceAssets
-    if (overlay === 'spaceAssets') this.stopSpaceAssetsUpdates();
+    
+    // Stop periodic updates for spaceAssets and spaceWeather
+    if (overlay === 'spaceAssets') {
+      this.stopSpaceAssetsUpdates();
+    }
+    if (overlay === 'spaceWeather') {
+      this.stopSpaceWeatherUpdates();
+    }
+  }
+
+  /**
+   * Update space weather visualization with settings-based processing
+   * Called by Globe component when settings change
+   */
+  updateSpaceWeatherVisualization(processedData: unknown): void {
+    this.setOverlayData('spaceWeather', processedData);
   }
 
   /**

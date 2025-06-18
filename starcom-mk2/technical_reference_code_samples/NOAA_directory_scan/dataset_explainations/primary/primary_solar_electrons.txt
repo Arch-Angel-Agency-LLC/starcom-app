@@ -1,0 +1,18 @@
+The JSON file primary_solar_electrons.json contains solar electron flux data from NOAA, specifically from the GOES-16 satellite. This data is crucial for understanding the electron environment in near-Earth space and its impact on space weather.
+
+Breakdown of Key Fields:
+	1.	time_tag – The timestamp (UTC) of the measurement.
+	2.	satellite – The identifier of the satellite that recorded the data (GOES-16 in this case).
+	3.	flux – The electron flux, measured in particles per cm² per second per steradian.
+	4.	energy – The energy threshold for recorded electrons, here being greater than or equal to 2 MeV (Mega electron Volts).
+
+Purpose of This Data:
+	•	Monitoring Space Weather: Solar electrons are a key component of space weather, affecting satellites and communication systems.
+	•	Radiation Hazard Assessment: High electron flux levels can lead to satellite charging and damage, causing malfunctions or failures in space systems.
+	•	Understanding Solar Events: Spikes in electron flux often correlate with solar storms, coronal mass ejections (CMEs), and high-speed solar wind streams.
+	•	Prediction of Geomagnetic Storms: Electron flux data contributes to predicting geomagnetic disturbances, which can affect Earth’s magnetic field.
+
+How This Data Is Used:
+	•	Satellite Operators: To prevent or mitigate damage due to increased electron flux.
+	•	Power Grid Protection: Helps in forecasting geomagnetic storms that could induce electrical surges.
+	•	Aurora Prediction: Higher electron flux levels can indicate increased auroral activity.

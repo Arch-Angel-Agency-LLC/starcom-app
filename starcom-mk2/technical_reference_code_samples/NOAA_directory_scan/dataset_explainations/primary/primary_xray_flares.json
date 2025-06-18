@@ -1,0 +1,18 @@
+[
+    {
+        "time_tag": "2025-02-23T02:17:00Z",
+        "satellite": 16,
+        "current_class": "M3.9",
+        "current_ratio": 0.18040230319939826,
+        "current_int_xrlong": 0.02306087128818035,
+        "begin_time": "2025-02-23T02:00:00Z",
+        "begin_class": "C2.5",
+        "max_time": "2025-02-23T02:13:00Z",
+        "max_class": "M4.9",
+        "max_xrlong": 4.930387149215676e-05,
+        "end_time": "Unk",
+        "max_ratio_time": "2025-02-23T02:10:31Z",
+        "max_ratio": 0.304724352555891,
+        "end_class": null
+    }
+]

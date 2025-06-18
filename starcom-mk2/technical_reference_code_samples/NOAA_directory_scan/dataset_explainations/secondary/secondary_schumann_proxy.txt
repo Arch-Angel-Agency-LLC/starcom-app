@@ -1,0 +1,40 @@
+The JSON file secondary_schumann_proxy.json contains data related to the Schumann resonance proxy, recorded by NOAA’s GOES-18 satellite. The Schumann resonance is a set of electromagnetic resonances in Earth’s atmosphere, primarily influenced by lightning activity and global electromagnetic conditions.
+
+Breakdown of Key Fields:
+	1.	time_tag – The timestamp (UTC) of the measurement.
+	2.	satellite – The satellite recording the data (GOES-18).
+	3.	He – Magnetic field component (Helium-related).
+	4.	Hp – Magnetic field component (Proton-related).
+	5.	Hn – Magnetic field component (Neutron-related).
+	6.	total – The total measured magnetic field strength.
+	7.	arcjet_flag – A flag indicating potential interference from the spacecraft’s thrusters.
+
+Purpose of This Data:
+	•	Monitoring Global Electromagnetic Activity:
+	•	Schumann resonances are naturally occurring electromagnetic waves trapped between the Earth’s surface and the ionosphere.
+	•	Lightning & Weather Tracking:
+	•	Since these resonances are primarily caused by lightning strikes, they can serve as an indirect measure of global thunderstorm activity.
+	•	Space Weather Analysis:
+	•	Changes in geomagnetic conditions and solar activity can influence these resonances.
+	•	Biological & Psychological Effects:
+	•	Some researchers explore potential connections between Schumann resonances and human brainwaves or biological rhythms.
+
+Understanding Schumann Resonance:
+
+Frequency Mode	Typical Frequency (Hz)	Primary Source
+1st Mode	~7.83 Hz	Global lightning activity
+2nd Mode	~14.1 Hz	Atmospheric-ionospheric interactions
+3rd Mode	~20.3 Hz	Electromagnetic field variations
+4th Mode	~26.4 Hz	High-intensity storm activity
+
+Schumann resonance frequencies can be affected by solar storms, geomagnetic fluctuations, and climate changes.
+
+Recent Data Observations:
+	•	The total magnetic field values range between 40 and 90 nT (nanoteslas).
+	•	Some fluctuations indicate natural variations in global electromagnetic activity.
+
+How This Data Is Used:
+	•	NOAA & NASA: Used for space weather forecasting and atmospheric studies.
+	•	Meteorologists & Climate Scientists: Helps track global storm activity.
+	•	Physicists & Geophysicists: Used to study electromagnetic interactions between Earth and the ionosphere.
+	•	Alternative Health & Consciousness Studies: Some claim that shifts in Schumann resonance may impact human consciousness and well-being.

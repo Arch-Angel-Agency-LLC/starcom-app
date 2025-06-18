@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { TOPBAR_CATEGORIES } from './topbarCategories';
 import { useTopBarPreferences } from './useTopBarPreferences';
-import SettingsPopup from './SettingsPopup';
+import EnhancedSettingsPopup from './EnhancedSettingsPopup';
 import Marquee from './Marquee';
 import { useTopBarData } from './useTopBarData';
 import styles from './TopBar.module.css';
@@ -62,7 +62,7 @@ const TopBar: React.FC = () => {
       >
         <span role="img" aria-label="Settings">⚙️</span>
       </button>
-      <SettingsPopup
+      <EnhancedSettingsPopup
         open={modalOpen}
         enabledCategories={preferences.enabledCategories}
         onCategoryToggle={setCategoryEnabled}
