@@ -26,13 +26,13 @@ export class EIAService {
     // New instance-based API
     async fetchEIAData(seriesId: string): Promise<number> {
         const cachedData = this.cache.get(seriesId);
-        if (cachedData !== null) {
+        if (cachedData !== null && typeof cachedData === 'number') {
             return cachedData;
         }
         // Use provider to fetch
         const value = await this.provider.fetchData(seriesId);
         this.cache.set(seriesId, value);
-        return value;
+        return value as number;
     }
 
     // Legacy static API wrappers
