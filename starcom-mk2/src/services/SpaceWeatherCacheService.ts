@@ -76,6 +76,34 @@ export class SpaceWeatherCacheService implements DataCacheService<SpaceWeatherCa
     // Consider data fresh if less than 10 minutes old
     return (Date.now() - data.lastUpdated.getTime()) < 10 * 60 * 1000;
   }
+
+  // Missing methods from DataCacheService interface
+  getMetadata(key: string): import('./data-management/interfaces').CacheMetadata | null {
+    const entry = this.cache.get(key);
+    if (!entry) return null;
+    
+    return {
+      key,
+      createdAt: Date.now() - SpaceWeatherCacheService.DEFAULT_TTL, // Approximate
+      expiresAt: entry.expiresAt || Date.now() + SpaceWeatherCacheService.DEFAULT_TTL,
+      size: JSON.stringify(entry.value).length,
+      hits: 0, // Not tracked in current implementation
+      lastAccessed: Date.now()
+    };
+  }
+
+  getSize(): number {
+    return this.cache.size;
+  }
+
+  async cleanup(): Promise<void> {
+    const now = Date.now();
+    for (const [key, entry] of this.cache.entries()) {
+      if (entry.expiresAt && entry.expiresAt < now) {
+        this.cache.delete(key);
+      }
+    }
+  }
 }
 
 // AI-NOTE: This implements proper caching for space weather data following the established pattern.
