@@ -12,8 +12,34 @@ export default defineConfig({
     nodePolyfills({
       // Whether to polyfill `node:` protocol imports.
       protocolImports: true,
-      // Include util module which contains types
-      include: ['util'],
+      // Include common Node.js modules needed for browser compatibility
+      include: [
+        'buffer',
+        'process',
+        'util',
+        'stream',
+        'crypto',
+        'events',
+        'querystring',
+        'url',
+        'fs',
+        'path',
+        'os',
+        'http',
+        'https',
+        'zlib',
+        'net',
+        'tls',
+        'assert',
+        'dns',
+        'timers'
+      ],
+      // Don't override certain globals that can cause issues
+      globals: {
+        Buffer: true,
+        global: true,
+        process: true,
+      },
     }),
   ],
   define: {
@@ -39,7 +65,7 @@ export default defineConfig({
       'react-dom',
       'react/jsx-runtime'
     ],
-    exclude: ['wasm_mini_server', 'undici'],
+    exclude: ['wasm_mini_server', 'undici', 'fsevents'],
     esbuildOptions: {
       // Ensure ESM compatibility for browser extensions
       target: 'esnext',
@@ -65,6 +91,12 @@ export default defineConfig({
     },
     // Optimize chunk splitting for performance
     rollupOptions: {
+      external: (id) => {
+        // Externalize problematic Node.js modules that shouldn't be bundled
+        if (id === 'util/types' || id.includes('util/types')) return true;
+        if (id.includes('fsevents')) return true;
+        return false;
+      },
       output: {
         format: 'esm', // Ensure ESM output
         assetFileNames: (assetInfo) => {

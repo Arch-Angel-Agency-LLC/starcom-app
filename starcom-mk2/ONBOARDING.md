@@ -31,7 +31,29 @@
 
 ---
 
-## 3. Safe Testing Protocol (MANDATORY)
+## 5. Data Accumulation Prevention (MANDATORY)
+
+### System Data Bloat Prevention
+The project includes systems that can generate large amounts of data, potentially causing system cache bloat. **CRITICAL prevention measures:**
+
+#### Browser Storage Bloat Prevention:
+- **Files**: `src/utils/browserStorageManager.ts`, `src/hooks/useStorageMonitoring.ts`
+- **Risk**: localStorage accumulation from settings, cache, and visualization data
+- **Limits**: 2MB max for Starcom data, 5MB max total localStorage (exceptions for IPFS storage, but monitoring too)
+- **Auto-cleanup**: Removes old entries when approaching 80% of limits
+- **Monitoring**: Use `useStorageMonitoring` hook in development
+
+### AI-NOTE: Data Bloat Root Causes
+1. **Data Fetching**: Python script creates permanent timestamped files
+2. **Browser Storage**: Settings and cache data accumulates in localStorage
+3. **Development Artifacts**: Build and cache files can grow during development
+4. **Copilot Sessions**: Extended AI sessions may trigger repeated data fetches
+
+**VIOLATION OF DATA LIMITS WILL CAUSE SYSTEM STORAGE BLOAT**
+
+---
+
+## 6. Safe Testing Protocol (MANDATORY)
 
 ### AI Agent Test Safety Rules:
 1. **NEVER run tests directly** - Always use the safe test runner
@@ -59,18 +81,18 @@ npm run test:noaa-safe
 - **Package Scripts:** Updated with safe test commands
 
 ### AI-NOTE: Test Freeze Prevention
-This protocol was implemented after identifying that NOAA geomagnetic data tests cause system freezes/stack overflows. The safe test runner includes:
+This protocol was implemented after identifying that data tests cause system freezes/stack overflows. The safe test runner includes:
 - 30-second timeout traps
 - Output line limiting (max 100 lines)
 - Stack overflow pattern detection
 - Memory usage limits
 - Process termination on infinite loops
 
-**VIOLATION OF THIS PROTOCOL WILL CAUSE SYSTEM FREEZES**
+**VIOLATION OF THIS PROTOCOL CAN CAUSE SYSTEM FREEZES**
 
 ---
 
-## 4. Project Overview
+## 7. Project Overview
 - **Starcom App**: Decentralized web3 3D global cyber command interface for cyber investigations, intelligence, financial analysis, and monitoring.
 - Built with React, TypeScript, Vite, Rust/WASM, Solidity, and artifact-driven development.
 

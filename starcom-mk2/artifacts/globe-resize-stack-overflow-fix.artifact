@@ -1,0 +1,109 @@
+# Globe Resize Stack Overflow Fix
+**Date:** June 20, 2025  
+**Issue:** Critical stack overflow in Globe.tsx handleResize function  
+**Status:** ✅ RESOLVED  
+
+## 🚨 Problem: Infinite Recursion Stack Overflow
+
+**Error Pattern:**
+```
+Uncaught RangeError: Maximum call stack size exceeded.
+    at handleResize (Globe.tsx:206:16)
+    at handleResize (Globe.tsx:206:16)
+    [repeated infinitely...]
+```
+
+**Root Cause:**
+The `handleResize` function was creating an infinite recursion loop:
+1. `handleResize()` dispatched a `resize` event to `window`
+2. This triggered the `window.addEventListener('resize', handleResize)` listener  
+3. Which called `handleResize()` again
+4. Creating an endless loop causing stack overflow
+
+## 🔧 Solution Implemented
+
+### Before (Broken):
+```typescript
+function handleResize() {
+  if (globeRef.current) {
+    // ❌ This creates infinite recursion!
+    const event = new Event('resize');
+    window.dispatchEvent(event);
+  }
+}
+
+window.addEventListener('resize', handleResize); // Listens for the event we dispatch!
+```
+
+### After (Fixed):
+```typescript
+// AI-NOTE: Fix for stack overflow caused by recursive resize event dispatch
+const debounceRef = useRef<NodeJS.Timeout | null>(null);
+
+function handleResize() {
+  // Clear any existing timeout to debounce resize calls
+  if (debounceRef.current) {
+    clearTimeout(debounceRef.current);
+  }
+  
+  debounceRef.current = setTimeout(() => {
+    // ✅ Access internal controls instead of dispatching events
+    if (globeRef.current) {
+      const globeInstance = globeRef.current as unknown as { controls?: { update: () => void } };
+      if (globeInstance.controls && typeof globeInstance.controls.update === 'function') {
+        globeInstance.controls.update();
+      }
+    }
+  }, 100); // Debounce resize calls by 100ms
+}
+```
+
+## 🎯 Key Improvements
+
+### 1. **Eliminated Infinite Recursion**
+- Removed `window.dispatchEvent(event)` that caused the loop
+- Now directly accesses globe's internal controls for updates
+
+### 2. **Added Debouncing**
+- Prevents excessive resize calls during window resizing
+- 100ms debounce reduces performance impact
+- Clears pending timeouts to avoid memory leaks
+
+### 3. **Proper Cleanup**
+- Cleanup function now clears pending debounced calls
+- Prevents memory leaks when component unmounts
+
+### 4. **Safe Globe Updates**
+- Uses react-globe.gl's internal `controls.update()` method
+- More reliable than dispatching synthetic events
+- Maintains type safety with proper casting
+
+## 🧪 Testing Results
+
+- ✅ **Development Server**: Starts without errors
+- ✅ **Browser Loading**: Globe renders without stack overflow
+- ✅ **Window Resize**: Handled smoothly with debouncing
+- ✅ **Safe Test Runner**: No infinite loops detected
+
+## 🔍 Prevention Measures
+
+**AI-NOTE for Future Development:**
+- Never dispatch the same event type that a listener is registered for
+- Always use debouncing for frequent events like resize
+- Consider using RAF (requestAnimationFrame) for visual updates
+- Test resize behavior during development
+
+## 📝 Files Modified
+
+- **`src/components/Globe/Globe.tsx`**: Fixed handleResize infinite recursion
+  - Lines ~202-245: Resize handling logic
+  - Added debounce mechanism with cleanup
+  - Eliminated recursive event dispatching
+
+## 🎉 Impact
+
+**Critical Fix:** This resolves a showstopper bug that prevented the main Globe visualization from loading, which is the core feature of the Starcom application.
+
+**Performance:** The debouncing also improves performance by reducing excessive resize calculations during window operations.
+
+**Stability:** Eliminates random crashes and browser tab freezing caused by stack overflow.

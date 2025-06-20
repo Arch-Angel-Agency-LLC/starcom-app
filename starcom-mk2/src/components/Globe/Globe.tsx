@@ -197,14 +197,29 @@ const GlobeView: React.FC = () => {
   // Reset modal page when inspecting a new overlay
   useEffect(() => {
     setModalPage(0);
-  }, [inspectOverlay]);  useEffect(() => {
+  }, [inspectOverlay]);  
+
+  // Add debounce utility for resize handling
+  // AI-NOTE: Fix for stack overflow caused by recursive resize event dispatch
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+  
+  useEffect(() => {
     function handleResize() {
-      // Force Globe to re-render with new window dimensions
-      if (globeRef.current) {
-        // Trigger a re-render by dispatching a resize event
-        const event = new Event('resize');
-        window.dispatchEvent(event);
+      // Clear any existing timeout to debounce resize calls
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
       }
+      
+      debounceRef.current = setTimeout(() => {
+        // Force Globe to re-render with new window dimensions
+        if (globeRef.current) {
+          // Access the internal controls to trigger a re-render without dispatching events
+          const globeInstance = globeRef.current as unknown as { controls?: { update: () => void } };
+          if (globeInstance.controls && typeof globeInstance.controls.update === 'function') {
+            globeInstance.controls.update();
+          }
+        }
+      }, 100); // Debounce resize calls by 100ms
     }
 
     // Handle page visibility changes
@@ -225,6 +240,10 @@ const GlobeView: React.FC = () => {
     setTimeout(handleResize, 200);
 
     return () => {
+      // Clear any pending debounced resize calls
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
       window.removeEventListener('resize', handleResize);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };

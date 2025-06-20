@@ -3,7 +3,7 @@ import json
 import os
 import logging
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
@@ -153,7 +153,66 @@ def fetch_noaa_data(data_endpoints, category):
     
     return fetched_data
 
+def cleanup_old_files(data_dir, max_age_hours=24, max_files_per_category=10):
+    """
+    Clean up old NOAA data files to prevent unlimited accumulation
+    - Remove files older than max_age_hours
+    - Keep only max_files_per_category newest files per category
+    """
+    if not os.path.exists(data_dir):
+        return
+    
+    cutoff_time = datetime.utcnow() - timedelta(hours=max_age_hours)
+    files_by_category = {}
+    files_to_delete = []
+    
+    # Categorize files and check age
+    for filename in os.listdir(data_dir):
+        if not filename.endswith('.json'):
+            continue
+            
+        file_path = os.path.join(data_dir, filename)
+        file_stat = os.stat(file_path)
+        file_time = datetime.fromtimestamp(file_stat.st_mtime)
+        
+        # Extract category from filename (e.g., "primary_solar_wind_20250220..." -> "primary_solar_wind")
+        parts = filename.split('_')
+        if len(parts) >= 3:
+            category = '_'.join(parts[:-1])  # Everything except timestamp
+            
+            if category not in files_by_category:
+                files_by_category[category] = []
+            files_by_category[category].append((filename, file_path, file_time))
+        
+        # Mark old files for deletion
+        if file_time < cutoff_time:
+            files_to_delete.append(file_path)
+    
+    # Keep only newest files per category
+    for category, files in files_by_category.items():
+        files.sort(key=lambda x: x[2], reverse=True)  # Sort by time, newest first
+        if len(files) > max_files_per_category:
+            for filename, file_path, file_time in files[max_files_per_category:]:
+                if file_path not in files_to_delete:
+                    files_to_delete.append(file_path)
+    
+    # Delete marked files
+    deleted_count = 0
+    for file_path in files_to_delete:
+        try:
+            os.remove(file_path)
+            deleted_count += 1
+        except OSError as e:
+            logging.error(f"❌ Failed to delete {file_path}: {e}")
+    
+    if deleted_count > 0:
+        logging.info(f"🧹 Cleaned up {deleted_count} old NOAA data files")
+
 if __name__ == "__main__":
+    # Clean up old files before fetching new data
+    logging.info("\n🧹 Cleaning up old NOAA data files...")
+    cleanup_old_files(DATA_DIR, max_age_hours=24, max_files_per_category=5)
+    
     # Fetch Primary Space Weather Data
     logging.info("\n🌍 Fetching Primary Space Weather Data...")
     primary_data = fetch_noaa_data(PRIMARY_ENDPOINTS, "primary")
