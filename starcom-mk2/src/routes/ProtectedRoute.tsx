@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext.tsx';
+import { useAuth } from '../hooks/useAuth';
 
 // AI-NOTE: Protects routes by requiring authentication (see artifacts)
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {

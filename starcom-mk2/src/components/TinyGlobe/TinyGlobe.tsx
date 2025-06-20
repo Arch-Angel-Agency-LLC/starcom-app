@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, Suspense } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useGlobeContext } from '../../context/GlobeContext';
 import { useVisualizationMode } from '../../context/VisualizationModeContext';
 import styles from './TinyGlobe.module.css';
@@ -18,9 +18,10 @@ const TinyGlobe: React.FC = () => {
     const [globeData, setGlobeData] = useState<object[]>([]);
 
     useEffect(() => {
-        // AI-NOTE: Integration with GlobeEngine per globe-engine-api.artifact
+        // Simple GlobeEngine initialization
         const engine = new GlobeEngine({ mode: visualizationMode.mode });
-        // Listen for material ready
+        
+        // Simple material check
         const checkMaterial = setInterval(() => {
             const mat = engine.getMaterial();
             if (mat) {
@@ -28,6 +29,7 @@ const TinyGlobe: React.FC = () => {
                 clearInterval(checkMaterial);
             }
         }, 100);
+        
         return () => clearInterval(checkMaterial);
     }, [visualizationMode.mode]);
 
@@ -59,24 +61,87 @@ const TinyGlobe: React.FC = () => {
         // No cleanup needed for this mock
     }, [visualizationMode.mode]);
 
+    // Remove visibility tracking - TinyGlobe should render immediately
+
     return (
         <div className={styles.tinyGlobeContainer}>
-            <Suspense fallback={<div>Loading...</div>}>
+            {material ? (
                 <Globe
                     ref={globeRef}
-                    width={110} // Slightly larger for better visibility
-                    height={110} // Slightly larger for better visibility
+                    width={110}
+                    height={110}
                     backgroundColor="rgba(0, 0, 0, 0)"
                     showAtmosphere={true}
                     atmosphereColor="#00C4FF"
-                    atmosphereAltitude={0.18} // Enhanced atmosphere for better 3D effect
-                    globeMaterial={material || undefined}
+                    atmosphereAltitude={0.18}
+                    globeMaterial={material ?? undefined}
                     pointsData={globeData}
                     pointAltitude="size"
                     pointColor="color"
                     onGlobeReady={() => setGlobeReady(true)}
                 />
-            </Suspense>
+            ) : (
+                <div style={{
+                    width: 110,
+                    height: 110,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#00ff41',
+                    fontSize: '8px',
+                    fontFamily: 'monospace',
+                    letterSpacing: '0.5px',
+                    position: 'relative'
+                }}>
+                    <div style={{
+                        width: '40px',
+                        height: '40px',
+                        border: '1px solid #00ff41',
+                        borderRadius: '50%',
+                        position: 'relative',
+                        marginBottom: '8px',
+                        animation: 'miniRotate 1.5s linear infinite'
+                    }}>
+                        <div style={{
+                            position: 'absolute',
+                            top: '50%',
+                            left: '50%',
+                            transform: 'translate(-50%, -50%)',
+                            fontSize: '16px'
+                        }}>
+                            🌍
+                        </div>
+                        <div style={{
+                            position: 'absolute',
+                            top: '-1px',
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            width: '2px',
+                            height: '2px',
+                            background: '#00ff41',
+                            borderRadius: '50%',
+                            boxShadow: '0 0 4px #00ff41'
+                        }}></div>
+                    </div>
+                    <div style={{
+                        animation: 'miniPulse 1s ease-in-out infinite',
+                        textTransform: 'uppercase'
+                    }}>
+                        INIT...
+                    </div>
+                    <style>{`
+                        @keyframes miniRotate {
+                            from { transform: rotate(0deg); }
+                            to { transform: rotate(360deg); }
+                        }
+                        @keyframes miniPulse {
+                            0%, 100% { opacity: 1; }
+                            50% { opacity: 0.5; }
+                        }
+                    `}</style>
+                </div>
+            )}
             <div className={styles.buttonContainer}>
                 <button 
                     className={`${styles.shaderButton} ${visualizationMode.mode === 'EcoNatural' ? styles.active : ''}`}

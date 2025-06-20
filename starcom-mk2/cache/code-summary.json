@@ -15,22 +15,36 @@
       "...truncated"
     ],
     "scripts": [
+      "deploy-mvp.sh",
       "deploy.ts",
       "intelReportBackend.ts",
       "mock-api-server.js",
       "onboard.cjs",
+      "safe-test-runner.ts",
+      "setup-mvp.sh",
+      "test-noaa-safe.ts",
       "testMint.ts"
     ],
     "docs": [
       "Decentralized Web3 dApp Development Guide.markdown",
       "NOAA-TDD-Implementation-Summary.md",
       "geomagnetic-display-upgrade-summary.md",
+      "iem-implementation-roadmap.md",
+      "iem-strategic-structure.md",
+      "iem-technical-implementation.md",
+      "intelligence-exchange-marketplace-architecture.md",
       "intelligence-exchange-marketplace-defensive-publication.md",
       "leftsidebar-layout-optimization.md",
+      "mvp-development-plan.md",
+      "navigation-button-repositioning.md",
       "primary-button-active-state-enhancement.md",
+      "production-deployment-fix.md",
+      "rightsidebar-compactness-improvements.md",
+      "rightsidebar-mission-control-upgrade.md",
       "testing-policy.md",
       "tinyglobe-layout-optimization.md",
-      "ux-enhancement-report.md"
+      "ux-enhancement-report.md",
+      "vertical-space-optimization.md"
     ],
     "public": [
       "borders.geojson",
@@ -45,6 +59,13 @@
     ]
   },
   "artifacts": [
+    "electric-field-toggle-fix-complete.artifact",
+    "electric-field-toggle-integration-complete.artifact",
+    "final-memory-ux-solution.artifact",
+    "foundation-upgrade-complete.artifact",
+    "foundation-upgrade-plan.artifact",
+    "iem-complete-structure.artifact",
+    "immediate-foundation-fixes.artifact",
     "intel-report-api-integration.artifact",
     "intel-report-artifact-index.artifact",
     "intel-report-code-audit-stage1.artifact",
@@ -56,7 +77,11 @@
     "intel-report-preexisting-code-audit.artifact",
     "intel-report-stage1-checklist.artifact",
     "intel-report-stage1-plan.artifact",
-    "intel-report-tdd-critique.artifact"
+    "intel-report-tdd-critique.artifact",
+    "intelligence-exchange-marketplace-structure.artifact",
+    "noaa-data-normalization-completion.artifact",
+    "noaa-integration-completion-report.artifact",
+    "ux-optimized-foundation-complete.artifact"
   ],
   "aiHints": {
     "mainAppDir": "src",
@@ -67,5 +92,5 @@
       "src/main.tsx"
     ]
   },
-  "generatedAt": "2025-06-18T18:22:12.774Z"
+  "generatedAt": "2025-06-20T09:41:53.899Z"
 }

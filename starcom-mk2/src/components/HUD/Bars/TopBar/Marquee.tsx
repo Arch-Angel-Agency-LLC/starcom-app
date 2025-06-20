@@ -23,6 +23,7 @@ const Marquee: React.FC<MarqueeProps> = ({ dataPoints, loading = false, error = 
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const [paused, setPaused] = useState(false);
+  const [focused, setFocused] = useState(false);
   const [offset, setOffset] = useState(0);
   const [contentWidth, setContentWidth] = useState(0);
 
@@ -53,6 +54,14 @@ const Marquee: React.FC<MarqueeProps> = ({ dataPoints, loading = false, error = 
   // Pause on hover/focus
   const handlePause = () => setPaused(true);
   const handleResume = () => setPaused(false);
+  const handleFocus = () => {
+    setPaused(true);
+    setFocused(true);
+  };
+  const handleBlur = () => {
+    setPaused(false);
+    setFocused(false);
+  };
 
   if (loading) {
     return <div className={styles.marqueeEmpty} role="status" aria-live="polite">Loading data...</div>;
@@ -68,15 +77,15 @@ const Marquee: React.FC<MarqueeProps> = ({ dataPoints, loading = false, error = 
   return (
     <div
       ref={containerRef}
-      className={styles.marquee}
+      className={`${styles.marquee} ${focused ? 'ring-2' : ''}`}
       aria-live="polite"
       role="region"
       aria-label="marquee"
       tabIndex={0}
       onMouseEnter={handlePause}
       onMouseLeave={handleResume}
-      onFocus={handlePause}
-      onBlur={handleResume}
+      onFocus={handleFocus}
+      onBlur={handleBlur}
       aria-describedby="marquee-desc"
     >
       <span id="marquee-desc" className="sr-only">

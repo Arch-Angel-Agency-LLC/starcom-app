@@ -6,6 +6,7 @@
     <link rel="icon" type="image/png" href="/starcom.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Starcom</title>
+    
     <script>
       // Polyfill for Buffer and process for browser compatibility
       if (typeof global === 'undefined') {
@@ -17,7 +18,75 @@
     </script>
   </head>
   <body>
+    <!-- Immediate preloader - shows instantly before React loads -->
+    <div id="initial-preloader" style="
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 10001;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-family: 'Aldrich', monospace, sans-serif;
+    ">
+      <div style="text-align: center;">
+        <div style="
+          font-size: 3rem;
+          color: #00ffff;
+          text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+          letter-spacing: 0.2em;
+          margin-bottom: 20px;
+          animation: pulse 2s ease-in-out infinite;
+        ">STARCOM</div>
+        <div style="
+          font-size: 1rem;
+          color: #88ccff;
+          letter-spacing: 0.15em;
+          margin-bottom: 30px;
+        ">Intelligence Exchange</div>
+        <div style="
+          width: 40px;
+          height: 40px;
+          border: 3px solid rgba(0, 255, 255, 0.3);
+          border-top: 3px solid #00ffff;
+          border-radius: 50%;
+          margin: 0 auto;
+          animation: spin 1s linear infinite;
+        "></div>
+      </div>
+      <style>
+        @keyframes pulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.7; transform: scale(1.05); }
+        }
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      </style>
+    </div>
+    
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    
+    <script>
+      // Hide initial preloader when React takes over
+      window.addEventListener('DOMContentLoaded', function() {
+        setTimeout(function() {
+          const initialPreloader = document.getElementById('initial-preloader');
+          if (initialPreloader) {
+            initialPreloader.style.opacity = '0';
+            initialPreloader.style.transition = 'opacity 0.5s ease-out';
+            setTimeout(function() {
+              initialPreloader.remove();
+            }, 500);
+          }
+        }, 1000); // Give React time to load
+      });
+    </script>
   </body>
 </html>

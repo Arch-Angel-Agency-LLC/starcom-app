@@ -1,8 +1,8 @@
 <!-- filepath: /Users/jono/Documents/GitHub/starcom-app/starcom-mk2/ONBOARDING.md -->
 
-# AI Agent Onboarding Protocol (Copilot/GPT-4.1 Only)
+# AI Agent Onboarding Protocol (Copilot)
 
-**Audience:** GitHub Copilot AI Agent (GPT-4.1) — Not for human use.
+**Audience:** GitHub Copilot AI Agent — Not for human use.
 
 ---
 
@@ -27,10 +27,50 @@
 - Update `cache/code-summary.json` and `cache/code-health.json` after significant changes.
 - Leave `AI-NOTE:` comments for non-obvious logic or context.
 - Escalate missing context with a `TODO:` referencing the relevant artifact or doc.
+- **CRITICAL: Always use safe test runner for any test execution to prevent system freezes.**
 
 ---
 
-## 3. Project Overview
+## 3. Safe Testing Protocol (MANDATORY)
+
+### AI Agent Test Safety Rules:
+1. **NEVER run tests directly** - Always use the safe test runner
+2. **Use timeout traps** - All tests must have execution limits
+3. **Monitor output volume** - Prevent infinite logging scenarios
+4. **Detect stack overflows** - Kill processes on recursion detection
+
+### Required Commands:
+```bash
+# Safe test execution (ALWAYS use this)
+npm run test:safe
+
+# For NOAA-specific tests (known to cause freezes)
+npm run test:noaa-safe
+
+# NEVER use these commands directly:
+# npm test (FORBIDDEN)
+# npx vitest (FORBIDDEN)
+# npm run test (FORBIDDEN)
+```
+
+### Safety Mechanism Files:
+- **Safe Runner:** `scripts/safe-test-runner.ts`
+- **NOAA Safe Test:** `scripts/test-noaa-safe.ts`
+- **Package Scripts:** Updated with safe test commands
+
+### AI-NOTE: Test Freeze Prevention
+This protocol was implemented after identifying that NOAA geomagnetic data tests cause system freezes/stack overflows. The safe test runner includes:
+- 30-second timeout traps
+- Output line limiting (max 100 lines)
+- Stack overflow pattern detection
+- Memory usage limits
+- Process termination on infinite loops
+
+**VIOLATION OF THIS PROTOCOL WILL CAUSE SYSTEM FREEZES**
+
+---
+
+## 4. Project Overview
 - **Starcom App**: Decentralized web3 3D global cyber command interface for cyber investigations, intelligence, financial analysis, and monitoring.
 - Built with React, TypeScript, Vite, Rust/WASM, Solidity, and artifact-driven development.
 
@@ -51,6 +91,6 @@
 1. Check for existing artifacts before creating new ones.
 2. When adding features, create/update artifacts in `artifacts/` and/or `docs/`.
 3. Link code, tests, and docs to relevant artifacts.
-4. When adding or updating tests, colocate them with the relevant module and update the test suite artifacts as needed.
+4. **When running tests, ALWAYS use the safe test runner protocol.**
 5. Use structured TODOs: `TODO: [QUESTION] — [FILE/ARTIFACT]`
 6. Leave `AI-NOTE:` comments for future agents.

@@ -8,6 +8,7 @@ import { GlobeEngine, type GlobeEvent } from '../../globe-engine/GlobeEngine';
 import { useSpaceWeatherContext } from '../../context/SpaceWeatherContext';
 import Modal from 'react-modal';
 import { Tooltip } from 'react-tooltip';
+import GlobeLoadingManager from './GlobeLoadingManager';
 
 // Artifact-driven overlay mapping (see globe-overlays.artifact, globe-mode-mapping-reference.artifact)
 const ALL_OVERLAYS = [
@@ -50,9 +51,9 @@ const GlobeView: React.FC = () => {
   // Space weather integration via context
   const { 
     shouldShowOverlay, 
-    visualizationVectors, 
-    isLoading: _spaceWeatherLoading,
-    error: _spaceWeatherError 
+    visualizationVectors 
+    // isLoading: _spaceWeatherLoading,
+    // error: _spaceWeatherError 
   } = useSpaceWeatherContext();
   
   // Merge all overlays for UI, but only enable those mapped to the current mode by default
@@ -66,22 +67,27 @@ const GlobeView: React.FC = () => {
   const [overlayLastUpdated, setOverlayLastUpdated] = useState<Record<string, number>>({});
   const [legendOpen, setLegendOpen] = useState(false); // Legend is closed by default
   const [overlayPanelOpen, setOverlayPanelOpen] = useState(false); // Overlay controls panel is minimized by default
-  const [containerSize, setContainerSize] = useState({ width: window.innerWidth, height: window.innerHeight });
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // AI-NOTE: Integration with GlobeEngine per globe-engine-api.artifact
-    const engine = new GlobeEngine({ mode: visualizationMode.mode });
-    setGlobeEngine(engine);
-    // Listen for material ready
-    const checkMaterial = setInterval(() => {
-      const mat = engine.getMaterial();
-      if (mat) {
-        setMaterial(mat);
-        clearInterval(checkMaterial);
-      }
-    }, 100);
-    return () => clearInterval(checkMaterial);
+    // Delay Globe engine initialization to allow tactical animation to show
+    const initTimer = setTimeout(() => {
+      const engine = new GlobeEngine({ mode: visualizationMode.mode });
+      setGlobeEngine(engine);
+      
+      // Check for material with a slight delay to ensure tactical animation plays
+      const checkMaterial = setInterval(() => {
+        const mat = engine.getMaterial();
+        if (mat) {
+          setMaterial(mat);
+          clearInterval(checkMaterial);
+        }
+      }, 100);
+      
+      return () => clearInterval(checkMaterial);
+    }, 800); // Delay engine init by 800ms to let HUD load first
+
+    return () => clearTimeout(initTimer);
   }, [visualizationMode.mode]);
 
   useEffect(() => {
@@ -191,20 +197,37 @@ const GlobeView: React.FC = () => {
   // Reset modal page when inspecting a new overlay
   useEffect(() => {
     setModalPage(0);
-  }, [inspectOverlay]);
-
-  useEffect(() => {
+  }, [inspectOverlay]);  useEffect(() => {
     function handleResize() {
-      if (containerRef.current) {
-        const rect = containerRef.current.getBoundingClientRect();
-        setContainerSize({ width: rect.width, height: rect.height });
-      } else {
-        setContainerSize({ width: window.innerWidth, height: window.innerHeight });
+      // Force Globe to re-render with new window dimensions
+      if (globeRef.current) {
+        // Trigger a re-render by dispatching a resize event
+        const event = new Event('resize');
+        window.dispatchEvent(event);
       }
     }
+
+    // Handle page visibility changes
+    function handleVisibilityChange() {
+      if (!document.hidden) {
+        // Page became visible, refresh globe
+        setTimeout(() => {
+          handleResize();
+        }, 100);
+      }
+    }
+
     window.addEventListener('resize', handleResize);
-    handleResize(); // Initial
-    return () => window.removeEventListener('resize', handleResize);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    // Initial sizing
+    setTimeout(handleResize, 50);
+    setTimeout(handleResize, 200);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
   // Space weather settings integration effect
@@ -231,7 +254,13 @@ const GlobeView: React.FC = () => {
   
   // Space weather data visualization effect
   useEffect(() => {
-    if (!globeEngine || !visualizationVectors.length) return;
+    if (!globeEngine) return;
+    
+    if (!visualizationVectors.length) {
+      // Clear space weather markers when no data or disabled
+      setGlobeData(prevData => prevData.filter((d: { type?: string }) => d.type !== 'space-weather'));
+      return;
+    }
     
     // Use pre-processed visualization vectors from context
     const spaceWeatherMarkers = visualizationVectors.map(vector => ({
@@ -242,36 +271,58 @@ const GlobeView: React.FC = () => {
       label: `E-Field: ${vector.magnitude.toFixed(2)} V/m`,
       magnitude: vector.magnitude,
       direction: vector.direction,
-      quality: vector.quality
+      quality: vector.quality,
+      type: 'space-weather' // Add type for filtering and rendering
     }));
     
     // Update the overlay data using the new method
     globeEngine.updateSpaceWeatherVisualization(spaceWeatherMarkers);
     
+    // CRITICAL: Merge space weather data into globe's point data for actual rendering
+    setGlobeData(prevData => {
+      // Remove existing space weather markers
+      const nonSpaceWeatherData = prevData.filter((d: { type?: string }) => d.type !== 'space-weather');
+      // Add new space weather markers
+      return [...nonSpaceWeatherData, ...spaceWeatherMarkers];
+    });
+    
   }, [globeEngine, visualizationVectors]);
 
   return (
-    <div ref={containerRef} style={{ height: '100vh', width: '100%', position: 'relative' }}>
-      {/* Overlay Controls Panel (minimizable, repositioned) */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 64, // Adjust as needed to be just below TopBar (assume TopBar is 64px tall)
-          left: 100, // Adjust as needed to be just to the right of LeftSideBar (assume sidebar is 80px wide)
-          zIndex: 20,
-          background: 'rgba(0,0,0,0.7)',
-          color: '#fff',
-          borderRadius: 8,
-          padding: overlayPanelOpen ? 12 : 0,
-          minWidth: overlayPanelOpen ? 260 : 48,
-          minHeight: 32,
-          boxShadow: '0 2px 12px rgba(0,0,0,0.25)',
-          transition: 'all 0.2s',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: overlayPanelOpen ? 'stretch' : 'center',
-        }}
+    <div ref={containerRef} style={{ 
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: '100vw', 
+      height: '100vh', 
+      overflow: 'hidden',
+      zIndex: 0 // Behind HUD elements
+    }}>
+      <GlobeLoadingManager 
+        material={material} 
+        globeEngine={globeEngine}
+        fastTrackMode={false} // TODO: Add user setting for fast loading
       >
+        {/* Overlay Controls Panel (minimizable, repositioned) */}
+        <div
+          style={{
+            position: 'absolute',
+            top: 64, // Adjust as needed to be just below TopBar (assume TopBar is 64px tall)
+            left: 100, // Adjust as needed to be just to the right of LeftSideBar (assume sidebar is 80px wide)
+            zIndex: 20,
+            background: 'rgba(0,0,0,0.7)',
+            color: '#fff',
+            borderRadius: 8,
+            padding: overlayPanelOpen ? 12 : 0,
+            minWidth: overlayPanelOpen ? 260 : 48,
+            minHeight: 32,
+            boxShadow: '0 2px 12px rgba(0,0,0,0.25)',
+            transition: 'all 0.2s',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: overlayPanelOpen ? 'stretch' : 'center',
+          }}
+        >
         <button
           onClick={() => setOverlayPanelOpen((open) => !open)}
           style={{
@@ -445,13 +496,16 @@ const GlobeView: React.FC = () => {
           inspectOverlay && !overlayStatus[inspectOverlay]?.loading && !overlayStatus[inspectOverlay]?.error && <div>No data.</div>
         )}
       </Modal>
+      
+      {/* Globe render with proper full-screen positioning */}
       <Globe
         ref={globeRef}
-        width={containerSize.width}
-        height={containerSize.height}
+        width={window.innerWidth}
+        height={window.innerHeight}
         pointsData={globeData.filter((d: { lat?: number; lng?: number }) => d.lat !== undefined && d.lng !== undefined)}
         pointAltitude={(d: { size?: number }) => d.size || 0.5}
         pointColor={(d: { type?: string; color?: string }) => {
+          if (d.type === 'space-weather') return d.color || 'purple';
           if (d.type === 'intel') return 'orange';
           if (d.type === 'earthquake') return 'red';
           if (d.type === 'volcano') return 'purple';
@@ -461,11 +515,13 @@ const GlobeView: React.FC = () => {
           if (d.type === 'cloud') return 'gray';
           return d.color || 'white';
         }}
-        globeMaterial={material || undefined}
+        globeMaterial={material ?? undefined}
         onGlobeClick={handleGlobeClick}
         // ...existing Globe props...
       />
+      
       {/* Borders and territories overlays would be attached to the Three.js scene here in a custom renderer or with react-three-fiber */}
+      </GlobeLoadingManager>
     </div>
   );
 };

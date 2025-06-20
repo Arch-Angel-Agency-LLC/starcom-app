@@ -1,4 +1,4 @@
-import { useAuth } from '../context/AuthContext.tsx';
+import { useAuth } from './useAuth';
 import { useCallback, useState } from 'react';
 import { fetchWalletBalance } from '../middleware/web3Middleware';
 

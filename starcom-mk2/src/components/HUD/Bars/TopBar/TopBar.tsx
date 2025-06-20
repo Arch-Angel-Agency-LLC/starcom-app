@@ -48,9 +48,6 @@ const TopBar: React.FC = () => {
       aria-label="Top navigation bar"
       data-testid="topbar-root"
     >
-      <div className={styles.marqueeSection} aria-label="News and data marquee">
-        <Marquee dataPoints={dataPoints} />
-      </div>
       <button
         className={styles.settingsButton}
         aria-label="Open settings"
@@ -62,6 +59,9 @@ const TopBar: React.FC = () => {
       >
         <span role="img" aria-label="Settings">⚙️</span>
       </button>
+      <div className={styles.marqueeSection} aria-label="News and data marquee">
+        <Marquee dataPoints={dataPoints} />
+      </div>
       <EnhancedSettingsPopup
         open={modalOpen}
         enabledCategories={preferences.enabledCategories}

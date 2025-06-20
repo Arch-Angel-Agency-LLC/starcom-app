@@ -87,10 +87,13 @@
 }
 
 .rightSideBar {
+  position: absolute;
   right: 0;
-  width: 8%;
-  top: 5%; /* Start from the top */
-  bottom: 5%;
+  top: 0;
+  bottom: 0;
+  width: auto; /* Let the sidebar component control its own width */
+  z-index: 1000; /* Higher z-index for proper layering */
+  pointer-events: auto;
 }
 
 .center {

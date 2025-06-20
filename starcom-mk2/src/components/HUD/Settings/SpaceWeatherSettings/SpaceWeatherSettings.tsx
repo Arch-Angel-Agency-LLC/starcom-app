@@ -149,6 +149,111 @@ const SpaceWeatherSettings: React.FC<SpaceWeatherSettingsProps> = ({ subMode }) 
         </label>
       </div>
 
+      {/* Electric Field Normalization Controls */}
+      {config.spaceWeather.showElectricFields && (
+        <div className={styles.section}>
+          <div className={styles.sectionTitle}>🔧 Normalization</div>
+          
+          <div className={styles.selectRow}>
+            <label className={styles.selectLabel}>Method:</label>
+            <select
+              value={config.spaceWeather.normalization.method}
+              onChange={(e) => updateSpaceWeather({
+                normalization: { 
+                  ...config.spaceWeather.normalization, 
+                  method: e.target.value as 'linear' | 'logarithmic' | 'percentile' | 'statistical' | 'adaptive'
+                }
+              })}
+              className={styles.select}
+            >
+              <option value="adaptive">🤖 Adaptive</option>
+              <option value="percentile">📊 Percentile</option>
+              <option value="statistical">📈 Statistical</option>
+              <option value="logarithmic">📉 Logarithmic</option>
+              <option value="linear">📏 Linear</option>
+            </select>
+          </div>
+
+          <div className={styles.sliderRow}>
+            <label className={styles.sliderLabel}>
+              🎯 Outlier Factor {config.spaceWeather.normalization.outlierFactor.toFixed(1)}
+            </label>
+            <input
+              type="range"
+              min="1.0"
+              max="3.0"
+              step="0.1"
+              value={config.spaceWeather.normalization.outlierFactor}
+              onChange={(e) => updateSpaceWeather({
+                normalization: { 
+                  ...config.spaceWeather.normalization, 
+                  outlierFactor: parseFloat(e.target.value) 
+                }
+              })}
+              className={styles.slider}
+            />
+          </div>
+
+          <div className={styles.sliderRow}>
+            <label className={styles.sliderLabel}>
+              🌊 Smoothing {Math.round(config.spaceWeather.normalization.smoothingFactor * 100)}%
+            </label>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.05"
+              value={config.spaceWeather.normalization.smoothingFactor}
+              onChange={(e) => updateSpaceWeather({
+                normalization: { 
+                  ...config.spaceWeather.normalization, 
+                  smoothingFactor: parseFloat(e.target.value) 
+                }
+              })}
+              className={styles.slider}
+            />
+          </div>
+
+          {config.spaceWeather.normalization.method === 'percentile' && (
+            <div className={styles.rangeRow}>
+              <label className={styles.rangeLabel}>
+                📊 Range: {config.spaceWeather.normalization.percentileRange[0]}-{config.spaceWeather.normalization.percentileRange[1]}%
+              </label>
+              <div className={styles.rangeInputs}>
+                <input
+                  type="range"
+                  min="0"
+                  max="50"
+                  step="5"
+                  value={config.spaceWeather.normalization.percentileRange[0]}
+                  onChange={(e) => updateSpaceWeather({
+                    normalization: { 
+                      ...config.spaceWeather.normalization, 
+                      percentileRange: [parseInt(e.target.value), config.spaceWeather.normalization.percentileRange[1]]
+                    }
+                  })}
+                  className={styles.rangeSlider}
+                />
+                <input
+                  type="range"
+                  min="50"
+                  max="100"
+                  step="5"
+                  value={config.spaceWeather.normalization.percentileRange[1]}
+                  onChange={(e) => updateSpaceWeather({
+                    normalization: { 
+                      ...config.spaceWeather.normalization, 
+                      percentileRange: [config.spaceWeather.normalization.percentileRange[0], parseInt(e.target.value)]
+                    }
+                  })}
+                  className={styles.rangeSlider}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Geomagnetic Analysis */}
       <div className={styles.section}>
         <div className={styles.sectionTitle}>📊 Analysis</div>

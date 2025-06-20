@@ -272,6 +272,89 @@
   border-color: #00C4FF;
 }
 
+/* Select Controls */
+.selectRow {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+  gap: 6px;
+}
+
+.selectLabel {
+  font-size: 9px;
+  color: #94a3b8;
+  min-width: 40px;
+}
+
+.select {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(0, 196, 255, 0.3);
+  color: #B8E6FF;
+  font-size: 9px;
+  padding: 2px 4px;
+  border-radius: 2px;
+  outline: none;
+  font-family: 'Orbitron', Arial, sans-serif;
+}
+
+.select:focus {
+  border-color: #00C4FF;
+  box-shadow: 0 0 3px rgba(0, 196, 255, 0.3);
+}
+
+.select option {
+  background: #1a1a1a;
+  color: #B8E6FF;
+}
+
+/* Range Controls for Percentile */
+.rangeRow {
+  margin-bottom: 4px;
+}
+
+.rangeLabel {
+  display: block;
+  font-size: 8px;
+  color: #94a3b8;
+  margin-bottom: 2px;
+}
+
+.rangeInputs {
+  display: flex;
+  gap: 4px;
+}
+
+.rangeSlider {
+  flex: 1;
+  height: 3px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 2px;
+  outline: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+.rangeSlider::-webkit-slider-thumb {
+  appearance: none;
+  width: 8px;
+  height: 8px;
+  background: #00C4FF;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 3px #00C4FF;
+}
+
+.rangeSlider::-moz-range-thumb {
+  width: 8px;
+  height: 8px;
+  background: #00C4FF;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 0 3px #00C4FF;
+}
+
 /* Other Sub-Modes */
 .otherSubMode {
   text-align: center;

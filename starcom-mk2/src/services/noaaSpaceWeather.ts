@@ -4,6 +4,16 @@
 import type { IntelReportOverlayMarker } from '../interfaces/IntelReportOverlay';
 import type { SpaceWeatherAlert, NOAAElectricFieldData } from '../types/spaceWeather';
 
+// AI-NOTE: Import fetch conditionally for different environments
+const getFetch = async () => {
+  if (typeof globalThis !== 'undefined' && globalThis.fetch) {
+    return globalThis.fetch;
+  }
+  // In test environment, import from undici
+  const { fetch } = await import('undici');
+  return fetch;
+};
+
 // Additional interfaces for integration functions
 interface RegionalElectricFieldAnalysis {
   summary: string;
@@ -51,8 +61,8 @@ export function extractLatestFilename(html: string, dataset: 'InterMag' | 'US-Ca
  * TDD Step 5: GREEN phase - implementation to make tests pass
  */
 export async function fetchLatestElectricFieldData(dataset: 'InterMag' | 'US-Canada'): Promise<NOAAElectricFieldData> {
-  // Use browser's native fetch API
-  const fetchFn = globalThis.fetch || fetch;
+  // Get the appropriate fetch function for the environment
+  const fetchFn = await getFetch();
   
   // Determine the correct directory URL based on dataset
   const baseUrl = dataset === 'InterMag' 
