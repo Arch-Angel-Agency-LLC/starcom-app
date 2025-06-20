@@ -13,6 +13,8 @@
     "test:safe": "tsx scripts/test-noaa-safe.ts",
     "test:noaa-safe": "tsx scripts/test-noaa-safe.ts",
     "onboard": "tsx scripts/onboard.cjs",
+    "storage-check": "node scripts/storage-monitor.mjs",
+    "cleanup": "rm -f technical_reference_code_samples/NOAA_directory_scan/noaa_data/*.json && echo 'Cleaned up NOAA data files'",
     "prepare": "husky install",
     "mock-api": "node scripts/mock-api-server.js",
     "test:mint": "tsx scripts/testMint.ts"

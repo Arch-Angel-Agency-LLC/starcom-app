@@ -20,7 +20,7 @@
     },
     {
       "file": "src/components/Globe/Globe.tsx",
-      "line": 304,
+      "line": 323,
       "text": "TODO: Add user setting for fast loading"
     },
     {
@@ -372,13 +372,23 @@
     },
     {
       "file": "src/components/Globe/Globe.tsx",
-      "line": 530,
+      "line": 203,
+      "text": "AI-NOTE: Fix for stack overflow caused by recursive resize event dispatch"
+    },
+    {
+      "file": "src/components/Globe/Globe.tsx",
+      "line": 549,
       "text": "AI-NOTE: Refactored to use GlobeEngine. See globe-engine-api.artifact for integration details."
     },
     {
       "file": "src/components/HUD/Bars/LeftSideBar/ModeSettingsPanel.tsx",
       "line": 8,
       "text": "AI-NOTE: Dynamic settings panel that displays different controls based on visualization mode"
+    },
+    {
+      "file": "src/components/HUD/Bars/TopBar/EnhancedSettingsPopup.tsx",
+      "line": 149,
+      "text": "AI-NOTE: Enhanced modal integrates TopBar categories with unified space weather settings."
     },
     {
       "file": "src/components/HUD/Bars/TopBar/Marquee.tsx",
@@ -606,6 +616,11 @@
       "text": "AI-NOTE: Hook to manage space weather visualization settings with localStorage persistence"
     },
     {
+      "file": "src/hooks/useStorageMonitoring.ts",
+      "line": 2,
+      "text": "AI-NOTE: React hook to monitor and manage browser storage usage"
+    },
+    {
       "file": "src/hooks/useTokenGate.ts",
       "line": 3,
       "text": "AI-NOTE: Archived EVM/ethers.js logic. This hook previously checked token/NFT balance using EVM/ethers.js."
@@ -726,6 +741,11 @@
       "text": "AI-NOTE: Based on analysis of NOAA SWPC electric field datasets"
     },
     {
+      "file": "src/utils/browserStorageManager.ts",
+      "line": 2,
+      "text": "AI-NOTE: Prevents excessive browser storage accumulation that could bloat system cache"
+    },
+    {
       "file": "src/utils/electricFieldNormalization.test.ts",
       "line": 2,
       "text": "AI-NOTE: Tests for the advanced electric field normalization utilities"
@@ -751,5 +771,5 @@
       "text": "AI-NOTE: EVM/ethers.js version archived in legacy-evm/wallet.ts. Implement Solana logic here."
     }
   ],
-  "generatedAt": "2025-06-20T09:42:14.455Z"
+  "generatedAt": "2025-06-20T18:51:53.177Z"
 }
