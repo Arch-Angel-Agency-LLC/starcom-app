@@ -1,6 +1,6 @@
 // src/components/Auth/TokenGatedPage.tsx
 import React from 'react';
-import { useAuth } from '../../context/AuthContext.tsx';
+import { useAuth } from '../../hooks/useAuth';
 import { useOnChainRoles } from '../../hooks/useOnChainRoles';
 import { useTokenGate } from '../../hooks/useTokenGate';
 

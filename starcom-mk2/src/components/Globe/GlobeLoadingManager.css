@@ -1,0 +1,236 @@
+/* Globe Loading Manager CSS */
+.globe-loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  transition: opacity 0.5s ease-out;
+  opacity: 1;
+}
+
+.globe-loading-overlay.fade-out {
+  opacity: 0;
+}
+
+.tactical-loading {
+  position: relative;
+  color: #00ff41;
+  font-family: 'Courier New', monospace;
+  text-align: center;
+  font-size: 16px;
+  letter-spacing: 1px;
+  user-select: none;
+}
+
+/* Tactical Grid Background */
+.tactical-grid {
+  position: absolute;
+  top: -100px;
+  left: -100px;
+  width: 200px;
+  height: 200px;
+  border: 1px solid #00ff41;
+  opacity: 0.3;
+  animation: gridScan 3s ease-in-out infinite;
+}
+
+.grid-lines {
+  position: absolute;
+  background: #00ff41;
+  opacity: 0.5;
+}
+
+.grid-lines.horizontal {
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+}
+
+.grid-lines.vertical {
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+}
+
+/* Globe Loader */
+.globe-loader-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.scanning-globe {
+  width: 60px;
+  height: 60px;
+  border: 2px solid #00ff41;
+  border-radius: 50%;
+  position: relative;
+  animation: rotate 2s linear infinite;
+}
+
+.globe-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 24px;
+  animation: float 2s ease-in-out infinite;
+}
+
+.scanning-dot {
+  position: absolute;
+  top: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  background: #00ff41;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #00ff41, 0 0 16px #00ff41;
+}
+
+.inner-ring {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  border: 1px solid #00ff41;
+  border-radius: 50%;
+  opacity: 0.4;
+  animation: rotate 3s linear infinite reverse;
+}
+
+/* Command Text */
+.command-text {
+  animation: typing 2.5s steps(30) infinite;
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: 2px solid #00ff41;
+  width: fit-content;
+  margin: 0 auto 15px;
+  text-shadow: 0 0 8px #00ff41;
+}
+
+/* Status Lines */
+.status-lines {
+  margin-bottom: 20px;
+  font-size: 12px;
+  opacity: 0.8;
+  line-height: 1.4;
+}
+
+.status-line {
+  animation: blink 1s ease-in-out infinite;
+  margin-bottom: 2px;
+}
+
+/* Progress Bars */
+.progress-bars {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+}
+
+.progress-bar {
+  width: 20px;
+  height: 3px;
+  background: rgba(0, 255, 65, 0.3);
+  animation: progressBar 1.5s ease-in-out infinite;
+}
+
+/* Globe Content */
+.globe-content {
+  height: 100vh;
+  width: 100%;
+  position: relative;
+  transition: opacity 0.3s ease-in;
+}
+
+.globe-content.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.globe-content.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Animations */
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(1.1); }
+}
+
+@keyframes gridScan {
+  0%, 100% { 
+    transform: scale(1) rotate(0deg); 
+    opacity: 0.3; 
+  }
+  50% { 
+    transform: scale(1.1) rotate(180deg); 
+    opacity: 0.6; 
+  }
+}
+
+@keyframes typing {
+  0% { width: 0; }
+  60% { width: 100%; }
+  100% { width: 100%; }
+}
+
+@keyframes blink {
+  0%, 60% { opacity: 0.8; }
+  61%, 100% { opacity: 0.3; }
+}
+
+@keyframes progressBar {
+  0%, 100% { 
+    background: rgba(0, 255, 65, 0.3); 
+  }
+  50% { 
+    background: rgba(0, 255, 65, 1); 
+    box-shadow: 0 0 4px #00ff41; 
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .tactical-loading {
+    font-size: 14px;
+  }
+  
+  .scanning-globe {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .globe-icon {
+    font-size: 20px;
+  }
+  
+  .status-lines {
+    font-size: 11px;
+  }
+  
+  .progress-bar {
+    width: 15px;
+    height: 2px;
+  }
+}

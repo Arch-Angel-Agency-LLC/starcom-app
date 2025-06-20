@@ -26,6 +26,14 @@ export interface SpaceWeatherConfig {
   autoRefresh: boolean;
   refreshInterval: number; // minutes
   showStatistics: boolean;
+  // Advanced normalization settings
+  normalization: {
+    method: 'linear' | 'logarithmic' | 'percentile' | 'statistical' | 'adaptive';
+    outlierFactor: number; // 1.0-3.0
+    smoothingFactor: number; // 0-1
+    percentileRange: [number, number]; // e.g., [5, 95]
+    clampMax: number | null; // Optional maximum clamp value
+  };
 }
 
 const defaultConfig: SpaceWeatherConfig = {
@@ -49,7 +57,14 @@ const defaultConfig: SpaceWeatherConfig = {
   },
   autoRefresh: true,
   refreshInterval: 5,
-  showStatistics: true
+  showStatistics: true,
+  normalization: {
+    method: 'adaptive',
+    outlierFactor: 1.5,
+    smoothingFactor: 0.1,
+    percentileRange: [10, 90],
+    clampMax: null
+  }
 };
 
 const STORAGE_KEY = 'space-weather-settings';

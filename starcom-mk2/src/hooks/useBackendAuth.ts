@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { requestBackendNonce, submitBackendSignature, BackendSession } from '../api/auth';
-import { useAuth } from '../context/AuthContext.tsx';
+import { useAuth } from './useAuth';
 
 export function useBackendAuth() {
   const { address, signer } = useAuth();

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAuth } from '../../context/AuthContext.tsx';
+import { useAuth } from '../../hooks/useAuth';
 import Modal from '../Shared/Modal';
 import Snackbar from '../Shared/Snackbar';
 import Tooltip from '../Shared/Tooltip';

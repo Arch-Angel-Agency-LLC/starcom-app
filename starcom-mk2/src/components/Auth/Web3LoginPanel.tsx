@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../context/AuthContext.tsx';
+import { useAuth } from '../../hooks/useAuth';
 import Snackbar from '../Shared/Snackbar';
 import Modal from '../Shared/Modal';
 

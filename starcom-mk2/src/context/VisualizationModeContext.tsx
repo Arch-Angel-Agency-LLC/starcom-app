@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { settingsStorage } from '../utils/settingsStorage';
 
 // Extend VisualizationMode to include sub-modes
@@ -34,7 +34,8 @@ interface VisualizationModeContextProps {
   resetVisualizationMode: () => void;
 }
 
-const VisualizationModeContext = createContext<VisualizationModeContextProps | undefined>(undefined);
+// Ensure React is properly loaded before creating context
+const VisualizationModeContext = React.createContext<VisualizationModeContextProps | undefined>(undefined);
 
 // Provider component
 export const VisualizationModeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {

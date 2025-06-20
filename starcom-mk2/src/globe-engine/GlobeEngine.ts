@@ -17,7 +17,6 @@ import { fetchNaturalEvents } from '../services/GeoEventsService';
 import { fetchSpaceAssets } from '../services/SpaceAssetsService';
 import { fetchLatestElectricFieldData, transformNOAAToIntelMarkers } from '../services/noaaSpaceWeather';
 import type { IntelReportOverlayMarker } from '../interfaces/IntelReportOverlay';
-import type { ProcessedElectricFieldData } from '../types/spaceWeather';
 
 export type GlobeEvent = { type: string; payload?: unknown };
 
@@ -63,27 +62,55 @@ export class GlobeEngine {
   }
 
   private async init() {
-    // AI-NOTE: See globe-mode-mapping-reference.artifact, globe-modes.artifact, globe-shaders.artifact, globe-textures.artifact
-    const renderConfig = GlobeModeMapping.getRenderConfigForMode(this.mode);
-    const textureNames = [renderConfig.texture, 'blueMarble', 'earthDay', 'earthDark'];
-    const textures: Record<string, THREE.Texture> = {};
-    for (const name of textureNames) {
-      textures[`${name}Texture`] = await GlobeTextureLoader.loadTexture(name);
-    }
-    this.material = GlobeMaterialManager.getMaterialForMode(renderConfig.shader, textures);
-    // TODO: Initialize overlays
-    // If spaceAssets overlay is active, start periodic updates (artifact-driven, see globe-overlays.artifact)
-    if (this.overlays.includes('spaceAssets')) {
-      this.startSpaceAssetsUpdates();
-    } else {
-      this.stopSpaceAssetsUpdates();
-    }
-    
-    // Start space weather updates if any space weather overlays are active
-    if (this.overlays.some(o => o.startsWith('spaceWeather'))) {
-      this.startSpaceWeatherUpdates();
-    } else {
-      this.stopSpaceWeatherUpdates();
+    try {
+      // AI-NOTE: See globe-mode-mapping-reference.artifact, globe-modes.artifact, globe-shaders.artifact, globe-textures.artifact
+      const renderConfig = GlobeModeMapping.getRenderConfigForMode(this.mode);
+      const textureNames = [renderConfig.texture, 'blueMarble', 'earthDay', 'earthDark'];
+      const textures: Record<string, THREE.Texture> = {};
+      
+      // Load textures with timeout and error handling
+      const texturePromises = textureNames.map(async (name) => {
+        try {
+          const texture = await Promise.race([
+            GlobeTextureLoader.loadTexture(name),
+            new Promise<never>((_, reject) => 
+              setTimeout(() => reject(new Error(`Texture loading timeout for ${name}`)), 10000)
+            )
+          ]);
+          textures[`${name}Texture`] = texture;
+        } catch (error) {
+          console.warn(`Failed to load texture ${name}:`, error);
+          // Create a simple colored texture as fallback
+          const canvas = document.createElement('canvas');
+          canvas.width = canvas.height = 1;
+          const ctx = canvas.getContext('2d')!;
+          ctx.fillStyle = name === 'earthDark' ? '#002244' : '#4477cc';
+          ctx.fillRect(0, 0, 1, 1);
+          const fallbackTexture = new THREE.CanvasTexture(canvas);
+          textures[`${name}Texture`] = fallbackTexture;
+        }
+      });
+      
+      await Promise.all(texturePromises);
+      this.material = GlobeMaterialManager.getMaterialForMode(renderConfig.shader, textures);
+      
+      // Initialize overlays
+      if (this.overlays.includes('spaceAssets')) {
+        this.startSpaceAssetsUpdates();
+      } else {
+        this.stopSpaceAssetsUpdates();
+      }
+      
+      // Start space weather updates if any space weather overlays are active
+      if (this.overlays.some(o => o.startsWith('spaceWeather'))) {
+        this.startSpaceWeatherUpdates();
+      } else {
+        this.stopSpaceWeatherUpdates();
+      }
+    } catch (error) {
+      console.error('GlobeEngine initialization failed:', error);
+      // Create a basic fallback material
+      this.material = new THREE.MeshBasicMaterial({ color: 0x4444ff });
     }
   }
 
@@ -262,16 +289,16 @@ export class GlobeEngine {
         // AI-NOTE: Fetch intel markers from secure API (see overlays artifact)
         // TODO: Replace mock with live fetch from API/backend/Solana
         import('../api/intelligence').then(({ fetchIntelReports }) => {
-          fetchIntelReports().then((reports: any[]) => {
+          fetchIntelReports().then((reports: import('../models/IntelReport').IntelReport[]) => {
             // Map IntelReport to IntelReportOverlayMarker
             const overlayMarkers = reports.map((r) => ({
-              pubkey: r.pubkey || '',
-              title: r.title || r.label || '',
+              pubkey: '', // IntelReport doesn't have pubkey field
+              title: r.title || '',
               content: r.content || '',
               tags: r.tags || [],
-              latitude: r.lat ?? r.latitude ?? 0,
-              longitude: r.long ?? r.longitude ?? 0,
-              timestamp: r.timestamp || Date.parse(r.date || '') || 0,
+              latitude: r.lat || 0,
+              longitude: r.long || 0,
+              timestamp: Date.parse(r.date || '') || 0,
               author: r.author || '',
             }));
             this.overlayDataCache['intelMarkers'] = overlayMarkers;

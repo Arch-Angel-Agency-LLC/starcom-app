@@ -1,43 +1,84 @@
-// AI-NOTE: Intelligence API stub for artifact-driven Solana migration.
-// All EVM/ethers.js and high-risk logic removed per security policy.
+// AI-NOTE: Intelligence API integration for Solana-based Intelligence Exchange Marketplace
+// Implements secure serverless architecture using @solana/web3.js
 // See artifacts/intel-report-api-integration.artifact for migration plan and endpoint documentation.
-// TODO: Implement secure Solana integration using @solana/web3.js or backend/CLI only.
 
 import type { IntelReport } from '../models/IntelReport';
-import { Connection, PublicKey } from '@solana/web3.js';
+import { Connection, PublicKey, Transaction } from '@solana/web3.js';
+import { IntelReportService } from '../services/IntelReportService';
 
 /**
  * Replace with your deployed program ID
  */
-const PROGRAM_ID = new PublicKey('REPLACE_WITH_YOUR_PROGRAM_ID');
+const PROGRAM_ID = 'REPLACE_WITH_YOUR_PROGRAM_ID';
+
+// Create service instance
+const intelReportService = new IntelReportService(
+  new Connection('https://api.devnet.solana.com', 'confirmed'),
+  PROGRAM_ID
+);
 
 /**
  * Fetch intelligence reports directly from Solana accounts (serverless).
  * See artifacts/intel-report-api-integration.artifact for data flow and security policy.
  */
 export async function fetchIntelReports(): Promise<IntelReport[]> {
-  const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
-  // TODO: Replace with actual discriminator and account structure from Anchor IDL
-  const INTEL_REPORT_ACCOUNT_DISCRIMINATOR = Buffer.from([/* 8-byte discriminator */]);
-  const accounts = await connection.getProgramAccounts(PROGRAM_ID, {
-    filters: [
-      { memcmp: { offset: 0, bytes: INTEL_REPORT_ACCOUNT_DISCRIMINATOR.toString('base64') } },
-    ],
-  });
-  // TODO: Parse account data into IntelReport objects
-  return accounts.map(() => ({
-    // ...parse acc.account.data to IntelReport fields...
-    lat: 0, long: 0, title: '', subtitle: '', date: '', author: '', content: '', tags: [], categories: [], metaDescription: ''
-  }));
+  try {
+    const reports = await intelReportService.fetchIntelReports();
+    
+    // Transform to IntelReport format
+    return reports.map(report => ({
+      lat: report.latitude,
+      long: report.longitude,
+      title: report.title,
+      subtitle: '',
+      date: new Date(report.timestamp).toISOString().split('T')[0],
+      author: report.author,
+      content: report.content,
+      tags: report.tags,
+      categories: [],
+      metaDescription: report.content.substring(0, 100) + '...',
+      pubkey: report.pubkey,
+      latitude: report.latitude,
+      longitude: report.longitude,
+      timestamp: report.timestamp,
+    }));
+  } catch (error) {
+    console.error('Error fetching intel reports:', error);
+    throw new Error('Failed to fetch intelligence reports');
+  }
 }
 
 /**
  * Submit a new intelligence report directly to Solana (serverless).
  * Requires wallet signature and on-chain program logic.
  */
-export async function submitIntelReport(): Promise<void> {
-  // TODO: Use @solana/web3.js to create and send transaction to the program
-  // Use wallet to sign and send the transaction
-  // All validation and access control must be enforced on-chain
-  throw new Error('Not implemented: submitIntelReport');
+export async function submitIntelReport(
+  report: {
+    title: string;
+    content: string;
+    tags: string[];
+    latitude: number;
+    longitude: number;
+  },
+  wallet: {
+    publicKey: PublicKey | null;
+    signTransaction?: (transaction: Transaction) => Promise<Transaction>;
+  }
+): Promise<string> {
+  try {
+    const signature = await intelReportService.submitIntelReport(
+      {
+        ...report,
+        timestamp: Date.now(),
+        pubkey: '', // Will be set by the service
+        author: wallet.publicKey?.toString() || '',
+      },
+      wallet
+    );
+    
+    return signature;
+  } catch (error) {
+    console.error('Error submitting intel report:', error);
+    throw new Error('Failed to submit intelligence report');
+  }
 }

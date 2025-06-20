@@ -1,11 +1,11 @@
 import { createContext } from 'react';
-import { Provider, Signer } from 'ethers';
 
+// Updated for Solana wallet integration
 export interface AuthContextType {
   isAuthenticated: boolean;
   address: string | null;
-  provider: Provider | null;
-  signer: Signer | null;
+  provider: any | null; // Solana wallet provider
+  signer: any | null; // Solana wallet signer
   connectWallet: () => Promise<void>;
   disconnectWallet: () => Promise<void>;
   isLoading: boolean;

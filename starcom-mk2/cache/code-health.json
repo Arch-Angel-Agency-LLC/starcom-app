@@ -9,34 +9,19 @@
   },
   "todos": [
     {
-      "file": "src/api/intelligence.ts",
-      "line": 4,
-      "text": "TODO: Implement secure Solana integration using @solana/web3.js or backend/CLI only."
-    },
-    {
-      "file": "src/api/intelligence.ts",
-      "line": 20,
-      "text": "TODO: Replace with actual discriminator and account structure from Anchor IDL"
-    },
-    {
-      "file": "src/api/intelligence.ts",
-      "line": 27,
-      "text": "TODO: Parse account data into IntelReport objects"
-    },
-    {
-      "file": "src/api/intelligence.ts",
-      "line": 39,
-      "text": "TODO: Use @solana/web3.js to create and send transaction to the program"
-    },
-    {
       "file": "src/components/Auth/TokenGatedPage.test.tsx",
       "line": 8,
       "text": "TODO: Implement proper TokenGatedPage tests without RainbowKit/Wagmi circular deps"
     },
     {
       "file": "src/components/Globe/Globe.tsx",
-      "line": 89,
+      "line": 95,
       "text": "TODO: Use overlay/event data from GlobeEngine if needed"
+    },
+    {
+      "file": "src/components/Globe/Globe.tsx",
+      "line": 304,
+      "text": "TODO: Add user setting for fast loading"
     },
     {
       "file": "src/components/HUD/Bars/TopBar/useTopBarData.ts",
@@ -85,52 +70,22 @@
     },
     {
       "file": "src/context/AuthContext.tsx",
-      "line": 184,
-      "text": "TODO: Solana wallet context provider in progress. See artifacts/intel-report-stage1-plan.artifact"
+      "line": 26,
+      "text": "TODO: Implement proper Solana message signing for authentication"
     },
     {
-      "file": "src/contracts/IntelligenceMarket.ts",
-      "line": 1,
-      "text": "TODO: Solana/Anchor/Metaplex contract logic in progress. See artifacts/intel-report-stage1-plan.artifact"
-    },
-    {
-      "file": "src/contracts/IntelligenceMarket.ts",
-      "line": 5,
-      "text": "TODO: Implement buyAsset logic for Solana"
-    },
-    {
-      "file": "src/contracts/IntelligenceMarket.ts",
-      "line": 9,
-      "text": "TODO: Implement sellAsset logic for Solana"
-    },
-    {
-      "file": "src/contracts/IntelligenceMarket.ts",
-      "line": 13,
-      "text": "TODO: Implement listAsset logic for Solana"
-    },
-    {
-      "file": "src/contracts/IntelligenceMarket.ts",
-      "line": 17,
-      "text": "TODO: Implement purchaseAsset logic for Solana"
-    },
-    {
-      "file": "src/contracts/IntelligenceMarket.ts",
-      "line": 21,
-      "text": "TODO: Implement getAssetDetails logic for Solana"
+      "file": "src/context/AuthContext.tsx",
+      "line": 29,
+      "text": "TODO: Replace with real signature"
     },
     {
       "file": "src/globe-engine/GlobeEngine.ts",
-      "line": 74,
-      "text": "TODO: Initialize overlays"
-    },
-    {
-      "file": "src/globe-engine/GlobeEngine.ts",
-      "line": 263,
+      "line": 290,
       "text": "TODO: Replace mock with live fetch from API/backend/Solana"
     },
     {
       "file": "src/globe-engine/GlobeEngine.ts",
-      "line": 430,
+      "line": 457,
       "text": "TODO: Replace mock data with live Solana/secure backend integration."
     },
     {
@@ -164,9 +119,104 @@
       "text": "TODO: Integrate with Solana/secure backend and live overlays when available."
     },
     {
+      "file": "src/services/IntelReportService.ts",
+      "line": 29,
+      "text": "TODO: Replace with deployed program ID"
+    },
+    {
+      "file": "src/services/IntelReportService.ts",
+      "line": 57,
+      "text": "TODO: Re-enable when Anchor integration is ready"
+    },
+    {
+      "file": "src/services/IntelReportService.ts",
+      "line": 118,
+      "text": "TODO: Use actual wallet keypair"
+    },
+    {
+      "file": "src/services/IntelReportService.ts",
+      "line": 148,
+      "text": "TODO: Replace with real Solana transaction logic"
+    },
+    {
+      "file": "src/services/IntelReportService.ts",
+      "line": 210,
+      "text": "TODO: Implement actual account fetching once program is deployed"
+    },
+    {
+      "file": "src/services/IntelReportService.ts",
+      "line": 217,
+      "text": "TODO: Implement actual account fetching once program is deployed"
+    },
+    {
       "file": "src/services/NOAAGeomagneticService.test.ts",
       "line": 8,
       "text": "TODO: Implement NOAAGeomagneticService tests"
+    },
+    {
+      "file": "src/services/crypto/PQCryptoService.ts",
+      "line": 58,
+      "text": "TODO: Integrate with liboqs or similar PQC library"
+    },
+    {
+      "file": "src/services/crypto/PQCryptoService.ts",
+      "line": 68,
+      "text": "TODO: Implement ML-KEM encapsulation"
+    },
+    {
+      "file": "src/services/crypto/PQCryptoService.ts",
+      "line": 76,
+      "text": "TODO: Implement ML-KEM decapsulation"
+    },
+    {
+      "file": "src/services/crypto/PQCryptoService.ts",
+      "line": 85,
+      "text": "TODO: Integrate with liboqs ML-DSA implementation"
+    },
+    {
+      "file": "src/services/crypto/PQCryptoService.ts",
+      "line": 94,
+      "text": "TODO: Implement ML-DSA signing"
+    },
+    {
+      "file": "src/services/crypto/PQCryptoService.ts",
+      "line": 108,
+      "text": "TODO: Implement ML-DSA verification"
+    },
+    {
+      "file": "src/services/crypto/PQCryptoService.ts",
+      "line": 236,
+      "text": "TODO: Implement ECDH with Solana keys"
+    },
+    {
+      "file": "src/services/crypto/PQCryptoService.ts",
+      "line": 241,
+      "text": "TODO: Implement ECDH secret derivation"
+    },
+    {
+      "file": "src/services/crypto/PQCryptoService.ts",
+      "line": 247,
+      "text": "TODO: Implement proper HKDF"
+    },
+    {
+      "file": "src/services/crypto/PQCryptoService.ts",
+      "line": 256,
+      "text": "TODO: Implement AES-256-GCM encryption"
+    },
+    {
+      "file": "src/services/crypto/PQCryptoService.ts",
+      "line": 261,
+      "text": "TODO: Implement AES-256-GCM decryption"
+    },
+    {
+      "file": "src/services/crypto/PQCryptoService.ts",
+      "line": 266,
+      "text": "TODO: Implement multi-recipient encryption"
+    },
+    {
+      "file": "src/services/crypto/PQCryptoService.ts",
+      "line": 280,
+      "text": "TODO: Store algorithm update on Solana for audit trail"
     },
     {
       "file": "src/services/data-services.all.test.ts",
@@ -278,7 +328,7 @@
     {
       "file": "src/api/intelligence.ts",
       "line": 1,
-      "text": "AI-NOTE: Intelligence API stub for artifact-driven Solana migration."
+      "text": "AI-NOTE: Intelligence API integration for Solana-based Intelligence Exchange Marketplace"
     },
     {
       "file": "src/api/market.mock.ts",
@@ -316,13 +366,13 @@
       "text": "AI-NOTE: Tests split into category files, adding placeholder"
     },
     {
-      "file": "src/components/Globe/Globe.tsx",
-      "line": 73,
-      "text": "AI-NOTE: Integration with GlobeEngine per globe-engine-api.artifact"
+      "file": "src/components/EcoNatural/SpaceWeatherNormalizationPanel.tsx",
+      "line": 2,
+      "text": "AI-NOTE: Advanced normalization control panel for space weather visualization"
     },
     {
       "file": "src/components/Globe/Globe.tsx",
-      "line": 474,
+      "line": 530,
       "text": "AI-NOTE: Refactored to use GlobeEngine. See globe-engine-api.artifact for integration details."
     },
     {
@@ -331,13 +381,8 @@
       "text": "AI-NOTE: Dynamic settings panel that displays different controls based on visualization mode"
     },
     {
-      "file": "src/components/HUD/Bars/TopBar/EnhancedSettingsPopup.tsx",
-      "line": 8,
-      "text": "AI-NOTE: Enhanced settings popup with tabs for quick settings that benefit from real-time preview"
-    },
-    {
       "file": "src/components/HUD/Bars/TopBar/Marquee.tsx",
-      "line": 104,
+      "line": 113,
       "text": "AI-NOTE: Marquee is accessible, pauses on hover/focus, loops, and is responsive."
     },
     {
@@ -359,6 +404,11 @@
       "file": "src/components/HUD/Bars/TopBar/useTopBarPreferences.ts",
       "line": 56,
       "text": "AI-NOTE: Handles loading, saving, and updating user preferences for TopBar categories."
+    },
+    {
+      "file": "src/components/HUD/Settings/SpaceWeatherSettings/ElectricFieldToggleTest.tsx",
+      "line": 2,
+      "text": "AI-NOTE: Simple test component to validate electric field toggle functionality"
     },
     {
       "file": "src/components/HUD/Settings/SpaceWeatherSettings/SpaceWeatherSettings.tsx",
@@ -402,17 +452,12 @@
     },
     {
       "file": "src/components/TinyGlobe/TinyGlobe.tsx",
-      "line": 21,
+      "line": 43,
       "text": "AI-NOTE: Integration with GlobeEngine per globe-engine-api.artifact"
     },
     {
       "file": "src/components/TinyGlobe/TinyGlobe.tsx",
-      "line": 41,
-      "text": "AI-NOTE: Integration with GlobeEngine per globe-engine-api.artifact"
-    },
-    {
-      "file": "src/components/TinyGlobe/TinyGlobe.tsx",
-      "line": 192,
+      "line": 257,
       "text": "AI-NOTE: Refactored to use GlobeEngine. See globe-engine-api.artifact for integration details."
     },
     {
@@ -422,18 +467,18 @@
     },
     {
       "file": "src/context/AuthContext.tsx",
-      "line": 185,
+      "line": 112,
       "text": "AI-NOTE: EVM/ethers.js version archived in legacy-evm/AuthContext.tsx. Implement Solana logic here."
+    },
+    {
+      "file": "src/context/SpaceWeatherContext.test.ts",
+      "line": 2,
+      "text": "AI-NOTE: Integration tests for SpaceWeatherContext toggle functionality"
     },
     {
       "file": "src/context/SpaceWeatherContext.tsx",
       "line": 2,
       "text": "AI-NOTE: Context for sharing space weather data and settings across components"
-    },
-    {
-      "file": "src/contracts/IntelligenceMarket.ts",
-      "line": 2,
-      "text": "AI-NOTE: EVM/ethers.js version archived in legacy-evm/IntelligenceMarket.ts. Implement Solana logic here."
     },
     {
       "file": "src/globe-engine/GlobeEngine.spaceWeather.test.ts",
@@ -457,42 +502,42 @@
     },
     {
       "file": "src/globe-engine/GlobeEngine.ts",
-      "line": 118,
+      "line": 145,
       "text": "AI-NOTE: Space weather periodic update methods"
     },
     {
       "file": "src/globe-engine/GlobeEngine.ts",
-      "line": 199,
+      "line": 226,
       "text": "AI-NOTE: See globe-overlays.artifact for overlay logic and data sources."
     },
     {
       "file": "src/globe-engine/GlobeEngine.ts",
-      "line": 262,
+      "line": 289,
       "text": "AI-NOTE: Fetch intel markers from secure API (see overlays artifact)"
     },
     {
       "file": "src/globe-engine/GlobeEngine.ts",
-      "line": 294,
+      "line": 321,
       "text": "AI-NOTE: Fetch NOAA space weather data (electric field InterMag & US-Canada)"
     },
     {
       "file": "src/globe-engine/GlobeEngine.ts",
-      "line": 299,
+      "line": 326,
       "text": "AI-NOTE: Space weather overlays integration (see NOAA-TDD-Implementation-Summary.md)"
     },
     {
       "file": "src/globe-engine/GlobeEngine.ts",
-      "line": 385,
+      "line": 412,
       "text": "AI-NOTE: Overlay data structure and update mechanism should be defined in globe-overlays.artifact"
     },
     {
       "file": "src/globe-engine/GlobeEngine.ts",
-      "line": 393,
+      "line": 420,
       "text": "AI-NOTE: Overlay data update mechanism should be defined in globe-overlays.artifact"
     },
     {
       "file": "src/globe-engine/GlobeEngine.ts",
-      "line": 425,
+      "line": 452,
       "text": "AI-NOTE: Overlays for intelligence markers (SIGINT/HUMINT) are currently mocked."
     },
     {
@@ -601,6 +646,11 @@
       "text": "AI-NOTE: This implements proper caching for space weather data following the established pattern."
     },
     {
+      "file": "src/services/crypto/PQCryptoService.ts",
+      "line": 4,
+      "text": "AI-NOTE: This service provides quantum-resistant security for intelligence assets"
+    },
+    {
       "file": "src/services/data-service-interfaces.ts",
       "line": 48,
       "text": "AI-NOTE: This file is artifact-driven and should be updated if the interfaces artifact changes."
@@ -646,6 +696,11 @@
       "text": "AI-NOTE: Building up functionality test by test"
     },
     {
+      "file": "src/services/noaaSpaceWeather.ts",
+      "line": 7,
+      "text": "AI-NOTE: Import fetch conditionally for different environments"
+    },
+    {
       "file": "src/services/testNoaaFunctions.mjs",
       "line": 4,
       "text": "AI-NOTE: This bypasses the complex test suite to verify basic functionality"
@@ -671,6 +726,16 @@
       "text": "AI-NOTE: Based on analysis of NOAA SWPC electric field datasets"
     },
     {
+      "file": "src/utils/electricFieldNormalization.test.ts",
+      "line": 2,
+      "text": "AI-NOTE: Tests for the advanced electric field normalization utilities"
+    },
+    {
+      "file": "src/utils/electricFieldNormalization.ts",
+      "line": 2,
+      "text": "AI-NOTE: Advanced normalization utilities for electric field data visualization"
+    },
+    {
       "file": "src/utils/settingsStorage.ts",
       "line": 1,
       "text": "AI-NOTE: Centralized settings persistence utility for all visualization mode settings"
@@ -686,5 +751,5 @@
       "text": "AI-NOTE: EVM/ethers.js version archived in legacy-evm/wallet.ts. Implement Solana logic here."
     }
   ],
-  "generatedAt": "2025-06-18T18:22:30.842Z"
+  "generatedAt": "2025-06-20T09:42:14.455Z"
 }

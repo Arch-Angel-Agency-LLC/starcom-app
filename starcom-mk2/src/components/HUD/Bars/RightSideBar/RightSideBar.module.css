@@ -1,123 +1,973 @@
-.rightSideBar {
-    background: rgba(0, 0, 0, 0.8); /* Updated background */
-    border: 2px solid #00C4FF; /* Neon Blue */
-    border-radius: 5px; /* Slightly rounded corners */
-    padding: 0px;
-    box-shadow: 0 0 10px #00C4FF; /* Glow effect */
-    color: #00C4FF; /* Neon Blue text */
-    font-family: 'Orbitron', Arial, sans-serif; /* Futuristic font */
-    width: 7vw; /* Slightly wider sidebar */
-    min-width: 90px;
-    max-width: 140px;
-    height: auto; /* Adjust height */
-    position: absolute; /* Updated position */
-    top: 0;
-    bottom: 0px; /* Stop at the top of the BottomBar */
-    right: 0; /* Ensure it hugs the right side */
-    pointer-events: auto; /* Enable clicks on HUD components */
-}
-
-.header {
-    font-size: 24px;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: #00C4FF; /* Neon Blue */
-    text-shadow: 0 0 2px #00C4FF; /* Glow effect */
-    margin-bottom: 10px;
-}
-
-.content {
-    display: flex;
-    flex-direction: column;
-    gap: 4px; /* Spacing between elements */
-}
-
-.text {
-    font-size: 14px;
-    color: #A0A0A0; /* Neutral Gray */
-}
-
-.scrollContainer {
-  max-height: 100%; /* Limit height to the containing RightSideBar */
-  overflow: hidden; /* Prevent overflow outside the container */
+/* Modern RightSideBar with improved UX */
+.sidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 120px;
+  height: 100vh;
+  background: linear-gradient(135deg, rgba(0, 10, 20, 0.95) 0%, rgba(0, 25, 50, 0.9) 100%);
+  backdrop-filter: blur(10px);
+  border-left: 2px solid rgba(0, 196, 255, 0.3);
   display: flex;
   flex-direction: column;
-}
-
-.scrollView {
-  overflow-y: auto; /* Enable vertical scrolling */
-  overflow-x: hidden; /* Prevent horizontal scrolling */
-  width: 100%;
-  padding: 6px 2px 6px 2px;
+  padding: 6px 4px;
   box-sizing: border-box;
+  z-index: 9999;
+  transition: width 0.3s ease, background 0.3s ease;
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.5);
+  pointer-events: auto; /* Allow interaction */
+  transform: translateZ(0); /* Force GPU acceleration */
 }
 
-.button {
+.sidebar.collapsed {
+  width: 40px;
+}
+
+.sidebar:hover {
+  background: linear-gradient(135deg, rgba(0, 15, 30, 0.98) 0%, rgba(0, 35, 70, 0.95) 100%);
+  border-left-color: rgba(0, 196, 255, 0.6);
+}
+
+/* Legacy Header Styles - Now Replaced by Action Header */
+/* .header styles removed - using .actionHeader instead */
+
+.collapseBtn {
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(0, 196, 255, 0.4);
+  color: #00c4ff;
+  font-size: 0.65rem;
+  width: 20px;
+  height: 18px;
+  border-radius: 3px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  font-weight: bold;
+}
+
+.collapseBtn:hover {
+  background: rgba(0, 196, 255, 0.2);
+  border-color: #00c4ff;
+  transform: scale(1.05);
+  box-shadow: 0 0 12px rgba(0, 196, 255, 0.4);
+}
+
+/* Action Header */
+.actionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 2px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid rgba(0, 196, 255, 0.2);
+  gap: 2px;
+}
+
+.actionBtn {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(0, 196, 255, 0.3);
+  color: #00c4ff;
+  font-size: 0.8rem;
+  width: 24px;
+  height: 24px;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.actionBtn:hover {
+  background: rgba(0, 196, 255, 0.15);
+  border-color: #00c4ff;
+  transform: scale(1.05);
+  box-shadow: 0 0 8px rgba(0, 196, 255, 0.3);
+}
+
+.actionBtn:active {
+  transform: scale(0.95);
+}
+
+.settingsBtn:hover {
+  color: #ffd700;
+  border-color: #ffd700;
+}
+
+.dashboardBtn:hover {
+  color: #00ff88;
+  border-color: #00ff88;
+}
+
+.intelBtn:hover {
+  color: #ff6b6b;
+  border-color: #ff6b6b;
+}
+
+/* Collapse Container */
+.collapseContainer {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 8px;
+  padding: 0 2px;
+}
+
+.collapsed .actionHeader {
+  justify-content: center;
+  gap: 2px;
+}
+
+.collapsed .actionBtn {
+  width: 20px;
+  height: 20px;
+  font-size: 0.7rem;
+}
+
+/* App Grid */
+.appGrid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 2px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 196, 255, 0.3) transparent;
+}
+
+.appGrid::-webkit-scrollbar {
+  width: 3px;
+}
+
+.appGrid::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.appGrid::-webkit-scrollbar-thumb {
+  background: rgba(0, 196, 255, 0.3);
+  border-radius: 2px;
+}
+
+/* App Cards */
+.appCard {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-end;
-  width: 100%;
-  aspect-ratio: 1; /* Ensures square buttons */
-  margin-bottom: 14px;
-  background: rgba(0, 0, 0, 0.7);
-  border: 2.5px solid #00C4FF; /* Neon Blue border */
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 0 16px #00C4FF55, 0 0 2px #00C4FF;
+  padding: 2px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(0, 196, 255, 0.2);
+  border-radius: 8px;
   text-decoration: none;
-  color: #00C4FF; /* Neon Blue text */
-  font-family: 'Orbitron', 'Aldrich-Regular', Arial, sans-serif; /* Match Starcom design scheme */
-  transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s;
+  color: white;
+  transition: all 0.2s ease;
   cursor: pointer;
+  overflow: hidden;
+  min-height: 50px;
+  box-sizing: border-box;
 }
 
-.button:hover {
-  transform: scale(1.07);
-  box-shadow: 0 0 32px #00C4FF, 0 0 8px #00C4FF;
-  border-color: #fff;
-  background: rgba(0, 0, 0, 0.92);
+.appCard:hover {
+  background: rgba(0, 0, 0, 0.7);
+  border-color: var(--app-color, #00c4ff);
+  box-shadow: 
+    0 0 15px rgba(0, 196, 255, 0.3),
+    inset 0 0 20px rgba(0, 0, 0, 0.3);
+  transform: translateY(-2px);
 }
 
-.icon {
+.appCard:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* App Icons Base Styles */
+.appIcon {
+  width: 32px;
+  height: 32px;
+  margin-bottom: 3px;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.2));
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.appIcon img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 12px 12px 0 0;
-  flex: 1 1 auto;
-  filter: brightness(1.1) drop-shadow(0 0 8px #00C4FF55);
-  z-index: 1;
+  border-radius: 6px;
+  transition: all 0.2s ease;
 }
 
-.iconFallback {
+.appCard:hover .appIcon img {
+  transform: scale(1.1);
+  filter: brightness(1.2) drop-shadow(0 0 8px var(--app-color, #00c4ff));
+}
+
+.appCard:hover .appIcon {
+  transform: scale(1.1);
+  filter: drop-shadow(0 0 12px var(--app-color, #00c4ff));
+}
+
+.iconFallback::before {
+  content: '🔧';
+  font-size: 1.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
   height: 100%;
-  font-size: 2.2rem;
-  background: rgba(0,0,0,0.7);
-  border-radius: 12px 12px 0 0;
+}
+
+/* App Labels */
+.appLabel {
+  font-family: 'Orbitron', Arial, sans-serif;
+  font-size: 0.6rem;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.1;
+  color: #e0e0e0;
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+  transition: color 0.2s ease;
+  max-width: 100%;
+  word-wrap: break-word;
+  hyphens: auto;
+}
+
+.appCard:hover .appLabel {
+  color: white;
+  text-shadow: 0 0 6px var(--app-color, #00c4ff);
+}
+
+.collapsed .appLabel {
+  display: none;
+}
+
+/* App Glow Effect */
+.appGlow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at center, var(--app-color, #00c4ff) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  border-radius: 8px;
+}
+
+.appCard:hover .appGlow {
+  opacity: 0.1;
+}
+
+/* Status Section */
+.status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 4px 2px;
+  margin-top: 6px;
+  border-top: 1px solid rgba(0, 196, 255, 0.2);
+  font-family: 'Orbitron', Arial, sans-serif;
+  font-size: 0.6rem;
+  color: #00c4ff;
+  text-shadow: 0 0 4px rgba(0, 196, 255, 0.3);
+}
+
+.statusDot {
+  width: 6px;
+  height: 6px;
+  background: #00ff88;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+  box-shadow: 0 0 8px rgba(0, 255, 136, 0.6);
+  flex-shrink: 0;
+}
+
+.collapsed .status span {
+  display: none;
+}
+
+/* Animations */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.2);
+  }
+}
+
+/* Settings Popup */
+.settingsPopup {
+  position: absolute;
+  top: 60px;
+  right: 12px;
+  width: 200px;
+  background: linear-gradient(135deg, rgba(0, 15, 30, 0.98) 0%, rgba(0, 35, 70, 0.95) 100%);
+  backdrop-filter: blur(15px);
+  border: 2px solid rgba(0, 196, 255, 0.4);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+  z-index: 2000;
+  animation: slideIn 0.2s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.settingsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(0, 196, 255, 0.2);
+  font-family: 'Orbitron', Arial, sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #00c4ff;
+  text-shadow: 0 0 4px rgba(0, 196, 255, 0.3);
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  color: #ff6b6b;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.closeBtn:hover {
+  background: rgba(255, 107, 107, 0.1);
+  transform: scale(1.1);
+}
+
+.settingsContent {
+  padding: 12px 16px;
+}
+
+.settingItem {
+  margin-bottom: 12px;
+}
+
+.settingItem:last-child {
+  margin-bottom: 0;
+}
+
+.settingItem label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Orbitron', Arial, sans-serif;
+  font-size: 0.8rem;
+  color: #e0e0e0;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.settingItem label:hover {
+  color: #00c4ff;
+}
+
+.settingItem input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #00c4ff;
+  cursor: pointer;
+}
+
+/* Mission Control Interface Styles */
+
+/* Mission Header */
+.missionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 4px;
+  border-bottom: 1px solid rgba(0, 196, 255, 0.3);
+  margin-bottom: 6px;
+}
+
+.missionTitle {
+  font-size: 0.65rem;
+  font-weight: bold;
+  color: #00c4ff;
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 4px rgba(0, 196, 255, 0.4);
+}
+
+/* Section Navigation */
+.sectionNav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 2px;
+  margin-bottom: 4px;
+  position: relative;
   z-index: 1;
+  transition: all 0.3s ease;
+}
+
+/* When expanded, position buttons outside (to the left) */
+.sidebar:not(.collapsed) .sectionNav {
+  position: absolute;
+  left: -32px; /* Position buttons outside the wider sidebar */
+  top: 60px; /* Below the header area */
+  padding: 0;
+  background: linear-gradient(135deg, rgba(0, 10, 20, 0.95) 0%, rgba(0, 25, 50, 0.9) 100%);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 196, 255, 0.3);
+  border-radius: 8px;
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.5);
+  padding: 4px 2px;
+}
+
+/* When collapsed, keep buttons inside */
+.sidebar.collapsed .sectionNav {
+  position: static;
+  align-items: center;
+  padding: 0 1px;
+  background: none;
+  border: none;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.navBtn {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(0, 196, 255, 0.3);
+  color: #00c4ff;
+  font-size: 0.8rem;
+  width: 24px;
+  height: 24px;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+/* Enhanced styling when buttons are outside */
+.sidebar:not(.collapsed) .navBtn {
+  background: rgba(0, 10, 20, 0.9);
+  border: 1px solid rgba(0, 196, 255, 0.4);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.sidebar:not(.collapsed) .navBtn:hover {
+  background: rgba(0, 196, 255, 0.2);
+  border-color: #00c4ff;
+  transform: scale(1.1);
+  box-shadow: 0 0 12px rgba(0, 196, 255, 0.4);
+}
+
+/* Compact styling when collapsed */
+.sidebar.collapsed .navBtn {
+  width: 20px;
+  height: 20px;
+  font-size: 0.7rem;
+}
+
+.navBtn:hover {
+  background: rgba(0, 196, 255, 0.15);
+  border-color: #00c4ff;
+  transform: scale(1.05);
+  box-shadow: 0 0 8px rgba(0, 196, 255, 0.3);
+}
+
+.navBtn.active {
+  background: rgba(0, 196, 255, 0.25);
+  border-color: #00c4ff;
+  box-shadow: 0 0 12px rgba(0, 196, 255, 0.4);
+}
+
+/* Enhanced active state when outside */
+.sidebar:not(.collapsed) .navBtn.active {
+  background: rgba(0, 196, 255, 0.35);
+  border-color: #00c4ff;
+  box-shadow: 0 0 16px rgba(0, 196, 255, 0.6);
+  transform: scale(1.05);
+}
+
+/* Content Area */
+.contentArea {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 6px;
+  margin-bottom: 4px;
+}
+
+.sectionContent {
+  width: 100%;
+}
+
+/* Mission Status Card */
+.statusCard {
+  background: rgba(0, 10, 20, 0.8);
+  border: 1px solid rgba(0, 196, 255, 0.3);
+  border-radius: 6px;
+  padding: 6px 8px;
+  margin-bottom: 6px;
+}
+
+.statusHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: #00c4ff;
+}
+
+.statusIcon {
+  font-size: 0.8rem;
+}
+
+.statusItems {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.statusItem {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.65rem;
+  line-height: 1.2;
+  word-wrap: break-word;
 }
 
 .label {
-  position: absolute;
-  bottom: 0;
-  left: 0;
+  color: rgba(255, 255, 255, 0.7);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-right: 8px;
+}
+
+.value {
+  color: #00ff88;
+  font-weight: bold;
+  white-space: nowrap;
+  text-align: right;
+}
+
+/* System Health */
+.systemHealth {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 6px;
+}
+
+.healthItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.6rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.healthDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+  flex-shrink: 0;
+}
+
+/* Globe Controls Card */
+.controlCard {
+  background: rgba(0, 10, 20, 0.8);
+  border: 1px solid rgba(0, 196, 255, 0.3);
+  border-radius: 6px;
+  padding: 6px 8px;
+  margin-bottom: 6px;
+}
+
+.controlHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: #00c4ff;
+}
+
+.controlIcon {
+  font-size: 0.8rem;
+}
+
+.overlayToggles {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-bottom: 6px;
+}
+
+.overlayToggle {
   width: 100%;
-  padding: 6px 0 4px 0;
-  background: linear-gradient(0deg, rgba(0,0,0,0.92) 80%, rgba(0,0,0,0.0) 100%);
-  color: #fff;
-  font-size: 0.8rem; /* Slightly smaller font */
-  font-weight: 700;
+}
+
+.toggleBtn {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(0, 196, 255, 0.2);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.6rem;
+  width: 100%;
+  height: 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px;
+  transition: all 0.2s ease;
+}
+
+.toggleBtn:hover {
+  background: rgba(0, 196, 255, 0.1);
+  border-color: rgba(0, 196, 255, 0.4);
+}
+
+.toggleBtn.active {
+  background: rgba(0, 196, 255, 0.15);
+  border-color: #00c4ff;
+  color: #00ff88;
+}
+
+.toggleIcon {
+  color: #00ff88;
+  font-size: 0.5rem;
+  flex-shrink: 0;
+}
+
+.toggleLabel {
+  flex: 1;
+  text-align: left;
+  text-transform: capitalize;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Quick Actions */
+.quickActions {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.actionButton {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(0, 196, 255, 0.3);
+  color: #00c4ff;
+  font-size: 0.6rem;
+  height: 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.actionButton:hover {
+  background: rgba(0, 196, 255, 0.15);
+  border-color: #00c4ff;
+  transform: scale(1.02);
+}
+
+/* Intelligence Hub Card */
+.intelCard {
+  background: rgba(0, 10, 20, 0.8);
+  border: 1px solid rgba(0, 196, 255, 0.3);
+  border-radius: 6px;
+  padding: 6px 8px;
+  margin-bottom: 6px;
+}
+
+.intelHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: #00c4ff;
+}
+
+.intelIcon {
+  font-size: 0.8rem;
+}
+
+.intelItems {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.intelItem {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.55rem;
+}
+
+.intelLabel {
+  color: rgba(255, 255, 255, 0.7);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-right: 8px;
+}
+
+.intelValue {
+  color: #ffaa00;
+  font-weight: bold;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.intelActions {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.intelBtn {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 170, 0, 0.3);
+  color: #ffaa00;
+  font-size: 0.6rem;
+  height: 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.intelBtn:hover {
+  background: rgba(255, 170, 0, 0.15);
+  border-color: #ffaa00;
+}
+
+/* Metrics Card */
+.metricsCard {
+  background: rgba(0, 10, 20, 0.8);
+  border: 1px solid rgba(0, 196, 255, 0.3);
+  border-radius: 6px;
+  padding: 6px 8px;
+  margin-bottom: 6px;
+}
+
+.metricsHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: #00c4ff;
+}
+
+.metricsIcon {
+  font-size: 0.8rem;
+}
+
+.metricsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.metricItem {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(0, 196, 255, 0.2);
+  border-radius: 4px;
+  padding: 6px;
   text-align: center;
-  letter-spacing: 0.04em;
-  text-shadow: 0 0 6px #00C4FF, 0 0 2px #000;
-  border-bottom-left-radius: 12px;
-  border-bottom-right-radius: 12px;
-  z-index: 2;
-  pointer-events: none;
+}
+
+.metricValue {
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: #00ff88;
+  margin-bottom: 1px;
+}
+
+.metricLabel {
+  font-size: 0.45rem;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: capitalize;
+  margin-bottom: 1px;
+}
+
+.metricUpdate {
+  font-size: 0.5rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* External Apps Card */
+.appsCard {
+  background: rgba(0, 10, 20, 0.8);
+  border: 1px solid rgba(0, 196, 255, 0.3);
+  border-radius: 6px;
+  padding: 6px 8px;
+  margin-bottom: 6px;
+}
+
+.appsHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: #00c4ff;
+}
+
+.appsIcon {
+  font-size: 0.8rem;
+}
+
+/* Status Footer */
+.statusFooter {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border-top: 1px solid rgba(0, 196, 255, 0.2);
+  font-size: 0.55rem;
+  color: #00ff88;
+  font-weight: bold;
+}
+
+/* Animations */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Collapsed State Adjustments */
+.sidebar.collapsed .missionTitle {
+  display: none;
+}
+
+.sidebar.collapsed .sectionNav {
+  position: static;
+  align-items: center;
+  padding: 0 1px;
+  background: none;
+  border: none;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.sidebar.collapsed .navBtn {
+  width: 20px;
+  height: 20px;
+  font-size: 0.7rem;
+}
+
+.sidebar.collapsed .contentArea {
+  padding: 0 1px;
+}
+
+.sidebar.collapsed .statusCard,
+.sidebar.collapsed .controlCard,
+.sidebar.collapsed .intelCard,
+.sidebar.collapsed .metricsCard,
+.sidebar.collapsed .appsCard {
+  padding: 2px 1px;
+  margin-bottom: 1px;
+}
+
+.sidebar.collapsed .statusItems,
+.sidebar.collapsed .intelItems {
+  display: none;
+}
+
+.sidebar.collapsed .quickActions,
+.sidebar.collapsed .intelActions {
+  display: none;
+}
+
+.sidebar.collapsed .overlayToggles {
+  display: none;
+}
+
+/* Hide all text in collapsed state, show only icons */
+.sidebar.collapsed .statusHeader span,
+.sidebar.collapsed .controlHeader span,
+.sidebar.collapsed .intelHeader span,
+.sidebar.collapsed .metricsHeader span,
+.sidebar.collapsed .appsHeader span {
+  display: none;
+}
+
+.sidebar.collapsed .toggleLabel,
+.sidebar.collapsed .label,
+.sidebar.collapsed .value,
+.sidebar.collapsed .metricLabel,
+.sidebar.collapsed .metricUpdate {
+  display: none;
+}
+
+.sidebar.collapsed .systemHealth {
+  display: none;
+}
+
+.sidebar.collapsed .metricsGrid {
+  grid-template-columns: 1fr;
+  gap: 1px;
+}
+
+.sidebar.collapsed .metricItem {
+  padding: 1px;
+}
+
+.sidebar.collapsed .metricValue {
+  font-size: 0.6rem;
+}
+
+.sidebar.collapsed .metricLabel,
+.sidebar.collapsed .metricUpdate {
+  display: none;
 }
