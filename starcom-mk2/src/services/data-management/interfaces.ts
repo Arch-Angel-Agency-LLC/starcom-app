@@ -57,6 +57,7 @@ export interface FetchOptions {
   timeout?: number;
   retries?: number;
   cache?: boolean;
+  forceRefresh?: boolean; // Force bypass cache
   priority?: 'low' | 'normal' | 'high' | 'critical';
   correlate?: string[]; // Other data sources to correlate with
   quality?: boolean; // Enable quality assessment
