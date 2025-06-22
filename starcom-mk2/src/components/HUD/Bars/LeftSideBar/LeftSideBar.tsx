@@ -1,6 +1,9 @@
 import React, { lazy, Suspense } from 'react';
 import styles from './LeftSideBar.module.css';
 import ModeSettingsPanel from './ModeSettingsPanel';
+// Adaptive interface imports commented out but preserved for easy re-enabling
+// import RoleSelector from '../../../Adaptive/RoleSelector';
+// import ProgressiveDisclosure from '../../../Adaptive/ProgressiveDisclosure';
 import wingCommanderLogo from '../../../../assets/images/WingCommanderLogo-288x162.gif';
 
 // Lazy load TinyGlobe to reduce initial bundle size
@@ -16,6 +19,14 @@ const LeftSideBar: React.FC = () => {
           <TinyGlobe />
         </Suspense>
         <ModeSettingsPanel />
+        
+        {/* Adaptive Interface Controls - Hidden for clean human UX, functionality preserved for AI agents */}
+        {/* 
+        <div className={styles.adaptiveSection}>
+          <RoleSelector />
+          <ProgressiveDisclosure />
+        </div>
+        */}
       </div>
     </div>
   );

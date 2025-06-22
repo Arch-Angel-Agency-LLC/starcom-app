@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { fetch } from 'undici';
+// AI-NOTE: Using vitest's built-in fetch mock instead of undici for browser compatibility
 import { 
   extractLatestFilename, 
   fetchLatestElectricFieldData,
@@ -7,7 +7,7 @@ import {
   generateSpaceWeatherAlerts,
   analyzeRegionalElectricFields
 } from './noaaSpaceWeather';
-import { NOAAElectricFieldData } from '../types/spaceWeather';
+import { NOAAElectricFieldData } from '../types';
 
 // TDD Step 1: Write a failing test that explores the real NOAA API
 // AI-NOTE: Starting with integration test to understand actual NOAA API behavior

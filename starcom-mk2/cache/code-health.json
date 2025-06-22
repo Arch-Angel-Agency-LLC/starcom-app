@@ -9,18 +9,58 @@
   },
   "todos": [
     {
+      "file": "src/components/AI/AIActionsPanel.tsx",
+      "line": 11,
+      "text": "TODO: Restore full functionality with proper unified context types"
+    },
+    {
+      "file": "src/components/AI/ThreatHorizonFeed.tsx",
+      "line": 11,
+      "text": "TODO: Restore full functionality with proper unified context types"
+    },
+    {
+      "file": "src/components/Adaptive/EnhancedAdaptiveInterfaceProvider.tsx",
+      "line": 5,
+      "text": "TODO: This is currently a placeholder that wraps the standard AdaptiveInterfaceProvider"
+    },
+    {
       "file": "src/components/Auth/TokenGatedPage.test.tsx",
       "line": 8,
       "text": "TODO: Implement proper TokenGatedPage tests without RainbowKit/Wagmi circular deps"
     },
     {
+      "file": "src/components/Collaboration/CollaborativeAnnotations.tsx",
+      "line": 206,
+      "text": "TODO: Replace with actual operator from collaboration state"
+    },
+    {
+      "file": "src/components/Collaboration/CollaborativeAnnotations.tsx",
+      "line": 232,
+      "text": "TODO: Implement full collaboration features"
+    },
+    {
+      "file": "src/components/Collaboration/CollaborativeAnnotations.tsx",
+      "line": 357,
+      "text": "TODO: Implement addAnnotation function"
+    },
+    {
+      "file": "src/components/Collaboration/CollaborativeAnnotations.tsx",
+      "line": 364,
+      "text": "TODO: Implement annotation reply functionality"
+    },
+    {
+      "file": "src/components/Collaboration/SessionManager.tsx",
+      "line": 34,
+      "text": "TODO: Implement full session management"
+    },
+    {
       "file": "src/components/Globe/Globe.tsx",
-      "line": 95,
+      "line": 88,
       "text": "TODO: Use overlay/event data from GlobeEngine if needed"
     },
     {
       "file": "src/components/Globe/Globe.tsx",
-      "line": 323,
+      "line": 220,
       "text": "TODO: Add user setting for fast loading"
     },
     {
@@ -34,6 +74,41 @@
       "text": "TODO: handle migration/versioning"
     },
     {
+      "file": "src/components/HUD/Center/Globe3DView.tsx",
+      "line": 25,
+      "text": "TODO: Update globe with context-specific data"
+    },
+    {
+      "file": "src/components/HUD/Center/Globe3DView.tsx",
+      "line": 33,
+      "text": "TODO: Initialize actual 3D globe (Three.js, D3-geo, or WebGL)"
+    },
+    {
+      "file": "src/components/HUD/Center/Globe3DView.tsx",
+      "line": 71,
+      "text": "TODO: Cleanup 3D resources, event listeners, etc."
+    },
+    {
+      "file": "src/components/HUD/Center/Globe3DView.tsx",
+      "line": 97,
+      "text": "TODO: Convert screen coordinates to globe coordinates"
+    },
+    {
+      "file": "src/components/HUD/Center/Globe3DView.tsx",
+      "line": 100,
+      "text": "TODO: implement in context)"
+    },
+    {
+      "file": "src/components/HUD/Center/Globe3DView.tsx",
+      "line": 105,
+      "text": "TODO: Implement globe view changes"
+    },
+    {
+      "file": "src/components/HUD/Center/NodeGraphView.tsx",
+      "line": 232,
+      "text": "TODO: Implement node selection and context actions"
+    },
+    {
       "file": "src/components/Intel/IntelReportList.tsx",
       "line": 4,
       "text": "TODO: Integrate with Solana/secure backend and overlays when live."
@@ -42,16 +117,6 @@
       "file": "src/components/Intel/overlays/IntelOverlay.tsx",
       "line": 4,
       "text": "TODO: Integrate with live Solana/secure backend overlays when available."
-    },
-    {
-      "file": "src/components/IntelOverlay.tsx",
-      "line": 4,
-      "text": "TODO: Integrate with live Solana/secure backend overlays when available."
-    },
-    {
-      "file": "src/components/IntelReportList.tsx",
-      "line": 4,
-      "text": "TODO: Integrate with Solana/secure backend and overlays when live."
     },
     {
       "file": "src/components/SpaceWeather/SpaceWeatherStatus.tsx",
@@ -87,6 +152,16 @@
       "file": "src/globe-engine/GlobeEngine.ts",
       "line": 457,
       "text": "TODO: Replace mock data with live Solana/secure backend integration."
+    },
+    {
+      "file": "src/hooks/useEnhancedAdaptiveUtilities.ts",
+      "line": 5,
+      "text": "TODO: Implement full adaptive utilities in future phase"
+    },
+    {
+      "file": "src/hooks/useEnhancedAdaptiveUtilities.ts",
+      "line": 17,
+      "text": "TODO: Implement proper adaptive analysis"
     },
     {
       "file": "src/hooks/useOnChainRoles.ts",
@@ -219,6 +294,16 @@
       "text": "TODO: Store algorithm update on Solana for audit trail"
     },
     {
+      "file": "src/services/data-management/StarcomDataManager.ts",
+      "line": 523,
+      "text": "TODO: Implement cache entry age tracking in cache services"
+    },
+    {
+      "file": "src/services/data-management/providers/IntelDataProvider.ts",
+      "line": 155,
+      "text": "TODO: Implement actual account fetching once program is deployed"
+    },
+    {
       "file": "src/services/data-services.all.test.ts",
       "line": 18,
       "text": "TODO: Add imports for all future domain/provider/cache/adapters tests"
@@ -319,6 +404,16 @@
       "text": "TODO: Implement mintIntelToken() using secure Solana logic only."
     },
     {
+      "file": "src/testing/ai-agent/AgentInterface.ts",
+      "line": 143,
+      "text": "TODO: Implement accessibility tester"
+    },
+    {
+      "file": "src/testing/ai-agent/AgentInterface.ts",
+      "line": 149,
+      "text": "TODO: Implement visual regression testing"
+    },
+    {
       "file": "src/utils/wallet.ts",
       "line": 1,
       "text": "TODO: Solana wallet integration in progress. See artifacts/intel-report-stage1-plan.artifact"
@@ -372,12 +467,12 @@
     },
     {
       "file": "src/components/Globe/Globe.tsx",
-      "line": 203,
+      "line": 120,
       "text": "AI-NOTE: Fix for stack overflow caused by recursive resize event dispatch"
     },
     {
       "file": "src/components/Globe/Globe.tsx",
-      "line": 549,
+      "line": 269,
       "text": "AI-NOTE: Refactored to use GlobeEngine. See globe-engine-api.artifact for integration details."
     },
     {
@@ -422,7 +517,7 @@
     },
     {
       "file": "src/components/HUD/Settings/SpaceWeatherSettings/SpaceWeatherSettings.tsx",
-      "line": 6,
+      "line": 8,
       "text": "AI-NOTE: EcoNatural visualization settings panel for all natural/environmental data"
     },
     {
@@ -434,16 +529,6 @@
       "file": "src/components/Intel/overlays/IntelOverlay.tsx",
       "line": 1,
       "text": "AI-NOTE: Artifact-driven UI stub for intelligence overlays (SIGINT/HUMINT)."
-    },
-    {
-      "file": "src/components/IntelOverlay.tsx",
-      "line": 1,
-      "text": "AI-NOTE: Artifact-driven UI stub for intelligence overlays (SIGINT/HUMINT)."
-    },
-    {
-      "file": "src/components/IntelReportList.tsx",
-      "line": 1,
-      "text": "AI-NOTE: Artifact-driven UI stub for intelligence report list."
     },
     {
       "file": "src/components/SettingsInitializer.tsx",
@@ -636,6 +721,11 @@
       "text": "AI-NOTE: Artifact-driven route/page for intelligence reports and overlays."
     },
     {
+      "file": "src/pages/MainPage/MainPage.tsx",
+      "line": 5,
+      "text": "AI-NOTE: Globe now renders inside HUD center via CenterViewManager"
+    },
+    {
       "file": "src/routes/ProtectedRoute.tsx",
       "line": 5,
       "text": "AI-NOTE: Protects routes by requiring authentication (see artifacts)"
@@ -657,7 +747,7 @@
     },
     {
       "file": "src/services/SpaceWeatherCacheService.ts",
-      "line": 81,
+      "line": 109,
       "text": "AI-NOTE: This implements proper caching for space weather data following the established pattern."
     },
     {
@@ -666,13 +756,38 @@
       "text": "AI-NOTE: This service provides quantum-resistant security for intelligence assets"
     },
     {
+      "file": "src/services/data-management/StarcomDataManager.ts",
+      "line": 2,
+      "text": "AI-NOTE: Core implementation of the unified data management system"
+    },
+    {
+      "file": "src/services/data-management/StarcomDataManager.ts",
+      "line": 563,
+      "text": "AI-NOTE: This implementation provides a robust foundation for centralized data management"
+    },
+    {
+      "file": "src/services/data-management/interfaces.ts",
+      "line": 2,
+      "text": "AI-NOTE: Upgraded from existing data-service-interfaces.ts to support comprehensive data management"
+    },
+    {
+      "file": "src/services/data-management/interfaces.ts",
+      "line": 379,
+      "text": "AI-NOTE: This enhanced interface system provides the foundation for a comprehensive data management system"
+    },
+    {
+      "file": "src/services/data-management/providerRegistry.ts",
+      "line": 2,
+      "text": "AI-NOTE: Single entry point to register all data providers with StarcomDataManager"
+    },
+    {
       "file": "src/services/data-service-interfaces.ts",
       "line": 48,
       "text": "AI-NOTE: This file is artifact-driven and should be updated if the interfaces artifact changes."
     },
     {
       "file": "src/services/eia/EIADataCacheService.ts",
-      "line": 47,
+      "line": 76,
       "text": "AI-NOTE: This is a minimal, artifact-driven implementation. Add persistence or advanced invalidation as needed."
     },
     {
@@ -736,7 +851,7 @@
       "text": "AI-NOTE: All minting logic must be implemented client-side using @solana/web3.js and wallet signatures only. No backend or CLI is allowed per the serverless, on-chain policy in the updated artifacts."
     },
     {
-      "file": "src/types/spaceWeather.ts",
+      "file": "src/types/data/spaceWeather.ts",
       "line": 2,
       "text": "AI-NOTE: Based on analysis of NOAA SWPC electric field datasets"
     },
@@ -771,5 +886,5 @@
       "text": "AI-NOTE: EVM/ethers.js version archived in legacy-evm/wallet.ts. Implement Solana logic here."
     }
   ],
-  "generatedAt": "2025-06-20T18:51:53.177Z"
+  "generatedAt": "2025-06-22T17:57:16.620Z"
 }

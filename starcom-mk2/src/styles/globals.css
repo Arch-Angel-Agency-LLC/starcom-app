@@ -1,3 +1,6 @@
+/* Phase 4 RTS Gaming Theme - Must come first */
+@import './rts-gaming-theme.css';
+
 /* Load custom font */
 @font-face {
   font-family: 'Aldrich-Regular';

@@ -7,7 +7,7 @@ import React, { createContext, useContext, ReactNode } from 'react';
 import { useEcoNaturalSettings } from '../hooks/useEcoNaturalSettings';
 import { useSpaceWeatherData } from '../hooks/useSpaceWeatherData';
 import { normalizeElectricFieldVectors, NormalizationConfig } from '../utils/electricFieldNormalization';
-import type { ProcessedElectricFieldData, SpaceWeatherAlert } from '../types/spaceWeather';
+import type { ProcessedElectricFieldData, SpaceWeatherAlert } from '../types';
 
 interface SpaceWeatherContextType {
   // Settings

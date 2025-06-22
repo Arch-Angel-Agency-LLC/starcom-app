@@ -2,16 +2,20 @@
 // AI-NOTE: Building up functionality test by test
 
 import type { IntelReportOverlayMarker } from '../interfaces/IntelReportOverlay';
-import type { SpaceWeatherAlert, NOAAElectricFieldData } from '../types/spaceWeather';
+import type { SpaceWeatherAlert, NOAAElectricFieldData } from '../types';
 
-// AI-NOTE: Import fetch conditionally for different environments
-const getFetch = async () => {
-  if (typeof globalThis !== 'undefined' && globalThis.fetch) {
-    return globalThis.fetch;
+// AI-NOTE: Use appropriate fetch implementation for each environment
+const getFetch = () => {
+  // In browser environments, use native fetch
+  if (typeof window !== 'undefined' && window.fetch) {
+    return Promise.resolve(window.fetch.bind(window));
   }
-  // In test environment, import from undici
-  const { fetch } = await import('undici');
-  return fetch;
+  // In Node.js environments (like tests), use global fetch if available
+  if (typeof globalThis !== 'undefined' && globalThis.fetch) {
+    return Promise.resolve(globalThis.fetch);
+  }
+  // Fallback error for environments without fetch
+  return Promise.reject(new Error('No fetch implementation available'));
 };
 
 // Additional interfaces for integration functions

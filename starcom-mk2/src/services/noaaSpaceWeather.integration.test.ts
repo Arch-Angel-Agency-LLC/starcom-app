@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { fetch } from 'undici';
-import type { NOAAElectricFieldData } from '../types/spaceWeather';
+// AI-NOTE: Using global fetch instead of undici for browser compatibility
+import type { NOAAElectricFieldData } from '../types';
 
 // Integration tests for real NOAA API endpoints
 

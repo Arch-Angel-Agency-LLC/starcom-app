@@ -1,7 +1,5 @@
 .hudLayout {
-  display: flex;
-  flex-wrap: wrap;
-  flex-direction: column; /* Stack elements vertically */
+  /* Removed flexbox that breaks absolute positioning of HUD elements */
   height: 100vh;
   width: 100vw; /* Ensure full width of the viewport */
   position: relative;
@@ -98,6 +96,31 @@
 
 .center {
   position: absolute;
+  top: 5%; /* Below TopBar */
+  left: 110px; /* Right of LeftSideBar (110px wide) */
+  right: 120px; /* Left of RightSideBar (120px wide) */
+  bottom: 5%; /* Above BottomBar */
   background: transparent; /* Fully transparent background */
-  pointer-events: none; /* Allow clicks to pass through */
+  pointer-events: auto; /* Enable interaction with Globe */
+  z-index: 1; /* Behind HUD elements but above background */
+  
+  /* Remove constraints that might limit space usage */
+  /* Display will be handled by child components */
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 1200px) {
+  .center {
+    left: 80px; /* Smaller left margin on smaller screens */
+    right: 100px; /* Smaller right margin on smaller screens */
+  }
+}
+
+@media (max-width: 768px) {
+  .center {
+    top: 8%; /* More space for mobile top bar */
+    left: 60px; /* Even smaller margins */
+    right: 60px;
+    bottom: 8%; /* More space for mobile bottom bar */
+  }
 }

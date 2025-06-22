@@ -3,7 +3,7 @@
 // Artifacts: data-service-interfaces, noaa-space-weather-integration
 
 import { DataCacheService, DataServiceObserver } from './data-service-interfaces';
-import type { ProcessedElectricFieldData, SpaceWeatherAlert } from '../types/spaceWeather';
+import type { ProcessedElectricFieldData, SpaceWeatherAlert } from '../types';
 
 interface SpaceWeatherCacheData {
   interMagData?: ProcessedElectricFieldData;

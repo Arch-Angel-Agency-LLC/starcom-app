@@ -8,6 +8,7 @@ import { VisualizationModeProvider } from "./context/VisualizationModeContext";
 import { AuthProvider } from "./context/AuthContext.tsx";
 import { MarketplaceProvider } from "./context/MarketplaceContext";
 import { SpaceWeatherProvider } from "./context/SpaceWeatherContext";
+import { UnifiedGlobalCommandProvider } from "./context/UnifiedGlobalCommandContext";
 import SettingsInitializer from "./components/SettingsInitializer";
 import SettingsStatusIndicator from "./components/SettingsStatusIndicator";
 import PreloaderManager from "./components/Preloader/PreloaderManager";
@@ -49,7 +50,9 @@ const App: React.FC = () => (
               <GlobeProvider>
                 <SpaceWeatherProvider>
                   <MarketplaceProvider>
-                    <AppContent />
+                    <UnifiedGlobalCommandProvider>
+                      <AppContent />
+                    </UnifiedGlobalCommandProvider>
                   </MarketplaceProvider>
                 </SpaceWeatherProvider>
               </GlobeProvider>

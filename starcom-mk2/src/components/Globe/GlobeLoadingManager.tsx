@@ -9,8 +9,15 @@ interface GlobeLoadingManagerProps {
 }
 
 /**
- * GlobeLoadingManager - Manages the transition from preloader to globe loading to actual globe
- * Shows the tactical globe loading animation after the main preloader finishes
+ * GlobeLoadingManager - Manages smooth transitions from preloader to globe loading to actual globe
+ * 
+ * Transition Flow:
+ * 1. Tactical loading animation plays (0.8s fast / 3s normal)
+ * 2. Loader begins fading out (0.8s transition)
+ * 3. Globe begins fading in with scale animation (0.6s)
+ * 4. Loader is removed from DOM after globe is visible
+ * 
+ * This eliminates jarring transitions and blank screen flashes
  */
 const GlobeLoadingManager: React.FC<GlobeLoadingManagerProps> = ({ 
   children, 
@@ -19,7 +26,8 @@ const GlobeLoadingManager: React.FC<GlobeLoadingManagerProps> = ({
   fastTrackMode = false, // Default to false if not provided
 }) => {
   const [showGlobeLoader, setShowGlobeLoader] = useState(true);
-  const [globeReady, setGlobeReady] = useState(false);
+  const [globeVisible, setGlobeVisible] = useState(false);
+  const [loaderFadingOut, setLoaderFadingOut] = useState(false);
 
   useEffect(() => {
     // Don't start checking until we have material AND globeEngine
@@ -27,24 +35,25 @@ const GlobeLoadingManager: React.FC<GlobeLoadingManagerProps> = ({
       return;
     }
 
-    // If fastTrackMode is enabled, skip to globe ready state
-    if (fastTrackMode) {
-      setGlobeReady(true);
-      setTimeout(() => {
-        setShowGlobeLoader(false);
-      }, 800); // Smooth fade out
-      return;
-    }
-
     // Use fastTrackMode to determine animation duration
     const tacticalDuration = fastTrackMode ? 800 : 3000; // Fast track: 0.8s, Normal: 3s
     
     const tacticalTimer = setTimeout(() => {
-      setGlobeReady(true);
-      // Fade out the globe loader after animation completes
+      // Start the smooth transition sequence
       setTimeout(() => {
-        setShowGlobeLoader(false);
-      }, 800); // Smooth fade out
+        setLoaderFadingOut(true); // Start fading out the loader
+        
+        setTimeout(() => {
+          setGlobeVisible(true); // Start fading in the globe
+          
+          setTimeout(() => {
+            setShowGlobeLoader(false); // Remove loader from DOM
+          }, 600); // Wait for globe fade-in to complete
+          
+        }, 400); // Small delay before starting globe fade-in
+        
+      }, 200); // Brief pause after tactical animation
+      
     }, tacticalDuration);
 
     return () => clearTimeout(tacticalTimer);
@@ -53,7 +62,7 @@ const GlobeLoadingManager: React.FC<GlobeLoadingManagerProps> = ({
   return (
     <>
       {showGlobeLoader && (
-        <div className={`globe-loading-overlay ${globeReady ? 'fade-out' : ''}`}>
+        <div className={`globe-loading-overlay ${loaderFadingOut ? 'fade-out' : ''}`}>
           <div className="tactical-loading">
             {/* Tactical Grid Background */}
             <div className="tactical-grid">
@@ -101,7 +110,7 @@ const GlobeLoadingManager: React.FC<GlobeLoadingManagerProps> = ({
           </div>
         </div>
       )}
-      <div className={`globe-content ${showGlobeLoader ? 'hidden' : 'visible'}`}>
+      <div className={`globe-content ${globeVisible ? 'visible fade-in' : 'hidden'}`}>
         {children}
       </div>
     </>

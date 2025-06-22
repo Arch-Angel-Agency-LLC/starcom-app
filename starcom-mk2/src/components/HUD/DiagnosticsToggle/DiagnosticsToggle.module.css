@@ -1,0 +1,101 @@
+/* Diagnostics Toggle - Compact dev tool */
+.toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.button {
+  background: rgba(20, 20, 20, 0.9);
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  color: #888;
+  
+  backdrop-filter: blur(10px);
+}
+
+.button:hover {
+  border-color: #666;
+  color: #ccc;
+  transform: translateY(-1px);
+}
+
+.button.active {
+  background: rgba(0, 100, 200, 0.2);
+  border-color: #0088ff;
+  color: #0088ff;
+  box-shadow: 0 0 8px rgba(0, 136, 255, 0.3);
+}
+
+.icon {
+  font-size: 12px;
+}
+
+.label {
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.indicator {
+  background: rgba(0, 100, 200, 0.9);
+  border: 1px solid #0088ff;
+  border-radius: 4px;
+  padding: 4px 8px;
+  
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  color: #fff;
+  
+  animation: slideIn 0.3s ease;
+}
+
+.pulse {
+  color: #00ff88;
+  animation: pulse 2s infinite;
+}
+
+.text {
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}

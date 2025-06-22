@@ -15,10 +15,12 @@
       "...truncated"
     ],
     "scripts": [
+      "ai-safe-test-runner.ts",
       "deploy-mvp.sh",
       "deploy.ts",
       "intelReportBackend.ts",
       "mock-api-server.js",
+      "noaa-demo.ts",
       "onboard.cjs",
       "safe-test-runner.ts",
       "setup-mvp.sh",
@@ -27,25 +29,8 @@
       "testMint.ts"
     ],
     "docs": [
-      "Decentralized Web3 dApp Development Guide.markdown",
-      "NOAA-TDD-Implementation-Summary.md",
-      "geomagnetic-display-upgrade-summary.md",
-      "iem-implementation-roadmap.md",
-      "iem-strategic-structure.md",
-      "iem-technical-implementation.md",
-      "intelligence-exchange-marketplace-architecture.md",
-      "intelligence-exchange-marketplace-defensive-publication.md",
-      "leftsidebar-layout-optimization.md",
-      "mvp-development-plan.md",
-      "navigation-button-repositioning.md",
-      "primary-button-active-state-enhancement.md",
-      "production-deployment-fix.md",
-      "rightsidebar-compactness-improvements.md",
-      "rightsidebar-mission-control-upgrade.md",
-      "testing-policy.md",
-      "tinyglobe-layout-optimization.md",
-      "ux-enhancement-report.md",
-      "vertical-space-optimization.md"
+      "DOCUMENTATION-REORGANIZATION-COMPLETE.md",
+      "README.md"
     ],
     "public": [
       "borders.geojson",
@@ -59,32 +44,7 @@
       "wasm-mini-server"
     ]
   },
-  "artifacts": [
-    "electric-field-toggle-fix-complete.artifact",
-    "electric-field-toggle-integration-complete.artifact",
-    "final-memory-ux-solution.artifact",
-    "foundation-upgrade-complete.artifact",
-    "foundation-upgrade-plan.artifact",
-    "globe-resize-stack-overflow-fix.artifact",
-    "iem-complete-structure.artifact",
-    "immediate-foundation-fixes.artifact",
-    "intel-report-api-integration.artifact",
-    "intel-report-artifact-index.artifact",
-    "intel-report-code-audit-stage1.artifact",
-    "intel-report-deep-code-audit.artifact",
-    "intel-report-geomagnetic-integration.artifact",
-    "intel-report-integration-plan.artifact",
-    "intel-report-noaa-data-analysis.artifact",
-    "intel-report-overlays.artifact",
-    "intel-report-preexisting-code-audit.artifact",
-    "intel-report-stage1-checklist.artifact",
-    "intel-report-stage1-plan.artifact",
-    "intel-report-tdd-critique.artifact",
-    "intelligence-exchange-marketplace-structure.artifact",
-    "noaa-data-normalization-completion.artifact",
-    "noaa-integration-completion-report.artifact",
-    "ux-optimized-foundation-complete.artifact"
-  ],
+  "artifacts": [],
   "aiHints": {
     "mainAppDir": "src",
     "contractsDir": "src/contracts",
@@ -94,5 +54,5 @@
       "src/main.tsx"
     ]
   },
-  "generatedAt": "2025-06-20T18:51:34.234Z"
+  "generatedAt": "2025-06-22T17:56:52.658Z"
 }
