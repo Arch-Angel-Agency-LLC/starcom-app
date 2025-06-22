@@ -1,0 +1,2655 @@
+{
+  "config": {
+    "configFile": "/Users/jono/Documents/GitHub/starcom-app/starcom-mk2/playwright.config.ts",
+    "rootDir": "/Users/jono/Documents/GitHub/starcom-app/starcom-mk2/src/testing/playwright",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": "/Users/jono/Documents/GitHub/starcom-app/starcom-mk2/src/testing/playwright/global-setup.ts",
+    "globalTeardown": "/Users/jono/Documents/GitHub/starcom-app/starcom-mk2/src/testing/playwright/global-teardown.ts",
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "testType": "AI Agent UI Testing",
+      "version": "1.0.0",
+      "environment": "development",
+      "timestamp": "2025-06-22T13:27:52.240Z"
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "html",
+        {
+          "outputFolder": "test-results/playwright-report"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ],
+      [
+        "junit",
+        {
+          "outputFile": "test-results/junit.xml"
+        }
+      ],
+      [
+        "line",
+        null
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/Users/jono/Documents/GitHub/starcom-app/starcom-mk2/test-results/playwright-output",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "testType": "AI Agent UI Testing",
+          "version": "1.0.0",
+          "environment": "development",
+          "timestamp": "2025-06-22T13:27:52.240Z"
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/jono/Documents/GitHub/starcom-app/starcom-mk2/src/testing/playwright",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/Users/jono/Documents/GitHub/starcom-app/starcom-mk2/test-results/playwright-output",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "testType": "AI Agent UI Testing",
+          "version": "1.0.0",
+          "environment": "development",
+          "timestamp": "2025-06-22T13:27:52.240Z"
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/Users/jono/Documents/GitHub/starcom-app/starcom-mk2/src/testing/playwright",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/Users/jono/Documents/GitHub/starcom-app/starcom-mk2/test-results/playwright-output",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "testType": "AI Agent UI Testing",
+          "version": "1.0.0",
+          "environment": "development",
+          "timestamp": "2025-06-22T13:27:52.240Z"
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "/Users/jono/Documents/GitHub/starcom-app/starcom-mk2/src/testing/playwright",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/Users/jono/Documents/GitHub/starcom-app/starcom-mk2/test-results/playwright-output",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "testType": "AI Agent UI Testing",
+          "version": "1.0.0",
+          "environment": "development",
+          "timestamp": "2025-06-22T13:27:52.240Z"
+        },
+        "id": "mobile-chrome",
+        "name": "mobile-chrome",
+        "testDir": "/Users/jono/Documents/GitHub/starcom-app/starcom-mk2/src/testing/playwright",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/Users/jono/Documents/GitHub/starcom-app/starcom-mk2/test-results/playwright-output",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "testType": "AI Agent UI Testing",
+          "version": "1.0.0",
+          "environment": "development",
+          "timestamp": "2025-06-22T13:27:52.240Z"
+        },
+        "id": "mobile-safari",
+        "name": "mobile-safari",
+        "testDir": "/Users/jono/Documents/GitHub/starcom-app/starcom-mk2/src/testing/playwright",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/Users/jono/Documents/GitHub/starcom-app/starcom-mk2/test-results/playwright-output",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "testType": "AI Agent UI Testing",
+          "version": "1.0.0",
+          "environment": "development",
+          "timestamp": "2025-06-22T13:27:52.240Z"
+        },
+        "id": "accessibility",
+        "name": "accessibility",
+        "testDir": "/Users/jono/Documents/GitHub/starcom-app/starcom-mk2/src/testing/playwright",
+        "testIgnore": [],
+        "testMatch": [
+          "**/accessibility.spec.ts"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/Users/jono/Documents/GitHub/starcom-app/starcom-mk2/test-results/playwright-output",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "testType": "AI Agent UI Testing",
+          "version": "1.0.0",
+          "environment": "development",
+          "timestamp": "2025-06-22T13:27:52.240Z"
+        },
+        "id": "visual",
+        "name": "visual",
+        "testDir": "/Users/jono/Documents/GitHub/starcom-app/starcom-mk2/src/testing/playwright",
+        "testIgnore": [],
+        "testMatch": [
+          "**/visual.spec.ts"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/Users/jono/Documents/GitHub/starcom-app/starcom-mk2/test-results/playwright-output",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "testType": "AI Agent UI Testing",
+          "version": "1.0.0",
+          "environment": "development",
+          "timestamp": "2025-06-22T13:27:52.240Z"
+        },
+        "id": "ai-agent",
+        "name": "ai-agent",
+        "testDir": "/Users/jono/Documents/GitHub/starcom-app/starcom-mk2/src/testing/playwright",
+        "testIgnore": [],
+        "testMatch": [
+          "**/ai-agent.spec.ts"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.53.1",
+    "workers": 4,
+    "webServer": {
+      "command": "npm run dev",
+      "port": 5173,
+      "timeout": 120000,
+      "reuseExistingServer": true,
+      "stdout": "ignore",
+      "stderr": "pipe"
+    }
+  },
+  "suites": [
+    {
+      "title": "ai-agent-phase2.spec.ts",
+      "file": "ai-agent-phase2.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "AI Agent Phase 2 Advanced UI Testing",
+          "file": "ai-agent-phase2.spec.ts",
+          "line": 11,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should perform advanced component detection with multiple strategies",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "19574511bb40ee8b14f4-d5b521435aa33395e766",
+              "file": "ai-agent-phase2.spec.ts",
+              "line": 33,
+              "column": 3
+            },
+            {
+              "title": "should perform intelligent interaction testing",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "19574511bb40ee8b14f4-6bfccff995ce4a202847",
+              "file": "ai-agent-phase2.spec.ts",
+              "line": 61,
+              "column": 3
+            },
+            {
+              "title": "should perform UI pattern recognition and classification",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "19574511bb40ee8b14f4-32cd760bf65ca3a68ab8",
+              "file": "ai-agent-phase2.spec.ts",
+              "line": 131,
+              "column": 3
+            },
+            {
+              "title": "should perform automated accessibility analysis",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "19574511bb40ee8b14f4-5f3088fff3b6540b4987",
+              "file": "ai-agent-phase2.spec.ts",
+              "line": 177,
+              "column": 3
+            },
+            {
+              "title": "should perform performance-aware component testing",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "19574511bb40ee8b14f4-0e1d11d601e00bcf18be",
+              "file": "ai-agent-phase2.spec.ts",
+              "line": 253,
+              "column": 3
+            },
+            {
+              "title": "should perform advanced component detection with multiple strategies",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "19574511bb40ee8b14f4-a110bd5cf67dde04a21f",
+              "file": "ai-agent-phase2.spec.ts",
+              "line": 33,
+              "column": 3
+            },
+            {
+              "title": "should perform intelligent interaction testing",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "19574511bb40ee8b14f4-93214656a8d09b565eac",
+              "file": "ai-agent-phase2.spec.ts",
+              "line": 61,
+              "column": 3
+            },
+            {
+              "title": "should perform UI pattern recognition and classification",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "19574511bb40ee8b14f4-c216f71b934dcf49b71a",
+              "file": "ai-agent-phase2.spec.ts",
+              "line": 131,
+              "column": 3
+            },
+            {
+              "title": "should perform automated accessibility analysis",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "19574511bb40ee8b14f4-32dc8c7ae25117daf513",
+              "file": "ai-agent-phase2.spec.ts",
+              "line": 177,
+              "column": 3
+            },
+            {
+              "title": "should perform performance-aware component testing",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "19574511bb40ee8b14f4-c67d8fddebb5ff4dc590",
+              "file": "ai-agent-phase2.spec.ts",
+              "line": 253,
+              "column": 3
+            },
+            {
+              "title": "should perform advanced component detection with multiple strategies",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "19574511bb40ee8b14f4-ef7f87267bf2d18ccac2",
+              "file": "ai-agent-phase2.spec.ts",
+              "line": 33,
+              "column": 3
+            },
+            {
+              "title": "should perform intelligent interaction testing",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "19574511bb40ee8b14f4-fe180c41760b5327478a",
+              "file": "ai-agent-phase2.spec.ts",
+              "line": 61,
+              "column": 3
+            },
+            {
+              "title": "should perform UI pattern recognition and classification",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "19574511bb40ee8b14f4-51b6924384f08ca55275",
+              "file": "ai-agent-phase2.spec.ts",
+              "line": 131,
+              "column": 3
+            },
+            {
+              "title": "should perform automated accessibility analysis",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "19574511bb40ee8b14f4-b76a0198bc43e5959ae7",
+              "file": "ai-agent-phase2.spec.ts",
+              "line": 177,
+              "column": 3
+            },
+            {
+              "title": "should perform performance-aware component testing",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "19574511bb40ee8b14f4-bf63108e90ba195b17b4",
+              "file": "ai-agent-phase2.spec.ts",
+              "line": 253,
+              "column": 3
+            },
+            {
+              "title": "should perform advanced component detection with multiple strategies",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "19574511bb40ee8b14f4-e9c841c014b6de5ed0ce",
+              "file": "ai-agent-phase2.spec.ts",
+              "line": 33,
+              "column": 3
+            },
+            {
+              "title": "should perform intelligent interaction testing",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "19574511bb40ee8b14f4-f577c505b8815964712b",
+              "file": "ai-agent-phase2.spec.ts",
+              "line": 61,
+              "column": 3
+            },
+            {
+              "title": "should perform UI pattern recognition and classification",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "19574511bb40ee8b14f4-0a30f0e7d39ba73897a9",
+              "file": "ai-agent-phase2.spec.ts",
+              "line": 131,
+              "column": 3
+            },
+            {
+              "title": "should perform automated accessibility analysis",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "19574511bb40ee8b14f4-f65251884093181df0c3",
+              "file": "ai-agent-phase2.spec.ts",
+              "line": 177,
+              "column": 3
+            },
+            {
+              "title": "should perform performance-aware component testing",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "19574511bb40ee8b14f4-5df32d0ba8061d343106",
+              "file": "ai-agent-phase2.spec.ts",
+              "line": 253,
+              "column": 3
+            },
+            {
+              "title": "should perform advanced component detection with multiple strategies",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-safari",
+                  "projectName": "mobile-safari",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "19574511bb40ee8b14f4-2816a4e68cbce592d49a",
+              "file": "ai-agent-phase2.spec.ts",
+              "line": 33,
+              "column": 3
+            },
+            {
+              "title": "should perform intelligent interaction testing",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-safari",
+                  "projectName": "mobile-safari",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "19574511bb40ee8b14f4-b5a4d4443b0219aaa701",
+              "file": "ai-agent-phase2.spec.ts",
+              "line": 61,
+              "column": 3
+            },
+            {
+              "title": "should perform UI pattern recognition and classification",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-safari",
+                  "projectName": "mobile-safari",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "19574511bb40ee8b14f4-f0609dea7bb1de376e70",
+              "file": "ai-agent-phase2.spec.ts",
+              "line": 131,
+              "column": 3
+            },
+            {
+              "title": "should perform automated accessibility analysis",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-safari",
+                  "projectName": "mobile-safari",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "19574511bb40ee8b14f4-8fbeb5eda49bac07568d",
+              "file": "ai-agent-phase2.spec.ts",
+              "line": 177,
+              "column": 3
+            },
+            {
+              "title": "should perform performance-aware component testing",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-safari",
+                  "projectName": "mobile-safari",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "19574511bb40ee8b14f4-82139514b15cb43f5b99",
+              "file": "ai-agent-phase2.spec.ts",
+              "line": 253,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "ai-agent.spec.ts",
+      "file": "ai-agent.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "AI Agent Autonomous UI Testing",
+          "file": "ai-agent.spec.ts",
+          "line": 15,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should detect and test UI components autonomously",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "52fb69f9aec688c9fd46-1cdeef6459ee77f7119e",
+              "file": "ai-agent.spec.ts",
+              "line": 54,
+              "column": 3
+            },
+            {
+              "title": "should handle complex user workflows",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "52fb69f9aec688c9fd46-30a1e84d83b843f83576",
+              "file": "ai-agent.spec.ts",
+              "line": 128,
+              "column": 3
+            },
+            {
+              "title": "should perform accessibility analysis",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "52fb69f9aec688c9fd46-1283b18361726e8ace8c",
+              "file": "ai-agent.spec.ts",
+              "line": 165,
+              "column": 3
+            },
+            {
+              "title": "should detect performance issues",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "52fb69f9aec688c9fd46-8cca15eaac81b8ac87da",
+              "file": "ai-agent.spec.ts",
+              "line": 209,
+              "column": 3
+            },
+            {
+              "title": "should handle error conditions gracefully",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "52fb69f9aec688c9fd46-1fc923104f65aa499f54",
+              "file": "ai-agent.spec.ts",
+              "line": 241,
+              "column": 3
+            },
+            {
+              "title": "should detect and test UI components autonomously",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "52fb69f9aec688c9fd46-2380d8fef6be04f70626",
+              "file": "ai-agent.spec.ts",
+              "line": 54,
+              "column": 3
+            },
+            {
+              "title": "should handle complex user workflows",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "52fb69f9aec688c9fd46-59ba4d6e127cf44182d6",
+              "file": "ai-agent.spec.ts",
+              "line": 128,
+              "column": 3
+            },
+            {
+              "title": "should perform accessibility analysis",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "52fb69f9aec688c9fd46-f22726f1cb3f949484f7",
+              "file": "ai-agent.spec.ts",
+              "line": 165,
+              "column": 3
+            },
+            {
+              "title": "should detect performance issues",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "52fb69f9aec688c9fd46-fe5fd94f019bc8e0c87c",
+              "file": "ai-agent.spec.ts",
+              "line": 209,
+              "column": 3
+            },
+            {
+              "title": "should handle error conditions gracefully",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "52fb69f9aec688c9fd46-a32f9d9af1c3c91e48d7",
+              "file": "ai-agent.spec.ts",
+              "line": 241,
+              "column": 3
+            },
+            {
+              "title": "should detect and test UI components autonomously",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "52fb69f9aec688c9fd46-5d96ff87e268c0fd7164",
+              "file": "ai-agent.spec.ts",
+              "line": 54,
+              "column": 3
+            },
+            {
+              "title": "should handle complex user workflows",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "52fb69f9aec688c9fd46-9f430e84f6caf255fb1b",
+              "file": "ai-agent.spec.ts",
+              "line": 128,
+              "column": 3
+            },
+            {
+              "title": "should perform accessibility analysis",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "52fb69f9aec688c9fd46-472aabcaa979186a30aa",
+              "file": "ai-agent.spec.ts",
+              "line": 165,
+              "column": 3
+            },
+            {
+              "title": "should detect performance issues",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "52fb69f9aec688c9fd46-f7204e25a0c719c79df1",
+              "file": "ai-agent.spec.ts",
+              "line": 209,
+              "column": 3
+            },
+            {
+              "title": "should handle error conditions gracefully",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "52fb69f9aec688c9fd46-55e68b73c29e81bfd959",
+              "file": "ai-agent.spec.ts",
+              "line": 241,
+              "column": 3
+            },
+            {
+              "title": "should detect and test UI components autonomously",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "52fb69f9aec688c9fd46-d794ff47e3c87041ac68",
+              "file": "ai-agent.spec.ts",
+              "line": 54,
+              "column": 3
+            },
+            {
+              "title": "should handle complex user workflows",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "52fb69f9aec688c9fd46-48f303bfc43fbba4f07f",
+              "file": "ai-agent.spec.ts",
+              "line": 128,
+              "column": 3
+            },
+            {
+              "title": "should perform accessibility analysis",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "52fb69f9aec688c9fd46-737cdc6a7b0220eca81b",
+              "file": "ai-agent.spec.ts",
+              "line": 165,
+              "column": 3
+            },
+            {
+              "title": "should detect performance issues",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "52fb69f9aec688c9fd46-baf1bfb3250a74d19020",
+              "file": "ai-agent.spec.ts",
+              "line": 209,
+              "column": 3
+            },
+            {
+              "title": "should handle error conditions gracefully",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "52fb69f9aec688c9fd46-05391e5373aaea05d80b",
+              "file": "ai-agent.spec.ts",
+              "line": 241,
+              "column": 3
+            },
+            {
+              "title": "should detect and test UI components autonomously",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-safari",
+                  "projectName": "mobile-safari",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "52fb69f9aec688c9fd46-5f65fe09bd521eefac02",
+              "file": "ai-agent.spec.ts",
+              "line": 54,
+              "column": 3
+            },
+            {
+              "title": "should handle complex user workflows",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-safari",
+                  "projectName": "mobile-safari",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "52fb69f9aec688c9fd46-8612e34dfdadf2f35a32",
+              "file": "ai-agent.spec.ts",
+              "line": 128,
+              "column": 3
+            },
+            {
+              "title": "should perform accessibility analysis",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-safari",
+                  "projectName": "mobile-safari",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "52fb69f9aec688c9fd46-c1e9b592f5f3a84c4baf",
+              "file": "ai-agent.spec.ts",
+              "line": 165,
+              "column": 3
+            },
+            {
+              "title": "should detect performance issues",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-safari",
+                  "projectName": "mobile-safari",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "52fb69f9aec688c9fd46-55b4ecffbeb128da0cbc",
+              "file": "ai-agent.spec.ts",
+              "line": 209,
+              "column": 3
+            },
+            {
+              "title": "should handle error conditions gracefully",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-safari",
+                  "projectName": "mobile-safari",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "52fb69f9aec688c9fd46-3bb53e3d10e6031d1b2e",
+              "file": "ai-agent.spec.ts",
+              "line": 241,
+              "column": 3
+            },
+            {
+              "title": "should detect and test UI components autonomously",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "ai-agent",
+                  "projectName": "ai-agent",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "52fb69f9aec688c9fd46-b23b0b4bd8b2ff0ce42b",
+              "file": "ai-agent.spec.ts",
+              "line": 54,
+              "column": 3
+            },
+            {
+              "title": "should handle complex user workflows",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "ai-agent",
+                  "projectName": "ai-agent",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "52fb69f9aec688c9fd46-1c150bca30ee02a6c390",
+              "file": "ai-agent.spec.ts",
+              "line": 128,
+              "column": 3
+            },
+            {
+              "title": "should perform accessibility analysis",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "ai-agent",
+                  "projectName": "ai-agent",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "52fb69f9aec688c9fd46-b9a63434ff7d68a4c7e3",
+              "file": "ai-agent.spec.ts",
+              "line": 165,
+              "column": 3
+            },
+            {
+              "title": "should detect performance issues",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "ai-agent",
+                  "projectName": "ai-agent",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "52fb69f9aec688c9fd46-1c66adf05b14fedc77cc",
+              "file": "ai-agent.spec.ts",
+              "line": 209,
+              "column": 3
+            },
+            {
+              "title": "should handle error conditions gracefully",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "ai-agent",
+                  "projectName": "ai-agent",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "52fb69f9aec688c9fd46-9f5aa2389bcea6a001d6",
+              "file": "ai-agent.spec.ts",
+              "line": 241,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "basic-ui.spec.ts",
+      "file": "basic-ui.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "AI Agent Testing Infrastructure",
+          "file": "basic-ui.spec.ts",
+          "line": 6,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should load the application homepage",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "42aae976a9f749167392-6b6a1686981f8b861a8f",
+              "file": "basic-ui.spec.ts",
+              "line": 7,
+              "column": 3
+            },
+            {
+              "title": "should detect basic UI elements",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "42aae976a9f749167392-37501615ac26e88df6a3",
+              "file": "basic-ui.spec.ts",
+              "line": 43,
+              "column": 3
+            },
+            {
+              "title": "should be accessible to screen readers",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "42aae976a9f749167392-df903ef05b4be765d6d0",
+              "file": "basic-ui.spec.ts",
+              "line": 69,
+              "column": 3
+            },
+            {
+              "title": "should complete a basic interaction workflow",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "42aae976a9f749167392-72a577b091929679e5eb",
+              "file": "basic-ui.spec.ts",
+              "line": 97,
+              "column": 3
+            },
+            {
+              "title": "should load the application homepage",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "42aae976a9f749167392-d1bf11ed048edc49aa16",
+              "file": "basic-ui.spec.ts",
+              "line": 7,
+              "column": 3
+            },
+            {
+              "title": "should detect basic UI elements",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "42aae976a9f749167392-a7350e101d427bb7be90",
+              "file": "basic-ui.spec.ts",
+              "line": 43,
+              "column": 3
+            },
+            {
+              "title": "should be accessible to screen readers",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "42aae976a9f749167392-78038e88b07a181214ef",
+              "file": "basic-ui.spec.ts",
+              "line": 69,
+              "column": 3
+            },
+            {
+              "title": "should complete a basic interaction workflow",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "42aae976a9f749167392-ebdfa6a9448b2e7468d2",
+              "file": "basic-ui.spec.ts",
+              "line": 97,
+              "column": 3
+            },
+            {
+              "title": "should load the application homepage",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "42aae976a9f749167392-829f10130e95b8db50a7",
+              "file": "basic-ui.spec.ts",
+              "line": 7,
+              "column": 3
+            },
+            {
+              "title": "should detect basic UI elements",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "42aae976a9f749167392-cb3b51ef28fa227c0ac0",
+              "file": "basic-ui.spec.ts",
+              "line": 43,
+              "column": 3
+            },
+            {
+              "title": "should be accessible to screen readers",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "42aae976a9f749167392-2d2c6d9456fed17bd0e5",
+              "file": "basic-ui.spec.ts",
+              "line": 69,
+              "column": 3
+            },
+            {
+              "title": "should complete a basic interaction workflow",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "42aae976a9f749167392-60bb9c0f07a21acff1a1",
+              "file": "basic-ui.spec.ts",
+              "line": 97,
+              "column": 3
+            },
+            {
+              "title": "should load the application homepage",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "42aae976a9f749167392-8ecf646b172377c9171e",
+              "file": "basic-ui.spec.ts",
+              "line": 7,
+              "column": 3
+            },
+            {
+              "title": "should detect basic UI elements",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "42aae976a9f749167392-c3c266ca5dff04a80f3c",
+              "file": "basic-ui.spec.ts",
+              "line": 43,
+              "column": 3
+            },
+            {
+              "title": "should be accessible to screen readers",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "42aae976a9f749167392-2b390c9181b54d1e8ec7",
+              "file": "basic-ui.spec.ts",
+              "line": 69,
+              "column": 3
+            },
+            {
+              "title": "should complete a basic interaction workflow",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "42aae976a9f749167392-258a3d3f3203166da694",
+              "file": "basic-ui.spec.ts",
+              "line": 97,
+              "column": 3
+            },
+            {
+              "title": "should load the application homepage",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-safari",
+                  "projectName": "mobile-safari",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "42aae976a9f749167392-74ac4a24a8559e709ecc",
+              "file": "basic-ui.spec.ts",
+              "line": 7,
+              "column": 3
+            },
+            {
+              "title": "should detect basic UI elements",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-safari",
+                  "projectName": "mobile-safari",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "42aae976a9f749167392-056abb4456e77ba293d2",
+              "file": "basic-ui.spec.ts",
+              "line": 43,
+              "column": 3
+            },
+            {
+              "title": "should be accessible to screen readers",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-safari",
+                  "projectName": "mobile-safari",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "42aae976a9f749167392-d0958a8802bcaac2b045",
+              "file": "basic-ui.spec.ts",
+              "line": 69,
+              "column": 3
+            },
+            {
+              "title": "should complete a basic interaction workflow",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-safari",
+                  "projectName": "mobile-safari",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "42aae976a9f749167392-f3cb641215d89e318858",
+              "file": "basic-ui.spec.ts",
+              "line": 97,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "deep-react-debug.spec.ts",
+      "file": "deep-react-debug.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Deep React Debug Analysis",
+          "file": "deep-react-debug.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "diagnose React mounting issues in detail",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "5baf33befe3dac2be3c9-85b5751da18af67f8216",
+              "file": "deep-react-debug.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "diagnose React mounting issues in detail",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "5baf33befe3dac2be3c9-16c1c10b549b873f757b",
+              "file": "deep-react-debug.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "diagnose React mounting issues in detail",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "5baf33befe3dac2be3c9-f9d14143dbfc9a0d4c08",
+              "file": "deep-react-debug.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "diagnose React mounting issues in detail",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "5baf33befe3dac2be3c9-8ad4112d3b1739ade36c",
+              "file": "deep-react-debug.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "diagnose React mounting issues in detail",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-safari",
+                  "projectName": "mobile-safari",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "5baf33befe3dac2be3c9-77ac6b9babe5d587865f",
+              "file": "deep-react-debug.spec.ts",
+              "line": 4,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "enhanced-component-detection.spec.ts",
+      "file": "enhanced-component-detection.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Enhanced Component Detection",
+          "file": "enhanced-component-detection.spec.ts",
+          "line": 5,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should wait for React app to load and detect components",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "31cb3f3d954e9d0614e5-77f3b7948b75a677c7ed",
+              "file": "enhanced-component-detection.spec.ts",
+              "line": 21,
+              "column": 3
+            },
+            {
+              "title": "should detect different component types",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "31cb3f3d954e9d0614e5-11503a004dfe393d11fb",
+              "file": "enhanced-component-detection.spec.ts",
+              "line": 73,
+              "column": 3
+            },
+            {
+              "title": "should work with AgentInterface using enhanced detection",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "31cb3f3d954e9d0614e5-0ec1c1a3f4ac2e81604d",
+              "file": "enhanced-component-detection.spec.ts",
+              "line": 91,
+              "column": 3
+            },
+            {
+              "title": "should wait for React app to load and detect components",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "31cb3f3d954e9d0614e5-46fe69158b1b110c8a0d",
+              "file": "enhanced-component-detection.spec.ts",
+              "line": 21,
+              "column": 3
+            },
+            {
+              "title": "should detect different component types",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "31cb3f3d954e9d0614e5-366e01fa380892a40bf6",
+              "file": "enhanced-component-detection.spec.ts",
+              "line": 73,
+              "column": 3
+            },
+            {
+              "title": "should work with AgentInterface using enhanced detection",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "31cb3f3d954e9d0614e5-1c6bbec2138532844c3b",
+              "file": "enhanced-component-detection.spec.ts",
+              "line": 91,
+              "column": 3
+            },
+            {
+              "title": "should wait for React app to load and detect components",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "31cb3f3d954e9d0614e5-b1b83d9cc04ce2880d28",
+              "file": "enhanced-component-detection.spec.ts",
+              "line": 21,
+              "column": 3
+            },
+            {
+              "title": "should detect different component types",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "31cb3f3d954e9d0614e5-11e2fe727b568c941120",
+              "file": "enhanced-component-detection.spec.ts",
+              "line": 73,
+              "column": 3
+            },
+            {
+              "title": "should work with AgentInterface using enhanced detection",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "31cb3f3d954e9d0614e5-d4eda3c34016d6e96754",
+              "file": "enhanced-component-detection.spec.ts",
+              "line": 91,
+              "column": 3
+            },
+            {
+              "title": "should wait for React app to load and detect components",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "31cb3f3d954e9d0614e5-289dff384dff6bde4859",
+              "file": "enhanced-component-detection.spec.ts",
+              "line": 21,
+              "column": 3
+            },
+            {
+              "title": "should detect different component types",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "31cb3f3d954e9d0614e5-4c0f51615e177eb8ee03",
+              "file": "enhanced-component-detection.spec.ts",
+              "line": 73,
+              "column": 3
+            },
+            {
+              "title": "should work with AgentInterface using enhanced detection",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "31cb3f3d954e9d0614e5-de545f5fd91fcf836ae3",
+              "file": "enhanced-component-detection.spec.ts",
+              "line": 91,
+              "column": 3
+            },
+            {
+              "title": "should wait for React app to load and detect components",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-safari",
+                  "projectName": "mobile-safari",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "31cb3f3d954e9d0614e5-ea199b48d5050e76c715",
+              "file": "enhanced-component-detection.spec.ts",
+              "line": 21,
+              "column": 3
+            },
+            {
+              "title": "should detect different component types",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-safari",
+                  "projectName": "mobile-safari",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "31cb3f3d954e9d0614e5-c9cb042203ad678b3280",
+              "file": "enhanced-component-detection.spec.ts",
+              "line": 73,
+              "column": 3
+            },
+            {
+              "title": "should work with AgentInterface using enhanced detection",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-safari",
+                  "projectName": "mobile-safari",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "31cb3f3d954e9d0614e5-f7b321bb0d30ae97b8f0",
+              "file": "enhanced-component-detection.spec.ts",
+              "line": 91,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "page-structure-analysis.spec.ts",
+      "file": "page-structure-analysis.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Page Structure Analysis",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "65fa9375459242374eb6-dfb3482deadceb45835e",
+          "file": "page-structure-analysis.spec.ts",
+          "line": 3,
+          "column": 1
+        },
+        {
+          "title": "Page Structure Analysis",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "65fa9375459242374eb6-836d8f2a6cdfdcc2fd5d",
+          "file": "page-structure-analysis.spec.ts",
+          "line": 3,
+          "column": 1
+        },
+        {
+          "title": "Page Structure Analysis",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "65fa9375459242374eb6-863281917d50fdeecc82",
+          "file": "page-structure-analysis.spec.ts",
+          "line": 3,
+          "column": 1
+        },
+        {
+          "title": "Page Structure Analysis",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-chrome",
+              "projectName": "mobile-chrome",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "65fa9375459242374eb6-f92eb50c5554773b5258",
+          "file": "page-structure-analysis.spec.ts",
+          "line": 3,
+          "column": 1
+        },
+        {
+          "title": "Page Structure Analysis",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-safari",
+              "projectName": "mobile-safari",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "65fa9375459242374eb6-68b02084ea4face5db66",
+          "file": "page-structure-analysis.spec.ts",
+          "line": 3,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "react-app-debug.spec.ts",
+      "file": "react-app-debug.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "React App Debug Analysis",
+          "file": "react-app-debug.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "analyze why React app root is empty",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "fe627bd96637910860e7-42035d81718e8262ceca",
+              "file": "react-app-debug.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "analyze why React app root is empty",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "fe627bd96637910860e7-469e163eb140a50f33d7",
+              "file": "react-app-debug.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "analyze why React app root is empty",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "fe627bd96637910860e7-7860d2728df4fcb12292",
+              "file": "react-app-debug.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "analyze why React app root is empty",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "fe627bd96637910860e7-df13fd01f454a99963b1",
+              "file": "react-app-debug.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "analyze why React app root is empty",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-safari",
+                  "projectName": "mobile-safari",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "fe627bd96637910860e7-6725b545a5e16a75f622",
+              "file": "react-app-debug.spec.ts",
+              "line": 4,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "universal-component-detection.spec.ts",
+      "file": "universal-component-detection.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "AI Agent Interface - Universal Component Detection",
+          "file": "universal-component-detection.spec.ts",
+          "line": 4,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should detect components using universal detector",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "8ac5c5df6bb6411bf074-d1a0b90fd4a60e25721d",
+              "file": "universal-component-detection.spec.ts",
+              "line": 5,
+              "column": 3
+            },
+            {
+              "title": "should handle pages with no detectable components gracefully",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "8ac5c5df6bb6411bf074-5ccab5efc9bf58149a46",
+              "file": "universal-component-detection.spec.ts",
+              "line": 62,
+              "column": 3
+            },
+            {
+              "title": "should detect components using universal detector",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "8ac5c5df6bb6411bf074-83793fd03861b861b2d2",
+              "file": "universal-component-detection.spec.ts",
+              "line": 5,
+              "column": 3
+            },
+            {
+              "title": "should handle pages with no detectable components gracefully",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "8ac5c5df6bb6411bf074-b90eea7bf8764271a67e",
+              "file": "universal-component-detection.spec.ts",
+              "line": 62,
+              "column": 3
+            },
+            {
+              "title": "should detect components using universal detector",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "8ac5c5df6bb6411bf074-7b061cde4167e4b9383b",
+              "file": "universal-component-detection.spec.ts",
+              "line": 5,
+              "column": 3
+            },
+            {
+              "title": "should handle pages with no detectable components gracefully",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "8ac5c5df6bb6411bf074-ac1c317071738c43ecd6",
+              "file": "universal-component-detection.spec.ts",
+              "line": 62,
+              "column": 3
+            },
+            {
+              "title": "should detect components using universal detector",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "8ac5c5df6bb6411bf074-3a9380a7faf4d2472a37",
+              "file": "universal-component-detection.spec.ts",
+              "line": 5,
+              "column": 3
+            },
+            {
+              "title": "should handle pages with no detectable components gracefully",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "8ac5c5df6bb6411bf074-bd1cfd815347161d2ffb",
+              "file": "universal-component-detection.spec.ts",
+              "line": 62,
+              "column": 3
+            },
+            {
+              "title": "should detect components using universal detector",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-safari",
+                  "projectName": "mobile-safari",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "8ac5c5df6bb6411bf074-b2b0684f8414024ec53c",
+              "file": "universal-component-detection.spec.ts",
+              "line": 5,
+              "column": 3
+            },
+            {
+              "title": "should handle pages with no detectable components gracefully",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-safari",
+                  "projectName": "mobile-safari",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "8ac5c5df6bb6411bf074-e9907b3582cf53892760",
+              "file": "universal-component-detection.spec.ts",
+              "line": 62,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-06-22T13:27:52.244Z",
+    "duration": 130.62199999999996,
+    "expected": 0,
+    "skipped": 115,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

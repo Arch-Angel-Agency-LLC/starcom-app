@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSpaceWeatherData } from '../../hooks/useSpaceWeatherData';
-import { SpaceWeatherAlert } from '../../types/spaceWeather';
+import { SpaceWeatherAlert } from '../../types';
 
 // AI-NOTE: Demo component for NOAA space weather integration - shows electric field data and alerts
 // TODO: Integrate with existing HUD system and globe overlays

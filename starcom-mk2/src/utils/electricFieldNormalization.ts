@@ -3,7 +3,7 @@
 // Implements multiple normalization strategies to handle extreme values and provide
 // more visually balanced representations of NOAA geomagnetic data
 
-import { ElectricFieldVector } from '../types/spaceWeather';
+import { ElectricFieldVector } from '../types';
 
 export interface NormalizationConfig {
   method: 'linear' | 'logarithmic' | 'percentile' | 'statistical' | 'adaptive';

@@ -1,0 +1,341 @@
+/**
+ * Role Selector Component Styles
+ * 
+ * RTS-inspired styling for the adaptive interface role selector,
+ * focusing on command center aesthetics and professional appearance.
+ */
+
+.roleSelector {
+  background: linear-gradient(135deg, #1a1d2e 0%, #16213e 100%);
+  border: 1px solid #00ffff40;
+  border-radius: 8px;
+  box-shadow: 
+    0 4px 20px rgba(0, 255, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.roleSelector:hover {
+  border-color: #00ffff60;
+  box-shadow: 
+    0 6px 25px rgba(0, 255, 255, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: rgba(0, 255, 255, 0.05);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.header:hover {
+  background: rgba(0, 255, 255, 0.1);
+}
+
+.currentSelection {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.roleIcon {
+  font-size: 20px;
+  opacity: 0.8;
+}
+
+.roleInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.roleName {
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.experienceLevel {
+  color: #00ffff;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.expandIcon {
+  color: #00ffff;
+  font-size: 12px;
+  transition: transform 0.2s ease;
+}
+
+.expandIcon.expanded {
+  transform: rotate(180deg);
+}
+
+/* Selector Panel */
+.selectorPanel {
+  background: rgba(0, 0, 0, 0.3);
+  border-top: 1px solid #00ffff20;
+  padding: 16px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.selectorPanel::-webkit-scrollbar {
+  width: 6px;
+}
+
+.selectorPanel::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.selectorPanel::-webkit-scrollbar-thumb {
+  background: rgba(0, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+.selectorPanel::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 255, 255, 0.5);
+}
+
+/* Section */
+.section {
+  margin-bottom: 20px;
+}
+
+.section:last-child {
+  margin-bottom: 0;
+}
+
+.sectionTitle {
+  color: #00ffff;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0 0 12px 0;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #00ffff30;
+}
+
+/* Option Group */
+.optionGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Option */
+.option {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.option:hover {
+  background: rgba(0, 255, 255, 0.05);
+  border-color: #00ffff30;
+  transform: translateY(-1px);
+}
+
+.option.selected {
+  background: rgba(0, 255, 255, 0.1);
+  border-color: #00ffff;
+  box-shadow: 
+    0 2px 10px rgba(0, 255, 255, 0.2),
+    inset 0 1px 0 rgba(0, 255, 255, 0.1);
+}
+
+.option.selected:hover {
+  background: rgba(0, 255, 255, 0.15);
+}
+
+.optionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.optionLabel {
+  color: #ffffff;
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.selectedIcon {
+  color: #00ffff;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.optionDescription {
+  color: #b0b0b0;
+  font-size: 11px;
+  line-height: 1.4;
+  font-style: italic;
+}
+
+/* Profile Summary */
+.profileSummary {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid #00ffff20;
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.summaryItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  border-bottom: 1px solid #ffffff10;
+}
+
+.summaryItem:last-child {
+  border-bottom: none;
+}
+
+.summaryLabel {
+  color: #b0b0b0;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.summaryValue {
+  color: #00ffff;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .roleSelector {
+    margin: 0 8px;
+  }
+  
+  .header {
+    padding: 10px 12px;
+  }
+  
+  .selectorPanel {
+    padding: 12px;
+    max-height: 300px;
+  }
+  
+  .option {
+    padding: 10px;
+  }
+  
+  .sectionTitle {
+    font-size: 12px;
+  }
+  
+  .optionLabel {
+    font-size: 12px;
+  }
+  
+  .optionDescription {
+    font-size: 10px;
+  }
+}
+
+/* Accessibility */
+.roleSelector:focus-within {
+  outline: 2px solid #00ffff;
+  outline-offset: 2px;
+}
+
+.option:focus {
+  outline: 1px solid #00ffff;
+  outline-offset: 1px;
+}
+
+/* Animation for expansion */
+@keyframes expandPanel {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.selectorPanel {
+  animation: expandPanel 0.2s ease-out;
+}
+
+/* Role-specific styling */
+.option[data-role="ANALYST"] .optionLabel::before {
+  content: "📊 ";
+}
+
+.option[data-role="COMMANDER"] .optionLabel::before {
+  content: "⭐ ";
+}
+
+.option[data-role="FIELD_OPERATIVE"] .optionLabel::before {
+  content: "🎯 ";
+}
+
+.option[data-role="TECHNICAL_SPECIALIST"] .optionLabel::before {
+  content: "🔧 ";
+}
+
+.option[data-role="INTELLIGENCE_OFFICER"] .optionLabel::before {
+  content: "🕵️ ";
+}
+
+.option[data-role="CYBER_WARRIOR"] .optionLabel::before {
+  content: "🛡️ ";
+}
+
+/* Experience level indicators */
+.option[data-experience="NOVICE"] {
+  border-left: 3px solid #ffd700;
+}
+
+.option[data-experience="INTERMEDIATE"] {
+  border-left: 3px solid #ff8c00;
+}
+
+.option[data-experience="EXPERT"] {
+  border-left: 3px solid #00ff00;
+}
+
+.option[data-experience="MASTER"] {
+  border-left: 3px solid #ff0080;
+}
+
+/* Complexity indicators */
+.option[data-complexity="SIMPLIFIED"] {
+  border-right: 3px solid #90EE90;
+}
+
+.option[data-complexity="STANDARD"] {
+  border-right: 3px solid #FFD700;
+}
+
+.option[data-complexity="ADVANCED"] {
+  border-right: 3px solid #FF8C00;
+}
+
+.option[data-complexity="EXPERT"] {
+  border-right: 3px solid #FF4500;
+}

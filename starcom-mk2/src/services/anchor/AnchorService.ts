@@ -1,6 +1,6 @@
 import { AnchorProvider, Program, web3, BN } from '@coral-xyz/anchor';
 import { Connection, PublicKey, Keypair, SystemProgram } from '@solana/web3.js';
-import { IDL } from '../../types/intel_market';
+import { IDL } from '../../types/data/intel_market';
 import { IntelReportData } from '../../models/IntelReportData';
 
 /**

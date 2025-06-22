@@ -10,7 +10,7 @@ import {
 } from '../interfaces';
 import { 
   SpaceWeatherAlert
-} from '../../../types/spaceWeather';
+} from '../../../types';
 import {
   NOAADataTypes,
   NOAASolarXRayData,

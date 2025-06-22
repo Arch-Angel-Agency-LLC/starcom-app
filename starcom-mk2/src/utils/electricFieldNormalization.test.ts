@@ -7,7 +7,7 @@ import {
   normalizeElectricFieldVectors, 
   NormalizationPresets 
 } from './electricFieldNormalization';
-import type { ElectricFieldVector } from '../types/spaceWeather';
+import type { ElectricFieldVector } from '../types';
 
 // Mock electric field data with various characteristics
 const createMockVectors = (magnitudes: number[]): ElectricFieldVector[] => {

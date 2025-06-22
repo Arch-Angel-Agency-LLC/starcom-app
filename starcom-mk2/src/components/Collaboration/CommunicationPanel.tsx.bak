@@ -1,0 +1,395 @@
+/**
+ * Real-Time Communication Component
+ * 
+ * Secure, multi-agency communication channels with classification-aware messaging,
+ * file sharing, and quantum-safe encryption for collaborative operations.
+ */
+
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { useCollaborationFeatures } from '../../hooks/useUnifiedGlobalCommand';
+import RealTimeEventSystem from '../../services/realTimeEventSystem';
+import type { 
+  CollaborationMessage, 
+  AgencyType,
+  ClearanceLevel 
+} from '../../types';
+import styles from './CommunicationPanel.module.css';
+
+// ============================================================================
+// MESSAGE COMPONENT
+// ============================================================================
+
+interface MessageProps {
+  message: CollaborationMessage;
+  currentOperatorId: string;
+}
+
+const Message: React.FC<MessageProps> = ({ message, currentOperatorId }) => {
+  const isOwnMessage = message.senderId === currentOperatorId;
+  
+  const getAgencyColor = (agency: AgencyType) => {
+    const colors = {
+      'SOCOM': '#2E7D32',
+      'SPACE_FORCE': '#1565C0', 
+      'CYBER_COMMAND': '#7B1FA2',
+      'NSA': '#E65100',
+      'DIA': '#C62828',
+      'CIA': '#424242'
+    };
+    return colors[agency] || '#616161';
+  };
+
+  const getClassificationColor = (classification: ClearanceLevel) => {
+    const colors = {
+      'UNCLASSIFIED': '#4CAF50',
+      'CONFIDENTIAL': '#FF9800',
+      'SECRET': '#F44336',
+      'TOP_SECRET': '#9C27B0',
+      'SCI': '#000000'
+    };
+    return colors[classification] || '#757575';
+  };
+
+  const formatTimestamp = (timestamp: Date) => {
+    return new Intl.DateTimeFormat('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    }).format(new Date(timestamp));
+  };
+
+  return (
+    <div className={`${styles.message} ${isOwnMessage ? styles.ownMessage : styles.otherMessage}`}>
+      <div className={styles.messageHeader}>
+        <div 
+          className={styles.senderAvatar}
+          style={{ '--agency-color': getAgencyColor(message.senderAgency) } as React.CSSProperties}
+        >
+          {message.senderName.split(' ').map(n => n[0]).join('').toUpperCase()}
+        </div>
+        <div className={styles.messageInfo}>
+          <div className={styles.senderName}>
+            {message.senderName} ({message.senderAgency})
+          </div>
+          <div className={styles.messageTime}>
+            {formatTimestamp(message.timestamp)}
+          </div>
+        </div>
+        <div 
+          className={styles.classificationBadge}
+          style={{ '--classification-color': getClassificationColor(message.classification) } as React.CSSProperties}
+        >
+          {message.classification}
+        </div>
+      </div>
+
+      <div className={styles.messageContent}>
+        {message.type === 'INTELLIGENCE_SHARE' && (
+          <div className={styles.intelligenceShare}>
+            <span className={styles.shareIcon}>🎯</span>
+            <span>Shared intelligence asset</span>
+          </div>
+        )}
+        
+        {message.type === 'CONTEXT_UPDATE' && (
+          <div className={styles.contextUpdate}>
+            <span className={styles.updateIcon}>🔄</span>
+            <span>Updated shared context</span>
+          </div>
+        )}
+        
+        {message.type === 'ANNOTATION' && (
+          <div className={styles.annotation}>
+            <span className={styles.annotationIcon}>📝</span>
+            <span>Added annotation</span>
+          </div>
+        )}
+        
+        {message.type === 'ALERT' && (
+          <div className={styles.alert}>
+            <span className={styles.alertIcon}>⚠️</span>
+            <span>Security alert</span>
+          </div>
+        )}
+
+        <div className={styles.messageText}>
+          {message.content}
+        </div>
+
+        {message.attachments && message.attachments.length > 0 && (
+          <div className={styles.attachments}>
+            {message.attachments.map(attachment => (
+              <div key={attachment.id} className={styles.attachment}>
+                <span className={styles.attachmentIcon}>📎</span>
+                <span className={styles.attachmentName}>{attachment.name}</span>
+                <span className={styles.attachmentSize}>
+                  ({Math.round(attachment.size / 1024)} KB)
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// ============================================================================
+// MESSAGE INPUT COMPONENT
+// ============================================================================
+
+interface MessageInputProps {
+  onSendMessage: (content: string, type: CollaborationMessage['type']) => void;
+  currentClassification: ClearanceLevel;
+}
+
+const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage, currentClassification }) => {
+  const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState<CollaborationMessage['type']>('TEXT');
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  const handleSubmit = useCallback((e: React.FormEvent) => {
+    e.preventDefault();
+    if (!message.trim()) return;
+
+    onSendMessage(message.trim(), messageType);
+    setMessage('');
+    setMessageType('TEXT');
+    
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [message, messageType, onSendMessage]);
+
+  const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit(e);
+    }
+  }, [handleSubmit]);
+
+  return (
+    <form onSubmit={handleSubmit} className={styles.messageInput}>
+      <div className={styles.inputControls}>
+        <select
+          value={messageType}
+          onChange={(e) => setMessageType(e.target.value as CollaborationMessage['type'])}
+          className={styles.messageTypeSelect}
+        >
+          <option value="TEXT">📝 Text</option>
+          <option value="INTELLIGENCE_SHARE">🎯 Intel Share</option>
+          <option value="CONTEXT_UPDATE">🔄 Context Update</option>
+          <option value="ANNOTATION">📝 Annotation</option>
+          <option value="ALERT">⚠️ Alert</option>
+        </select>
+        
+        <div className={styles.classificationIndicator}>
+          {currentClassification}
+        </div>
+      </div>
+
+      <div className={styles.inputArea}>
+        <textarea
+          ref={inputRef}
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          onKeyPress={handleKeyPress}
+          placeholder="Type your message... (Enter to send, Shift+Enter for new line)"
+          className={styles.messageTextarea}
+          rows={2}
+        />
+        
+        <button
+          type="submit"
+          disabled={!message.trim()}
+          className={styles.sendButton}
+        >
+          📤
+        </button>
+      </div>
+    </form>
+  );
+};
+
+// ============================================================================
+// MAIN COMMUNICATION PANEL
+// ============================================================================
+
+interface CommunicationPanelProps {
+  className?: string;
+}
+
+export const CommunicationPanel: React.FC<CommunicationPanelProps> = ({ className }) => {
+  const { collaborationState } = useCollaboration();
+  const { operator } = useOperatorProfile();
+  const [activeChannel, setActiveChannel] = useState<string | null>(null);
+  const [messages, setMessages] = useState<CollaborationMessage[]>([]);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const eventSystem = RealTimeEventSystem.getInstance();
+
+  // Auto-select first available channel
+  useEffect(() => {
+    if (!activeChannel && collaborationState.communicationChannels.length > 0) {
+      setActiveChannel(collaborationState.communicationChannels[0].id);
+    }
+  }, [collaborationState.communicationChannels, activeChannel]);
+
+  // Load messages for active channel
+  useEffect(() => {
+    const channel = collaborationState.communicationChannels.find(c => c.id === activeChannel);
+    if (channel) {
+      setMessages(channel.messageHistory || []);
+    }
+  }, [activeChannel, collaborationState.communicationChannels]);
+
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  const handleSendMessage = useCallback(async (content: string, type: CollaborationMessage['type']) => {
+    if (!operator || !activeChannel) return;
+
+    const newMessage: CollaborationMessage = {
+      id: `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      senderId: operator.id,
+      senderName: operator.name,
+      senderAgency: operator.agency,
+      content,
+      type,
+      timestamp: new Date(),
+      classification: operator.clearanceLevel,
+      attachments: []
+    };
+
+    // Add message to local state (in real app, this would be handled by the collaboration service)
+    setMessages(prev => [...prev, newMessage]);
+
+    // Emit real-time event
+    eventSystem.emit({
+      type: 'UI_UPDATE_SESSION_STATUS',
+      payload: {
+        channelId: activeChannel,
+        message: newMessage
+      },
+      source: 'user',
+      timestamp: new Date(),
+      priority: 'normal'
+    });
+
+    // Show notification
+    eventSystem.emit({
+      type: 'UI_SHOW_NOTIFICATION',
+      payload: {
+        title: 'Message Sent',
+        message: `Message sent to channel`,
+        type: 'success',
+        duration: 2000
+      },
+      source: 'user',
+      timestamp: new Date(),
+      priority: 'low'
+    });
+  }, [operator, activeChannel, eventSystem]);
+
+  const activeChannelData = collaborationState.communicationChannels.find(c => c.id === activeChannel);
+
+  if (!operator) {
+    return (
+      <div className={`${styles.communicationPanel} ${className || ''}`}>
+        <div className={styles.noOperator}>
+          <div className={styles.noOperatorIcon}>👤</div>
+          <div className={styles.noOperatorText}>
+            Set up your operator profile to access communication channels
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (collaborationState.communicationChannels.length === 0) {
+    return (
+      <div className={`${styles.communicationPanel} ${className || ''}`}>
+        <div className={styles.noChannels}>
+          <div className={styles.noChannelsIcon}>💬</div>
+          <div className={styles.noChannelsText}>
+            No communication channels available. Join a collaboration session to start communicating.
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`${styles.communicationPanel} ${className || ''}`}>
+      <div className={styles.channelSelector}>
+        <div className={styles.channelSelectorHeader}>
+          <span className={styles.channelIcon}>💬</span>
+          <span className={styles.channelTitle}>Communication Channels</span>
+        </div>
+        
+        <div className={styles.channelList}>
+          {collaborationState.communicationChannels.map(channel => (
+            <button
+              key={channel.id}
+              onClick={() => setActiveChannel(channel.id)}
+              className={`${styles.channelButton} ${
+                channel.id === activeChannel ? styles.activeChannel : ''
+              }`}
+            >
+              <div className={styles.channelInfo}>
+                <div className={styles.channelName}>{channel.name}</div>
+                <div className={styles.channelMeta}>
+                  {channel.participants.length} participants • {channel.classification}
+                </div>
+              </div>
+              <div className={`${styles.channelStatus} ${
+                channel.isActive ? styles.channelActive : styles.channelInactive
+              }`}>
+                {channel.isActive ? '🟢' : '🔴'}
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {activeChannelData && (
+        <div className={styles.chatArea}>
+          <div className={styles.chatHeader}>
+            <div className={styles.chatTitle}>
+              <span className={styles.chatIcon}>🔒</span>
+              <span>{activeChannelData.name}</span>
+            </div>
+            <div className={styles.chatMeta}>
+              <span className={styles.encryptionType}>
+                {activeChannelData.encryptionType}
+              </span>
+              <span className={styles.chatClassification}>
+                {activeChannelData.classification}
+              </span>
+            </div>
+          </div>
+
+          <div className={styles.messagesContainer}>
+            {messages.map(message => (
+              <Message
+                key={message.id}
+                message={message}
+                currentOperatorId={operator.id}
+              />
+            ))}
+            <div ref={messagesEndRef} />
+          </div>
+
+          <MessageInput
+            onSendMessage={handleSendMessage}
+            currentClassification={activeChannelData.classification}
+          />
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default CommunicationPanel;

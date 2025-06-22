@@ -4,7 +4,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { GlobeEngine } from './GlobeEngine';
 import { fetchLatestElectricFieldData, transformNOAAToIntelMarkers } from '../services/noaaSpaceWeather';
-import type { NOAAElectricFieldData } from '../types/spaceWeather';
+import type { NOAAElectricFieldData } from '../types';
 
 // Mock the NOAA service
 vi.mock('../services/noaaSpaceWeather', () => ({

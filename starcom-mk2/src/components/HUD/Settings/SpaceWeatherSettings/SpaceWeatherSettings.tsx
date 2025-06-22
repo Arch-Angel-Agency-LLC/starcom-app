@@ -1,6 +1,8 @@
 import React from 'react';
 import { useEcoNaturalSettings } from '../../../../hooks/useEcoNaturalSettings';
 import { useSettingsValidation } from '../../../../utils/uiSettingsReflection';
+import CompactNOAAControls from '../../Bars/LeftSideBar/CompactNOAAControls';
+import NOAAVisualizationStatus from '../../Bars/LeftSideBar/NOAAVisualizationStatus';
 import styles from './SpaceWeatherSettings.module.css';
 
 // AI-NOTE: EcoNatural visualization settings panel for all natural/environmental data
@@ -32,6 +34,12 @@ const SpaceWeatherSettings: React.FC<SpaceWeatherSettingsProps> = ({ subMode }) 
 
   const renderSpaceWeatherSettings = () => (
     <div className={styles.spaceWeatherSettings}>
+      {/* NOAA Visualization Controls */}
+      <CompactNOAAControls className={styles.noaaSection} />
+      
+      {/* Globe Visualization Status */}
+      <NOAAVisualizationStatus />
+      
       {/* Data Layer Toggles */}
       <div className={styles.section}>
         <div className={styles.sectionTitle}>⚡ Data</div>

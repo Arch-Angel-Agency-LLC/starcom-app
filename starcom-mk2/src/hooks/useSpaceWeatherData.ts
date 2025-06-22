@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { fetchLatestElectricFieldData, generateSpaceWeatherAlerts } from '../services/noaaSpaceWeather';
-import { ProcessedElectricFieldData, SpaceWeatherAlert } from '../types/spaceWeather';
+import { ProcessedElectricFieldData, SpaceWeatherAlert } from '../types';
 import { SpaceWeatherCacheService } from '../services/SpaceWeatherCacheService';
 
 // AI-NOTE: Updated to use proper caching service for better performance and data persistence

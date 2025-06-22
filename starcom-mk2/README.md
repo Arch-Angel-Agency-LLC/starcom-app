@@ -1,62 +1,38 @@
-# React + TypeScript + Vite
+# Starcom MK2 🌍
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Decentralized Web3 3D Global Cyber Command Interface**
 
-Currently, two official plugins are available:
+A next-generation platform for cyber investigations, strategic intelligence, financial analysis, and global monitoring.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## Expanding the ESLint configuration
+## 🚀 **Quick Start**
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+### **Developers**
+```bash
+npm install
+npm run dev
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+### **AI Agents**
+Start with `.onboarding` → `docs/README.md` → `.primer`
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+---
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+## 🏗️ **Architecture**
 
-# Intelligence Exchange Market (IEM) — Stage 1 Integration
+- **Frontend**: React + TypeScript + Vite
+- **3D Engine**: Three.js for globe visualization  
+- **Blockchain**: Solana + Ethereum integration
+- **Data**: Rust/WASM + artifact-driven patterns
+- **Intelligence**: Intel Exchange Market (IEM)
 
-This project now includes Solana/Anchor/Metaplex integration for the IEM and Intel Report system.
+## 🛡️ **Safety Notes**
 
-## Quick Start (Stage 1)
+- **Testing**: Use `npm run test:safe` (prevents system freezes)
+- **Storage**: 2MB browser limit enforced
+- **Documentation**: See [`docs/`](./docs/) for complete guides
 
-- Install dependencies: `npm install`
-- Test minting (Devnet): `npm run test:mint`
-- UI minting test: Launch the app and use the MintTest component
-- See `contracts/intel-market/README.md` for Solana/Anchor contract setup
-- See `artifacts/intel-report-stage1-plan.artifact` and `artifacts/intel-report-stage1-checklist.artifact` for full plan and checklist
+---
+
+*Built for the future of decentralized intelligence*
