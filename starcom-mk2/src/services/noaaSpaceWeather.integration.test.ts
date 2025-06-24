@@ -9,7 +9,7 @@ describe('NOAA Electric Field Data - Real API Integration', () => {
     const response = await fetch('https://services.swpc.noaa.gov/json/lists/rgeojson/InterMagEarthScope/');
     expect(response.ok).toBe(true);
     const html = await response.text();
-    const fileLinks = html.match(/href="[^\"]*\.json"/g) || [];
+    const fileLinks = html.match(/href="[^"]*\.json"/g) || [];
     expect(fileLinks.length).toBeGreaterThan(0);
   }, 30000);
 
@@ -17,7 +17,7 @@ describe('NOAA Electric Field Data - Real API Integration', () => {
     const response = await fetch('https://services.swpc.noaa.gov/json/lists/rgeojson/US-Canada-1D/');
     expect(response.ok).toBe(true);
     const html = await response.text();
-    const fileLinks = html.match(/href="[^\"]*\.json"/g) || [];
+    const fileLinks = html.match(/href="[^"]*\.json"/g) || [];
     expect(fileLinks.length).toBeGreaterThan(0);
   }, 30000);
 
@@ -26,7 +26,7 @@ describe('NOAA Electric Field Data - Real API Integration', () => {
     const html = await dirResponse.text();
     const fileLinks = html.match(/href="(\d{8}T\d{6}-\d{2}-Efield-empirical-EMTF-[\d.-]+x[\d.-]+\.json)"/g) || [];
     expect(fileLinks.length).toBeGreaterThan(0);
-    const latestFileMatch = fileLinks[fileLinks.length - 1].match(/href="([^\"]+)"/);
+    const latestFileMatch = fileLinks[fileLinks.length - 1].match(/href="([^"]+)"/);
     expect(latestFileMatch).toBeTruthy();
     const latestFilename = latestFileMatch![1];
     const dataResponse = await fetch(`https://services.swpc.noaa.gov/json/lists/rgeojson/InterMagEarthScope/${latestFilename}`);
@@ -42,7 +42,7 @@ describe('NOAA Electric Field Data - Real API Integration', () => {
     const html = await dirResponse.text();
     const fileLinks = html.match(/href="(\d{8}T\d{6}-\d{2}-Efield-US-Canada\.json)"/g) || [];
     expect(fileLinks.length).toBeGreaterThan(0);
-    const latestFileMatch = fileLinks[fileLinks.length - 1].match(/href="([^\"]+)"/);
+    const latestFileMatch = fileLinks[fileLinks.length - 1].match(/href="([^"]+)"/);
     const latestFilename = latestFileMatch![1];
     const dataResponse = await fetch(`https://services.swpc.noaa.gov/json/lists/rgeojson/US-Canada-1D/${latestFilename}`);
     expect(dataResponse.ok).toBe(true);

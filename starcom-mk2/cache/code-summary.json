@@ -16,8 +16,10 @@
     ],
     "scripts": [
       "ai-safe-test-runner.ts",
+      "auth-integration-check.cjs",
       "deploy-mvp.sh",
       "deploy.ts",
+      "fix-static-deployment.sh",
       "intelReportBackend.ts",
       "mock-api-server.js",
       "noaa-demo.ts",
@@ -25,15 +27,33 @@
       "safe-test-runner.ts",
       "setup-mvp.sh",
       "storage-monitor.mjs",
+      "test-auth.cjs",
+      "test-console-optimization.js",
       "test-noaa-safe.ts",
       "testMint.ts"
     ],
     "docs": [
+      "AUTHENTICATION-SYSTEM-COMPLETE.md",
+      "AUTHENTICATION-TESTING-COMPLETE.md",
+      "AUTHENTICATION-TESTING-GUIDE.md",
+      "BROWSER-COMPATIBILITY-FIX-COMPLETE.md",
+      "BROWSER-COMPATIBILITY-FIXES-COMPLETE.md",
+      "BUILD-STATUS.md",
+      "CONSOLE-OPTIMIZATION-PHASE2-COMPLETE.md",
       "DOCUMENTATION-REORGANIZATION-COMPLETE.md",
-      "README.md"
+      "FINAL-STATUS-REPORT.md",
+      "PERFORMANCE-OPTIMIZATION-COMPLETE.md",
+      "README.md",
+      "TDD-AUTHENTICATION-PROGRESS.md",
+      "TDD-IMPLEMENTATION-COMPLETE.md",
+      "TDD-PROGRESS.md",
+      "UX-FLOW-VALIDATION-COMPLETE.md",
+      "WALLET-DIAGNOSTICS-IMPROVEMENTS-COMPLETE.md",
+      "WALLET-STATUS-UI-STARCOM-THEME-COMPLETE.md"
     ],
     "public": [
       "borders.geojson",
+      "missing-module.js",
       "starcom.ico",
       "starcom.png",
       "territories.geojson"
@@ -44,7 +64,10 @@
       "wasm-mini-server"
     ]
   },
-  "artifacts": [],
+  "artifacts": [
+    "authentication-implementation.artifact",
+    "authentication-refactor-roadmap.artifact"
+  ],
   "aiHints": {
     "mainAppDir": "src",
     "contractsDir": "src/contracts",
@@ -54,5 +77,5 @@
       "src/main.tsx"
     ]
   },
-  "generatedAt": "2025-06-22T17:56:52.658Z"
+  "generatedAt": "2025-06-24T00:10:56.263Z"
 }

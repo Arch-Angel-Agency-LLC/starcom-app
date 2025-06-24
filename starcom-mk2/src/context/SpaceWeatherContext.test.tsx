@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 // src/context/SpaceWeatherContext.test.ts
 // AI-NOTE: Integration tests for SpaceWeatherContext toggle functionality
 // Validates that electric field visualization can be toggled on/off correctly

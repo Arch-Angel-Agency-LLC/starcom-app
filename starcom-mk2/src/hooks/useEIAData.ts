@@ -23,6 +23,7 @@ export const useEIAData = () => {
         setOilInventory(oilInventory);
         setNaturalGasStorage(naturalGasStorage);
       } catch (err) {
+        console.error('EIA data fetch error:', err);
         setError('Failed to fetch data');
       } finally {
         setLoading(false);

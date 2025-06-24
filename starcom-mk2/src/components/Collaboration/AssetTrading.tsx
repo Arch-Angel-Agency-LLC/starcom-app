@@ -390,8 +390,9 @@ export const AssetTrading: React.FC<AssetTradingProps> = ({
     }
   }, [onAssetPurchase, eventSystem]);
 
-  const handleAssetValidate = useCallback((_assetId: string) => {
+  const handleAssetValidate = useCallback((assetId: string) => {
     // Validation logic would be implemented here
+    console.log('Validating asset:', assetId);
     eventSystem.emit({
       type: 'UI_SHOW_NOTIFICATION',
       payload: {

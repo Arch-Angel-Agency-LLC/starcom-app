@@ -9,11 +9,6 @@
   },
   "todos": [
     {
-      "file": "src/components/AI/AIActionsPanel.tsx",
-      "line": 11,
-      "text": "TODO: Restore full functionality with proper unified context types"
-    },
-    {
       "file": "src/components/AI/ThreatHorizonFeed.tsx",
       "line": 11,
       "text": "TODO: Restore full functionality with proper unified context types"
@@ -27,6 +22,11 @@
       "file": "src/components/Auth/TokenGatedPage.test.tsx",
       "line": 8,
       "text": "TODO: Implement proper TokenGatedPage tests without RainbowKit/Wagmi circular deps"
+    },
+    {
+      "file": "src/components/Auth/WalletStatusMini.tsx",
+      "line": 771,
+      "text": "TODO: Implement actual network validation"
     },
     {
       "file": "src/components/Collaboration/CollaborativeAnnotations.tsx",
@@ -50,7 +50,7 @@
     },
     {
       "file": "src/components/Collaboration/SessionManager.tsx",
-      "line": 34,
+      "line": 69,
       "text": "TODO: Implement full session management"
     },
     {
@@ -130,18 +130,8 @@
     },
     {
       "file": "src/context/AuthContext.ts",
-      "line": 27,
+      "line": 35,
       "text": "TODO: Solana wallet context in progress. See artifacts/intel-report-stage1-plan.artifact"
-    },
-    {
-      "file": "src/context/AuthContext.tsx",
-      "line": 26,
-      "text": "TODO: Implement proper Solana message signing for authentication"
-    },
-    {
-      "file": "src/context/AuthContext.tsx",
-      "line": 29,
-      "text": "TODO: Replace with real signature"
     },
     {
       "file": "src/globe-engine/GlobeEngine.ts",
@@ -164,16 +154,6 @@
       "text": "TODO: Implement proper adaptive analysis"
     },
     {
-      "file": "src/hooks/useOnChainRoles.ts",
-      "line": 3,
-      "text": "TODO: Solana/Anchor/Metaplex version in progress. See artifacts/intel-report-stage1-plan.artifact"
-    },
-    {
-      "file": "src/hooks/useOnChainRoles.ts",
-      "line": 38,
-      "text": "TODO: Implement Solana logic here"
-    },
-    {
       "file": "src/hooks/useSIWEAuth.ts",
       "line": 6,
       "text": "TODO: Implement Solana-compatible authentication if needed. See artifacts/intel-report-artifact-index.artifact."
@@ -184,19 +164,9 @@
       "text": "TODO: Integrate with existing globe overlays and intelligence context"
     },
     {
-      "file": "src/hooks/useTokenGate.ts",
-      "line": 5,
-      "text": "TODO: Implement Solana-based token gate logic using @solana/web3.js or secure backend/CLI only. See artifacts/intel-report-artifact-index.artifact."
-    },
-    {
       "file": "src/pages/IntelReportsPage.tsx",
       "line": 4,
       "text": "TODO: Integrate with Solana/secure backend and live overlays when available."
-    },
-    {
-      "file": "src/services/IntelReportService.ts",
-      "line": 29,
-      "text": "TODO: Replace with deployed program ID"
     },
     {
       "file": "src/services/IntelReportService.ts",
@@ -230,72 +200,72 @@
     },
     {
       "file": "src/services/crypto/PQCryptoService.ts",
-      "line": 58,
+      "line": 59,
       "text": "TODO: Integrate with liboqs or similar PQC library"
     },
     {
       "file": "src/services/crypto/PQCryptoService.ts",
-      "line": 68,
+      "line": 69,
       "text": "TODO: Implement ML-KEM encapsulation"
     },
     {
       "file": "src/services/crypto/PQCryptoService.ts",
-      "line": 76,
+      "line": 77,
       "text": "TODO: Implement ML-KEM decapsulation"
     },
     {
       "file": "src/services/crypto/PQCryptoService.ts",
-      "line": 85,
+      "line": 86,
       "text": "TODO: Integrate with liboqs ML-DSA implementation"
     },
     {
       "file": "src/services/crypto/PQCryptoService.ts",
-      "line": 94,
+      "line": 95,
       "text": "TODO: Implement ML-DSA signing"
     },
     {
       "file": "src/services/crypto/PQCryptoService.ts",
-      "line": 108,
+      "line": 109,
       "text": "TODO: Implement ML-DSA verification"
     },
     {
       "file": "src/services/crypto/PQCryptoService.ts",
-      "line": 236,
+      "line": 237,
       "text": "TODO: Implement ECDH with Solana keys"
     },
     {
       "file": "src/services/crypto/PQCryptoService.ts",
-      "line": 241,
+      "line": 242,
       "text": "TODO: Implement ECDH secret derivation"
     },
     {
       "file": "src/services/crypto/PQCryptoService.ts",
-      "line": 247,
+      "line": 248,
       "text": "TODO: Implement proper HKDF"
     },
     {
       "file": "src/services/crypto/PQCryptoService.ts",
-      "line": 256,
+      "line": 257,
       "text": "TODO: Implement AES-256-GCM encryption"
     },
     {
       "file": "src/services/crypto/PQCryptoService.ts",
-      "line": 261,
+      "line": 262,
       "text": "TODO: Implement AES-256-GCM decryption"
     },
     {
       "file": "src/services/crypto/PQCryptoService.ts",
-      "line": 266,
+      "line": 267,
       "text": "TODO: Implement multi-recipient encryption"
     },
     {
       "file": "src/services/crypto/PQCryptoService.ts",
-      "line": 280,
+      "line": 281,
       "text": "TODO: Store algorithm update on Solana for audit trail"
     },
     {
       "file": "src/services/data-management/StarcomDataManager.ts",
-      "line": 523,
+      "line": 526,
       "text": "TODO: Implement cache entry age tracking in cache services"
     },
     {
@@ -431,9 +401,19 @@
       "text": "AI-NOTE: This file is for local development only. All live market data should be fetched from on-chain or decentralized sources in production, per the serverless, on-chain policy in the updated artifacts."
     },
     {
+      "file": "src/components/AI/AIActionsPanel.tsx",
+      "line": 51,
+      "text": "AI-NOTE: These depth levels are planned for future progressive disclosure features"
+    },
+    {
       "file": "src/components/Auth/AuthErrorBoundary.tsx",
       "line": 3,
       "text": "AI-NOTE: Error boundary for authentication and wallet errors (see artifacts)"
+    },
+    {
+      "file": "src/components/Auth/AuthGate.tsx",
+      "line": 7,
+      "text": "AI-NOTE: Enhanced AuthGate component with comprehensive feature gating"
     },
     {
       "file": "src/components/Auth/TermsModal.test.tsx",
@@ -452,13 +432,58 @@
     },
     {
       "file": "src/components/Auth/TokenGatedPage.tsx",
-      "line": 38,
+      "line": 41,
       "text": "AI-NOTE: This component is EVM/ethers.js-based and not compatible with the serverless, on-chain Solana architecture. Refactor or remove this file. All token/NFT gating should use Solana primitives and wallet-based access control, enforced on-chain and in the client per the updated artifacts."
     },
     {
       "file": "src/components/Auth/WalletStatus.test.tsx",
       "line": 2,
       "text": "AI-NOTE: Tests split into category files, adding placeholder"
+    },
+    {
+      "file": "src/components/Auth/WalletStatusMini.tsx",
+      "line": 9,
+      "text": "AI-NOTE: Starcom command center wallet status for TopBar"
+    },
+    {
+      "file": "src/components/Collaboration/IntelligenceMarketplace.tsx",
+      "line": 13,
+      "text": "AI-NOTE: Temporary mock hook until proper marketplace context is implemented"
+    },
+    {
+      "file": "src/components/Collaboration/IntelligenceMarketplace.tsx",
+      "line": 169,
+      "text": "AI-NOTE: Suppress unused parameter warning until implementation"
+    },
+    {
+      "file": "src/components/Collaboration/SessionManager.tsx",
+      "line": 16,
+      "text": "AI-NOTE: Mock hooks until proper implementations are available"
+    },
+    {
+      "file": "src/components/Collaboration/SessionManager.tsx",
+      "line": 20,
+      "text": "AI-NOTE: Suppress unused parameter warning until implementation"
+    },
+    {
+      "file": "src/components/Collaboration/SessionManager.tsx",
+      "line": 25,
+      "text": "AI-NOTE: Suppress unused parameter warning until implementation"
+    },
+    {
+      "file": "src/components/Collaboration/SessionManager.tsx",
+      "line": 60,
+      "text": "AI-NOTE: Mock collaboration features until proper implementation"
+    },
+    {
+      "file": "src/components/Debug/WalletDiagnostic.tsx",
+      "line": 5,
+      "text": "AI-NOTE: Enhanced movable diagnostic component for wallet debugging"
+    },
+    {
+      "file": "src/components/Demo/AuthDemoPage.tsx",
+      "line": 11,
+      "text": "AI-NOTE: This page demonstrates the new AuthGate component, SIWS auth, and feature gating"
     },
     {
       "file": "src/components/EcoNatural/SpaceWeatherNormalizationPanel.tsx",
@@ -476,9 +501,19 @@
       "text": "AI-NOTE: Refactored to use GlobeEngine. See globe-engine-api.artifact for integration details."
     },
     {
+      "file": "src/components/HUD/Bars/LeftSideBar/GlobeControls.tsx",
+      "line": 4,
+      "text": "AI-NOTE: Globe Controls component moved from RightSideBar to LeftSideBar"
+    },
+    {
       "file": "src/components/HUD/Bars/LeftSideBar/ModeSettingsPanel.tsx",
       "line": 8,
       "text": "AI-NOTE: Dynamic settings panel that displays different controls based on visualization mode"
+    },
+    {
+      "file": "src/components/HUD/Bars/RightSideBar/GlobeStatus.tsx",
+      "line": 7,
+      "text": "AI-NOTE: Globe Status component moved from LeftSideBar (TinyGlobe/ModeSettingsPanel) to RightSideBar"
     },
     {
       "file": "src/components/HUD/Bars/TopBar/EnhancedSettingsPopup.tsx",
@@ -509,6 +544,21 @@
       "file": "src/components/HUD/Bars/TopBar/useTopBarPreferences.ts",
       "line": 56,
       "text": "AI-NOTE: Handles loading, saving, and updating user preferences for TopBar categories."
+    },
+    {
+      "file": "src/components/HUD/Corners/BottomLeft/BottomLeft.module.css",
+      "line": 13,
+      "text": "AI-NOTE: Minimal styling for empty container - ready for future content */"
+    },
+    {
+      "file": "src/components/HUD/Corners/BottomLeft/BottomLeft.tsx",
+      "line": 4,
+      "text": "AI-NOTE: BottomLeft corner cleared during authentication refactor"
+    },
+    {
+      "file": "src/components/HUD/Popups/NOAAPopup.tsx",
+      "line": 6,
+      "text": "AI-NOTE: Enhanced NOAA popup with progressive disclosure and improved UX"
     },
     {
       "file": "src/components/HUD/Settings/SpaceWeatherSettings/ElectricFieldToggleTest.tsx",
@@ -557,17 +607,17 @@
     },
     {
       "file": "src/context/AuthContext.ts",
-      "line": 28,
+      "line": 36,
       "text": "AI-NOTE: EVM/ethers.js version archived in legacy-evm/AuthContext.ts. Implement Solana logic here."
     },
     {
       "file": "src/context/AuthContext.tsx",
-      "line": 112,
+      "line": 234,
       "text": "AI-NOTE: EVM/ethers.js version archived in legacy-evm/AuthContext.tsx. Implement Solana logic here."
     },
     {
-      "file": "src/context/SpaceWeatherContext.test.ts",
-      "line": 2,
+      "file": "src/context/SpaceWeatherContext.test.tsx",
+      "line": 3,
       "text": "AI-NOTE: Integration tests for SpaceWeatherContext toggle functionality"
     },
     {
@@ -681,9 +731,9 @@
       "text": "AI-NOTE: Hook to manage GeoPolitical visualization settings with localStorage persistence"
     },
     {
-      "file": "src/hooks/useOnChainRoles.ts",
-      "line": 4,
-      "text": "AI-NOTE: EVM/ethers.js version archived in legacy-evm/useOnChainRoles.ts. Implement Solana logic here."
+      "file": "src/hooks/useOverlayData.ts",
+      "line": 3,
+      "text": "AI-NOTE: Shared hook for overlay data used by both Globe Controls and Globe Status"
     },
     {
       "file": "src/hooks/useSIWEAuth.ts",
@@ -704,11 +754,6 @@
       "file": "src/hooks/useStorageMonitoring.ts",
       "line": 2,
       "text": "AI-NOTE: React hook to monitor and manage browser storage usage"
-    },
-    {
-      "file": "src/hooks/useTokenGate.ts",
-      "line": 3,
-      "text": "AI-NOTE: Archived EVM/ethers.js logic. This hook previously checked token/NFT balance using EVM/ethers.js."
     },
     {
       "file": "src/interfaces/IntelReportOverlay.ts",
@@ -762,7 +807,7 @@
     },
     {
       "file": "src/services/data-management/StarcomDataManager.ts",
-      "line": 563,
+      "line": 566,
       "text": "AI-NOTE: This implementation provides a robust foundation for centralized data management"
     },
     {
@@ -816,6 +861,16 @@
       "text": "AI-NOTE: All NFT minting logic must be implemented client-side using @solana/web3.js and wallet signatures only. No backend or CLI is allowed per the serverless, on-chain policy in the updated artifacts."
     },
     {
+      "file": "src/services/noaaSpaceWeather.integration.test.ts",
+      "line": 2,
+      "text": "AI-NOTE: Using global fetch instead of undici for browser compatibility"
+    },
+    {
+      "file": "src/services/noaaSpaceWeather.test.ts",
+      "line": 2,
+      "text": "AI-NOTE: Using vitest's built-in fetch mock instead of undici for browser compatibility"
+    },
+    {
       "file": "src/services/noaaSpaceWeather.test.ts",
       "line": 13,
       "text": "AI-NOTE: Starting with integration test to understand actual NOAA API behavior"
@@ -828,7 +883,7 @@
     {
       "file": "src/services/noaaSpaceWeather.ts",
       "line": 7,
-      "text": "AI-NOTE: Import fetch conditionally for different environments"
+      "text": "AI-NOTE: Use appropriate fetch implementation for each environment"
     },
     {
       "file": "src/services/testNoaaFunctions.mjs",
@@ -849,6 +904,11 @@
       "file": "src/services/tokenService.ts",
       "line": 9,
       "text": "AI-NOTE: All minting logic must be implemented client-side using @solana/web3.js and wallet signatures only. No backend or CLI is allowed per the serverless, on-chain policy in the updated artifacts."
+    },
+    {
+      "file": "src/testing/playwright/global-teardown.ts",
+      "line": 50,
+      "text": "AI-NOTE: Stats collection placeholder for future enhancement"
     },
     {
       "file": "src/types/data/spaceWeather.ts",
@@ -886,5 +946,5 @@
       "text": "AI-NOTE: EVM/ethers.js version archived in legacy-evm/wallet.ts. Implement Solana logic here."
     }
   ],
-  "generatedAt": "2025-06-22T17:57:16.620Z"
+  "generatedAt": "2025-06-24T00:11:38.968Z"
 }

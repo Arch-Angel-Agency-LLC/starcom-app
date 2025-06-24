@@ -8,23 +8,38 @@ export default defineConfig({
     react(), 
     tsconfigPaths(),
     nodePolyfills({
-      // Minimal polyfills for development compatibility
-      include: ['buffer', 'process'],
+      // Enhanced polyfills for browser compatibility
+      include: ['buffer', 'process', 'stream', 'util', 'crypto', 'http', 'https', 'zlib'],
       globals: {
         Buffer: true,
-        global: false,  // Let Vite handle this naturally
+        global: true,
         process: true,
       },
+      protocolImports: true,
     }),
   ],
   define: {
     global: 'globalThis',
+    'process.env': {},
   },
   css: {
     postcss: './postcss.config.cjs',
   },
   optimizeDeps: {
-    include: ['@solana/web3.js', '@solana/wallet-adapter-react', 'buffer'],
+    include: [
+      '@solana/web3.js', 
+      '@solana/wallet-adapter-react', 
+      '@metaplex-foundation/umi',
+      '@metaplex-foundation/umi-bundle-defaults',
+      'buffer'
+    ],
     exclude: ['wasm_mini_server'],
+  },
+  resolve: {
+    alias: {
+      // Polyfill Node.js modules for browser compatibility
+      stream: 'stream-browserify',
+      util: 'util',
+    },
   },
 });

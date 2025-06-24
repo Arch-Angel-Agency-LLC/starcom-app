@@ -12,6 +12,7 @@ import { UnifiedGlobalCommandProvider } from "./context/UnifiedGlobalCommandCont
 import SettingsInitializer from "./components/SettingsInitializer";
 import SettingsStatusIndicator from "./components/SettingsStatusIndicator";
 import PreloaderManager from "./components/Preloader/PreloaderManager";
+import WalletDiagnostic from "./components/Debug/WalletDiagnostic";
 import "./styles/globals.css";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AuthErrorBoundary from './components/Auth/AuthErrorBoundary';
@@ -35,6 +36,8 @@ const AppContent: React.FC = () => {
           <AppRoutes />
         </BrowserRouter>
         <SettingsStatusIndicator />
+        {/* Wallet Diagnostics - Only shown when feature flag is enabled */}
+        <WalletDiagnostic />
       </VisualizationModeProvider>
     </>
   );

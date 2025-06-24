@@ -1,5 +1,13 @@
 # Solar Flare Event Popup Issues - Diagnosis
 
+> **Date:** June 22, 2025  
+> **Type:** Issue Diagnosis  
+> **Status:** ✅ Resolved  
+> **Related:** [Solar Flare Fixes Summary](./2025-06-22-solar-flare-fixes-summary.md)
+
+## Overview
+This document provides detailed diagnosis of performance and UX issues with the Solar Flare Event popup system identified during testing.
+
 ## Issue 1: UI Drag is Super Sluggish
 **Root Cause:** The drag implementation in FloatingPanelManager.tsx has performance issues:
 - `handleDragMove` updates React state on every mousemove event 

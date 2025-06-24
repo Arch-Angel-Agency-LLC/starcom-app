@@ -1,12 +1,12 @@
 // GlobeEngine.test.ts
 // Artifact-driven tests for GlobeEngine (see globe-testing-plan.artifact, globe-engine-api.artifact, globe-overlays.artifact)
+import { describe, it, expect, vi } from 'vitest';
 import { GlobeEngine } from './GlobeEngine';
-import { vi } from 'vitest';
 
 // Mock API services for artifact-driven integration tests
 vi.mock('../services/WeatherDataService', () => ({
-  fetchWeatherData: async (_lat: number, _lng: number) => ({
-    // _lat and _lng are intentionally unused for mock
+  fetchWeatherData: async () => ({
+    // Simplified mock without unused parameters
     location: 'Test City',
     temperature: 20,
     description: 'Clear',

@@ -2,6 +2,7 @@
 // Post-Quantum Cryptography Service for SOCOM Compliance
 // Implements NIST ML-KEM and ML-DSA algorithms with hybrid cryptography
 // AI-NOTE: This service provides quantum-resistant security for intelligence assets
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any */
 
 import { Connection, PublicKey } from '@solana/web3.js';
 

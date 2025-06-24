@@ -2,6 +2,13 @@ import React, { useState, useEffect } from 'react';
 import StarcomPreloader from './StarcomPreloader';
 import './PreloaderManager.css';
 
+// Extend window interface for global function
+declare global {
+  interface Window {
+    hideInitialPreloader?: () => void;
+  }
+}
+
 interface PreloaderManagerProps {
   children: React.ReactNode;
   minimumDisplayTime?: number; // Minimum time to show preloader (in ms)
@@ -22,6 +29,11 @@ const PreloaderManager: React.FC<PreloaderManagerProps> = ({
   useEffect(() => {
     const startTime = Date.now();
     
+    // Hide the initial HTML preloader when React preloader is ready
+    if (typeof window !== 'undefined' && window.hideInitialPreloader) {
+      window.hideInitialPreloader();
+    }
+    
     // Function to hide preloader with smooth transition
     const hidePreloader = () => {
       const elapsedTime = Date.now() - startTime;
@@ -32,7 +44,7 @@ const PreloaderManager: React.FC<PreloaderManagerProps> = ({
         // After fade-out animation completes, remove preloader from DOM
         setTimeout(() => {
           setShowPreloader(false);
-        }, 500); // Match CSS transition duration
+        }, 800); // Match CSS transition duration (0.8s)
       }, remainingTime);
     };
 

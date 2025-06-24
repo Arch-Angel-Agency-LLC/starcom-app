@@ -26,6 +26,7 @@
   font-size: 16px;
   letter-spacing: 1px;
   user-select: none;
+  z-index: 10;
 }
 
 /* Tactical Grid Background */
@@ -75,7 +76,8 @@
   border: 2px solid #00ff41;
   border-radius: 50%;
   position: relative;
-  animation: rotate 2s linear infinite;
+  transform-origin: center center;
+  animation: globeRotate 2s linear infinite;
 }
 
 .globe-icon {
@@ -83,8 +85,9 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  transform-origin: center center;
   font-size: 24px;
-  animation: float 2s ease-in-out infinite;
+  animation: globeFloat 2s ease-in-out infinite;
 }
 
 .scanning-dot {
@@ -92,6 +95,7 @@
   top: -2px;
   left: 50%;
   transform: translateX(-50%);
+  transform-origin: center center;
   width: 4px;
   height: 4px;
   background: #00ff41;
@@ -108,7 +112,8 @@
   border: 1px solid #00ff41;
   border-radius: 50%;
   opacity: 0.4;
-  animation: rotate 3s linear infinite reverse;
+  transform-origin: center center;
+  animation: innerRingRotate 3s linear infinite reverse;
 }
 
 /* Command Text */
@@ -183,13 +188,18 @@
   }
 }
 
-/* Animations */
-@keyframes rotate {
+/* Animations with proper transform origins */
+@keyframes globeRotate {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
 
-@keyframes float {
+@keyframes innerRingRotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes globeFloat {
   0%, 100% { transform: translate(-50%, -50%) scale(1); }
   50% { transform: translate(-50%, -50%) scale(1.1); }
 }
@@ -197,10 +207,12 @@
 @keyframes gridScan {
   0%, 100% { 
     transform: scale(1) rotate(0deg); 
+    transform-origin: center center;
     opacity: 0.3; 
   }
   50% { 
     transform: scale(1.1) rotate(180deg); 
+    transform-origin: center center;
     opacity: 0.6; 
   }
 }
@@ -223,6 +235,95 @@
   50% { 
     background: rgba(0, 255, 65, 1); 
     box-shadow: 0 0 4px #00ff41; 
+  }
+}
+
+/* Cyber Command Matrix Effects */
+
+/* Matrix-style code rain for cyber theme */
+.matrix-rain {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  opacity: 0.6;
+  z-index: 1;
+}
+
+.code-column {
+  position: absolute;
+  top: -100%;
+  color: #00ff41;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  line-height: 14px;
+  animation: matrixFall linear infinite;
+  text-shadow: 0 0 5px #00ff41;
+  white-space: pre;
+}
+
+.code-column-1 { left: 5%; animation-duration: 8s; animation-delay: 0s; }
+.code-column-2 { left: 15%; animation-duration: 12s; animation-delay: 2s; }
+.code-column-3 { left: 25%; animation-duration: 10s; animation-delay: 4s; }
+.code-column-4 { left: 35%; animation-duration: 9s; animation-delay: 1s; }
+.code-column-5 { left: 45%; animation-duration: 11s; animation-delay: 3s; }
+.code-column-6 { left: 55%; animation-duration: 8s; animation-delay: 5s; }
+.code-column-7 { left: 65%; animation-duration: 13s; animation-delay: 0.5s; }
+.code-column-8 { left: 75%; animation-duration: 9s; animation-delay: 2.5s; }
+.code-column-9 { left: 85%; animation-duration: 10s; animation-delay: 4.5s; }
+.code-column-10 { left: 95%; animation-duration: 11s; animation-delay: 1.5s; }
+
+@keyframes matrixFall {
+  0% {
+    top: -100%;
+    opacity: 0;
+  }
+  5% {
+    opacity: 1;
+  }
+  95% {
+    opacity: 1;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
+}
+
+/* Enhanced tactical interface positioning */
+.tactical-loading {
+  z-index: 10;
+  position: relative;
+}
+
+/* Signal interference effects for enhanced realism */
+.signal-interference {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 255, 65, 0.03) 2px,
+    rgba(0, 255, 65, 0.03) 4px
+  );
+  animation: interference 3s ease-in-out infinite;
+  z-index: 5;
+}
+
+@keyframes interference {
+  0%, 100% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+  50% {
+    opacity: 0.6;
+    transform: translateX(2px);
   }
 }
 

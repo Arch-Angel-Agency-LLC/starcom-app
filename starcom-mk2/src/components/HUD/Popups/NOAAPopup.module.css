@@ -1,0 +1,299 @@
+/* Enhanced NOAA Popup styles with progressive disclosure */
+
+.noaaPopup {
+  background: linear-gradient(135deg, rgba(0, 10, 20, 0.95) 0%, rgba(0, 25, 50, 0.9) 100%);
+  border: 2px solid #00C4FF;
+  border-radius: 12px;
+  box-shadow: 
+    0 8px 32px rgba(0, 196, 255, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(15px);
+  width: 600px; /* Increased from 400px */
+  max-width: 90vw;
+  max-height: 85vh;
+  overflow: hidden;
+  font-family: 'Orbitron', Arial, sans-serif;
+  color: #e0f2fe;
+  animation: popupSlideIn 0.3s ease-out;
+}
+
+@keyframes popupSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Loading State */
+.loadingState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 40px;
+  text-align: center;
+}
+
+.loadingSpinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(0, 196, 255, 0.3);
+  border-top: 3px solid #00C4FF;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Enhanced Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(0, 196, 255, 0.3);
+  background: linear-gradient(90deg, rgba(0, 196, 255, 0.15) 0%, rgba(0, 196, 255, 0.05) 100%);
+}
+
+.titleSection {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: bold;
+  color: #00C4FF;
+  text-shadow: 0 0 6px rgba(0, 196, 255, 0.5);
+}
+
+.statusInfo {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  color: #a0c4ff;
+}
+
+.activeCount {
+  background: rgba(0, 196, 255, 0.2);
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 500;
+}
+
+.viewMode {
+  color: #80a0c0;
+  font-style: italic;
+}
+
+.headerControls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.viewToggle {
+  background: rgba(0, 196, 255, 0.1);
+  border: 1px solid rgba(0, 196, 255, 0.3);
+  color: #00C4FF;
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: all 0.2s ease;
+}
+
+.viewToggle:hover {
+  background: rgba(0, 196, 255, 0.2);
+  border-color: #00C4FF;
+  transform: scale(1.05);
+}
+
+.viewToggle.advanced {
+  background: rgba(255, 150, 0, 0.1);
+  border-color: rgba(255, 150, 0, 0.3);
+  color: #ff9600;
+}
+
+.viewToggle.advanced:hover {
+  background: rgba(255, 150, 0, 0.2);
+  border-color: #ff9600;
+}
+
+.closeButton {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: all 0.2s ease;
+}
+
+.closeButton:hover {
+  background: rgba(255, 68, 68, 0.1);
+  border-color: #ff4444;
+  color: #ff4444;
+  transform: scale(1.05);
+}
+
+/* Content Areas */
+.content {
+  overflow-y: auto;
+  max-height: calc(85vh - 140px); /* Account for header and shortcuts */
+  transition: all 0.3s ease;
+}
+
+.simpleView {
+  padding: 24px;
+  animation: viewFadeIn 0.3s ease-out;
+}
+
+.advancedView {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 24px;
+  padding: 24px;
+  animation: viewFadeIn 0.3s ease-out;
+}
+
+@keyframes viewFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.compactControls,
+.fullControls {
+  width: 100%;
+}
+
+.advancedInfo {
+  background: rgba(0, 20, 40, 0.6);
+  border: 1px solid rgba(0, 196, 255, 0.2);
+  border-radius: 8px;
+  padding: 20px;
+  height: fit-content;
+}
+
+.advancedInfo h4 {
+  margin: 0 0 12px 0;
+  color: #00C4FF;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.advancedInfo p {
+  margin: 0 0 16px 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #c0d0e0;
+}
+
+.dataCategories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.category {
+  background: rgba(0, 196, 255, 0.1);
+  border: 1px solid rgba(0, 196, 255, 0.3);
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  color: #a0c4ff;
+}
+
+/* Keyboard Shortcuts Footer */
+.shortcuts {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  padding: 12px 24px;
+  border-top: 1px solid rgba(0, 196, 255, 0.2);
+  background: rgba(0, 0, 0, 0.3);
+  font-size: 11px;
+  color: #808080;
+}
+
+.shortcuts span {
+  padding: 2px 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  font-family: monospace;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .noaaPopup {
+    width: 95vw;
+    max-height: 90vh;
+  }
+  
+  .header {
+    padding: 16px 20px;
+  }
+  
+  .title {
+    font-size: 18px;
+  }
+  
+  .advancedView {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 20px;
+  }
+  
+  .simpleView {
+    padding: 20px;
+  }
+  
+  .headerControls {
+    gap: 8px;
+  }
+  
+  .viewToggle,
+  .closeButton {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .statusInfo {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .shortcuts {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+}

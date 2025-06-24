@@ -1,0 +1,542 @@
+# Authentication Refactor Roadmap Artifact
+
+**Artifact Type:** Implementation Roadmap  
+**Phase:** Authentication System Overhaul  
+**Created:** June 23, 2025  
+**Status:** Planning → Implementation  
+
+---
+
+## 🎯 **Project Context & Requirements**
+
+### **Project Reality Check:**
+- **Open Source Creative Commons** dApp for **Global Citizens**
+- **Civilian OSINT** and cyber investigation platform
+- **Censorship-resistant** and **decentralized**
+- **No military affiliation** - pure civilian research tool
+- **Privacy-first** Web3 architecture
+
+### **Current Authentication State:**
+- ✅ **Solana wallet integration** working via `@solana/wallet-adapter-react`
+- ❌ **Broken login UI** in `BottomLeft` corner taking up valuable space
+- ❌ **No clear value proposition** for authentication
+- ❌ **Legacy EVM code** mixed in with Solana implementation
+- ❌ **Artificial feature gating** where not needed
+
+### **Core Principle:**
+**App must work fully without login. Authentication only required when blockchain operations are functionally necessary.**
+
+---
+
+## 🔧 **Implementation Phases**
+
+### **Phase 1: Cleanup & Removal (Priority: HIGH)**
+
+#### **1.1 Remove Broken Authentication UI**
+```bash
+# Files to modify/clean:
+src/components/HUD/Corners/BottomLeft/BottomLeft.tsx
+src/components/Auth/Web3LoginPanel.tsx
+src/components/HUD/Corners/BottomLeft/BottomLeft.module.css
+```
+
+**Actions:**
+- Remove `Web3LoginPanel` from `BottomLeft.tsx`
+- Keep `BottomLeft` container empty for future use
+- Clean up unused CSS and references
+
+#### **1.2 Legacy EVM Code Cleanup**
+```bash
+# Files to audit and clean:
+src/hooks/useTokenGate.ts
+src/hooks/useOnChainRoles.ts  
+src/components/Auth/TokenGatedPage.tsx
+legacy-evm/ # Already archived, ensure not imported
+```
+
+**Actions:**
+- Remove EVM-specific authentication logic
+- Update hooks to use Solana-only implementations
+- Clean imports and references
+
+### **Phase 2: Minimal Functional Auth (Priority: HIGH)**
+
+#### **2.1 Add Wallet Status to TopBar**
+```typescript
+// Target: src/components/HUD/Bars/TopBar/TopBar.tsx
+// Add between settings button and marquee
+
+<WalletStatus 
+  size="small" 
+  showAddress={true}
+  position="topbar" 
+/>
+```
+
+#### **2.2 Contextual Authentication Gates**
+```typescript
+// Implement AuthGate wrapper for features needing blockchain
+// Target files:
+src/components/Collaboration/IntelligenceMarketplace.tsx
+src/components/Collaboration/AssetTrading.tsx  
+src/components/HUD/Bars/RightSideBar/RightSideBar.tsx (intel report creation)
+```
+
+**Usage Pattern:**
+```tsx
+<AuthGate requirement="wallet" action="purchase assets">
+  <PurchaseButton onClick={handlePurchase} />
+</AuthGate>
+```
+
+### **Phase 3: Enhanced UX (Priority: MEDIUM)**
+
+#### **3.1 Smart Feature Gating**
+- Show marketplace items but require auth for purchase
+- Allow collaboration browsing but require auth for participation
+- Enable intel report viewing but require auth for creation
+
+#### **3.2 Session Enhancement**
+- Improve localStorage session management
+- Add auto-reconnect on page load
+- Better error handling for wallet operations
+
+---
+
+## 📋 **Component Specifications**
+
+### **WalletStatus Component**
+**Location:** `src/components/Auth/WalletStatus.tsx`  
+**Usage:** TopBar integration  
+
+```typescript
+interface WalletStatusProps {
+  size?: 'small' | 'medium';
+  showAddress?: boolean;
+  position?: 'topbar' | 'sidebar';
+  className?: string;
+}
+
+const WalletStatus: React.FC<WalletStatusProps> = ({
+  size = 'small',
+  showAddress = true,
+  position = 'topbar',
+  className = ''
+}) => {
+  const { connected, address, connectWallet, isLoading } = useAuth();
+  
+  if (isLoading) {
+    return (
+      <div className={`wallet-status loading ${size} ${position} ${className}`}>
+        <span className="status-indicator">⏳</span>
+        <span>Connecting...</span>
+      </div>
+    );
+  }
+  
+  if (connected && address) {
+    return (
+      <div className={`wallet-status connected ${size} ${position} ${className}`}>
+        <span className="status-indicator">🟢</span>
+        {showAddress && (
+          <span className="address" title={address}>
+            {address.slice(0, 6)}...{address.slice(-4)}
+          </span>
+        )}
+      </div>
+    );
+  }
+  
+  return (
+    <button 
+      className={`wallet-connect-btn ${size} ${position} ${className}`}
+      onClick={connectWallet}
+      title="Connect Solana wallet"
+    >
+      Connect Wallet
+    </button>
+  );
+};
+```
+
+### **AuthGate Component**
+**Location:** `src/components/Auth/AuthGate.tsx`  
+**Usage:** Wrap features requiring blockchain operations  
+
+```typescript
+interface AuthGateProps {
+  children: React.ReactNode;
+  requirement: 'wallet' | 'session' | 'both';
+  action?: string;
+  fallback?: React.ReactNode;
+  inline?: boolean;
+  showPrompt?: boolean;
+}
+
+const AuthGate: React.FC<AuthGateProps> = ({
+  children,
+  requirement,
+  action = "this action",
+  fallback,
+  inline = true,
+  showPrompt = true
+}) => {
+  const { connected, isAuthenticated, connectWallet, authenticate } = useAuth();
+  
+  const hasWallet = connected;
+  const hasSession = isAuthenticated;
+  
+  const hasAccess = requirement === 'wallet' ? hasWallet :
+                   requirement === 'session' ? hasSession :
+                   hasWallet && hasSession;
+  
+  if (hasAccess) {
+    return <>{children}</>;
+  }
+  
+  if (fallback) {
+    return <>{fallback}</>;
+  }
+  
+  if (!showPrompt) {
+    return null;
+  }
+  
+  if (inline) {
+    return (
+      <InlineAuthPrompt 
+        requirement={requirement}
+        action={action}
+        onConnect={connectWallet}
+        onAuthenticate={authenticate}
+      />
+    );
+  }
+  
+  return null;
+};
+```
+
+### **InlineAuthPrompt Component**
+**Location:** `src/components/Auth/InlineAuthPrompt.tsx`  
+**Usage:** Contextual authentication prompts  
+
+```typescript
+interface InlineAuthPromptProps {
+  requirement: 'wallet' | 'session' | 'both';
+  action: string;
+  onConnect: () => Promise<void>;
+  onAuthenticate: () => Promise<void>;
+  variant?: 'button' | 'banner' | 'card';
+  size?: 'small' | 'medium';
+}
+
+const InlineAuthPrompt: React.FC<InlineAuthPromptProps> = ({
+  requirement,
+  action,
+  onConnect,
+  onAuthenticate,
+  variant = 'button',
+  size = 'medium'
+}) => {
+  const [isConnecting, setIsConnecting] = useState(false);
+  
+  const handleAuth = async () => {
+    setIsConnecting(true);
+    try {
+      if (requirement === 'wallet' || requirement === 'both') {
+        await onConnect();
+      }
+      if (requirement === 'session' || requirement === 'both') {
+        await onAuthenticate();
+      }
+    } catch (error) {
+      console.error('Authentication failed:', error);
+    } finally {
+      setIsConnecting(false);
+    }
+  };
+  
+  const message = `Connect wallet to ${action}`;
+  
+  if (variant === 'button') {
+    return (
+      <button 
+        className={`inline-auth-prompt button ${size}`}
+        onClick={handleAuth}
+        disabled={isConnecting}
+      >
+        {isConnecting ? '⏳ Connecting...' : `🔗 ${message}`}
+      </button>
+    );
+  }
+  
+  if (variant === 'banner') {
+    return (
+      <div className={`inline-auth-prompt banner ${size}`}>
+        <span className="prompt-message">⚠️ {message}</span>
+        <button onClick={handleAuth} disabled={isConnecting}>
+          {isConnecting ? 'Connecting...' : 'Connect'}
+        </button>
+      </div>
+    );
+  }
+  
+  return (
+    <div className={`inline-auth-prompt card ${size}`}>
+      <p className="prompt-message">{message}</p>
+      <button 
+        className="connect-button"
+        onClick={handleAuth}
+        disabled={isConnecting}
+      >
+        {isConnecting ? '⏳ Connecting...' : 'Connect Wallet'}
+      </button>
+    </div>
+  );
+};
+```
+
+---
+
+## 🎨 **CSS Design Specifications**
+
+### **Design Principles:**
+- **Minimal visual footprint** - auth UI should not dominate
+- **Consistent with existing HUD aesthetic** - blue/cyan colors
+- **Clear status indication** - connected vs disconnected states
+- **Responsive design** - works on different screen sizes
+
+### **Color Palette:**
+```css
+:root {
+  --auth-connected: #00ff88;
+  --auth-disconnected: #ff6b35;
+  --auth-loading: #00c4ff;
+  --auth-bg: rgba(0, 10, 20, 0.9);
+  --auth-border: rgba(0, 196, 255, 0.3);
+  --auth-hover: rgba(0, 196, 255, 0.1);
+}
+```
+
+### **Component Styles:**
+```css
+/* Wallet Status Component */
+.wallet-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Aldrich-Regular', monospace;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+}
+
+.wallet-status.connected {
+  color: var(--auth-connected);
+}
+
+.wallet-status.loading {
+  color: var(--auth-loading);
+}
+
+.wallet-status .status-indicator {
+  font-size: 0.8em;
+}
+
+.wallet-status .address {
+  letter-spacing: 0.5px;
+  opacity: 0.9;
+}
+
+.wallet-status.topbar {
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: var(--auth-bg);
+  border: 1px solid var(--auth-border);
+}
+
+/* Connect Button */
+.wallet-connect-btn {
+  background: var(--auth-bg);
+  border: 1px solid var(--auth-border);
+  color: var(--auth-loading);
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-family: 'Aldrich-Regular', monospace;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.wallet-connect-btn:hover {
+  background: var(--auth-hover);
+  border-color: var(--auth-loading);
+  transform: translateY(-1px);
+}
+
+.wallet-connect-btn.small {
+  padding: 2px 8px;
+  font-size: 0.8rem;
+}
+
+/* Inline Auth Prompts */
+.inline-auth-prompt {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Aldrich-Regular', monospace;
+}
+
+.inline-auth-prompt.button {
+  background: var(--auth-bg);
+  border: 1px solid var(--auth-border);
+  color: var(--auth-loading);
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.inline-auth-prompt.button:hover {
+  background: var(--auth-hover);
+  transform: translateY(-1px);
+}
+
+.inline-auth-prompt.banner {
+  background: rgba(255, 107, 53, 0.1);
+  border: 1px solid var(--auth-disconnected);
+  border-radius: 4px;
+  padding: 8px 12px;
+  justify-content: space-between;
+}
+
+.inline-auth-prompt.card {
+  background: var(--auth-bg);
+  border: 1px solid var(--auth-border);
+  border-radius: 8px;
+  padding: 16px;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+}
+
+.inline-auth-prompt .prompt-message {
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.inline-auth-prompt .connect-button {
+  background: var(--auth-loading);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: 'Aldrich-Regular', monospace;
+  transition: all 0.2s ease;
+}
+
+.inline-auth-prompt .connect-button:hover {
+  background: #0099cc;
+  transform: translateY(-1px);
+}
+
+.inline-auth-prompt .connect-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+```
+
+---
+
+## 🧪 **Testing Strategy**
+
+### **Test Files to Create/Update:**
+```bash
+src/components/Auth/WalletStatus.test.tsx
+src/components/Auth/AuthGate.test.tsx  
+src/components/Auth/InlineAuthPrompt.test.tsx
+```
+
+### **Test Scenarios:**
+1. **Wallet connection states** - disconnected, connecting, connected
+2. **Auth gate behavior** - shows children when authorized, prompts when not
+3. **Inline prompts** - different variants and sizes
+4. **Integration** - TopBar wallet status, marketplace auth gates
+5. **Error handling** - connection failures, wallet rejections
+
+### **Testing Notes:**
+- Use existing safe test runner: `npm run test:safe`
+- Mock wallet adapter to avoid actual wallet connections
+- Test both authenticated and unauthenticated user flows
+
+---
+
+## 📋 **Implementation Checklist**
+
+### **Phase 1: Cleanup**
+- [x] Remove `Web3LoginPanel` from `BottomLeft.tsx`
+- [x] Clean up `BottomLeft.module.css` unused styles
+- [ ] Audit and clean legacy EVM authentication code
+- [ ] Remove unused imports and references
+
+### **Phase 2: Core Components**
+- [x] Create `WalletStatusMini` component (simplified for TopBar)
+- [x] Create `AuthGate` component with tests
+- [ ] Create `InlineAuthPrompt` component with tests
+- [x] Add comprehensive CSS styles
+- [x] Integrate `WalletStatus` into `TopBar`
+
+### **Phase 3: Feature Integration**
+- [ ] Add `AuthGate` to marketplace asset purchases
+- [ ] Add `AuthGate` to collaboration session creation
+- [ ] Add `AuthGate` to intel report submission
+- [ ] Add `AuthGate` to asset trading operations
+
+### **Phase 4: Testing & Polish**
+- [ ] Run comprehensive test suite
+- [ ] Manual testing of all auth flows
+- [ ] Performance testing with wallet connections
+- [ ] UI/UX review and refinements
+- [ ] Documentation updates
+
+---
+
+## 🎯 **Success Criteria**
+
+### **Functional Requirements:**
+✅ App works fully without wallet connection  
+✅ Authentication only required for blockchain operations  
+✅ No blocking popups or artificial barriers  
+✅ Clear visual indication of wallet connection status  
+✅ Contextual auth prompts explain why connection needed  
+
+### **Technical Requirements:**
+✅ Clean separation of Solana vs legacy code  
+✅ Proper TypeScript types and interfaces  
+✅ Comprehensive test coverage  
+✅ Consistent visual design with existing HUD  
+✅ Performance - no unnecessary re-renders  
+
+### **User Experience:**
+✅ Intuitive auth flow - no confusion about requirements  
+✅ Minimal UI footprint - auth doesn't dominate interface  
+✅ Progressive enhancement - features unlock smoothly  
+✅ Error handling - clear feedback on connection issues  
+✅ Accessibility - keyboard navigation and screen readers  
+
+---
+
+## 📚 **Related Documentation**
+
+- **Planning:** `docs/development/authentication-refactor-plan.md`
+- **Component Specs:** `artifacts/authentication-implementation.artifact`
+- **Context Analysis:** Previous conversation analysis of existing auth system
+- **Feature Mapping:** Analysis of which features require authentication
+- **UI Analysis:** Comprehensive HUD layout examination
+
+---
+
+**Next Steps:** Begin Phase 1 cleanup by removing the broken authentication UI from `BottomLeft` corner and cleaning up legacy EVM code references.

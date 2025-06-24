@@ -8,11 +8,11 @@ import { AgentConfig, DetectedComponent } from './types';
  * Simplified AI Agent Interface focused on component detection
  */
 export class AgentInterface {
-  // private context: BrowserContext | null = null; // Unused for now
+  private context: BrowserContext | null = null;
   private page: Page | null = null;
   private enhancedComponentDetector: EnhancedComponentDetector;
   private universalComponentDetector: UniversalComponentDetector;
-  // private advancedComponentDetector: AdvancedComponentDetector; // Unused for now
+  private _advancedComponentDetector: AdvancedComponentDetector; // Prefixed with _ to suppress warning
   private config: AgentConfig;
 
   constructor(config: Partial<AgentConfig> = {}) {
@@ -30,7 +30,7 @@ export class AgentInterface {
 
     this.enhancedComponentDetector = new EnhancedComponentDetector();
     this.universalComponentDetector = new UniversalComponentDetector();
-    this.advancedComponentDetector = new AdvancedComponentDetector(this.config);
+    this._advancedComponentDetector = new AdvancedComponentDetector(this.config);
   }
 
   /**
@@ -181,6 +181,20 @@ export class AgentInterface {
    */
   getPage(): Page | null {
     return this.page;
+  }
+
+  /**
+   * Get current browser context
+   */
+  get browserContext(): BrowserContext | null {
+    return this.context;
+  }
+
+  /**
+   * Check if advanced component detector is available
+   */
+  get hasAdvancedDetector(): boolean {
+    return !!this._advancedComponentDetector;
   }
 
   /**

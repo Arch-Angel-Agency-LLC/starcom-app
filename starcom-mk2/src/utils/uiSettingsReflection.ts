@@ -64,7 +64,10 @@ export const useSettingsValidation = <T extends Record<string, unknown>>(
     if (mismatches.length > 0) {
       console.warn(`⚠️ ${componentName} UI/Persistent mismatch:`, mismatches);
     } else {
-      console.log(`✅ ${componentName} UI state in sync with persistent settings`);
+      // Only log in dev mode to reduce console noise
+      if (import.meta.env.DEV) {
+        console.log(`✅ ${componentName} UI state in sync with persistent settings`);
+      }
     }
   }, [componentName, persistentSettings, uiSettings]);
 };

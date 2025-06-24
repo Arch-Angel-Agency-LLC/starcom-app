@@ -30,39 +30,21 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      color: white;
-      font-family: 'Aldrich', monospace, sans-serif;
     ">
       <div style="text-align: center;">
+        <!-- Text removed to prevent font loading inconsistencies -->
+        <!-- Only show the loading spinner until React takes over -->
         <div style="
-          font-size: 3rem;
-          color: #00ffff;
-          text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
-          letter-spacing: 0.2em;
-          margin-bottom: 20px;
-          animation: pulse 2s ease-in-out infinite;
-        ">STARCOM</div>
-        <div style="
-          font-size: 1rem;
-          color: #88ccff;
-          letter-spacing: 0.15em;
-          margin-bottom: 30px;
-        ">Intelligence Exchange</div>
-        <div style="
-          width: 40px;
-          height: 40px;
-          border: 3px solid rgba(0, 255, 255, 0.3);
-          border-top: 3px solid #00ffff;
+          width: 60px;
+          height: 60px;
+          border: 4px solid rgba(0, 255, 255, 0.3);
+          border-top: 4px solid #00ffff;
           border-radius: 50%;
           margin: 0 auto;
           animation: spin 1s linear infinite;
         "></div>
       </div>
       <style>
-        @keyframes pulse {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.7; transform: scale(1.05); }
-        }
         @keyframes spin {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
@@ -74,19 +56,25 @@
     <script type="module" src="/src/main.tsx"></script>
     
     <script>
-      // Hide initial preloader when React takes over
-      window.addEventListener('DOMContentLoaded', function() {
-        setTimeout(function() {
-          const initialPreloader = document.getElementById('initial-preloader');
-          if (initialPreloader) {
-            initialPreloader.style.opacity = '0';
-            initialPreloader.style.transition = 'opacity 0.5s ease-out';
-            setTimeout(function() {
-              initialPreloader.remove();
-            }, 500);
-          }
-        }, 1000); // Give React time to load
-      });
+      // Hide initial preloader when React preloader takes over
+      window.hideInitialPreloader = function() {
+        const initialPreloader = document.getElementById('initial-preloader');
+        if (initialPreloader) {
+          initialPreloader.style.opacity = '0';
+          initialPreloader.style.transition = 'opacity 0.3s ease-out';
+          setTimeout(function() {
+            initialPreloader.remove();
+          }, 300);
+        }
+      };
+      
+      // Fallback: Remove initial preloader after reasonable time if React doesn't load
+      setTimeout(function() {
+        if (document.getElementById('initial-preloader')) {
+          console.warn('Initial preloader removed by fallback timer');
+          window.hideInitialPreloader();
+        }
+      }, 3000);
     </script>
   </body>
 </html>

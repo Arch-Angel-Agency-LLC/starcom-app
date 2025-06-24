@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { settingsStorage } from '../utils/settingsStorage';
 
 // AI-NOTE: Hook to manage space weather visualization settings with localStorage persistence
@@ -83,10 +83,34 @@ export const useSpaceWeatherSettings = () => {
     setConfig(loadedConfig);
   }, []);
 
-  // Save settings to localStorage when config changes
+  // Save settings to localStorage when config changes with debouncing
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  const debouncedSave = useCallback((configToSave: SpaceWeatherConfig) => {
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+    
+    saveTimeoutRef.current = setTimeout(() => {
+      settingsStorage.saveSettings(STORAGE_KEY, configToSave, { version: 1 });
+    }, 500); // Debounce for 500ms
+  }, []);
+
   useEffect(() => {
-    settingsStorage.saveSettings(STORAGE_KEY, config, { version: 1 });
-  }, [config]);
+    // Skip saving the default config on first load
+    if (JSON.stringify(config) === JSON.stringify(defaultConfig)) {
+      return;
+    }
+    
+    debouncedSave(config);
+    
+    // Cleanup timeout on unmount
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, [config, debouncedSave]);
 
   const updateConfig = (updates: Partial<SpaceWeatherConfig>) => {
     setConfig(prev => ({ ...prev, ...updates }));

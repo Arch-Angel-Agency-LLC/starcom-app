@@ -5,12 +5,13 @@
     padding: 0%;
     background: rgba(0, 0, 0, 0.0);
     color: #fff;
-    width: 100%; /* Stretch across the full width of the screen */
+    width: calc(100% - 110px); /* Respect LeftSideBar width (110px) */
     height: 5%; /* Ensure consistent height */
     position: fixed; /* Fix the BottomBar to the bottom of the viewport */
     bottom: 0;
-    left: 0;
+    left: 110px; /* Start after LeftSideBar */
     pointer-events: auto; /* Enable clicks on HUD components */
+    z-index: 10; /* Lower than LeftSideBar to respect dominance */
 }
 
 .resourceSection {
@@ -41,4 +42,12 @@
   color: #dc2626;
   font-size: 0.875rem;
   min-height: 2rem;
+}
+
+/* Responsive design for BottomBar */
+@media (max-width: 768px) {
+  .bottomBar {
+    left: 80px; /* Match mobile LeftSideBar width */
+    width: calc(100% - 80px); /* Adjust width for mobile LeftSideBar */
+  }
 }

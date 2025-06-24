@@ -12,16 +12,18 @@ export function useBackendAuth() {
   const [backendError, setBackendError] = useState<string | null>(null);
 
   async function authenticateWithBackend() {
-    if (!address || !signer) {
-      setBackendError('Wallet not connected');
+    if (!address || !signer || !signer.signMessage) {
+      setBackendError('Wallet not connected or does not support message signing');
       return;
     }
     setIsAuthenticating(true);
     setBackendError(null);
     try {
       const nonce = await requestBackendNonce(address);
-      const signature = await signer.signMessage(nonce);
-      const session = await submitBackendSignature(address, signature);
+      const messageBytes = new TextEncoder().encode(nonce);
+      const signature = await signer.signMessage(messageBytes);
+      const signatureBase58 = btoa(String.fromCharCode(...signature));
+      const session = await submitBackendSignature(address, signatureBase58);
       setBackendSession(session);
     } catch (err: unknown) {
       setBackendError(err instanceof Error ? err.message : 'Backend authentication failed');

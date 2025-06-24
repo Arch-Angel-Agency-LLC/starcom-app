@@ -22,7 +22,10 @@ export const SettingsStatusIndicator: React.FC = () => {
     const showStorageStats = () => {
       const stats = settingsStorage.getStorageStats();
       if (stats.starcomKeys > 0) {
-        console.log(`📊 Settings Status: ${stats.starcomKeys} setting groups stored (${Math.round(stats.estimatedSize / 1024)}KB)`);
+        // Only log in dev mode to reduce console noise
+        if (import.meta.env.DEV) {
+          console.log(`📊 Settings Status: ${stats.starcomKeys} setting groups stored (${Math.round(stats.estimatedSize / 1024)}KB)`);
+        }
       }
     };
 

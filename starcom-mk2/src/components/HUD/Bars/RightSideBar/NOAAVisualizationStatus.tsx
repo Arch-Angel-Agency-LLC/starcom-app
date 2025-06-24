@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNOAAGlobeVisualizations } from './NOAAGlobeVisualizationManager';
+import { useNOAAGlobeVisualizations } from '../LeftSideBar/NOAAGlobeVisualizationManager';
 import styles from './NOAAVisualizationStatus.module.css';
 
 const NOAAVisualizationStatus: React.FC = () => {

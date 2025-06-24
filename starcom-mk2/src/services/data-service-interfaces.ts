@@ -37,7 +37,7 @@ export class FallbackProvider<T> implements DataProvider<T> {
     for (const provider of this.providers) {
       try {
         return await provider.fetchData(key, options);
-      } catch (e) {
+      } catch {
         // try next provider
       }
     }

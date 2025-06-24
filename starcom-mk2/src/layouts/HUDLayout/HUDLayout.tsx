@@ -25,6 +25,7 @@ import Phase5Integration from '../../components/Optimization/Phase5Integration';
 import PerformanceOptimizer from '../../components/Optimization/PerformanceOptimizer';
 import SecurityHardening from '../../components/Optimization/SecurityHardening';
 import { useFeatureFlag } from '../../utils/featureFlags';
+import { PopupProvider } from '../../components/Popup/PopupManager';
 
 const HUDLayout: React.FC = () => {
   const enhancedCenterEnabled = useFeatureFlag('enhancedCenter');
@@ -38,7 +39,8 @@ const HUDLayout: React.FC = () => {
   const AdaptiveProvider = enhancedAdaptiveEnabled ? EnhancedAdaptiveInterfaceProvider : AdaptiveInterfaceProvider;
 
   const HUDContent = () => (
-    <AdaptiveProvider>
+    <PopupProvider>
+      <AdaptiveProvider>
       <AdaptiveUIController>
         <PhaseTransitionManager>
           <ContextBridge>
@@ -96,6 +98,7 @@ const HUDLayout: React.FC = () => {
         </PhaseTransitionManager>
       </AdaptiveUIController>
     </AdaptiveProvider>
+    </PopupProvider>
   );
 
   // Phase 4 Integration: Wrap with gaming enhancements if enabled

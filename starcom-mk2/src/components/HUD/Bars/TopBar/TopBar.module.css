@@ -2,8 +2,8 @@
 .topBar {
     position: absolute;
     top: 0;
-    left: 100px; /* Offset to match the width of the LeftSideBar */
-    right: 0px; /* Extend to the right edge of the screen */
+    left: 110px; /* Respect LeftSideBar width (110px) */
+    right: 120px; /* Leave space for RightSideBar (120px wide) */
     height: 48px;
     background: linear-gradient(90deg, #0f172a88 0%, #164e6388 100%);
     color: #e0f2fe;
@@ -15,7 +15,7 @@
     font-size: 18px; /* Slightly increase font size for readability */
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6); /* Add a subtle shadow for depth */
     pointer-events: auto !important; /* Ensure TopBar is always interactive */
-    z-index: 20;
+    z-index: 20; /* Lower than LeftSideBar to respect its dominance */
     border-bottom: 2px solid #0891b2;
   }
 
@@ -68,6 +68,17 @@
     margin-right: 12px;
     overflow: hidden;
     height: 40px;
+  }
+
+  .walletSection {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-shrink: 0;
+    margin-right: 12px;
+    height: 40px;
+    z-index: 25; /* Higher than TopBar to ensure visibility */
+    position: relative;
   }
 
   .settingsButton {
@@ -123,6 +134,8 @@
       height: auto;
       padding: 8px 4px;
       font-size: 16px;
+      left: 110px; /* Maintain LeftSideBar respect */
+      right: 100px; /* Smaller right margin on smaller screens */
     }
     .logoSection {
       margin-right: 0; /* Remove extra margin in stacked layout */
@@ -132,5 +145,16 @@
       margin-right: 0;
       margin-bottom: 4px;
       height: 36px;
+    }
+    .walletSection {
+      margin-right: 0;
+      margin-top: 4px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .topBar {
+      left: 80px; /* Match mobile LeftSideBar width */
+      right: 60px;
     }
   }

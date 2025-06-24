@@ -1,20 +1,22 @@
 .leftSideBar {
   background: rgba(0, 0, 0, 0.8); /* Updated background */
   border: 2px solid #00C4FF; /* Neon Blue */
-  border-radius: 5px; /* Slightly rounded corners */
+  border-left: none; /* Remove left border to hug screen edge */
+  border-radius: 0 5px 5px 0; /* Only round right corners */
   padding: 2px; /* Reduced padding for compact view */
-  box-shadow: 0 0 10px #00C4FF; /* Glow effect */
+  box-shadow: 2px 0 10px #00C4FF; /* Glow effect only on right side */
   color: #00C4FF; /* Neon Blue text */
   font-family: 'Orbitron', Arial, sans-serif; /* Futuristic font */
   width: 110px; /* More compact width */
-  height: auto; /* Adjust height */
-  position: absolute; /* Updated position */
+  height: 100vh; /* Full viewport height - stretch to bottom */
+  position: fixed; /* Fixed position to establish dominance */
   top: 0;
-  bottom: 40px; /* Stop at the top of the BottomBar */
+  bottom: 0; /* Stretch all the way to bottom */
   left: 0;
   pointer-events: auto; /* Allow interaction */
   overflow-x: hidden; /* Allow scrolling for compact content */
-  overflow-y: hidden; /* Allow scrolling for compact content */
+  overflow-y: auto; /* Allow vertical scrolling if needed */
+  z-index: 1001; /* Higher than other elements to maintain dominance */
 }
 
 .header {
@@ -89,4 +91,25 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
+}
+
+/* Responsive design for LeftSideBar */
+@media (max-width: 768px) {
+  .leftSideBar {
+    width: 80px; /* Smaller width on mobile */
+  }
+  
+  .logo {
+    width: 65px; /* Smaller logo on mobile */
+  }
+  
+  .starcomText {
+    font-size: 10px; /* Smaller text on mobile */
+  }
+  
+  .tinyGlobePlaceholder {
+    height: 60px;
+    width: 60px;
+    font-size: 8px;
+  }
 }
