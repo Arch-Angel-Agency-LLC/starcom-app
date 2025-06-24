@@ -1,12 +1,22 @@
 /* Phase 4 RTS Gaming Theme - Must come first */
 @import './rts-gaming-theme.css';
 
-/* Load custom font */
+/* Load custom font with preload optimization */
 @font-face {
   font-family: 'Aldrich-Regular';
   src: url('/src/assets/fonts/Aldrich-Regular.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
+  font-display: block; /* Block rendering until font loads to prevent layout shift */
+}
+
+/* Also define Aldrich for compatibility with existing CSS */
+@font-face {
+  font-family: 'Aldrich';
+  src: url('/src/assets/fonts/Aldrich-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block; /* Block rendering until font loads to prevent layout shift */
 }
 
 /* Tailwind directives */

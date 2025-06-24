@@ -35,6 +35,17 @@ export const verifyNetwork = (chainId: number, expectedChainId: number): void =>
   }
 };
 
+// Add type declaration for window.ethereum
+declare global {
+  interface Window {
+    ethereum?: {
+      request: (args: { method: string; params?: unknown[] }) => Promise<unknown>;
+      on?: (event: string, callback: (...args: unknown[]) => void) => void;
+      removeListener?: (event: string, callback: (...args: unknown[]) => void) => void;
+    };
+  }
+}
+
 export const switchNetwork = async (chainId: number): Promise<void> => {
   if (!window.ethereum) {
     throw new Error('No Web3 provider detected. Please install MetaMask.');

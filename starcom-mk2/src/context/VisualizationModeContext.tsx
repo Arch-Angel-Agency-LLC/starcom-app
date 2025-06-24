@@ -75,7 +75,10 @@ export const VisualizationModeProvider: React.FC<{ children: React.ReactNode }> 
   };
 
   useEffect(() => {
-    console.log(`📊 VisualizationMode changed to: ${visualizationMode.mode}, SubMode: ${visualizationMode.subMode}`);
+    // Only log in dev mode to reduce console noise
+    if (import.meta.env.DEV) {
+      console.log(`📊 VisualizationMode changed to: ${visualizationMode.mode}, SubMode: ${visualizationMode.subMode}`);
+    }
   }, [visualizationMode]);
 
   return (

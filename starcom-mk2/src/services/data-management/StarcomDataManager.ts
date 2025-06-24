@@ -276,12 +276,15 @@ export class StarcomDataManager implements CentralizedDataManager {
     console.log(`🗑️ Removed correlation rule: ${ruleId}`);
   }
 
-  async correlateData(sourceIds: string[], _options: CorrelationOptions = {}): Promise<CorrelationResult[]> {
+  async correlateData(sourceIds: string[], options: CorrelationOptions = {}): Promise<CorrelationResult[]> {
     this.metrics.correlations.total++;
     
     try {
       const results: CorrelationResult[] = [];
       const data: Record<string, unknown> = {};
+
+      // Log correlation options for debugging
+      console.log('Correlating data with options:', options);
 
       // Collect data from all sources
       for (const sourceId of sourceIds) {

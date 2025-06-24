@@ -67,12 +67,12 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, ariaLabel }) =
         className="modal-content"
         ref={modalRef}
         style={{
-          background: '#fff',
+          background: 'transparent', // Let child components control their own background
           borderRadius: '8px',
-          padding: '2rem',
+          padding: '0', // Remove default padding to let child components control layout
           minWidth: '320px',
           maxWidth: '90vw',
-          boxShadow: '0 2px 16px rgba(0,0,0,0.2)',
+          boxShadow: 'none', // Remove default shadow, let child components handle it
         }}
       >
         {children}

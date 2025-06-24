@@ -4,10 +4,23 @@
  */
 
 import React, { useState } from 'react';
-import { useCollaborationFeatures } from '../../hooks/useUnifiedGlobalCommand';
 import RealTimeEventSystem from '../../services/realTimeEventSystem';
 import AssetTrading from './AssetTrading';
+import AuthGate from '../Auth/AuthGate';
 import styles from './IntelligenceMarketplace.module.css';
+import { SharedIntelligenceAsset } from '../../types/features/collaboration';
+
+// AI-NOTE: Temporary mock hook until proper marketplace context is implemented
+const useIntelligenceMarketplace = () => ({
+  marketplace: {
+    assets: [] as SharedIntelligenceAsset[],
+    availableAssets: [] as SharedIntelligenceAsset[],
+    myAssets: [] as SharedIntelligenceAsset[],
+    purchasedAssets: [] as SharedIntelligenceAsset[],
+    loading: false,
+    error: null
+  }
+});
 
 const IntelligenceMarketplace: React.FC = () => {
   const { marketplace } = useIntelligenceMarketplace();
@@ -144,11 +157,22 @@ const IntelligenceMarketplace: React.FC = () => {
 
       {/* Trading Hub View */}
       {activeView === 'trading' && (
-        <AssetTrading
-          assets={marketplace.availableAssets}
-          onAssetPurchase={(_assetId) => handleAction('Purchased')}
-          className={styles.tradingView}
-        />
+        <AuthGate 
+          requirement="wallet"
+          action="access the trading hub"
+          variant="card"
+          size="medium"
+        >
+          <AssetTrading
+            assets={marketplace.availableAssets}
+            onAssetPurchase={(assetId) => {
+              // AI-NOTE: Suppress unused parameter warning until implementation
+              void assetId;
+              handleAction('Purchased');
+            }}
+            className={styles.tradingView}
+          />
+        </AuthGate>
       )}
 
       {/* Regular Asset Grid View */}
@@ -194,20 +218,34 @@ const IntelligenceMarketplace: React.FC = () => {
 
                   <div className={styles.assetActions}>
                     {activeView === 'browse' && (
-                      <button
-                        onClick={() => handleAction('Purchased')}
-                        className={styles.purchaseButton}
+                      <AuthGate 
+                        requirement="wallet"
+                        action="purchase intelligence assets"
+                        variant="button"
+                        size="small"
                       >
-                        Purchase
-                      </button>
+                        <button
+                          onClick={() => handleAction('Purchased')}
+                          className={styles.purchaseButton}
+                        >
+                          Purchase
+                        </button>
+                      </AuthGate>
                     )}
                     {activeView === 'my-assets' && (
-                      <button
-                        onClick={() => handleAction('Shared')}
-                        className={styles.shareButton}
+                      <AuthGate 
+                        requirement="wallet"
+                        action="share intelligence assets"
+                        variant="button"
+                        size="small"
                       >
-                        Share
-                      </button>
+                        <button
+                          onClick={() => handleAction('Shared')}
+                          className={styles.shareButton}
+                        >
+                          Share
+                        </button>
+                      </AuthGate>
                     )}
                     {activeView === 'purchased' && (
                       <button

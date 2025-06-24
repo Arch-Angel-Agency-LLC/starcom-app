@@ -4,6 +4,7 @@ import { useTopBarPreferences } from './useTopBarPreferences';
 import EnhancedSettingsPopup from './EnhancedSettingsPopup';
 import Marquee from './Marquee';
 import { useTopBarData } from './useTopBarData';
+import WalletStatusMini from '../../../Auth/WalletStatusMini';
 import styles from './TopBar.module.css';
 
 const TopBar: React.FC = () => {
@@ -62,6 +63,10 @@ const TopBar: React.FC = () => {
       <div className={styles.marqueeSection} aria-label="News and data marquee">
         <Marquee dataPoints={dataPoints} />
       </div>
+      <div className={styles.walletSection}>
+        <WalletStatusMini />
+      </div>
+      
       <EnhancedSettingsPopup
         open={modalOpen}
         enabledCategories={preferences.enabledCategories}

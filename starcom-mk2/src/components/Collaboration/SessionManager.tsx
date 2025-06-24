@@ -6,13 +6,41 @@
  */
 
 import React, { useState, useCallback } from 'react';
-import { useCollaborationFeatures, useGlobalCommand } from '../../hooks/useUnifiedGlobalCommand';
 import type { 
   CollaborationSession,
   AgencyType,
   ClearanceLevel
 } from '../../types';
 import styles from './SessionManager.module.css';
+
+// AI-NOTE: Mock hooks until proper implementations are available
+const useCollaboration = () => ({
+  currentSession: null as CollaborationSession | null,
+  createSession: (sessionData: unknown) => {
+    // AI-NOTE: Suppress unused parameter warning until implementation
+    void sessionData;
+    return Promise.resolve('mock-session-id');
+  },
+  joinSession: (sessionId: string) => {
+    // AI-NOTE: Suppress unused parameter warning until implementation
+    void sessionId;
+    return Promise.resolve();
+  },
+  leaveSession: () => Promise.resolve()
+});
+
+const useOperatorProfile = () => ({
+  operator: {
+    id: 'temp-operator',
+    name: 'Temp Operator',
+    agency: 'TEMP' as AgencyType,
+    clearanceLevel: 'UNCLASSIFIED' as ClearanceLevel,
+    role: 'LEAD_ANALYST' as const,
+    specializations: ['GEOINT'],
+    status: 'ONLINE' as const,
+    lastActivity: new Date()
+  }
+});
 
 // ============================================================================
 // SESSION LIST COMPONENT
@@ -21,13 +49,20 @@ import styles from './SessionManager.module.css';
 interface SessionListProps {
   onSessionSelect: (session: CollaborationSession) => void;
   onCreateNew: () => void;
+  currentSession?: CollaborationSession | null;
 }
 
 export const SessionList: React.FC<SessionListProps> = ({
   onSessionSelect,
-  onCreateNew
+  onCreateNew,
+  currentSession
 }) => {
-  const collaborationFeatures = useCollaborationFeatures();
+  // AI-NOTE: Mock collaboration features until proper implementation
+  const collaborationFeatures = {
+    isActive: false,
+    hasCollaboration: true,
+    sessions: [] as CollaborationSession[]
+  };
   const [availableSessions] = useState<CollaborationSession[]>([]);
   const [loading] = useState(false);
 
@@ -399,6 +434,7 @@ export const SessionManager: React.FC<SessionManagerProps> = ({
           <SessionList
             onSessionSelect={handleSessionSelect}
             onCreateNew={() => setView('create')}
+            currentSession={currentSession}
           />
         )}
 

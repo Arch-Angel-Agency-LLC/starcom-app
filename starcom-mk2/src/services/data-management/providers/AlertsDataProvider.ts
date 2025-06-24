@@ -25,6 +25,36 @@ export interface AlertData {
   affectedAreas?: string[];
 }
 
+interface WeatherFeature {
+  properties: {
+    id: string;
+    severity: string;
+    event: string;
+    description?: string;
+    headline?: string;
+    sent: string;
+    expires?: string;
+    areaDesc?: string;
+  };
+  geometry?: {
+    coordinates: number[][];
+  };
+}
+
+interface GeologicalFeature {
+  id: string;
+  properties: {
+    id: string;
+    mag: number;
+    place: string;
+    time: number;
+    title: string;
+  };
+  geometry?: {
+    coordinates: number[];
+  };
+}
+
 export class AlertsDataProvider implements DataProvider<AlertData[]> {
   readonly id: string = 'alerts-data';
   readonly name: string = 'Alerts Data Provider';
@@ -48,6 +78,7 @@ export class AlertsDataProvider implements DataProvider<AlertData[]> {
 
   private observer?: DataServiceObserver;
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async fetchData(key: string, _options: FetchOptions = {}): Promise<AlertData[]> {
     this.observer?.onFetchStart?.(key, this.id);
     const startTime = performance.now();
@@ -65,7 +96,7 @@ export class AlertsDataProvider implements DataProvider<AlertData[]> {
         case 'geological-alerts':
           data = await this.fetchGeologicalAlerts();
           break;
-        case 'all-alerts':
+        case 'all-alerts': {
           // Fetch all types and combine
           const [security, weather, geological] = await Promise.all([
             this.fetchSecurityAlerts(),
@@ -74,6 +105,7 @@ export class AlertsDataProvider implements DataProvider<AlertData[]> {
           ]);
           data = [...security, ...weather, ...geological];
           break;
+        }
         default:
           throw new Error(`Unknown alerts data key: ${key}`);
       }
@@ -116,7 +148,7 @@ export class AlertsDataProvider implements DataProvider<AlertData[]> {
 
       const data = await response.json();
       
-      return data.features?.map((feature: any) => ({
+      return data.features?.map((feature: WeatherFeature) => ({
         id: feature.properties.id,
         type: 'weather' as const,
         severity: this.mapNWSSeverity(feature.properties.severity),
@@ -147,18 +179,18 @@ export class AlertsDataProvider implements DataProvider<AlertData[]> {
 
       const data = await response.json();
       
-      return data.features?.map((feature: any) => ({
+      return data.features?.map((feature: GeologicalFeature) => ({
         id: feature.id,
         type: 'geological' as const,
         severity: this.mapEarthquakeSeverity(feature.properties.mag),
         title: `Magnitude ${feature.properties.mag} Earthquake`,
         description: feature.properties.title,
         timestamp: new Date(feature.properties.time).toISOString(),
-        location: {
+        location: feature.geometry ? {
           latitude: feature.geometry.coordinates[1],
           longitude: feature.geometry.coordinates[0],
           region: feature.properties.place
-        },
+        } : undefined,
         source: 'USGS',
         affectedAreas: [feature.properties.place]
       })) || [];

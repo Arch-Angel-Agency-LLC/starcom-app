@@ -10,7 +10,7 @@
   border-left: 2px solid rgba(0, 196, 255, 0.3);
   display: flex;
   flex-direction: column;
-  padding: 6px 4px;
+  padding: 3px 2px; /* Reduced from 6px 4px */
   box-sizing: border-box;
   z-index: 9999;
   transition: width 0.3s ease, background 0.3s ease;
@@ -60,10 +60,10 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 4px 2px;
-  margin-bottom: 8px;
+  padding: 2px 1px; /* Reduced from 4px 2px */
+  margin-bottom: 4px; /* Reduced from 8px */
   border-bottom: 1px solid rgba(0, 196, 255, 0.2);
-  gap: 2px;
+  gap: 1px; /* Reduced from 2px */
 }
 
 .actionBtn {
@@ -112,13 +112,13 @@
 .collapseContainer {
   display: flex;
   justify-content: center;
-  margin-bottom: 8px;
-  padding: 0 2px;
+  margin-bottom: 4px; /* Reduced from 8px */
+  padding: 0 1px; /* Reduced from 0 2px */
 }
 
 .collapsed .actionHeader {
   justify-content: center;
-  gap: 2px;
+  gap: 1px; /* Reduced from 2px */
 }
 
 .collapsed .actionBtn {
@@ -132,10 +132,10 @@
   flex: 1;
   display: grid;
   grid-template-columns: 1fr;
-  gap: 6px;
+  gap: 3px; /* Reduced from 6px */
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 2px;
+  padding: 1px; /* Reduced from 2px */
   scrollbar-width: thin;
   scrollbar-color: rgba(0, 196, 255, 0.3) transparent;
 }
@@ -159,7 +159,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 2px;
+  padding: 1px; /* Reduced from 2px */
   background: rgba(0, 0, 0, 0.4);
   border: 1px solid rgba(0, 196, 255, 0.2);
   border-radius: 8px;
@@ -322,10 +322,12 @@
   0%, 100% {
     opacity: 1;
     transform: scale(1);
+    transform-origin: center center;
   }
   50% {
     opacity: 0.7;
     transform: scale(1.2);
+    transform-origin: center center;
   }
 }
 
@@ -537,7 +539,7 @@
 .contentArea {
   flex: 1;
   overflow-y: auto;
-  padding: 0 6px;
+  padding: 0 2px; /* Reduced from 0 6px to save 8px horizontal space */
   margin-bottom: 4px;
 }
 
@@ -550,8 +552,8 @@
   background: rgba(0, 10, 20, 0.8);
   border: 1px solid rgba(0, 196, 255, 0.3);
   border-radius: 6px;
-  padding: 6px 8px;
-  margin-bottom: 6px;
+  padding: 4px 5px; /* Reduced from 6px 8px */
+  margin-bottom: 4px; /* Reduced from 6px */
 }
 
 .statusHeader {
@@ -1099,4 +1101,40 @@
 .developerSection > * {
   flex: 1;
   min-height: 0;
+}
+
+/* Intelligence Operations - Create Report Section */
+.intelCreateSection {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 170, 0, 0.3);
+  border-radius: 6px;
+  padding: 8px;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.createIntelBtn {
+  background: linear-gradient(135deg, #ffaa00 0%, #ff6600 100%);
+  color: #000000;
+  border: none;
+  padding: 8px 16px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 6px;
+  box-shadow: 0 0 8px rgba(255, 170, 0, 0.4);
+  letter-spacing: 0.02em;
+  transition: all 0.2s ease;
+  width: 100%;
+  font-family: inherit;
+}
+
+.createIntelBtn:hover {
+  background: linear-gradient(135deg, #ff6600 0%, #ffaa00 100%);
+  transform: scale(1.02);
+  box-shadow: 0 0 12px rgba(255, 170, 0, 0.6);
+}
+
+.createIntelBtn:active {
+  transform: scale(0.98);
 }

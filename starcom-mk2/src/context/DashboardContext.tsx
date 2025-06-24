@@ -34,6 +34,7 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                 setOilInventory(oilInventory);
                 setNaturalGasStorage(naturalGasStorage);
             } catch (err) {
+                console.error('Dashboard data fetch error:', err);
                 setError('Failed to fetch data');
             } finally {
                 setLoading(false);

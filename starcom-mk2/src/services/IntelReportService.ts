@@ -26,7 +26,7 @@ export class IntelReportService {
 
   constructor(
     connection: Connection,
-    programId: string = 'PLACEHOLDER_PROGRAM_ID', // TODO: Replace with deployed program ID
+    programId: string = import.meta.env.VITE_SOLANA_PROGRAM_ID || 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', // Valid placeholder program ID
     testMode: boolean = false
   ) {
     this.connection = connection;

@@ -1,0 +1,203 @@
+/* AuthGate styles for contextual authentication prompts */
+
+.authGate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  font-family: 'Aldrich-Regular', monospace;
+  transition: all 0.2s ease;
+}
+
+/* Button variant - inline button style */
+.authGate.button {
+  background: rgba(0, 196, 255, 0.1);
+  border: 1px solid rgba(0, 196, 255, 0.4);
+  color: #00c4ff;
+  padding: 6px 12px;
+  cursor: pointer;
+  gap: 4px;
+}
+
+.authGate.button:hover {
+  background: rgba(0, 196, 255, 0.2);
+  border-color: #00c4ff;
+  box-shadow: 0 0 8px rgba(0, 196, 255, 0.3);
+}
+
+.authGate.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Card variant - larger contextual prompt */
+.authGate.card {
+  flex-direction: column;
+  padding: 16px;
+  background: rgba(0, 10, 20, 0.9);
+  border: 1px solid rgba(0, 196, 255, 0.3);
+  backdrop-filter: blur(10px);
+  text-align: center;
+  gap: 12px;
+}
+
+/* Banner variant - full width notification style */
+.authGate.banner {
+  padding: 8px 16px;
+  background: rgba(255, 107, 53, 0.1);
+  border: 1px solid rgba(255, 107, 53, 0.3);
+  justify-content: space-between;
+  width: 100%;
+}
+
+/* Size variants */
+.authGate.small {
+  font-size: 0.8rem;
+}
+
+.authGate.small.button {
+  padding: 4px 8px;
+}
+
+.authGate.small.card {
+  padding: 12px;
+}
+
+.authGate.small.banner {
+  padding: 6px 12px;
+}
+
+.authGate.medium {
+  font-size: 0.9rem;
+}
+
+.authGate.large {
+  font-size: 1rem;
+}
+
+.authGate.large.button {
+  padding: 8px 16px;
+}
+
+.authGate.large.card {
+  padding: 20px;
+}
+
+.authGate.large.banner {
+  padding: 12px 20px;
+}
+
+/* Content styles */
+.prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.message {
+  color: #ffffff;
+  font-size: 0.9em;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.description {
+  color: #a0a0a0;
+  font-size: 0.8em;
+}
+
+.banner .message {
+  color: #ff6b35;
+}
+
+.connectBtn {
+  background: linear-gradient(135deg, #00C4FF 0%, #0084CC 100%);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 196, 255, 0.2);
+  font-family: inherit;
+}
+
+.connectBtn:hover {
+  background: linear-gradient(135deg, #0084CC 0%, #00C4FF 100%);
+  box-shadow: 0 4px 8px rgba(0, 196, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.connectBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.banner .connectBtn {
+  background: rgba(255, 107, 53, 0.2);
+  border: 1px solid #ff6b35;
+  color: #ff6b35;
+  padding: 4px 12px;
+  font-size: 0.8em;
+}
+
+.banner .connectBtn:hover {
+  background: rgba(255, 107, 53, 0.3);
+  box-shadow: 0 0 6px rgba(255, 107, 53, 0.3);
+}
+
+.spinner {
+  animation: authGateSpin 1s linear infinite;
+  margin-right: 4px;
+  transform-origin: center center;
+}
+
+@keyframes authGateSpin {
+  from { 
+    transform: rotate(0deg);
+    transform-origin: center center;
+  }
+  to { 
+    transform: rotate(360deg);
+    transform-origin: center center;
+  }
+}
+
+/* Legacy support */
+.authGate.compact {
+  padding: 12px;
+  margin: 8px 0;
+}
+
+.authGate.compact .prompt {
+  gap: 8px;
+}
+
+.authGate.compact .message {
+  font-size: 12px;
+}
+
+.authGate.compact .connectBtn {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+/* Role and token info styles */
+.roleInfo,
+.tokenInfo {
+  margin: 8px 0;
+  padding: 8px;
+  background: rgba(0, 196, 255, 0.1);
+  border-radius: 3px;
+  font-size: 12px;
+  color: #A0A0A0;
+}
+
+.roleInfo p,
+.tokenInfo p {
+  margin: 0;
+  font-family: 'Aldrich-Regular', monospace;
+}

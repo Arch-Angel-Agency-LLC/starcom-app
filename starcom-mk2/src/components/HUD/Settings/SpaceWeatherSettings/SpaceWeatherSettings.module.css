@@ -367,17 +367,30 @@
   font-style: italic;
 }
 
-/* NOAA Integration Styles */
-.noaaSection {
-  margin-bottom: 8px;
-  border: 1px solid rgba(0, 196, 255, 0.2);
-  border-radius: 3px;
-  padding: 2px;
+/* NOAA Button Styles */
+.noaaButton {
+  width: 100%;
+  background: linear-gradient(135deg, rgba(0, 196, 255, 0.1) 0%, rgba(0, 100, 200, 0.1) 100%);
+  border: 1px solid rgba(0, 196, 255, 0.4);
+  border-radius: 4px;
+  color: #00C4FF;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-family: 'Orbitron', Arial, sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  text-shadow: 0 0 2px rgba(0, 196, 255, 0.5);
 }
 
-/* Ensure NOAA section fits well with existing styles */
-.noaaSection .compactNOAAControls {
-  background: rgba(0, 15, 35, 0.8);
-  border: none;
-  margin: 0;
+.noaaButton:hover {
+  background: linear-gradient(135deg, rgba(0, 196, 255, 0.2) 0%, rgba(0, 100, 200, 0.2) 100%);
+  border-color: #00C4FF;
+  box-shadow: 0 0 8px rgba(0, 196, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.noaaButton:active {
+  transform: translateY(0);
+  box-shadow: 0 0 4px rgba(0, 196, 255, 0.2);
 }

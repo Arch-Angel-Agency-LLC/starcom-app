@@ -107,9 +107,12 @@ Guides for deploying and operating the application.
 Historical documentation preserved for reference.
 
 - Implementation reports from various development phases
+- Recent bug fixes and implementation summaries (Solar Flare, Context Persistence, UI Modernization)
 - Migration guides for completed transitions
 - Deprecated feature documentation
 - Legacy system documentation
+
+*See [`archived/README.md`](./archived/README.md) for complete index*
 
 ---
 

@@ -35,7 +35,10 @@ class SettingsStorage {
       const storageKey = this.getStorageKey(key);
       localStorage.setItem(storageKey, JSON.stringify(storageData));
       
-      console.log(`💾 Settings saved: ${key}`, data);
+      // Only log saves in development mode and reduce frequency
+      if (import.meta.env.DEV && Math.random() < 0.1) {
+        console.log(`💾 Settings saved: ${key}`, data);
+      }
       return true;
     } catch (error) {
       console.error(`❌ Failed to save settings for ${key}:`, error);
@@ -73,7 +76,10 @@ class SettingsStorage {
       // Merge with defaults to ensure all properties exist
       const result = { ...defaultData, ...data };
       
-      console.log(`📥 Settings loaded: ${key}`, result);
+      // Only log in development mode and reduce frequency
+      if (import.meta.env.DEV && Math.random() < 0.1) {
+        console.log(`📥 Settings loaded: ${key}`, result);
+      }
       return result;
     } catch (error) {
       console.error(`❌ Failed to load settings for ${key}:`, error);

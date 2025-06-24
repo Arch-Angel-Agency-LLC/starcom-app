@@ -101,6 +101,31 @@ This protocol was implemented after identifying that data tests cause system fre
 - **Summary Artifact:** `cache/code-summary.json`
 - **Health Artifact:** `cache/code-health.json`
 - **Project Primer:** `.primer`
+- **Authentication Implementation:** `artifacts/authentication-implementation.artifact`
+
+### Current Development Phase: Authentication Refactor
+**Status:** In Progress  
+**Goal:** Remove broken authentication UI and implement minimal, functional auth system
+
+#### Phase Objectives:
+1. **Remove non-functional login UI** from BottomLeft corner
+2. **Implement contextual authentication** that doesn't block unnecessary features
+3. **Add minimal wallet status** to TopBar or appropriate location
+4. **Ensure app works fully without login** for all non-blockchain features
+5. **Clean up legacy EVM authentication** code
+
+#### Key Implementation Files:
+- **Planning:** `docs/development/authentication-refactor-plan.md`
+- **Implementation Guide:** `artifacts/authentication-implementation.artifact`
+- **Current Broken Auth:** `src/components/HUD/Corners/BottomLeft/BottomLeft.tsx`
+- **Auth Context:** `src/context/AuthContext.tsx`
+- **Auth Hook:** `src/hooks/useAuth.ts`
+
+#### Authentication Philosophy:
+- **No artificial barriers** - only require auth when blockchain operations needed
+- **Contextual prompts** - show auth requirements inline with features
+- **Progressive enhancement** - app fully functional without wallet connection
+- **Minimal UI footprint** - no prominent auth UI taking up screen real estate
 
 ### Directory Anchors
 - `src/`: Main app code (tests are colocated with their modules)

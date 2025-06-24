@@ -5,7 +5,7 @@
  * role-based UI customization, and progressive disclosure.
  */
 
-import React, { createContext, useReducer, useEffect, useMemo } from 'react';
+import React, { createContext, useReducer, useEffect, useMemo, useCallback, useRef } from 'react';
 import AdaptiveInterfaceService from '../services/adaptiveInterfaceService';
 import type {
   AdaptiveInterfaceState,
@@ -317,44 +317,38 @@ interface AdaptiveInterfaceProviderProps {
 export const AdaptiveInterfaceProvider: React.FC<AdaptiveInterfaceProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(adaptiveInterfaceReducer, createInitialState());
 
-  // Auto-save state changes
-  useEffect(() => {
-    const service = AdaptiveInterfaceService.getInstance();
-    service.saveAdaptiveState({
-      operatorProfile: state.operatorProfile,
-      adaptiveConfiguration: state.adaptiveConfiguration,
-      progressiveDisclosure: state.progressiveDisclosure,
-      aiAdaptation: state.aiAdaptation
-    });
+  // Auto-save state changes with debouncing to prevent excessive storage operations
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  const debouncedSave = useCallback(() => {
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+    
+    saveTimeoutRef.current = setTimeout(() => {
+      const service = AdaptiveInterfaceService.getInstance();
+      service.saveAdaptiveState({
+        operatorProfile: state.operatorProfile,
+        adaptiveConfiguration: state.adaptiveConfiguration,
+        progressiveDisclosure: state.progressiveDisclosure,
+        aiAdaptation: state.aiAdaptation
+      });
+    }, 1000); // Debounce for 1 second
   }, [state.operatorProfile, state.adaptiveConfiguration, state.progressiveDisclosure, state.aiAdaptation]);
 
-  // Generate AI recommendations periodically
   useEffect(() => {
-    if (!state.isAdaptationEnabled || state.adaptationMode === 'MANUAL') return;
-
-    const service = AdaptiveInterfaceService.getInstance();
-    const interval = setInterval(() => {
-      const recommendations = service.generateAdaptationRecommendations(
-        state.operatorProfile,
-        state.aiAdaptation.userBehaviorProfile,
-        state.aiAdaptation.performanceMetrics
-      );
-
-      if (recommendations.length > 0) {
-        // Only add new recommendations
-        const existingIds = state.aiAdaptation.adaptationRecommendations.map(r => r.id);
-        const newRecommendations = recommendations.filter(r => !existingIds.includes(r.id));
-        
-        if (newRecommendations.length > 0) {
-          // Update state with new recommendations - this would need to be implemented
-          // For now, we'll just log them
-          console.log('New AI recommendations:', newRecommendations);
-        }
+    debouncedSave();
+    
+    // Cleanup timeout on unmount
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
       }
-    }, 30000); // Check every 30 seconds
+    };
+  }, [debouncedSave]);
 
-    return () => clearInterval(interval);
-  }, [state.isAdaptationEnabled, state.adaptationMode, state.operatorProfile, state.aiAdaptation]);
+  // Generate AI recommendations periodically - DISABLED TO PREVENT PERFORMANCE ISSUES
+  // This feature was causing excessive loops and has been completely disabled
 
   const value = useMemo(() => ({ state, dispatch }), [state]);
 

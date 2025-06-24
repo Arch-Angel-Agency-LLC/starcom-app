@@ -34,7 +34,6 @@
 
 .bottomLeftCorner {
   bottom: 3%;
-  background: rgba(0, 0, 0, 0.8); /* transparent background */
   left: 6%; /* Ensure it aligns with the left side */
   pointer-events: auto; /* Enable clicks on HUD components */
 }
@@ -42,7 +41,7 @@
 .bottomRightCorner {
   bottom: 3%;
   right: 8%;
-  background: rgba(0, 0, 0, 0.8); /* transparent background */
+  background: transparent;
 }
 
 .topBar, .bottomBar {
@@ -61,11 +60,11 @@
 
 .bottomBar {
   bottom: 0;
-  left: 0;
+  left: 110px; /* Respect LeftSideBar width */
   right: 0;
-  width: 100%; /* Stretch across the full width of the screen */
+  width: calc(100% - 110px); /* Adjust width to account for LeftSideBar */
   height: 5%; /* Adjust height as needed */
-  z-index: 3;
+  z-index: 10; /* Lower than LeftSideBar to respect dominance */
   pointer-events: auto; /* Enable clicks on HUD components */
 }
 
@@ -77,11 +76,11 @@
 
 .leftSideBar {
   position: absolute;
-  z-index: 5;
+  z-index: 1001; /* Match the LeftSideBar component z-index */
   top: 0;
   left: 0;
-  width: 5%; /* Adjust width as needed */
-  bottom: 0; /* Dynamically stop at the top of the BottomBar */
+  width: 110px; /* Match the actual LeftSideBar width */
+  bottom: 0; /* Stretch all the way to bottom - no BottomBar interference */
 }
 
 .rightSideBar {
@@ -111,15 +110,24 @@
 /* Responsive adjustments for smaller screens */
 @media (max-width: 1200px) {
   .center {
-    left: 80px; /* Smaller left margin on smaller screens */
+    left: 110px; /* Maintain LeftSideBar width */
     right: 100px; /* Smaller right margin on smaller screens */
   }
 }
 
 @media (max-width: 768px) {
+  .leftSideBar {
+    width: 80px; /* Smaller LeftSideBar on mobile */
+  }
+  
+  .bottomBar {
+    left: 80px; /* Match mobile LeftSideBar width */
+    width: calc(100% - 80px); /* Adjust for mobile LeftSideBar */
+  }
+  
   .center {
     top: 8%; /* More space for mobile top bar */
-    left: 60px; /* Even smaller margins */
+    left: 80px; /* Match mobile LeftSideBar width */
     right: 60px;
     bottom: 8%; /* More space for mobile bottom bar */
   }

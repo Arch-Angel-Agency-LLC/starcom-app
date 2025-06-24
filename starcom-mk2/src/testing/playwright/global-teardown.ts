@@ -47,16 +47,8 @@ async function generateTestSummary(): Promise<void> {
       
       // Add basic statistics if available
       if (results.suites) {
-        const stats = {
-          totalTests: 0,
-          passed: 0,
-          failed: 0,
-          skipped: 0
-        };
-
-        // Process test results (basic implementation)
-        // You might need to adjust this based on actual results structure
-        console.log('📊 Test results processed');
+        // AI-NOTE: Stats collection placeholder for future enhancement
+        console.log('📊 Test results processed (stats collection pending)');
       }
     }
 

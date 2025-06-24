@@ -14,6 +14,9 @@ const StarcomPreloader: React.FC = () => {
         <div className="stars-layer stars-medium"></div>
         <div className="stars-layer stars-large"></div>
         
+        {/* Tactical grid overlay for cyber command interface */}
+        <div className="tactical-overlay"></div>
+        
         {/* Central loading animation */}
         <div className="starcom-preloader-center">
           <div className="starcom-logo-container">
@@ -22,8 +25,14 @@ const StarcomPreloader: React.FC = () => {
             <div className="starcom-logo-subtitle">Intelligence Exchange</div>
           </div>
           
-          {/* Orbital loading animation */}
+          {/* Orbital loading animation with intelligence network */}
           <div className="orbital-loader">
+            {/* Data stream particles for inter-satellite communication */}
+            <div className="data-stream data-stream-1"></div>
+            <div className="data-stream data-stream-2"></div>
+            <div className="data-stream data-stream-3"></div>
+            <div className="data-stream data-stream-4"></div>
+            
             <div className="orbit orbit-1">
               <div className="satellite satellite-1"></div>
             </div>

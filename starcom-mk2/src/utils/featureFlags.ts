@@ -27,6 +27,9 @@ export interface FeatureFlags {
   securityIndicatorsEnabled: boolean;
   blockchainIntegrationEnabled: boolean;
   
+  // Developer Tools
+  walletDiagnosticsEnabled: boolean;
+  
   // User Experience Features
   adaptiveInterfaceEnabled: boolean;
   rtsEnhancementsEnabled: boolean;
@@ -76,6 +79,9 @@ const DEFAULT_FEATURE_FLAGS: FeatureFlags = {
   web3AuthEnabled: false,
   securityIndicatorsEnabled: false,
   blockchainIntegrationEnabled: false,
+  
+  // Developer Tools - Off by default, toggle in dev tools
+  walletDiagnosticsEnabled: false,
   
   // UX - Enable with core features
   adaptiveInterfaceEnabled: true, // Phase 4: Enable adaptive interface

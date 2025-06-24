@@ -1,8 +1,8 @@
 import React from 'react';
 import { useEcoNaturalSettings } from '../../../../hooks/useEcoNaturalSettings';
 import { useSettingsValidation } from '../../../../utils/uiSettingsReflection';
-import CompactNOAAControls from '../../Bars/LeftSideBar/CompactNOAAControls';
-import NOAAVisualizationStatus from '../../Bars/LeftSideBar/NOAAVisualizationStatus';
+import { usePopup } from '../../../Popup/PopupManager';
+import NOAAPopup from '../../Popups/NOAAPopup';
 import styles from './SpaceWeatherSettings.module.css';
 
 // AI-NOTE: EcoNatural visualization settings panel for all natural/environmental data
@@ -20,6 +20,8 @@ const SpaceWeatherSettings: React.FC<SpaceWeatherSettingsProps> = ({ subMode }) 
     updateEarthWeather 
   } = useEcoNaturalSettings();
 
+  const { showPopup } = usePopup();
+
   // Validate that UI state reflects persistent settings
   // Note: Simplified validation to avoid type mismatches
   useSettingsValidation('SpaceWeatherSettings', {
@@ -32,13 +34,26 @@ const SpaceWeatherSettings: React.FC<SpaceWeatherSettingsProps> = ({ subMode }) 
     forecastRange: config.earthWeather?.forecastRange
   });
 
+  const openNOAAPopup = () => {
+    showPopup({
+      component: NOAAPopup,
+      backdrop: true,
+      zIndex: 3000
+    });
+  };
+
   const renderSpaceWeatherSettings = () => (
     <div className={styles.spaceWeatherSettings}>
-      {/* NOAA Visualization Controls */}
-      <CompactNOAAControls className={styles.noaaSection} />
-      
-      {/* Globe Visualization Status */}
-      <NOAAVisualizationStatus />
+      {/* NOAA Popup Button */}
+      <div className={styles.section}>
+        <button 
+          className={styles.noaaButton}
+          onClick={openNOAAPopup}
+          aria-label="Open NOAA Space Weather Controls"
+        >
+          🌡️ NOAA Controls
+        </button>
+      </div>
       
       {/* Data Layer Toggles */}
       <div className={styles.section}>

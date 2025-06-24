@@ -8,6 +8,7 @@ import styles from './DeveloperToolbar.module.css';
  * 
  * Provides quick access to:
  * - UI Testing Diagnostics toggle
+ * - Wallet Diagnostics toggle
  * - Feature flag controls
  * - Development utilities
  * - Quick keyboard shortcuts
@@ -15,6 +16,7 @@ import styles from './DeveloperToolbar.module.css';
 const DeveloperToolbar: React.FC = () => {
   const [showFeatureFlags, setShowFeatureFlags] = useState(false);
   const uiTestingDiagnosticsEnabled = useFeatureFlag('uiTestingDiagnosticsEnabled');
+  const walletDiagnosticsEnabled = useFeatureFlag('walletDiagnosticsEnabled');
 
   // Keyboard shortcut: Ctrl+Shift+D (or Cmd+Shift+D) - same as original DiagnosticsToggle
   React.useEffect(() => {
@@ -27,11 +29,21 @@ const DeveloperToolbar: React.FC = () => {
         const message = uiTestingDiagnosticsEnabled ? 'Diagnostics OFF' : 'Diagnostics ON';
         console.log(`🔧 UI Testing ${message}`);
       }
+
+      // Wallet Diagnostics shortcut: Ctrl+Shift+W (or Cmd+Shift+W)
+      if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'W') {
+        event.preventDefault();
+        featureFlagManager.setFlag('walletDiagnosticsEnabled', !walletDiagnosticsEnabled);
+        
+        // Visual feedback
+        const message = walletDiagnosticsEnabled ? 'Wallet Diagnostics OFF' : 'Wallet Diagnostics ON';
+        console.log(`🔧 ${message}`);
+      }
     };
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [uiTestingDiagnosticsEnabled]);
+  }, [uiTestingDiagnosticsEnabled, walletDiagnosticsEnabled]);
 
   // Only show in development mode
   if (process.env.NODE_ENV === 'production') {
@@ -42,6 +54,12 @@ const DeveloperToolbar: React.FC = () => {
     featureFlagManager.setFlag('uiTestingDiagnosticsEnabled', !uiTestingDiagnosticsEnabled);
     const message = uiTestingDiagnosticsEnabled ? 'Diagnostics OFF' : 'Diagnostics ON';
     console.log(`🔧 UI Testing ${message}`);
+  };
+
+  const handleWalletDiagnosticsToggle = () => {
+    featureFlagManager.setFlag('walletDiagnosticsEnabled', !walletDiagnosticsEnabled);
+    const message = walletDiagnosticsEnabled ? 'Wallet Diagnostics OFF' : 'Wallet Diagnostics ON';
+    console.log(`🔧 ${message}`);
   };
 
   return (
@@ -77,6 +95,30 @@ const DeveloperToolbar: React.FC = () => {
           </button>
         </div>
 
+        {/* Wallet Diagnostics Button */}
+        <div className={styles.diagSection}>
+          <button
+            onClick={handleWalletDiagnosticsToggle}
+            className={`${styles.diagButton} ${walletDiagnosticsEnabled ? styles.active : ''}`}
+            title="Toggle Wallet Diagnostics (Ctrl+Shift+W)"
+            aria-label={`Wallet Diagnostics ${walletDiagnosticsEnabled ? 'enabled' : 'disabled'}`}
+          >
+            <div className={styles.diagContent}>
+              <div className={styles.diagMain}>
+                <span className={styles.diagIcon}>🔍</span>
+                <span className={styles.diagLabel}>WALLET</span>
+                <div className={`${styles.statusBadge} ${walletDiagnosticsEnabled ? styles.statusActive : styles.statusInactive}`}>
+                  {walletDiagnosticsEnabled ? 'ON' : 'OFF'}
+                </div>
+              </div>
+              <div className={styles.diagHint}>Ctrl+Shift+W</div>
+            </div>
+            {walletDiagnosticsEnabled && (
+              <div className={styles.activeIndicator}>●</div>
+            )}
+          </button>
+        </div>
+
         {/* Status Info */}
         <div className={styles.statusInfo}>
           <div className={styles.statusItem}>
@@ -87,6 +129,12 @@ const DeveloperToolbar: React.FC = () => {
             <div className={styles.statusItem}>
               <span className={styles.statusLabel}>Testing:</span>
               <span className={`${styles.statusValue} ${styles.active}`}>ACTIVE</span>
+            </div>
+          )}
+          {walletDiagnosticsEnabled && (
+            <div className={styles.statusItem}>
+              <span className={styles.statusLabel}>Wallet:</span>
+              <span className={`${styles.statusValue} ${styles.active}`}>DIAGNOSTIC</span>
             </div>
           )}
         </div>
@@ -228,7 +276,11 @@ const DeveloperToolbar: React.FC = () => {
           <div className={styles.shortcuts}>
             <div className={styles.shortcut}>
               <kbd>Ctrl+Shift+D</kbd>
-              <span>Toggle Diagnostics</span>
+              <span>Toggle UI Diagnostics</span>
+            </div>
+            <div className={styles.shortcut}>
+              <kbd>Ctrl+Shift+W</kbd>
+              <span>Toggle Wallet Diagnostics</span>
             </div>
             <div className={styles.shortcut}>
               <kbd>F12</kbd>

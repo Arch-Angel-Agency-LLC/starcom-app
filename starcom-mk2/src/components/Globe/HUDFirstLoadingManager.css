@@ -103,6 +103,7 @@
   border: 2px solid #00ff41;
   border-radius: 50%;
   position: relative;
+  transform-origin: center center;
   animation: rotate 2s linear infinite;
 }
 
@@ -111,6 +112,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  transform-origin: center center;
   font-size: 24px;
   animation: float 2s ease-in-out infinite;
 }
@@ -120,6 +122,7 @@
   top: -2px;
   left: 50%;
   transform: translateX(-50%);
+  transform-origin: center center;
   width: 4px;
   height: 4px;
   background: #00ff41;
@@ -136,6 +139,7 @@
   border: 1px solid #00ff41;
   border-radius: 50%;
   opacity: 0.4;
+  transform-origin: center center;
   animation: rotate 3s linear infinite reverse;
 }
 
@@ -201,29 +205,51 @@
   pointer-events: auto;
 }
 
-/* Animations */
+/* Animations with proper transform origins and anchoring */
 @keyframes hudFadeIn {
-  0% { opacity: 0; transform: scale(0.95); }
-  100% { opacity: 1; transform: scale(1); }
+  0% { 
+    opacity: 0; 
+    transform: scale(0.95);
+    transform-origin: center center;
+  }
+  100% { 
+    opacity: 1; 
+    transform: scale(1);
+    transform-origin: center center;
+  }
 }
 
 @keyframes rotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from { 
+    transform: rotate(0deg);
+    transform-origin: center center;
+  }
+  to { 
+    transform: rotate(360deg);
+    transform-origin: center center;
+  }
 }
 
 @keyframes float {
-  0%, 100% { transform: translate(-50%, -50%) scale(1); }
-  50% { transform: translate(-50%, -50%) scale(1.1); }
+  0%, 100% { 
+    transform: translate(-50%, -50%) scale(1);
+    transform-origin: center center;
+  }
+  50% { 
+    transform: translate(-50%, -50%) scale(1.1);
+    transform-origin: center center;
+  }
 }
 
 @keyframes gridScan {
   0%, 100% { 
     transform: scale(1) rotate(0deg); 
+    transform-origin: center center;
     opacity: 0.3; 
   }
   50% { 
     transform: scale(1.1) rotate(180deg); 
+    transform-origin: center center;
     opacity: 0.6; 
   }
 }

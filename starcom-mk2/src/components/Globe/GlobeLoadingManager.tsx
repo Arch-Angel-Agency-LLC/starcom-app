@@ -1,6 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import './GlobeLoadingManager.css';
 
+// AI-NOTE: Generate matrix-style code rain for cyber command atmosphere
+const generateMatrixCode = (): string => {
+  const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()';
+  const lines = 15;
+  const charsPerLine = 3;
+  let result = '';
+  
+  for (let i = 0; i < lines; i++) {
+    for (let j = 0; j < charsPerLine; j++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    result += '\n';
+  }
+  return result;
+};
+
 interface GlobeLoadingManagerProps {
   children: React.ReactNode;
   material: unknown; // THREE.Material or null
@@ -63,6 +79,18 @@ const GlobeLoadingManager: React.FC<GlobeLoadingManagerProps> = ({
     <>
       {showGlobeLoader && (
         <div className={`globe-loading-overlay ${loaderFadingOut ? 'fade-out' : ''}`}>
+          {/* Matrix-style code rain background */}
+          <div className="matrix-rain">
+            {Array.from({ length: 10 }, (_, i) => (
+              <div key={i} className={`code-column code-column-${i + 1}`}>
+                {generateMatrixCode()}
+              </div>
+            ))}
+          </div>
+          
+          {/* Signal interference overlay */}
+          <div className="signal-interference"></div>
+          
           <div className="tactical-loading">
             {/* Tactical Grid Background */}
             <div className="tactical-grid">
@@ -79,21 +107,27 @@ const GlobeLoadingManager: React.FC<GlobeLoadingManagerProps> = ({
               </div>
             </div>
             
-            {/* Command Text */}
+            {/* Enhanced Command Text */}
             <div className="command-text">
               INITIALIZING GLOBAL COMMAND...
             </div>
             
-            {/* Status Lines */}
+            {/* Enhanced Status Lines with cyber intelligence operations */}
             <div className="status-lines">
               <div className="status-line" style={{ animationDelay: '0s' }}>
-                › LOADING TACTICAL INTERFACE
+                › ESTABLISHING QUANTUM ENCRYPTED CHANNELS
               </div>
-              <div className="status-line" style={{ animationDelay: '0.3s' }}>
-                › ESTABLISHING SECURE CONNECTION
+              <div className="status-line" style={{ animationDelay: '0.4s' }}>
+                › SYNCHRONIZING SATELLITE NETWORKS
               </div>
-              <div className="status-line" style={{ animationDelay: '0.6s' }}>
-                › CALIBRATING SENSORS
+              <div className="status-line" style={{ animationDelay: '0.8s' }}>
+                › ACTIVATING THREAT DETECTION PROTOCOLS
+              </div>
+              <div className="status-line" style={{ animationDelay: '1.2s' }}>
+                › LOADING INTELLIGENCE DATABASES
+              </div>
+              <div className="status-line" style={{ animationDelay: '1.6s' }}>
+                › CALIBRATING GLOBAL MONITORING SYSTEMS
               </div>
             </div>
             

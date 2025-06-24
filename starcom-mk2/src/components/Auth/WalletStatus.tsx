@@ -4,6 +4,7 @@ import Modal from '../Shared/Modal';
 import Snackbar from '../Shared/Snackbar';
 import Tooltip from '../Shared/Tooltip';
 import SessionExpiryCountdown from '../Shared/SessionExpiryCountdown';
+import styles from './WalletStatus.module.css';
 
 interface WalletStatusProps {
   sessionWarningThreshold?: number;
@@ -136,102 +137,258 @@ const WalletStatus: React.FC<WalletStatusProps> = ({ sessionWarningThreshold = 5
   };
 
   return (
-    <div className="wallet-status">
+    <div className={styles.walletStatusModal}>
+      <div className={styles.headerSection}>
+        <div className={styles.titleBar}>
+          <h2 className={styles.title}>🛡️ STARCOM WALLET STATUS</h2>
+          <div className={styles.statusIndicator}>
+            <div className={`${styles.statusDot} ${isAuthenticated ? styles.connected : styles.disconnected}`}></div>
+            <span className={styles.statusText}>
+              {isAuthenticated ? 'AUTHENTICATED' : 'DISCONNECTED'}
+            </span>
+          </div>
+        </div>
+      </div>
+
       <Snackbar
         message={snackbarMessage}
         open={snackbarOpen}
         onClose={() => setSnackbarOpen(false)}
         type={snackbarType}
       />
-      {isLoading && <p>Loading...</p>}
-      {connectionStatus === 'connecting' && <p>Connecting to wallet...</p>}
+
+      {isLoading && (
+        <div className={styles.loadingSection}>
+          <div className={styles.loadingSpinner}></div>
+          <p className={styles.loadingText}>INITIALIZING SECURE CONNECTION...</p>
+        </div>
+      )}
+
+      {connectionStatus === 'connecting' && (
+        <div className={styles.connectingSection}>
+          <div className={styles.scanLine}></div>
+          <p className={styles.connectingText}>🔗 ESTABLISHING WALLET LINK...</p>
+        </div>
+      )}
+
       {connectionStatus === 'connected' && isAuthenticated && (
-        <div>
-          <p>Connected: {address}</p>
-          <p>Network: {expectedNetworkName} (chainId: {expectedChainId})</p>
-          <Tooltip content="Disconnect your wallet from the app.">
-            <button onClick={() => setShowDisconnectConfirm(true)}>Disconnect</button>
-          </Tooltip>
-          <Tooltip content="Switch to the expected network.">
-            <button onClick={() => setShowSwitchNetworkConfirm(true)}>Switch Network</button>
-          </Tooltip>
-          {/* SIWE/localStorage session UI */}
-          {isSessionValid() ? (
-            <>
-              <p>Session active (client-side, expires in localStorage)</p>
-              {/* Always render countdown if expiry is set and session is valid */}
-              {sessionExpiry && (
-                <SessionExpiryCountdown
-                  expiry={sessionExpiry}
-                  onExpire={handleSessionExpire}
-                  warningThreshold={sessionWarningThreshold}
-                  onWarning={handleSessionWarning}
-                />
-              )}
-            </>
-          ) : (
-            <>
-              <p className="error">Session expired. Please re-authenticate.</p>
-              <Tooltip content="Sign a message to authenticate your wallet.">
-                <button
-                  ref={authButtonRef}
-                  onClick={handleAuthenticate}
-                  aria-label="Authenticate (Sign-In with Ethereum)"
+        <div className={styles.authenticatedSection}>
+          <div className={styles.walletInfo}>
+            <div className={styles.addressBlock}>
+              <label className={styles.label}>WALLET ADDRESS:</label>
+              <div className={styles.addressDisplay}>
+                <code className={styles.address}>{address}</code>
+                <button 
+                  className={styles.copyBtn}
+                  onClick={() => navigator.clipboard?.writeText(address || '')}
+                  title="Copy address"
                 >
-                  Authenticate (Sign-In with Ethereum)
+                  📋
                 </button>
-              </Tooltip>
-            </>
-          )}
-          {authError && <p className="error">Auth error: {authError}</p>}
-        </div>
-      )}
-      {connectionStatus === 'idle' && !isAuthenticated && (
-        <Tooltip content="Connect your wallet to start using the app.">
-          <button
-            className="wallet-connect-btn"
-            onClick={handleConnect}
-            aria-label="Connect Wallet"
-          >
-            Connect Wallet
-          </button>
-        </Tooltip>
-      )}
-      <Modal isOpen={showSessionWarning} onClose={() => setShowSessionWarning(false)} ariaLabel="Session Expiry Warning">
-        <p>Your session is about to expire. Please re-authenticate to stay connected.</p>
-        <div className="modal-actions">
-          <button onClick={handleReauth}>Re-authenticate</button>
-          <button onClick={() => setShowSessionWarning(false)}>Close</button>
-        </div>
-      </Modal>
-      <Modal isOpen={showDisconnectConfirm} onClose={() => setShowDisconnectConfirm(false)} ariaLabel="Disconnect Wallet Confirmation">
-        <p>Are you sure you want to disconnect your wallet?</p>
-        <div className="modal-actions">
-          <button onClick={handleDisconnectConfirm}>Yes, disconnect</button>
-          <button onClick={() => setShowDisconnectConfirm(false)}>Cancel</button>
-        </div>
-      </Modal>
-      <Modal isOpen={showSwitchNetworkConfirm} onClose={() => setShowSwitchNetworkConfirm(false)} ariaLabel="Switch Network Confirmation">
-        <p>Are you sure you want to switch to the expected network?</p>
-        <div className="modal-actions">
-          <button onClick={handleSwitchNetworkConfirm}>Yes, switch</button>
-          <button onClick={() => setShowSwitchNetworkConfirm(false)}>Cancel</button>
-        </div>
-      </Modal>
-      {/* Error Modal: open if error exists */}
-      {error && (
-        <Modal isOpen={true} onClose={() => setError(null)} ariaLabel="Wallet Error Dialog">
-          <p>
-            {error.toLowerCase().includes('network')
-              ? `Network error: ${error}`
-              : `Error: ${error}`}
-          </p>
-          <div className="modal-actions">
-            {error.toLowerCase().includes('network') && (
-              <button onClick={async () => { await switchNetwork(); setError(null); }}>Switch Network</button>
+              </div>
+            </div>
+
+            <div className={styles.networkInfo}>
+              <label className={styles.label}>NETWORK:</label>
+              <div className={styles.networkDisplay}>
+                <span className={styles.networkName}>{expectedNetworkName}</span>
+                <span className={styles.chainId}>Chain ID: {expectedChainId}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className={styles.actionGrid}>
+            <Tooltip content="Securely disconnect from Starcom Command">
+              <button 
+                className={`${styles.actionBtn} ${styles.disconnectBtn}`}
+                onClick={() => setShowDisconnectConfirm(true)}
+              >
+                <span className={styles.btnIcon}>🔓</span>
+                DISCONNECT
+              </button>
+            </Tooltip>
+            
+            <Tooltip content="Switch to required network">
+              <button 
+                className={`${styles.actionBtn} ${styles.networkBtn}`}
+                onClick={() => setShowSwitchNetworkConfirm(true)}
+              >
+                <span className={styles.btnIcon}>🌐</span>
+                SWITCH NETWORK
+              </button>
+            </Tooltip>
+          </div>
+
+          {/* Session Status */}
+          <div className={styles.sessionSection}>
+            {isSessionValid() ? (
+              <div className={styles.sessionActive}>
+                <div className={styles.sessionHeader}>
+                  <span className={styles.sessionIcon}>✅</span>
+                  <span className={styles.sessionTitle}>SECURE SESSION ACTIVE</span>
+                </div>
+                {sessionExpiry && (
+                  <div className={styles.countdownWrapper}>
+                    <SessionExpiryCountdown
+                      expiry={sessionExpiry}
+                      onExpire={handleSessionExpire}
+                      warningThreshold={sessionWarningThreshold}
+                      onWarning={handleSessionWarning}
+                    />
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className={styles.sessionExpired}>
+                <div className={styles.sessionHeader}>
+                  <span className={styles.sessionIcon}>⚠️</span>
+                  <span className={styles.sessionTitle}>SESSION EXPIRED</span>
+                </div>
+                <p className={styles.expiredMessage}>Authentication required for secure access</p>
+                <Tooltip content="Sign message to verify wallet ownership">
+                  <button
+                    ref={authButtonRef}
+                    className={`${styles.actionBtn} ${styles.authBtn}`}
+                    onClick={handleAuthenticate}
+                    aria-label="Authenticate with Starcom"
+                  >
+                    <span className={styles.btnIcon}>🔐</span>
+                    AUTHENTICATE
+                  </button>
+                </Tooltip>
+              </div>
             )}
-            <button onClick={async () => { await connectWallet(); setError(null); }}>Retry</button>
-            <button onClick={() => setError(null)} aria-label="Close Modal" data-testid="modal-close">Close</button>
+          </div>
+
+          {authError && (
+            <div className={styles.errorSection}>
+              <span className={styles.errorIcon}>❌</span>
+              <span className={styles.errorText}>{authError}</span>
+            </div>
+          )}
+        </div>
+      )}
+
+      {connectionStatus === 'idle' && !isAuthenticated && (
+        <div className={styles.idleSection}>
+          <div className={styles.connectPrompt}>
+            <div className={styles.promptIcon}>🚀</div>
+            <h3 className={styles.promptTitle}>CONNECT TO STARCOM NETWORK</h3>
+            <p className={styles.promptMessage}>
+              Establish secure connection to access Starcom Command systems
+            </p>
+            <Tooltip content="Initialize wallet connection to Starcom">
+              <button
+                className={`${styles.actionBtn} ${styles.connectBtn}`}
+                onClick={handleConnect}
+                aria-label="Connect Wallet to Starcom"
+              >
+                <span className={styles.btnIcon}>🔗</span>
+                CONNECT WALLET
+              </button>
+            </Tooltip>
+          </div>
+        </div>
+      )}
+
+      {/* Enhanced Modals with Starcom Theme */}
+      <Modal isOpen={showSessionWarning} onClose={() => setShowSessionWarning(false)} ariaLabel="Session Expiry Warning">
+        <div className={styles.modalContent}>
+          <div className={styles.modalHeader}>
+            <span className={styles.modalIcon}>⏰</span>
+            <h3 className={styles.modalTitle}>SESSION EXPIRING</h3>
+          </div>
+          <p className={styles.modalMessage}>
+            Your secure session will expire soon. Re-authenticate to maintain access to Starcom systems.
+          </p>
+          <div className={styles.modalActions}>
+            <button className={`${styles.modalBtn} ${styles.primaryBtn}`} onClick={handleReauth}>
+              RE-AUTHENTICATE
+            </button>
+            <button className={`${styles.modalBtn} ${styles.secondaryBtn}`} onClick={() => setShowSessionWarning(false)}>
+              DISMISS
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal isOpen={showDisconnectConfirm} onClose={() => setShowDisconnectConfirm(false)} ariaLabel="Disconnect Confirmation">
+        <div className={styles.modalContent}>
+          <div className={styles.modalHeader}>
+            <span className={styles.modalIcon}>🔓</span>
+            <h3 className={styles.modalTitle}>DISCONNECT WALLET</h3>
+          </div>
+          <p className={styles.modalMessage}>
+            Are you sure you want to disconnect from Starcom Command? You will lose access to secure features.
+          </p>
+          <div className={styles.modalActions}>
+            <button className={`${styles.modalBtn} ${styles.dangerBtn}`} onClick={handleDisconnectConfirm}>
+              YES, DISCONNECT
+            </button>
+            <button className={`${styles.modalBtn} ${styles.secondaryBtn}`} onClick={() => setShowDisconnectConfirm(false)}>
+              CANCEL
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal isOpen={showSwitchNetworkConfirm} onClose={() => setShowSwitchNetworkConfirm(false)} ariaLabel="Network Switch Confirmation">
+        <div className={styles.modalContent}>
+          <div className={styles.modalHeader}>
+            <span className={styles.modalIcon}>🌐</span>
+            <h3 className={styles.modalTitle}>SWITCH NETWORK</h3>
+          </div>
+          <p className={styles.modalMessage}>
+            Switch to {expectedNetworkName} network for optimal Starcom compatibility?
+          </p>
+          <div className={styles.modalActions}>
+            <button className={`${styles.modalBtn} ${styles.primaryBtn}`} onClick={handleSwitchNetworkConfirm}>
+              SWITCH NETWORK
+            </button>
+            <button className={`${styles.modalBtn} ${styles.secondaryBtn}`} onClick={() => setShowSwitchNetworkConfirm(false)}>
+              CANCEL
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Error Modal */}
+      {error && (
+        <Modal isOpen={true} onClose={() => setError(null)} ariaLabel="Wallet Error">
+          <div className={styles.modalContent}>
+            <div className={styles.modalHeader}>
+              <span className={styles.modalIcon}>⚠️</span>
+              <h3 className={styles.modalTitle}>SYSTEM ERROR</h3>
+            </div>
+            <p className={styles.modalMessage}>
+              {error.toLowerCase().includes('network')
+                ? `Network error detected: ${error}`
+                : `Error: ${error}`}
+            </p>
+            <div className={styles.modalActions}>
+              {error.toLowerCase().includes('network') && (
+                <button 
+                  className={`${styles.modalBtn} ${styles.primaryBtn}`}
+                  onClick={async () => { await switchNetwork(); setError(null); }}
+                >
+                  SWITCH NETWORK
+                </button>
+              )}
+              <button 
+                className={`${styles.modalBtn} ${styles.secondaryBtn}`}
+                onClick={async () => { await connectWallet(); setError(null); }}
+              >
+                RETRY CONNECTION
+              </button>
+              <button 
+                className={`${styles.modalBtn} ${styles.secondaryBtn}`}
+                onClick={() => setError(null)} 
+                aria-label="Close Error Modal" 
+                data-testid="modal-close"
+              >
+                DISMISS
+              </button>
+            </div>
           </div>
         </Modal>
       )}

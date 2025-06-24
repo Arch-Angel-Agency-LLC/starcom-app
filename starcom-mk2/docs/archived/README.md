@@ -9,6 +9,12 @@
 ### 2025-06-22 (Major Documentation Cleanup)
 This date marks the comprehensive documentation reorganization that consolidated 135+ scattered files into a structured, maintainable system.
 
+#### Recent Bug Fixes & Implementation Summaries (June 22, 2025)
+- **`2025-06-22-solar-flare-issues-diagnosis.md`** - Diagnostic report for solar flare popup performance issues
+- **`2025-06-22-solar-flare-fixes-summary.md`** - Complete implementation summary of solar flare popup fixes
+- **`2025-06-22-unified-context-persistence-fix.md`** - Critical bug fix for context state persistence errors
+- **`2025-06-22-additional-ui-modernization-summary.md`** - UI/UX enhancement implementation summary
+
 #### Consolidated Reports
 - **`2025-06-22-intel-reports-summary.md`** - Consolidated intelligence from 12 intel-report artifacts
 - **`2025-06-22-phase1-progress-report.md`** - Phase 1 development progress

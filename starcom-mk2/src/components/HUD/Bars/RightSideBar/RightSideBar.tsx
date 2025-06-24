@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { useVisualizationMode } from '../../../../context/VisualizationModeContext';
-import { useGlobeContext } from '../../../../context/GlobeContext';
 import { useCollaboration } from '../../../../hooks/useUnifiedGlobalCommand';
+import { useOverlayData } from '../../../../hooks/useOverlayData';
 import styles from './RightSideBar.module.css';
-import AIActionsPanel from '../../../AI/AIActionsPanel';
-import AIRecommendations from '../../../Adaptive/AIRecommendations';
+import GlobeStatus from './GlobeStatus';
+import AIActionsPanelLayered from '../../../AI/AIActionsPanelLayered';
 import { AIErrorBoundary } from '../../../ErrorBoundaries/AIErrorBoundary';
 import { useFeatureFlag } from '../../../../utils/featureFlags';
 import CollaborationPanel from '../../../Collaboration/CollaborationPanel';
 import DeveloperToolbar from '../../DeveloperToolbar/DeveloperToolbar';
+import { IntelReport } from '../../../../models/IntelReport';
+import { IntelReportFormData } from '../../Corners/BottomRight/IntelReportFormData';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { submitIntelReport } from '../../../../api/intelligence';
+import SubmitIntelReportPopup from '../../Corners/BottomRight/SubmitIntelReportPopup';
 
 // Import assets properly for production builds
 import cryptoSentinelIcon from '../../../../assets/images/icons/x128/starcom_icon-cryptosentinel-01a.jpg';
@@ -88,59 +92,30 @@ const externalApps = [
   },
 ];
 
-// Real-time data service integration - connected to live data sources
-const useOverlayData = () => {
-  const [overlayData, setOverlayData] = useState({
-    activeOverlays: [] as string[],
-    overlayStats: {} as Record<string, { count: number; lastUpdate: string }>
-  });
-
-  useEffect(() => {
-    // In production, this would connect to real overlay services
-    // For now, simulate realistic data that updates periodically
-    const updateData = () => {
-      const activeOverlays = ['geomagnetic', 'aurora', 'satellites'];
-      
-      // Simulate realistic counts and timestamps
-      const overlayStats = {
-        geomagnetic: { 
-          count: Math.floor(Math.random() * 8) + 3, 
-          lastUpdate: `${Math.floor(Math.random() * 5) + 1} min ago` 
-        },
-        aurora: { 
-          count: Math.floor(Math.random() * 12) + 2, 
-          lastUpdate: `${Math.floor(Math.random() * 3) + 1} min ago` 
-        },
-        satellites: { 
-          count: Math.floor(Math.random() * 25) + 15, 
-          lastUpdate: `${Math.floor(Math.random() * 2) + 1} min ago` 
-        },
-        alerts: { 
-          count: Math.floor(Math.random() * 3), 
-          lastUpdate: `${Math.floor(Math.random() * 60) + 1} sec ago` 
-        }
-      };
-
-      setOverlayData({ activeOverlays, overlayStats });
-    };
-
-    updateData();
-    const interval = setInterval(updateData, 30000); // Update every 30 seconds
-    return () => clearInterval(interval);
-  }, []);
-
-  return overlayData;
-};
-
 const RightSideBar: React.FC = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [activeSection, setActiveSection] = useState<'mission' | 'control' | 'intel' | 'metrics' | 'ai' | 'adaptive' | 'collaboration' | 'apps' | 'developer'>('mission');
-  const { visualizationMode } = useVisualizationMode();
-  const { focusLocation } = useGlobeContext();
+  const [activeSection, setActiveSection] = useState<'mission' | 'intel' | 'ai' | 'collaboration' | 'apps' | 'developer'>('mission');
   const { currentSession, isConnected, collaborationState } = useCollaboration();
   const aiSuggestionsEnabled = useFeatureFlag('aiSuggestionsEnabled');
   const collaborationEnabled = useFeatureFlag('collaborationEnabled');
   const overlayData = useOverlayData();
+
+  // Intel Report state
+  const [isIntelPopupOpen, setIsIntelPopupOpen] = useState(false);
+  const [intelFormData, setIntelFormData] = useState<IntelReportFormData>({
+    lat: '',
+    long: '',
+    title: '',
+    subtitle: '',
+    date: '',
+    author: '',
+    content: '',
+    tags: '',
+    categories: '',
+    metaDescription: '',
+  });
+  const [intelStatus, setIntelStatus] = useState<string>('');
+  const { publicKey, signTransaction, connected } = useWallet();
 
   // Determine current phase for status display
   const getCurrentPhase = () => {
@@ -181,87 +156,91 @@ const RightSideBar: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const renderMissionStatus = () => (
-    <div className={styles.sectionContent}>
-      <div className={styles.statusCard}>
-        <div className={styles.statusHeader}>
-          <span className={styles.statusIcon}>🎯</span>
-          <span>Mission Status</span>
-        </div>
-        <div className={styles.statusItems}>
-          <div className={styles.statusItem}>
-            <span className={styles.label}>Mode:</span>
-            <span className={styles.value}>{visualizationMode.mode}</span>
-          </div>
-          <div className={styles.statusItem}>
-            <span className={styles.label}>Submode:</span>
-            <span className={styles.value}>{visualizationMode.subMode || 'Default'}</span>
-          </div>
-          <div className={styles.statusItem}>
-            <span className={styles.label}>Active Overlays:</span>
-            <span className={styles.value}>{overlayData.activeOverlays.length}</span>
-          </div>
-          {focusLocation && (
-            <div className={styles.statusItem}>
-              <span className={styles.label}>Focus:</span>
-              <span className={styles.value}>
-                {focusLocation.lat.toFixed(2)}°, {focusLocation.lng.toFixed(2)}°
-              </span>
-            </div>
-          )}
-        </div>
-      </div>
-      
-      <div className={styles.systemHealth}>
-        <div className={styles.healthItem}>
-          <div className={styles.healthDot} style={{ backgroundColor: '#00ff41' }}></div>
-          <span>Globe Engine</span>
-        </div>
-        <div className={styles.healthItem}>
-          <div className={styles.healthDot} style={{ backgroundColor: '#00ff41' }}></div>
-          <span>Data Feeds</span>
-        </div>
-        <div className={styles.healthItem}>
-          <div className={styles.healthDot} style={{ backgroundColor: '#ffaa00' }}></div>
-          <span>Intel Network</span>
-        </div>
-      </div>
-    </div>
-  );
+  // Intel Report handlers
+  const handleOpenIntelPopup = () => setIsIntelPopupOpen(true);
+  const handleCloseIntelPopup = () => setIsIntelPopupOpen(false);
 
-  const renderGlobeControls = () => (
+  const handleIntelChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setIntelFormData((prev: IntelReportFormData) => ({ ...prev, [name]: value }));
+  };
+
+  const handleIntelSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    
+    if (!connected || !publicKey || !signTransaction) {
+      setIntelStatus('Please connect your wallet to submit reports.');
+      return;
+    }
+
+    setIntelStatus('Submitting Intel Report to Solana...');
+    
+    try {
+      // Create report data for blockchain submission
+      const reportData = {
+        title: intelFormData.title,
+        content: intelFormData.content,
+        tags: intelFormData.tags.split(',').map((tag: string) => tag.trim()).filter(tag => tag),
+        latitude: parseFloat(intelFormData.lat) || 0,
+        longitude: parseFloat(intelFormData.long) || 0,
+      };
+
+      // Submit to Solana blockchain
+      const signature = await submitIntelReport(reportData, { publicKey, signTransaction });
+      
+      setIntelStatus(`Report submitted successfully! Tx: ${signature.substring(0, 8)}...`);
+      
+      // Also create local IntelReport object for logging/debugging
+      const newIntelReport = new IntelReport(
+        parseFloat(intelFormData.lat),
+        parseFloat(intelFormData.long),
+        intelFormData.title,
+        intelFormData.subtitle,
+        intelFormData.date,
+        intelFormData.author,
+        intelFormData.content,
+        intelFormData.tags.split(',').map((tag: string) => tag.trim()),
+        intelFormData.categories.split(',').map((category: string) => category.trim()),
+        intelFormData.metaDescription
+      );
+      
+      console.log('Intel Report Submitted to Blockchain:', {
+        signature,
+        report: newIntelReport,
+        publicKey: publicKey.toString()
+      });
+      
+      // Reset form and close popup after success
+      setTimeout(() => {
+        setIntelStatus('');
+        handleCloseIntelPopup();
+      }, 3000);
+      
+    } catch (error) {
+      console.error('Error submitting intel report:', error);
+      setIntelStatus(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  };
+
+  const handleAutoLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        setIntelFormData((prev: IntelReportFormData) => ({
+          ...prev,
+          lat: position.coords.latitude.toString(),
+          long: position.coords.longitude.toString(),
+        }));
+      });
+    }
+  };
+
+  const handleMapSelect = (lat: string, long: string) => {
+    setIntelFormData((prev: IntelReportFormData) => ({ ...prev, lat, long }));
+  };
+
+  const renderGlobeStatus = () => (
     <div className={styles.sectionContent}>
-      <div className={styles.controlCard}>
-        <div className={styles.controlHeader}>
-          <span className={styles.controlIcon}>🌍</span>
-          <span>Globe Controls</span>
-        </div>
-        <div className={styles.overlayToggles}>
-          {overlayData.activeOverlays.map((overlay: string) => (
-            <div key={overlay} className={styles.overlayToggle}>
-              <button className={`${styles.toggleBtn} ${styles.active}`}>
-                <span className={styles.toggleIcon}>●</span>
-                <span className={styles.toggleLabel}>{overlay}</span>
-              </button>
-            </div>
-          ))}
-        </div>
-        
-        <div className={styles.quickActions}>
-          <button className={styles.actionButton}>
-            <span>🔍</span>
-            <span>Search Location</span>
-          </button>
-          <button className={styles.actionButton}>
-            <span>📍</span>
-            <span>Add Bookmark</span>
-          </button>
-          <button className={styles.actionButton}>
-            <span>📤</span>
-            <span>Export View</span>
-          </button>
-        </div>
-      </div>
+      <GlobeStatus overlayData={overlayData} />
     </div>
   );
 
@@ -269,9 +248,20 @@ const RightSideBar: React.FC = () => {
     <div className={styles.sectionContent}>
       <div className={styles.intelCard}>
         <div className={styles.intelHeader}>
-          <span className={styles.intelIcon}>📊</span>
-          <span>Intelligence Hub</span>
+          <span className={styles.intelIcon}>🎯</span>
+          <span>Intelligence Operations</span>
         </div>
+        
+        {/* Create Intel Report Section */}
+        <div className={styles.intelCreateSection}>
+          <button 
+            className={styles.createIntelBtn}
+            onClick={handleOpenIntelPopup}
+          >
+            📝 Create Intel Report
+          </button>
+        </div>
+
         <div className={styles.intelItems}>
           <div className={styles.intelItem}>
             <span className={styles.intelLabel}>Recent Reports:</span>
@@ -285,31 +275,16 @@ const RightSideBar: React.FC = () => {
             <span className={styles.intelLabel}>Bookmarks:</span>
             <span className={styles.intelValue}>5 saved</span>
           </div>
+          <div className={styles.intelItem}>
+            <span className={styles.intelLabel}>Network Status:</span>
+            <span className={styles.intelValue}>⚠️ Limited</span>
+          </div>
         </div>
         
         <div className={styles.intelActions}>
           <button className={styles.intelBtn}>View Reports</button>
           <button className={styles.intelBtn}>Manage Alerts</button>
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderMetrics = () => (
-    <div className={styles.sectionContent}>
-      <div className={styles.metricsCard}>
-        <div className={styles.metricsHeader}>
-          <span className={styles.metricsIcon}>📈</span>
-          <span>Live Metrics</span>
-        </div>
-        <div className={styles.metricsGrid}>
-          {Object.entries(overlayData.overlayStats).map(([overlay, stats]: [string, { count: number; lastUpdate: string }]) => (
-            <div key={overlay} className={styles.metricItem}>
-              <div className={styles.metricValue}>{stats.count}</div>
-              <div className={styles.metricLabel}>{overlay}</div>
-              <div className={styles.metricUpdate}>{stats.lastUpdate}</div>
-            </div>
-          ))}
+          <button className={styles.intelBtn}>Exchange Market</button>
         </div>
       </div>
     </div>
@@ -367,34 +342,18 @@ const RightSideBar: React.FC = () => {
         <button 
           className={`${styles.navBtn} ${activeSection === 'mission' ? styles.active : ''}`}
           onClick={() => setActiveSection('mission')}
-          title="Mission Status"
-          aria-label="Mission Status"
+          title="Globe Status"
+          aria-label="Globe Status"
         >
-          🎯
-        </button>
-        <button 
-          className={`${styles.navBtn} ${activeSection === 'control' ? styles.active : ''}`}
-          onClick={() => setActiveSection('control')}
-          title="Globe Controls"
-          aria-label="Globe Controls"
-        >
-          🌍
+          📡
         </button>
         <button 
           className={`${styles.navBtn} ${activeSection === 'intel' ? styles.active : ''}`}
           onClick={() => setActiveSection('intel')}
-          title="Intelligence Hub"
-          aria-label="Intelligence Hub"
+          title="Intelligence Operations"
+          aria-label="Intelligence Operations"
         >
-          📊
-        </button>
-        <button 
-          className={`${styles.navBtn} ${activeSection === 'metrics' ? styles.active : ''}`}
-          onClick={() => setActiveSection('metrics')}
-          title="Live Metrics"
-          aria-label="Live Metrics"
-        >
-          📈
+          🎯
         </button>
         <button 
           className={`${styles.navBtn} ${activeSection === 'ai' ? styles.active : ''}`}
@@ -403,14 +362,6 @@ const RightSideBar: React.FC = () => {
           aria-label="AI Assistant"
         >
           🤖
-        </button>
-        <button 
-          className={`${styles.navBtn} ${activeSection === 'adaptive' ? styles.active : ''}`}
-          onClick={() => setActiveSection('adaptive')}
-          title="Adaptive Interface"
-          aria-label="Adaptive Interface"
-        >
-          🎛️
         </button>
         <button 
           className={`${styles.navBtn} ${activeSection === 'collaboration' ? styles.active : ''}`}
@@ -443,23 +394,16 @@ const RightSideBar: React.FC = () => {
 
       {/* Dynamic Content Area */}
       <div className={styles.contentArea}>
-        {activeSection === 'mission' && renderMissionStatus()}
-        {activeSection === 'control' && renderGlobeControls()}
+        {activeSection === 'mission' && renderGlobeStatus()}
         {activeSection === 'intel' && renderIntelHub()}
-        {activeSection === 'metrics' && renderMetrics()}
         {activeSection === 'ai' && aiSuggestionsEnabled && (
           <AIErrorBoundary fallback={
             <div className={styles.errorFallback}>
               <span>⚠️ AI Actions Unavailable</span>
             </div>
           }>
-            <AIActionsPanel className={styles.aiSection} />
+            <AIActionsPanelLayered className={styles.aiSection} />
           </AIErrorBoundary>
-        )}
-        {activeSection === 'adaptive' && (
-          <div className={styles.adaptiveSection}>
-            <AIRecommendations />
-          </div>
         )}
         {activeSection === 'collaboration' && (
           <div className={styles.collaborationSection}>
@@ -491,6 +435,24 @@ const RightSideBar: React.FC = () => {
           <span className={styles.phaseIcon}>{getCurrentPhase().icon}</span>
         )}
       </div>
+
+      {/* Intel Report Creation Popup */}
+      <SubmitIntelReportPopup
+        isOpen={isIntelPopupOpen}
+        onClose={handleCloseIntelPopup}
+        formData={intelFormData}
+        handleChange={handleIntelChange}
+        handleSubmit={handleIntelSubmit}
+        handleMintToken={() => {}} // Placeholder for now
+        handleMintNFT={() => {}} // Placeholder for now
+        status={intelStatus}
+        handleAutoLocation={handleAutoLocation}
+        mapSelectorProps={{
+          lat: intelFormData.lat,
+          long: intelFormData.long,
+          onSelect: handleMapSelect,
+        }}
+      />
     </div>
   );
 };
