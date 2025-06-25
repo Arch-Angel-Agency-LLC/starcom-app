@@ -501,6 +501,11 @@
       "text": "AI-NOTE: Refactored to use GlobeEngine. See globe-engine-api.artifact for integration details."
     },
     {
+      "file": "src/components/Globe/GlobeLoadingManager.tsx",
+      "line": 4,
+      "text": "AI-NOTE: Generate matrix-style code rain for cyber command atmosphere"
+    },
+    {
       "file": "src/components/HUD/Bars/LeftSideBar/GlobeControls.tsx",
       "line": 4,
       "text": "AI-NOTE: Globe Controls component moved from RightSideBar to LeftSideBar"
@@ -946,5 +951,5 @@
       "text": "AI-NOTE: EVM/ethers.js version archived in legacy-evm/wallet.ts. Implement Solana logic here."
     }
   ],
-  "generatedAt": "2025-06-24T00:11:38.968Z"
+  "generatedAt": "2025-06-24T12:58:00.687Z"
 }

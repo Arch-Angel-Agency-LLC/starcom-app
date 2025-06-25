@@ -10,3 +10,10 @@ name = "intel_market"
 
 [dependencies]
 anchor-lang = "0.31.1"
+anchor-spl = "0.31.1"
+
+[features]
+no-entrypoint = []
+no-idl = []
+cpi = ["no-entrypoint"]
+default = []

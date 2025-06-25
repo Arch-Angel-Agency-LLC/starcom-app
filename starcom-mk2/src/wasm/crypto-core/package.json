@@ -1,0 +1,15 @@
+{
+  "name": "starcom-crypto-core",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "starcom_crypto_core_bg.wasm",
+    "starcom_crypto_core.js",
+    "starcom_crypto_core.d.ts"
+  ],
+  "main": "starcom_crypto_core.js",
+  "types": "starcom_crypto_core.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

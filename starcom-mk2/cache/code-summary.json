@@ -43,13 +43,20 @@
       "DOCUMENTATION-REORGANIZATION-COMPLETE.md",
       "FINAL-STATUS-REPORT.md",
       "PERFORMANCE-OPTIMIZATION-COMPLETE.md",
+      "POPUP-LAYER-MIGRATION-COMPLETE.md",
       "README.md",
       "TDD-AUTHENTICATION-PROGRESS.md",
       "TDD-IMPLEMENTATION-COMPLETE.md",
       "TDD-PROGRESS.md",
       "UX-FLOW-VALIDATION-COMPLETE.md",
       "WALLET-DIAGNOSTICS-IMPROVEMENTS-COMPLETE.md",
-      "WALLET-STATUS-UI-STARCOM-THEME-COMPLETE.md"
+      "WALLET-STATUS-UI-STARCOM-THEME-COMPLETE.md",
+      "animation-anchor-fixes.md",
+      "cyber-command-loading-enhancements.md",
+      "font-loading-layout-shift-fix.md",
+      "intelligence-exchange-text-shift-fix.md",
+      "preloader-coordination-fix.md",
+      "text-free-initial-loader-solution.md"
     ],
     "public": [
       "borders.geojson",
@@ -77,5 +84,5 @@
       "src/main.tsx"
     ]
   },
-  "generatedAt": "2025-06-24T00:10:56.263Z"
+  "generatedAt": "2025-06-24T12:57:43.689Z"
 }

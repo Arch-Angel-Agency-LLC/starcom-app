@@ -3,7 +3,7 @@
 // SOCOM-compliant Web3 architecture with post-quantum security
 
 import { PublicKey } from '@solana/web3.js';
-import { QuantumSignature } from '../../services/crypto/PQCryptoService';
+import { QuantumSignature } from '../../services/crypto/SOCOMPQCryptoService';
 
 /**
  * Security Classification Levels (SOCOM Standard)

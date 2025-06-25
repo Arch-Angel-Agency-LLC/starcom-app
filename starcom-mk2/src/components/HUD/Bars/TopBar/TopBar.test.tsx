@@ -5,7 +5,8 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { BrowserRouter } from 'react-router-dom';
 import TopBar from './TopBar';
-import { vi } from 'vitest';
+import { vi, describe, it, expect } from 'vitest';
+import { AuthProvider } from '../../../../context/AuthContext';
 
 // Mock logo import
 vi.mock('../../../../assets/images/WingCommanderLogo-288x162.gif', () => ({ default: 'logo.png' }));
@@ -53,7 +54,9 @@ describe('TopBar artifact-driven', () => {
   const renderWithRouter = (component: React.ReactElement) => {
     return render(
       <BrowserRouter>
-        {component}
+        <AuthProvider>
+          {component}
+        </AuthProvider>
       </BrowserRouter>
     );
   };

@@ -2,7 +2,23 @@
 import '@testing-library/jest-dom'; // Import the package directly
 import { vi } from 'vitest';
 
-global.fetch = vi.fn(); // Mock fetch globally
+// Mock fetch globally with proper Response interface
+global.fetch = vi.fn().mockResolvedValue({
+  ok: true,
+  status: 200,
+  json: async () => ({}),
+  text: async () => '',
+  blob: async () => new Blob(),
+  arrayBuffer: async () => new ArrayBuffer(0),
+  headers: new Headers(),
+  redirected: false,
+  statusText: 'OK',
+  type: 'basic',
+  url: '',
+  clone: function() { return this; },
+  body: null,
+  bodyUsed: false,
+} as Response);
 
 // Polyfill window.matchMedia for RainbowKit/WalletConnect and Globe
 if (!window.matchMedia) {
