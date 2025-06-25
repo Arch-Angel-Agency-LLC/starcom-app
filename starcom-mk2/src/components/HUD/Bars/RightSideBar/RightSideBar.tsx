@@ -8,11 +8,7 @@ import { AIErrorBoundary } from '../../../ErrorBoundaries/AIErrorBoundary';
 import { useFeatureFlag } from '../../../../utils/featureFlags';
 import CollaborationPanel from '../../../Collaboration/CollaborationPanel';
 import DeveloperToolbar from '../../DeveloperToolbar/DeveloperToolbar';
-import { IntelReport } from '../../../../models/IntelReport';
-import { IntelReportFormData } from '../../Corners/BottomRight/IntelReportFormData';
-import { useWallet } from '@solana/wallet-adapter-react';
-import { submitIntelReport } from '../../../../api/intelligence';
-import SubmitIntelReportPopup from '../../Corners/BottomRight/SubmitIntelReportPopup';
+import CyberInvestigationHub from './CyberInvestigationHub';
 
 // Import assets properly for production builds
 import cryptoSentinelIcon from '../../../../assets/images/icons/x128/starcom_icon-cryptosentinel-01a.jpg';
@@ -100,23 +96,6 @@ const RightSideBar: React.FC = () => {
   const collaborationEnabled = useFeatureFlag('collaborationEnabled');
   const overlayData = useOverlayData();
 
-  // Intel Report state
-  const [isIntelPopupOpen, setIsIntelPopupOpen] = useState(false);
-  const [intelFormData, setIntelFormData] = useState<IntelReportFormData>({
-    lat: '',
-    long: '',
-    title: '',
-    subtitle: '',
-    date: '',
-    author: '',
-    content: '',
-    tags: '',
-    categories: '',
-    metaDescription: '',
-  });
-  const [intelStatus, setIntelStatus] = useState<string>('');
-  const { publicKey, signTransaction, connected } = useWallet();
-
   // Determine current phase for status display
   const getCurrentPhase = () => {
     if (!collaborationEnabled) {
@@ -156,88 +135,6 @@ const RightSideBar: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Intel Report handlers
-  const handleOpenIntelPopup = () => setIsIntelPopupOpen(true);
-  const handleCloseIntelPopup = () => setIsIntelPopupOpen(false);
-
-  const handleIntelChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setIntelFormData((prev: IntelReportFormData) => ({ ...prev, [name]: value }));
-  };
-
-  const handleIntelSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    
-    if (!connected || !publicKey || !signTransaction) {
-      setIntelStatus('Please connect your wallet to submit reports.');
-      return;
-    }
-
-    setIntelStatus('Submitting Intel Report to Solana...');
-    
-    try {
-      // Create report data for blockchain submission
-      const reportData = {
-        title: intelFormData.title,
-        content: intelFormData.content,
-        tags: intelFormData.tags.split(',').map((tag: string) => tag.trim()).filter(tag => tag),
-        latitude: parseFloat(intelFormData.lat) || 0,
-        longitude: parseFloat(intelFormData.long) || 0,
-      };
-
-      // Submit to Solana blockchain
-      const signature = await submitIntelReport(reportData, { publicKey, signTransaction });
-      
-      setIntelStatus(`Report submitted successfully! Tx: ${signature.substring(0, 8)}...`);
-      
-      // Also create local IntelReport object for logging/debugging
-      const newIntelReport = new IntelReport(
-        parseFloat(intelFormData.lat),
-        parseFloat(intelFormData.long),
-        intelFormData.title,
-        intelFormData.subtitle,
-        intelFormData.date,
-        intelFormData.author,
-        intelFormData.content,
-        intelFormData.tags.split(',').map((tag: string) => tag.trim()),
-        intelFormData.categories.split(',').map((category: string) => category.trim()),
-        intelFormData.metaDescription
-      );
-      
-      console.log('Intel Report Submitted to Blockchain:', {
-        signature,
-        report: newIntelReport,
-        publicKey: publicKey.toString()
-      });
-      
-      // Reset form and close popup after success
-      setTimeout(() => {
-        setIntelStatus('');
-        handleCloseIntelPopup();
-      }, 3000);
-      
-    } catch (error) {
-      console.error('Error submitting intel report:', error);
-      setIntelStatus(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
-  };
-
-  const handleAutoLocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        setIntelFormData((prev: IntelReportFormData) => ({
-          ...prev,
-          lat: position.coords.latitude.toString(),
-          long: position.coords.longitude.toString(),
-        }));
-      });
-    }
-  };
-
-  const handleMapSelect = (lat: string, long: string) => {
-    setIntelFormData((prev: IntelReportFormData) => ({ ...prev, lat, long }));
-  };
-
   const renderGlobeStatus = () => (
     <div className={styles.sectionContent}>
       <GlobeStatus overlayData={overlayData} />
@@ -246,47 +143,7 @@ const RightSideBar: React.FC = () => {
 
   const renderIntelHub = () => (
     <div className={styles.sectionContent}>
-      <div className={styles.intelCard}>
-        <div className={styles.intelHeader}>
-          <span className={styles.intelIcon}>🎯</span>
-          <span>Intelligence Operations</span>
-        </div>
-        
-        {/* Create Intel Report Section */}
-        <div className={styles.intelCreateSection}>
-          <button 
-            className={styles.createIntelBtn}
-            onClick={handleOpenIntelPopup}
-          >
-            📝 Create Intel Report
-          </button>
-        </div>
-
-        <div className={styles.intelItems}>
-          <div className={styles.intelItem}>
-            <span className={styles.intelLabel}>Recent Reports:</span>
-            <span className={styles.intelValue}>3 new</span>
-          </div>
-          <div className={styles.intelItem}>
-            <span className={styles.intelLabel}>Active Alerts:</span>
-            <span className={styles.intelValue}>2 high</span>
-          </div>
-          <div className={styles.intelItem}>
-            <span className={styles.intelLabel}>Bookmarks:</span>
-            <span className={styles.intelValue}>5 saved</span>
-          </div>
-          <div className={styles.intelItem}>
-            <span className={styles.intelLabel}>Network Status:</span>
-            <span className={styles.intelValue}>⚠️ Limited</span>
-          </div>
-        </div>
-        
-        <div className={styles.intelActions}>
-          <button className={styles.intelBtn}>View Reports</button>
-          <button className={styles.intelBtn}>Manage Alerts</button>
-          <button className={styles.intelBtn}>Exchange Market</button>
-        </div>
-      </div>
+      <CyberInvestigationHub isCollapsed={isCollapsed} />
     </div>
   );
 
@@ -435,24 +292,6 @@ const RightSideBar: React.FC = () => {
           <span className={styles.phaseIcon}>{getCurrentPhase().icon}</span>
         )}
       </div>
-
-      {/* Intel Report Creation Popup */}
-      <SubmitIntelReportPopup
-        isOpen={isIntelPopupOpen}
-        onClose={handleCloseIntelPopup}
-        formData={intelFormData}
-        handleChange={handleIntelChange}
-        handleSubmit={handleIntelSubmit}
-        handleMintToken={() => {}} // Placeholder for now
-        handleMintNFT={() => {}} // Placeholder for now
-        status={intelStatus}
-        handleAutoLocation={handleAutoLocation}
-        mapSelectorProps={{
-          lat: intelFormData.lat,
-          long: intelFormData.long,
-          onSelect: handleMapSelect,
-        }}
-      />
     </div>
   );
 };

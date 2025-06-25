@@ -7,6 +7,9 @@ import { useVisualizationMode } from '../../context/VisualizationModeContext';
 import { GlobeEngine } from '../../globe-engine/GlobeEngine';
 import { useSpaceWeatherContext } from '../../context/SpaceWeatherContext';
 import GlobeLoadingManager from './GlobeLoadingManager';
+import { useIntelReport3DMarkers } from '../../hooks/useIntelReport3DMarkers';
+import { intelReportVisualizationService } from '../../services/IntelReportVisualizationService';
+import { IntelReportOverlayMarker } from '../../interfaces/IntelReportOverlay';
 
 const GlobeView: React.FC = () => {
   const [globeData, setGlobeData] = useState<object[]>([]);
@@ -17,6 +20,10 @@ const GlobeView: React.FC = () => {
   const [material, setMaterial] = useState<THREE.Material | null>(null);
   const bordersRef = useRef<THREE.Group>(null);
   const territoriesRef = useRef<THREE.Group>(null);
+  
+  // Intel Report 3D markers state
+  const [intelReports, setIntelReports] = useState<IntelReportOverlayMarker[]>([]);
+  const intelMarkerGroupRef = useRef<THREE.Group>(new THREE.Group());
   
   // Space weather integration via context
   const { 
@@ -88,6 +95,66 @@ const GlobeView: React.FC = () => {
     setGlobeData([]); // TODO: Use overlay/event data from GlobeEngine if needed
   }, [globeEngine]);
 
+  // Intel Report 3D markers integration
+  useEffect(() => {
+    let mounted = true;
+
+    // Fetch Intel Reports for 3D visualization
+    const loadIntelReports = async () => {
+      try {
+        const markers = await intelReportVisualizationService.getIntelReportMarkers({
+          maxReports: 50 // Limit for performance
+        });
+        
+        if (mounted) {
+          setIntelReports(markers);
+          console.log(`Loaded ${markers.length} Intel Report 3D markers`);
+        }
+      } catch (error) {
+        console.error('Error loading Intel Report markers:', error);
+      }
+    };
+
+    loadIntelReports();
+
+    // Set up periodic refresh (every 30 seconds)
+    const interval = setInterval(loadIntelReports, 30000);
+
+    return () => {
+      mounted = false;
+      clearInterval(interval);
+    };
+  }, []);
+
+  // Add Intel Report 3D markers to the Globe scene
+  useEffect(() => {
+    if (!globeRef.current || !intelReports.length) return;
+
+    const globeObj = globeRef.current as unknown as { scene: () => THREE.Scene };
+    const scene = globeObj?.scene();
+    const intelGroup = intelMarkerGroupRef.current;
+
+    if (scene && intelGroup && !scene.children.includes(intelGroup)) {
+      scene.add(intelGroup);
+      console.log('Intel Report 3D marker group added to Globe scene');
+    }
+
+    return () => {
+      if (scene && intelGroup) {
+        scene.remove(intelGroup);
+      }
+    };
+  }, [globeRef, intelReports]);
+
+  // Initialize 3D Intel Report markers using the hook
+  useIntelReport3DMarkers(intelReports, globeRef.current ? 
+    (globeRef.current as unknown as { scene: () => THREE.Scene }).scene() : null, {
+    globeRadius: 100,
+    hoverAltitude: 8,
+    rotationSpeed: 0.005,
+    scale: 0.8
+  });
+
   useEffect(() => {
     if (!globeRef.current) return;
     // GlobeMethods type does not expose .scene(), so we cast to the correct type
@@ -95,15 +162,22 @@ const GlobeView: React.FC = () => {
     const scene = globeObj && globeObj.scene();
     const bordersGroup = bordersRef.current;
     const territoriesGroup = territoriesRef.current;
+    const intelGroup = intelMarkerGroupRef.current;
+    
     if (scene && bordersGroup && !scene.children.includes(bordersGroup)) {
       scene.add(bordersGroup);
     }
     if (scene && territoriesGroup && !scene.children.includes(territoriesGroup)) {
       scene.add(territoriesGroup);
     }
+    if (scene && intelGroup && !scene.children.includes(intelGroup)) {
+      scene.add(intelGroup);
+    }
+    
     return () => {
       if (scene && bordersGroup) scene.remove(bordersGroup);
       if (scene && territoriesGroup) scene.remove(territoriesGroup);
+      if (scene && intelGroup) scene.remove(intelGroup);
     };
   }, [globeRef, bordersRef, territoriesRef, globeEngine]);
 
