@@ -54,13 +54,28 @@
       "text": "TODO: Implement full session management"
     },
     {
+      "file": "src/components/CyberInvestigation/TeamCommunication.tsx",
+      "line": 77,
+      "text": "TODO: Implement direct messages when Nostr DM support is added"
+    },
+    {
+      "file": "src/components/CyberInvestigation/TeamCommunication.tsx",
+      "line": 166,
+      "text": "TODO: Implement Nostr DM when available"
+    },
+    {
+      "file": "src/components/Globe/Features/IntelReport3DMarker/IntelReport3DMarker.tsx",
+      "line": 38,
+      "text": "TODO: Implement hover functionality"
+    },
+    {
       "file": "src/components/Globe/Globe.tsx",
-      "line": 88,
+      "line": 95,
       "text": "TODO: Use overlay/event data from GlobeEngine if needed"
     },
     {
       "file": "src/components/Globe/Globe.tsx",
-      "line": 220,
+      "line": 294,
       "text": "TODO: Add user setting for fast loading"
     },
     {
@@ -109,6 +124,11 @@
       "text": "TODO: Implement node selection and context actions"
     },
     {
+      "file": "src/components/Intel/CyberTeamManager.tsx",
+      "line": 625,
+      "text": "TODO: Get from profile"
+    },
+    {
       "file": "src/components/Intel/IntelReportList.tsx",
       "line": 4,
       "text": "TODO: Integrate with Solana/secure backend and overlays when live."
@@ -127,11 +147,6 @@
       "file": "src/components/TinyGlobe/TinyGlobe.test.tsx",
       "line": 46,
       "text": "TODO: Add more tests to check globe material changes and fallback behavior"
-    },
-    {
-      "file": "src/context/AuthContext.ts",
-      "line": 35,
-      "text": "TODO: Solana wallet context in progress. See artifacts/intel-report-stage1-plan.artifact"
     },
     {
       "file": "src/globe-engine/GlobeEngine.ts",
@@ -169,6 +184,31 @@
       "text": "TODO: Integrate with Solana/secure backend and live overlays when available."
     },
     {
+      "file": "src/services/BlockchainAnchorService.ts",
+      "line": 65,
+      "text": "TODO: Replace with actual deployed program ID when ready"
+    },
+    {
+      "file": "src/services/BlockchainAnchorService.ts",
+      "line": 261,
+      "text": "TODO: Replace with proper memo instruction using anchorData when implementing full solution"
+    },
+    {
+      "file": "src/services/BlockchainAnchorService.ts",
+      "line": 395,
+      "text": "TODO: Use memoInstruction to extract and verify anchor data"
+    },
+    {
+      "file": "src/services/BlockchainAnchorService.ts",
+      "line": 401,
+      "text": "TODO: Implement actual integrity check"
+    },
+    {
+      "file": "src/services/BlockchainAnchorService.ts",
+      "line": 435,
+      "text": "TODO: Implement actual proof lookup using ipfsHash"
+    },
+    {
       "file": "src/services/IntelReportService.ts",
       "line": 57,
       "text": "TODO: Re-enable when Anchor integration is ready"
@@ -197,71 +237,6 @@
       "file": "src/services/NOAAGeomagneticService.test.ts",
       "line": 8,
       "text": "TODO: Implement NOAAGeomagneticService tests"
-    },
-    {
-      "file": "src/services/crypto/PQCryptoService.ts",
-      "line": 59,
-      "text": "TODO: Integrate with liboqs or similar PQC library"
-    },
-    {
-      "file": "src/services/crypto/PQCryptoService.ts",
-      "line": 69,
-      "text": "TODO: Implement ML-KEM encapsulation"
-    },
-    {
-      "file": "src/services/crypto/PQCryptoService.ts",
-      "line": 77,
-      "text": "TODO: Implement ML-KEM decapsulation"
-    },
-    {
-      "file": "src/services/crypto/PQCryptoService.ts",
-      "line": 86,
-      "text": "TODO: Integrate with liboqs ML-DSA implementation"
-    },
-    {
-      "file": "src/services/crypto/PQCryptoService.ts",
-      "line": 95,
-      "text": "TODO: Implement ML-DSA signing"
-    },
-    {
-      "file": "src/services/crypto/PQCryptoService.ts",
-      "line": 109,
-      "text": "TODO: Implement ML-DSA verification"
-    },
-    {
-      "file": "src/services/crypto/PQCryptoService.ts",
-      "line": 237,
-      "text": "TODO: Implement ECDH with Solana keys"
-    },
-    {
-      "file": "src/services/crypto/PQCryptoService.ts",
-      "line": 242,
-      "text": "TODO: Implement ECDH secret derivation"
-    },
-    {
-      "file": "src/services/crypto/PQCryptoService.ts",
-      "line": 248,
-      "text": "TODO: Implement proper HKDF"
-    },
-    {
-      "file": "src/services/crypto/PQCryptoService.ts",
-      "line": 257,
-      "text": "TODO: Implement AES-256-GCM encryption"
-    },
-    {
-      "file": "src/services/crypto/PQCryptoService.ts",
-      "line": 262,
-      "text": "TODO: Implement AES-256-GCM decryption"
-    },
-    {
-      "file": "src/services/crypto/PQCryptoService.ts",
-      "line": 267,
-      "text": "TODO: Implement multi-recipient encryption"
-    },
-    {
-      "file": "src/services/crypto/PQCryptoService.ts",
-      "line": 281,
-      "text": "TODO: Store algorithm update on Solana for audit trail"
     },
     {
       "file": "src/services/data-management/StarcomDataManager.ts",
@@ -322,26 +297,6 @@
       "file": "src/services/eia/EIAService.e2e.test.ts",
       "line": 6,
       "text": "TODO: Test integration with adapters and legacy consumers"
-    },
-    {
-      "file": "src/services/market/MarketDataCacheService.unit.test.ts",
-      "line": 3,
-      "text": "TODO: Implement MarketDataCacheService and its tests as for EIADataCacheService"
-    },
-    {
-      "file": "src/services/market/MarketDataCacheService.unit.test.ts",
-      "line": 4,
-      "text": "TODO: Add tests for TTL, eviction, observer hooks, edge cases"
-    },
-    {
-      "file": "src/services/market/MarketDataProvider.unit.test.ts",
-      "line": 3,
-      "text": "TODO: Implement MarketDataProvider and its tests as for EIADataProvider"
-    },
-    {
-      "file": "src/services/market/MarketDataProvider.unit.test.ts",
-      "line": 4,
-      "text": "TODO: Add tests for error handling, streaming/subscription, observer hooks, edge cases"
     },
     {
       "file": "src/services/nftService.ts",
@@ -476,6 +431,31 @@
       "text": "AI-NOTE: Mock collaboration features until proper implementation"
     },
     {
+      "file": "src/components/CyberInvestigation/CyberInvestigationMVP.tsx",
+      "line": 9,
+      "text": "AI-NOTE: MVP POC for small cyber investigation teams (3-9 people)"
+    },
+    {
+      "file": "src/components/CyberInvestigation/IntelReportSubmission.tsx",
+      "line": 7,
+      "text": "AI-NOTE: Simplified intel report submission for OSINT cyber investigation teams"
+    },
+    {
+      "file": "src/components/CyberInvestigation/IntelReportViewer.tsx",
+      "line": 6,
+      "text": "AI-NOTE: Intel report viewer for cyber investigation teams"
+    },
+    {
+      "file": "src/components/CyberInvestigation/OfflineSync.tsx",
+      "line": 5,
+      "text": "AI-NOTE: Offline sync management for cyber investigation teams"
+    },
+    {
+      "file": "src/components/CyberInvestigation/TeamCommunication.tsx",
+      "line": 6,
+      "text": "AI-NOTE: Team communication for cyber investigation teams"
+    },
+    {
       "file": "src/components/Debug/WalletDiagnostic.tsx",
       "line": 5,
       "text": "AI-NOTE: Enhanced movable diagnostic component for wallet debugging"
@@ -492,12 +472,12 @@
     },
     {
       "file": "src/components/Globe/Globe.tsx",
-      "line": 120,
+      "line": 194,
       "text": "AI-NOTE: Fix for stack overflow caused by recursive resize event dispatch"
     },
     {
       "file": "src/components/Globe/Globe.tsx",
-      "line": 269,
+      "line": 343,
       "text": "AI-NOTE: Refactored to use GlobeEngine. See globe-engine-api.artifact for integration details."
     },
     {
@@ -542,7 +522,7 @@
     },
     {
       "file": "src/components/HUD/Bars/TopBar/TopBar.test.tsx",
-      "line": 114,
+      "line": 117,
       "text": "AI-NOTE: Tests accessibility, toggling, and integration per artifact requirements."
     },
     {
@@ -611,13 +591,8 @@
       "text": "AI-NOTE: Refactored to use GlobeEngine. See globe-engine-api.artifact for integration details."
     },
     {
-      "file": "src/context/AuthContext.ts",
-      "line": 36,
-      "text": "AI-NOTE: EVM/ethers.js version archived in legacy-evm/AuthContext.ts. Implement Solana logic here."
-    },
-    {
       "file": "src/context/AuthContext.tsx",
-      "line": 234,
+      "line": 537,
       "text": "AI-NOTE: EVM/ethers.js version archived in legacy-evm/AuthContext.tsx. Implement Solana logic here."
     },
     {
@@ -801,11 +776,6 @@
       "text": "AI-NOTE: This implements proper caching for space weather data following the established pattern."
     },
     {
-      "file": "src/services/crypto/PQCryptoService.ts",
-      "line": 4,
-      "text": "AI-NOTE: This service provides quantum-resistant security for intelligence assets"
-    },
-    {
       "file": "src/services/data-management/StarcomDataManager.ts",
       "line": 2,
       "text": "AI-NOTE: Core implementation of the unified data management system"
@@ -891,6 +861,16 @@
       "text": "AI-NOTE: Use appropriate fetch implementation for each environment"
     },
     {
+      "file": "src/services/nostrService.ts",
+      "line": 15,
+      "text": "AI-NOTE: SOCOM standards provide security baseline only. Platform serves"
+    },
+    {
+      "file": "src/services/nostrService.ts",
+      "line": 1054,
+      "text": "AI-NOTE: \"Resistance cell\" is misnomer - these are reclamation cells taking planet back"
+    },
+    {
       "file": "src/services/testNoaaFunctions.mjs",
       "line": 4,
       "text": "AI-NOTE: This bypasses the complex test suite to verify basic functionality"
@@ -951,5 +931,5 @@
       "text": "AI-NOTE: EVM/ethers.js version archived in legacy-evm/wallet.ts. Implement Solana logic here."
     }
   ],
-  "generatedAt": "2025-06-24T12:58:00.687Z"
+  "generatedAt": "2025-06-25T22:51:22.989Z"
 }

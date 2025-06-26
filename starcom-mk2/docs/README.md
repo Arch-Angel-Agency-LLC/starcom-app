@@ -1,17 +1,35 @@
-# Starcom Documentation Hub
+# Starcom Earth Alliance Documentation Hub
 
-**AI-Agent-Optimized Documentation Structure**
+**Mission-Critical Documentation for Global Civilian Resistance Operations**
 
-Welcome to the clean, organized Starcom documentation system designed for efficient AI agent navigation and human reference.
+Welcome to the Earth Alliance Starcom platform documentation - designed for efficient AI agent navigation and operative reference in the fight against transnational crime syndicates.
+
+**Context**: SOCOM cybersecurity standards are used as security baseline - enhanced for decentralized civilian resistance operations.
 
 ---
 
-## 🚀 **Quick Start for AI Agents**
+## 🌍 **Earth Alliance Quick Start for AI Agents**
 
-1. **Read**: `.onboarding` for immediate project context
-2. **Check**: `cache/code-summary.json` and `cache/code-health.json` for current state
-3. **Navigate**: Use sections below for specific documentation needs
-4. **Reference**: `.primer` for project conventions and glossary
+1. **Mission Context**: Read `EARTH-ALLIANCE-MISSION-ANALYSIS.md` for complete mission understanding
+2. **Current Status**: Check `BUILD-STATUS.md` and cache artifacts for operational state  
+3. **Security Baseline**: Understand SOCOM standards are minimum requirements, not operational authority
+4. **Project Conventions**: Reference `.primer` for Earth Alliance terminology and protocols
+5. **Onboarding**: Use `.onboarding` for immediate deployment context
+
+---
+
+## 🎯 **Mission-Critical Documentation**
+
+### **Earth Alliance Operations**
+- **[Earth Alliance Mission Analysis](./EARTH-ALLIANCE-MISSION-ANALYSIS.md)** - Complete mission context and objectives
+- **[Build Status](./BUILD-STATUS.md)** - Current operational readiness and development status  
+- **[Security Analysis](./COMPREHENSIVE-SECURITY-GAP-ANALYSIS.md)** - Security posture assessment
+- **[Current Status Report](./CURRENT-STATUS-REPORT.md)** - Latest mission status and priorities
+
+### **Technical Implementation**
+- **[HTTP-Nostr Bridge Plan](./HTTP-NOSTR-BRIDGE-IMPLEMENTATION-PLAN.md)** - Censorship-resistant communications
+- **[Reality Check Analysis](./REALITY-CHECK-HIDDEN-ELEPHANTS.md)** - Technical constraints and solutions
+- **[Platform Integration](./NOSTR-PQC-IPFS-SERVERLESS-INTEGRATION-ANALYSIS.md)** - Complete architecture analysis
 
 ---
 
@@ -29,45 +47,57 @@ Welcome to the clean, organized Starcom documentation system designed for effici
 
 ---
 
-## 🎯 **AI Agent Navigation Guide**
+## 🛡️ **Earth Alliance AI Agent Navigation Guide**
 
-### **For Code Changes**
-1. Check **API docs** for existing components/services
-2. Review **development/architecture.md** for patterns
-3. Use **development/testing.md** for safe test protocols
+### **For Resistance Operations Development**
+1. Check **Mission Analysis** docs for Earth Alliance context and objectives
+2. Review **Security Analysis** for quantum-safe, censorship-resistant requirements  
+3. Verify **SOCOM baseline** compliance while exceeding with decentralized enhancements
+4. Use **Build Status** for current operational readiness
 
 ### **For Feature Development**
-1. Check **user/** for feature requirements
-2. Review **api/** for existing interfaces
-3. Update relevant docs after implementation
+1. Check **Earth Alliance** requirements first - mission-critical features prioritized
+2. Review **API docs** for existing resistance-focused components/services
+3. Ensure **decentralized architecture** - no single points of failure
+4. Update relevant docs after implementation with Earth Alliance context
+
+### **For Security Implementation**  
+1. **Quantum-Safe First**: Post-quantum cryptography mandatory
+2. **Censorship-Resistant**: Multiple communication pathways required
+3. **SOCOM Baseline**: Military cybersecurity as minimum standard
+4. **Enhanced Decentralized**: Exceed centralized security through distribution
 
 ### **For Troubleshooting**
-1. Check **development/troubleshooting.md**
-2. Review **project-reports/** for known issues
-3. Use safe test runner protocols
+1. Check **Reality Check** docs for known technical constraints
+2. Review **Build Status** for current operational blockers
+3. Use **safe test runner** protocols for Earth Alliance operations
+4. Prioritize **mission-critical** functionality over convenience features
 
 ---
 
-## 📋 **Documentation Standards**
+## 📋 **Earth Alliance Documentation Standards**
 
-- **Artifact-Driven**: All docs linked to code artifacts
-- **AI-NOTE Comments**: Context for future agents
-- **Structured TODOs**: `TODO: [QUESTION] — [FILE/ARTIFACT]`
-- **Consistent Naming**: Follow `.primer` conventions
-- **Regular Updates**: Maintained by onboarding automation
+- **Mission-Driven**: All docs linked to Earth Alliance objectives and resistance operations
+- **Security-First**: SOCOM baseline compliance with quantum-safe enhancements  
+- **Decentralized**: No central authorities or single points of failure
+- **AI-NOTE Comments**: Context for future agents working on resistance platform
+- **Structured TODOs**: `TODO: [EARTH-ALLIANCE-QUESTION] — [FILE/ARTIFACT]`
+- **Consistent Naming**: Follow `.primer` Earth Alliance conventions
+- **Regular Updates**: Maintained by onboarding automation for operational readiness
 
 ---
 
-## 🔧 **Maintenance**
+## 🔧 **Maintenance Protocol**
 
-This documentation structure is maintained through:
-- Automated onboarding script (`scripts/onboard.cjs`)
-- Regular consolidation of scattered docs
-- AI agent protocols for updates
-- Artifact-driven development patterns
+This Earth Alliance documentation structure is maintained through:
+- Automated onboarding script (`scripts/onboard.cjs`) - operational readiness
+- Regular consolidation focused on mission-critical information
+- AI agent protocols for Earth Alliance context preservation  
+- Artifact-driven development patterns for resistance operations
+- SOCOM security baseline with decentralized enhancements
 
-*Last Updated: June 22, 2025*  
-*AI-NOTE: This index provides efficient navigation for both AI agents and humans while maintaining clean organization*
+*Last Updated: June 25, 2025*  
+*AI-NOTE: Documentation optimized for Earth Alliance resistance operations against transnational crime syndicate. SOCOM standards provide security baseline only.*
 
 ---
 
@@ -273,3 +303,31 @@ src/
 ---
 
 *This documentation hub is designed to be the single source of truth for all Starcom MK2 information. If you can't find what you're looking for, please suggest improvements or additions.*
+
+---
+
+## 🔐 **SOCOM Standards Clarification**
+
+**IMPORTANT**: References to SOCOM (Special Operations Command) in this codebase are **SECURITY BASELINE ONLY**.
+
+### **Why SOCOM Standards?**
+- **Baseline Security**: Military cybersecurity requirements provide rigorous minimum standards
+- **Proven Framework**: Battle-tested security protocols for high-threat environments  
+- **Comprehensive Coverage**: Addresses authentication, encryption, audit, and operational security
+- **Industry Recognition**: Widely respected cybersecurity benchmark
+
+### **Earth Alliance Enhancement**
+- **Decentralized Superiority**: Our distributed architecture exceeds centralized military security
+- **Quantum-Safe Future**: Post-quantum cryptography surpasses current military standards
+- **Censorship Resistance**: Multiple pathways provide resilience unavailable to centralized systems
+- **Global Coordination**: Civilian resistance network capabilities beyond military scope
+
+### **Operational Authority**
+- **Earth Alliance Command**: All operational decisions and mission priorities  
+- **Civilian Leadership**: Democratic resistance coordination, not military hierarchy
+- **Mission Focus**: Counter transnational crime syndicate, not support military operations
+- **Independence**: Operates beyond government control or oversight
+
+**AI-NOTE**: SOCOM references in code are security standards compliance only. Platform serves Earth Alliance civilian resistance mission exclusively.
+
+---
