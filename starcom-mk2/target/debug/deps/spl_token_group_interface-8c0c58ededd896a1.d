@@ -1,0 +1,10 @@
+/Users/jono/Documents/GitHub/starcom-app/starcom-mk2/target/debug/deps/libspl_token_group_interface-8c0c58ededd896a1.dylib: /Users/jono/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/spl-token-group-interface-0.5.0/src/lib.rs /Users/jono/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/spl-token-group-interface-0.5.0/src/error.rs /Users/jono/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/spl-token-group-interface-0.5.0/src/instruction.rs /Users/jono/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/spl-token-group-interface-0.5.0/src/state.rs
+
+/Users/jono/Documents/GitHub/starcom-app/starcom-mk2/target/debug/deps/libspl_token_group_interface-8c0c58ededd896a1.rlib: /Users/jono/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/spl-token-group-interface-0.5.0/src/lib.rs /Users/jono/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/spl-token-group-interface-0.5.0/src/error.rs /Users/jono/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/spl-token-group-interface-0.5.0/src/instruction.rs /Users/jono/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/spl-token-group-interface-0.5.0/src/state.rs
+
+/Users/jono/Documents/GitHub/starcom-app/starcom-mk2/target/debug/deps/spl_token_group_interface-8c0c58ededd896a1.d: /Users/jono/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/spl-token-group-interface-0.5.0/src/lib.rs /Users/jono/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/spl-token-group-interface-0.5.0/src/error.rs /Users/jono/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/spl-token-group-interface-0.5.0/src/instruction.rs /Users/jono/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/spl-token-group-interface-0.5.0/src/state.rs
+
+/Users/jono/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/spl-token-group-interface-0.5.0/src/lib.rs:
+/Users/jono/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/spl-token-group-interface-0.5.0/src/error.rs:
+/Users/jono/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/spl-token-group-interface-0.5.0/src/instruction.rs:
+/Users/jono/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/spl-token-group-interface-0.5.0/src/state.rs:

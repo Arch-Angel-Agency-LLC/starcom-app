@@ -7,6 +7,7 @@ import AIActionsPanelLayered from '../../../AI/AIActionsPanelLayered';
 import { AIErrorBoundary } from '../../../ErrorBoundaries/AIErrorBoundary';
 import { useFeatureFlag } from '../../../../utils/featureFlags';
 import CollaborationPanel from '../../../Collaboration/CollaborationPanel';
+import EarthAllianceCommunicationPanel from '../../../Collaboration/EarthAllianceCommunicationPanel';
 import DeveloperToolbar from '../../DeveloperToolbar/DeveloperToolbar';
 import CyberInvestigationHub from './CyberInvestigationHub';
 
@@ -90,7 +91,7 @@ const externalApps = [
 
 const RightSideBar: React.FC = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [activeSection, setActiveSection] = useState<'mission' | 'intel' | 'ai' | 'collaboration' | 'apps' | 'developer'>('mission');
+  const [activeSection, setActiveSection] = useState<'mission' | 'intel' | 'ai' | 'collaboration' | 'earth-alliance' | 'apps' | 'developer'>('mission');
   const { currentSession, isConnected, collaborationState } = useCollaboration();
   const aiSuggestionsEnabled = useFeatureFlag('aiSuggestionsEnabled');
   const collaborationEnabled = useFeatureFlag('collaborationEnabled');
@@ -229,6 +230,14 @@ const RightSideBar: React.FC = () => {
           👥
         </button>
         <button 
+          className={`${styles.navBtn} ${activeSection === 'earth-alliance' ? styles.active : ''}`}
+          onClick={() => setActiveSection('earth-alliance')}
+          title="Earth Alliance Operations"
+          aria-label="Earth Alliance Operations"
+        >
+          🌍
+        </button>
+        <button 
           className={`${styles.navBtn} ${activeSection === 'apps' ? styles.active : ''}`}
           onClick={() => setActiveSection('apps')}
           title="External Tools"
@@ -265,6 +274,11 @@ const RightSideBar: React.FC = () => {
         {activeSection === 'collaboration' && (
           <div className={styles.collaborationSection}>
             <CollaborationPanel />
+          </div>
+        )}
+        {activeSection === 'earth-alliance' && (
+          <div className={styles.earthAllianceSection}>
+            <EarthAllianceCommunicationPanel />
           </div>
         )}
         {activeSection === 'apps' && renderExternalApps()}

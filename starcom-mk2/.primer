@@ -1,6 +1,33 @@
-Starcom App
+Starcom dApp - Intelligence Exchange Marketplace
 
-A decentralized web3 3D global cyber command interface for cyber investigations, strategic intelligence, financial analysis, and global monitoring.
+**Project**: Decentralized intelligence marketplace with cyber command interface
+**Stack**: React + TypeScript + Web3 (Solana/Ethereum) + Nostr + IPFS
+**Theme**: Earth Alliance cyber operations (motivational context)
+
+---
+
+# Developer Quick Start
+## Core Architecture
+- **Frontend**: React/TypeScript SPA with Three.js 3D cyber interface
+- **Intelligence Market**: Smart contract marketplace for intel trading and verification
+- **Authentication**: Web3 wallet integration (Solana primary, refactor in progress)
+- **Communications**: Nostr protocol for decentralized messaging
+- **Storage**: IPFS for intelligence report persistence
+- **Deployment**: Serverless + HTTP bridges for decentralized hosting
+
+## Current Development Status
+- **Authentication Refactor**: Removing broken UI, implementing contextual auth
+- **Intelligence Market**: Core smart contracts and UI components
+- **Cyber Interface**: 3D globe visualization with interactive intel markers
+- **Nostr Integration**: HTTP bridge for censorship-resistant communications
+
+# Key Technologies
+- React, TypeScript, Vite (modern web stack)
+- Solana wallet adapter, Web3 integration
+- Three.js for 3D cyber command interface
+- Nostr protocol for decentralized communications
+- IPFS for decentralized storage
+- Post-Quantum Cryptography for future-proof security
 
 ---
 
@@ -17,16 +44,38 @@ A decentralized web3 3D global cyber command interface for cyber investigations,
 
 # Key Technologies
 - React, TypeScript, Vite
-- Rust/WASM modules
-- Solidity (web3 integration)
+- Rust/WASM modules  
+- Solana + Ethereum integration
+- Nostr protocol (decentralized communications)
+- IPFS (decentralized storage)
+- Post-Quantum Cryptography (future-proof security)
 - Artifact-driven development
 
-# Guiding Principles
-- Modularity, extensibility, security, traceability
-- AI-augmented, artifact-driven workflows
-- Consistency in naming, structure, and documentation
+# Development Principles
+- **Decentralized Architecture**: No single points of failure
+- **Web3 Integration**: Blockchain-based authentication and marketplace
+- **User Experience**: Intuitive cyber command interface
+- **Security First**: Quantum-safe cryptography and secure communications
+- **Component-Driven**: Reusable React components with clear APIs
+- **Artifact-Driven Development**: Use existing implementations and specifications
 
-# Glossary & NLP Anchors
+# Project Context (Motivational Theming)
+- **Setting**: Earth Alliance cyber operations center
+- **Mission**: Decentralized intelligence marketplace and analysis
+- **Security**: Military-grade cybersecurity (SOCOM baseline)
+- **Operations**: Cyber investigation, intelligence trading, secure communications
+- **Theme**: Futuristic cyber command interface with Earth Alliance branding
+
+# Glossary & Technical Terms
+- **Starcom**: Secure Team Alliance Reconnaissance Communications Operations & Management
+- **Intelligence Exchange**: Marketplace for trading and verifying intelligence reports
+- **Cyber Command Interface**: 3D web interface for intelligence operations
+- **Earth Alliance**: Thematic context for UI/UX (cyber operations theme)
+- **Truth Liberation**: Exposing multi-millennial lies and coverups
+- **Quantum-Safe**: Post-quantum cryptography resistant to future quantum computers
+- **Decentralized**: No single point of failure or control
+- **Censorship-Resistant**: Cannot be shut down by authorities
+- **SOCOM Standards**: Military cybersecurity baseline (enhanced for civilian operations)
 - **Artifact**: Modular, versioned unit of knowledge (code, test, doc, design)
 - **Module**: Self-contained code unit (component, service, contract, etc.)
 - **Context**: All information needed to understand or generate code
