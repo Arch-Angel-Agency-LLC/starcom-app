@@ -11,7 +11,7 @@ import EarthAllianceCommunicationPanel from '../../../Collaboration/EarthAllianc
 import DeveloperToolbar from '../../DeveloperToolbar/DeveloperToolbar';
 import CyberInvestigationHub from './CyberInvestigationHub';
 
-// Import assets from public directory for production builds
+// Import assets from public directory (served directly by Vite)
 const cryptoSentinelIcon = '/assets/images/icons/x128/starcom_icon-cryptosentinel-01a.jpg';
 const astroTraderIcon = '/assets/images/icons/x128/starcom_icon-astromarkettrader-01a.jpg';
 const globalPulseIcon = '/assets/images/icons/x128/starcom_icon-globalpulse.jpg';

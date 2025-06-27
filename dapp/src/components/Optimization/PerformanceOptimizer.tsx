@@ -7,7 +7,7 @@
           caches.open('enhanced-hud-cache').then(cache => {
             // Cache critical resources
             cache.addAll([
-              '/assets/fonts/Aldrich-Regular.ttf',
+              '/src/assets/fonts/Aldrich-Regular.ttf',
               '/src/styles/rts-gaming-theme.css'
             ]);
           });

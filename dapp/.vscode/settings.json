@@ -2,5 +2,5 @@
   "task.allowAutomaticTasks": "on",
   "jest.pathToJest": "node_modules/.bin/vitest",
   "vitest.commandLine": "node_modules/.bin/vitest",
-  "cmake.sourceDirectory": "/Users/jono/Documents/GitHub/starcom-app/starcom-mk2/node_modules/bare-os"
+  "cmake.sourceDirectory": "/Users/jono/Documents/GitHub/starcom-app/dapp/node_modules/bare-os"
 }
