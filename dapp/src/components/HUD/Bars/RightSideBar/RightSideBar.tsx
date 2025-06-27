@@ -11,16 +11,16 @@ import EarthAllianceCommunicationPanel from '../../../Collaboration/EarthAllianc
 import DeveloperToolbar from '../../DeveloperToolbar/DeveloperToolbar';
 import CyberInvestigationHub from './CyberInvestigationHub';
 
-// Import assets properly for production builds
-import cryptoSentinelIcon from '/src/assets/images/icons/x128/starcom_icon-cryptosentinel-01a.jpg';
-import astroTraderIcon from '/src/assets/images/icons/x128/starcom_icon-astromarkettrader-01a.jpg';
-import globalPulseIcon from '/src/assets/images/icons/x128/starcom_icon-globalpulse.jpg';
-import dataFeedIcon from '/src/assets/images/icons/x128/starcom_icon-datafeed-01a.jpg';
-import astroTrader2Icon from '/src/assets/images/icons/x128/starcom_icon-astromarkettrader-02a.jpg';
-import cryptoWatchdogIcon from '/src/assets/images/icons/x128/starcom_icon-cryptowatchdog.jpg';
-import marketSeerIcon from '/src/assets/images/icons/x128/starcom_icon-astromarketseer-01a.jpg';
-import marketAstrologyIcon from '/src/assets/images/icons/x128/starcom_icon-marketastrology-01a.jpg';
-import netTraderIcon from '/src/assets/images/icons/x128/starcom_icon-globalnettrader-01a.jpg';
+// Import assets from public directory for production builds
+const cryptoSentinelIcon = '/assets/images/icons/x128/starcom_icon-cryptosentinel-01a.jpg';
+const astroTraderIcon = '/assets/images/icons/x128/starcom_icon-astromarkettrader-01a.jpg';
+const globalPulseIcon = '/assets/images/icons/x128/starcom_icon-globalpulse.jpg';
+const dataFeedIcon = '/assets/images/icons/x128/starcom_icon-datafeed-01a.jpg';
+const astroTrader2Icon = '/assets/images/icons/x128/starcom_icon-astromarkettrader-02a.jpg';
+const cryptoWatchdogIcon = '/assets/images/icons/x128/starcom_icon-cryptowatchdog.jpg';
+const marketSeerIcon = '/assets/images/icons/x128/starcom_icon-astromarketseer-01a.jpg';
+const marketAstrologyIcon = '/assets/images/icons/x128/starcom_icon-marketastrology-01a.jpg';
+const netTraderIcon = '/assets/images/icons/x128/starcom_icon-globalnettrader-01a.jpg';
 
 // External apps data (moved to collapsed section)
 const externalApps = [
