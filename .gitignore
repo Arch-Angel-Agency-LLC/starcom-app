@@ -1,0 +1,32 @@
+# Starcom App Parent Repository .gitignore
+
+# Build outputs from starcom-mk2
+starcom-mk2/target/
+starcom-mk2/dist/
+starcom-mk2/build/
+starcom-mk2/node_modules/
+
+# Cache and temporary files
+starcom-mk2/cache/
+starcom-mk2/.cache/
+
+# Test outputs
+starcom-mk2/test-results/
+starcom-mk2/playwright-report/
+
+# Environment files (keep at parent level for security)
+.env
+.env.*
+!.env.example
+
+# OS and editor files
+.DS_Store
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

@@ -11,10 +11,28 @@
   },
   "tauri": {
     "allowlist": {
-      "all": true,
+      "all": false,
+      "window": {
+        "all": true
+      },
+      "path": {
+        "all": true
+      },
+      "fs": {
+        "all": true
+      },
+      "dialog": {
+        "all": true
+      },
+      "process": {
+        "all": true
+      },
       "shell": {
         "all": false,
         "open": true
+      },
+      "notification": {
+        "all": false
       }
     },
     "bundle": {

@@ -171,7 +171,7 @@ export class UnifiedIPFSNostrService {
       replicateToTeam?: boolean;
     }
   ): Promise<UnifiedContent> {
-    console.log('🚀 Storing content with unified IPFS-Nostr integration...');
+    // Remove console.log for production security
 
     // Store in IPFS through RelayNode
     const ipfsResult = await this.ipfsService.uploadContent(data, {
@@ -250,7 +250,7 @@ export class UnifiedIPFSNostrService {
       options
     });
 
-    console.log(`✅ Content stored and integrated: ${unifiedContent.id}`);
+    
     return unifiedContent;
   }
 
@@ -376,7 +376,7 @@ export class UnifiedIPFSNostrService {
       version: unifiedContent.version
     });
 
-    console.log(`🔄 Content updated: ${contentId} v${unifiedContent.version}`);
+    
     return unifiedContent;
   }
 
@@ -585,7 +585,7 @@ export class UnifiedIPFSNostrService {
   // Private helper methods
 
   private initializeIntegration(): void {
-    console.log('🔗 Initializing unified IPFS-Nostr integration...');
+    
     
     // Load existing content registry
     this.loadContentRegistry();
@@ -593,7 +593,7 @@ export class UnifiedIPFSNostrService {
     // Initialize team workspaces
     this.initializeTeamWorkspaces();
     
-    console.log('✅ Unified integration initialized');
+    
   }
 
   private setupEventBridging(): void {
@@ -603,15 +603,13 @@ export class UnifiedIPFSNostrService {
     });
 
     // Listen for IPFS network events
-    window.addEventListener('ipfs-content-updated', (event: Event) => {
-      const customEvent = event as CustomEvent;
-      this.handleIPFSContentUpdate(customEvent.detail);
+    window.addEventListener('ipfs-content-updated', () => {
+      this.handleIPFSContentUpdate();
     });
 
     // Listen for Nostr content announcements
-    window.addEventListener('nostr-content-announced', (event: Event) => {
-      const customEvent = event as CustomEvent;
-      this.handleNostrContentAnnouncement(customEvent.detail);
+    window.addEventListener('nostr-content-announced', () => {
+      this.handleNostrContentAnnouncement();
     });
   }
 
@@ -794,13 +792,13 @@ export class UnifiedIPFSNostrService {
     return totalContent > 0 ? (healthyContent / totalContent) * 100 : 100;
   }
 
-  private handleIPFSContentUpdate(detail: Record<string, unknown>): void {
-    console.log('🔄 Handling IPFS content update:', detail);
+  private handleIPFSContentUpdate(): void {
+    
     // TODO: Implement IPFS update handling
   }
 
-  private handleNostrContentAnnouncement(detail: Record<string, unknown>): void {
-    console.log('📢 Handling Nostr content announcement:', detail);
+  private handleNostrContentAnnouncement(): void {
+    
     // TODO: Implement Nostr announcement handling
   }
 
@@ -822,7 +820,7 @@ export class UnifiedIPFSNostrService {
         for (const [id, content] of Object.entries(data)) {
           this.unifiedContent.set(id, content as UnifiedContent);
         }
-        console.log(`📚 Loaded ${this.unifiedContent.size} unified content entries`);
+        
       } catch (error) {
         console.warn('⚠️ Failed to load unified content registry:', error);
       }
@@ -863,7 +861,7 @@ export class UnifiedIPFSNostrService {
     this.eventListeners.clear();
     this.saveContentRegistry();
 
-    console.log('🧹 Unified IPFS-Nostr service destroyed');
+    
   }
 }
 

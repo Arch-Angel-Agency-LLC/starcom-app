@@ -3,6 +3,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { PublicKey } from '@solana/web3.js';
 import bs58 from 'bs58';
 import nacl from 'tweetnacl';
+import { secureStorage } from '../utils/secureStorage';
 
 /**
  * Sign-In with Solana (SIWS) Hook
@@ -47,7 +48,6 @@ interface UseSIWSReturn {
   refreshSession: () => Promise<boolean>;
 }
 
-const STORAGE_KEY = 'siws-session';
 const DEFAULT_STATEMENT = 'Sign in to Starcom MK2 - Decentralized Intelligence Platform';
 const SESSION_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 
@@ -88,22 +88,18 @@ export function useSIWS(): UseSIWSReturn {
 
     const loadSession = () => {
       try {
-        const storedSession = localStorage.getItem(STORAGE_KEY);
-        if (storedSession) {
-          const parsed: SIWSSession = JSON.parse(storedSession);
-          if (isSessionValidInternal(parsed)) {
-            setSession(parsed);
-            console.log('✅ Valid SIWS session restored from storage');
-          } else {
-            console.log('🗑️ Invalid or stale SIWS session detected, clearing storage');
-            localStorage.removeItem(STORAGE_KEY);
-            setSession(null);
-            setError(null);
-          }
+        const parsed = secureStorage.getSecureSession<SIWSSession>();
+        if (parsed && isSessionValidInternal(parsed)) {
+          setSession(parsed);
+          // Remove console.log for production security
+        } else {
+          secureStorage.clearSecureSession();
+          setSession(null);
+          setError(null);
         }
-      } catch (err) {
-        console.error('❌ Failed to load SIWS session, clearing corrupted data:', err);
-        localStorage.removeItem(STORAGE_KEY);
+      } catch {
+        // Remove console logging to prevent data exposure
+        secureStorage.clearSecureSession();
         setSession(null);
         setError(null);
       }
@@ -115,8 +111,7 @@ export function useSIWS(): UseSIWSReturn {
   // Clear session when wallet changes
   useEffect(() => {
     if (session && publicKey && session.publicKey !== publicKey.toBase58()) {
-      console.log('🔄 Wallet changed, clearing old session');
-      localStorage.removeItem(STORAGE_KEY);
+      secureStorage.clearSecureSession();
       setSession(null);
       setError(null);
     }
@@ -188,14 +183,12 @@ export function useSIWS(): UseSIWSReturn {
       
       // Verify signature length (Ed25519 signatures are 64 bytes)
       if (signature.length !== 64) {
-        console.error('Invalid signature length:', signature.length);
         return false;
       }
       
       // Get the public key bytes (Ed25519 public keys are 32 bytes)
       const publicKeyBytes = publicKeyObj.toBytes();
       if (publicKeyBytes.length !== 32) {
-        console.error('Invalid public key length:', publicKeyBytes.length);
         return false;
       }
       
@@ -207,8 +200,7 @@ export function useSIWS(): UseSIWSReturn {
       );
       
       return isValid;
-    } catch (err) {
-      console.error('Signature verification failed:', err);
+    } catch {
       return false;
     }
   };
@@ -261,17 +253,10 @@ export function useSIWS(): UseSIWSReturn {
       const messageText = formatMessage(message);
       const messageBytes = new TextEncoder().encode(messageText);
       
-      console.log('🔐 Requesting wallet signature for SIWS authentication...');
-      console.log('🔍 Message to sign:', messageText);
-      console.log('🔍 Message bytes length:', messageBytes.length);
-      console.log('🔍 Wallet adapter:', signMessage.constructor.name);
-      
       const signature = await signMessage(messageBytes);
-      console.log('✅ Signature received:', signature);
       
       // Verify the signature
       const isValid = verifySignature(messageText, signature, address);
-      console.log('🔍 Signature verification result:', isValid);
       
       if (!isValid) {
         throw new Error('Signature verification failed');
@@ -286,37 +271,13 @@ export function useSIWS(): UseSIWSReturn {
         verified: true,
       };
 
-      // Store session
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newSession));
+      // Store session securely
+      secureStorage.setSecureSession(newSession);
       setSession(newSession);
       
       return true;
-    } catch (err) {
-      let errorMessage = 'Authentication failed';
-      
-      console.error('🚨 Detailed SIWS error:', err);
-      console.error('🚨 Error type:', typeof err);
-      console.error('🚨 Error constructor:', err?.constructor?.name);
-      console.error('🚨 Error message:', (err as Error)?.message);
-      console.error('🚨 Error stack:', (err as Error)?.stack);
-      
-      if (err instanceof Error) {
-        // Handle specific wallet errors with user-friendly messages
-        if (err.message.includes('keyring request') || err.message.includes('unknown error')) {
-          errorMessage = 'Wallet signing error. This may be due to wallet compatibility issues. Please try a different wallet or refresh the page.';
-        } else if (err.message.includes('not been authorized') || err.message.includes('User rejected')) {
-          errorMessage = 'Please authorize your wallet to sign messages for authentication. This is required for secure sign-in.';
-        } else if (err.message.includes('User denied') || err.message.includes('rejected')) {
-          errorMessage = 'Authentication was cancelled. Please try again and approve the signature request.';
-        } else if (err.message.includes('Signature verification failed')) {
-          errorMessage = 'Unable to verify your signature. Please try connecting your wallet again.';
-        } else {
-          errorMessage = err.message;
-        }
-      }
-      
-      setError(errorMessage);
-      console.error('SIWS sign-in failed:', err);
+    } catch {
+      setError('Authentication failed');
       return false;
     } finally {
       setIsLoading(false);
@@ -325,7 +286,7 @@ export function useSIWS(): UseSIWSReturn {
 
   // Sign out
   const signOut = useCallback((): void => {
-    localStorage.removeItem(STORAGE_KEY);
+    secureStorage.clearSecureSession();
     setSession(null);
     setError(null);
   }, []);
@@ -353,20 +314,19 @@ export function useSIWS(): UseSIWSReturn {
 // Utility function to get current session without hook
 export function getSIWSSession(): SIWSSession | null {
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (!stored) return null;
+    const session = secureStorage.getSecureSession<SIWSSession>();
+    if (!session) return null;
     
-    const session: SIWSSession = JSON.parse(stored);
     const now = Date.now();
     
     if (now > session.expiresAt || !session.verified) {
-      localStorage.removeItem(STORAGE_KEY);
+      secureStorage.clearSecureSession();
       return null;
     }
     
     return session;
   } catch {
-    localStorage.removeItem(STORAGE_KEY);
+    secureStorage.clearSecureSession();
     return null;
   }
 }

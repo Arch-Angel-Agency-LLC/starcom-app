@@ -1,5 +1,0 @@
-/Users/jono/Documents/GitHub/starcom-app/starcom-mk2/target/debug/deps/librw_stream_sink-a75a1bc184561f12.rmeta: /Users/jono/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rw-stream-sink-0.4.0/src/lib.rs
-
-/Users/jono/Documents/GitHub/starcom-app/starcom-mk2/target/debug/deps/rw_stream_sink-a75a1bc184561f12.d: /Users/jono/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rw-stream-sink-0.4.0/src/lib.rs
-
-/Users/jono/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rw-stream-sink-0.4.0/src/lib.rs:

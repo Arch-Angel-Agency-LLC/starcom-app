@@ -258,9 +258,7 @@ impl SOCOMPQCryptoCore {
                 hasher.finalize().to_vec()
             },
             "BLAKE3" => {
-                let mut hasher = Hasher::new();
-                hasher.update(data);
-                hasher.finalize().as_bytes().to_vec()
+                blake3::hash(data).as_bytes().to_vec()
             },
             _ => return Err("Unsupported hash algorithm".into()),
         };
