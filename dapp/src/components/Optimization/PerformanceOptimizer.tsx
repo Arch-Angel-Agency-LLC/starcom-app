@@ -2,7 +2,16 @@
  * Phase 5: Performance Optimization System
  * 
  * Comprehensive performance monitoring and optimization for the Enhanced HUD System.
- * Provides real-time performance metrics, optimization strategies, and alerts.
+ * Provides real-time performance metrics, optimizatio        // Implement intelligent caching
+        if ('caches' in window) {
+          caches.open('enhanced-hud-cache').then(cache => {
+            // Cache critical resources
+            cache.addAll([
+              '/assets/fonts/Aldrich-Regular.ttf',
+              '/src/styles/rts-gaming-theme.css'
+            ]);
+          });
+        }es, and alerts.
  */
 
 import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react';
