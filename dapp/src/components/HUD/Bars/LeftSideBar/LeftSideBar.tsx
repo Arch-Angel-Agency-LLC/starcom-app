@@ -4,7 +4,7 @@ import ModeSettingsPanel from './ModeSettingsPanel';
 // Adaptive interface imports commented out but preserved for easy re-enabling
 // import RoleSelector from '../../../Adaptive/RoleSelector';
 // import ProgressiveDisclosure from '../../../Adaptive/ProgressiveDisclosure';
-import wingCommanderLogo from '/src/assets/images/WingCommanderLogo-288x162.gif';
+import wingCommanderLogo from '../../../../assets/images/WingCommanderLogo-288x162.gif';
 
 // Lazy load TinyGlobe to reduce initial bundle size
 const TinyGlobe = lazy(() => import('../../../TinyGlobe/TinyGlobe'));
