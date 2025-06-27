@@ -71,6 +71,7 @@ contracts/
 # Test files
 test/
 tests/
+src/testing/
 *.test.*
 *.spec.*
 test-*.html
@@ -85,6 +86,13 @@ docs/
 # Scripts that aren't needed for deployment
 scripts/
 *.sh
+
+# Config files not needed for production
+jest.config.ts
+jest.config.js
+playwright.config.ts
+vitest.config.ts
+eslint.config.js
 
 # Large asset files that aren't essential
 asset\ development/

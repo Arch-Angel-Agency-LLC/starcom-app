@@ -1,5 +1,0 @@
-// devnet-keypair.json
-// This file should contain a base58-encoded secret key array for a funded Devnet wallet.
-// Generate with: solana-keygen new --outfile devnet-keypair.json
-// Example: [12,34,56,...]
-[]
