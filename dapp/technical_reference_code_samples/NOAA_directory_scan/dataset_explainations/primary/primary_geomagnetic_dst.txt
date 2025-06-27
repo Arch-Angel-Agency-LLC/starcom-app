@@ -1,0 +1,15 @@
+The JSON file you uploaded contains geomagnetic Dst index data from NOAA. The Disturbance Storm Time (Dst) index is a measure of geomagnetic activity, primarily used to assess the intensity of geomagnetic storms caused by solar wind interactions with Earth’s magnetosphere.
+
+Breakdown of the JSON Fields:
+	1.	time_tag – The timestamp of the measurement in UTC.
+	2.	dst – The Dst index value in nanoteslas (nT), indicating geomagnetic disturbance levels.
+
+Purpose of the Data:
+	•	Geomagnetic Storm Monitoring: The Dst index helps track geomagnetic storms triggered by solar activity, such as coronal mass ejections (CMEs) and solar flares.
+	•	Space Weather Forecasting: Scientists and space agencies use Dst to predict space weather conditions affecting satellite operations, GPS accuracy, and electrical grids.
+	•	Magnetospheric Science: Used in research to study the behavior of Earth’s magnetosphere during solar storms.
+
+Understanding the Dst Index:
+	•	Negative Dst values indicate stronger geomagnetic disturbances.
+	•	More negative values (below -50 nT) typically correspond to geomagnetic storm conditions.
+	•	Extreme storms can push Dst below -200 nT, signaling potential risks to satellites, power grids, and communication systems.

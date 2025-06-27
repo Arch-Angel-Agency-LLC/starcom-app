@@ -1,0 +1,33 @@
+The JSON file secondary_geomagnetic_kp_7d.json contains Kp index data, which measures global geomagnetic activity over the past 7 days. The Kp index is one of the most widely used space weather indicators, helping scientists monitor geomagnetic storms and space weather disturbances.
+
+Breakdown of Key Fields:
+	1.	model_prediction_time – The timestamp (UTC) when the measurement was taken.
+	2.	k – The Kp index value, which ranges from 0 to 9.
+
+Purpose of This Data:
+	•	Monitoring Geomagnetic Storms: The Kp index is used to detect and classify geomagnetic storms caused by solar wind, coronal mass ejections (CMEs), and solar flares.
+	•	Space Weather Forecasting: Helps predict potential disruptions to satellites, GPS, and power grids.
+	•	Aurora Forecasting: Higher Kp values indicate stronger auroras, which can be visible at lower latitudes.
+	•	Radiation Hazard Assessment: Space agencies use this to assess risks for astronauts and high-altitude flights.
+
+Understanding the Kp Index:
+
+Kp Value	Geomagnetic Activity	Effects
+0-1	Quiet	No impact
+2-3	Unsettled	Minor disturbances
+4	Active	Weak auroras possible at high latitudes
+5 (G1)	Minor Storm	Increased auroras, possible satellite/GPS interference
+6 (G2)	Moderate Storm	Strong auroras, power grid fluctuations possible
+7 (G3)	Strong Storm	Widespread auroras, GPS errors, satellite issues
+8 (G4)	Severe Storm	Major power grid and communication issues
+9 (G5)	Extreme Storm	Blackouts, transformer damage, satellite failures
+
+How This Data Is Used:
+	•	NOAA, NASA, and Space Weather Agencies use it for storm prediction models.
+	•	Power Grid Operators monitor Kp to prevent geomagnetic-induced currents (GICs) from damaging transformers.
+	•	Satellite Operators track geomagnetic storms to prevent navigation and communication failures.
+	•	Amateur Radio Operators use it to adjust radio frequencies for HF communication.
+
+Current Data Insights:
+	•	The Kp values in this dataset mostly fluctuate between 0.667 and 2.667, indicating quiet to mildly unsettled conditions.
+	•	If values exceed 5, it signals an ongoing geomagnetic storm.

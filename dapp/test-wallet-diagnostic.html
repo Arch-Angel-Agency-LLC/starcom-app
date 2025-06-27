@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test - Wallet Diagnostic Drag Handle</title>
+    <style>
+        body { font-family: monospace; background: #000; color: #00ff00; }
+        .test-popup {
+            position: fixed;
+            top: 100px;
+            left: 100px;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.95), rgba(0, 196, 255, 0.1));
+            color: #00ff00;
+            padding: 16px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 11px;
+            border: 2px solid #00ff00;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+            user-select: text;
+            min-width: 300px;
+            max-width: 400px;
+            backdrop-filter: blur(10px);
+        }
+        .drag-handle {
+            cursor: grab;
+            user-select: none;
+            padding: 4px 8px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            border-radius: 4px;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            background: rgba(0, 255, 255, 0.1);
+            margin-bottom: 12px;
+        }
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+        .content {
+            font-size: 10px;
+            line-height: 1.4;
+            user-select: text;
+            cursor: text;
+            padding: 4px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test: Wallet Diagnostic Drag Handle</h1>
+    <p>This simulates the fixed drag handle behavior:</p>
+    
+    <div class="test-popup">
+        <div class="drag-handle" title="Drag to move window">
+            <span style="font-size: 10px; color: #00ffff;">⋮⋮</span>
+            <h4 style="margin: 0; color: #00ffff; font-size: 12px; font-weight: bold;">
+                🔍 WALLET DIAGNOSTIC
+            </h4>
+            <span style="font-size: 10px; color: #00ffff;">⋮⋮</span>
+        </div>
+        
+        <div class="content">
+            <div><strong>Connection Status:</strong> <span style="color: #00ff00;">connected</span></div>
+            <div><strong>Address:</strong> 9WzDXwBbmkg8...Ab4x</div>
+            <div><strong>Authenticated:</strong> <span style="color: #00ff00;">Yes</span></div>
+            <div><strong>Session:</strong> <span style="color: #00ff00;">Active</span></div>
+            <div><strong>Provider:</strong> Phantom</div>
+            <div><strong>Error:</strong> <span style="color: #00ff00;">None</span></div>
+            
+            <div style="margin-top: 12px; padding: 8px; border: 1px solid #00ffff; border-radius: 4px; background: rgba(0, 255, 255, 0.1);">
+                <strong style="color: #00ffff;">Instructions:</strong>
+                <div style="margin-top: 4px;">
+                    • Try selecting this text - it should work!
+                    • Try dragging from the header area - it should work!
+                    • Only the blue header with ⋮⋮ symbols should be draggable
+                    • All other content should be selectable
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let isDragging = false;
+        let dragOffset = { x: 0, y: 0 };
+        
+        const popup = document.querySelector('.test-popup');
+        const dragHandle = document.querySelector('.drag-handle');
+        
+        dragHandle.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            isDragging = true;
+            dragOffset.x = e.clientX - popup.offsetLeft;
+            dragOffset.y = e.clientY - popup.offsetTop;
+            dragHandle.style.cursor = 'grabbing';
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                const newX = Math.max(0, Math.min(window.innerWidth - 320, e.clientX - dragOffset.x));
+                const newY = Math.max(0, Math.min(window.innerHeight - 200, e.clientY - dragOffset.y));
+                popup.style.left = newX + 'px';
+                popup.style.top = newY + 'px';
+            }
+        });
+        
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+            dragHandle.style.cursor = 'grab';
+        });
+    </script>
+</body>
+</html>

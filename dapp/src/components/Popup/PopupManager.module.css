@@ -1,0 +1,74 @@
+/* Global Popup Layer - Above all other elements */
+.popupLayer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 10000; /* Above floating panels (2000) and everything else */
+}
+
+.popupContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.popupBackdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(4px);
+  pointer-events: auto;
+  animation: backdropFadeIn 0.3s ease;
+}
+
+.popupContent {
+  position: relative;
+  pointer-events: auto;
+  animation: popupSlideIn 0.3s ease;
+  max-width: 95vw;
+  max-height: 95vh;
+  overflow: hidden;
+}
+
+/* Animations */
+@keyframes backdropFadeIn {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(4px);
+  }
+}
+
+@keyframes popupSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .popupContent {
+    max-width: 98vw;
+    max-height: 98vh;
+  }
+}

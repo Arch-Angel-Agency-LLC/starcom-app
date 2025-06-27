@@ -1,0 +1,33 @@
+The JSON file secondary_geomagnetic_dst_7d.json contains Dst (Disturbance Storm Time) index data, which measures geomagnetic activity on Earth. The Dst index is a critical parameter in space weather forecasting and is used to assess the strength of geomagnetic storms caused by solar activity.
+
+Breakdown of Key Fields:
+	1.	time_tag – The UTC timestamp when the Dst value was recorded.
+	2.	dst – The Dst index value, measured in nanoteslas (nT), which represents the intensity of Earth’s geomagnetic field disturbances.
+
+Purpose of This Data:
+	•	Monitoring Geomagnetic Storms: The Dst index is used to determine the impact of solar storms and coronal mass ejections (CMEs) on Earth’s magnetosphere.
+	•	Space Weather Alerts: Helps in predicting the potential effects of geomagnetic disturbances on satellites, power grids, and communication systems.
+	•	Aurora Forecasting: Strong geomagnetic activity increases the likelihood of auroras visible at lower latitudes.
+	•	Radiation Risk Assessment: Used by space agencies to determine radiation hazards for astronauts and high-altitude aviation.
+
+Understanding the Dst Index:
+
+Dst Index (nT)	Geomagnetic Condition	Impact
+0 to -20 nT	Quiet	Normal conditions
+-20 to -50 nT	Weak Storm	Minor disturbances
+-50 to -100 nT	Moderate Storm	Some radio/GPS issues
+-100 to -200 nT	Strong Storm	Increased satellite drag, power grid fluctuations
+Below -200 nT	Severe Geomagnetic Storm	Major power grid and satellite disruptions
+
+	•	Negative values indicate increased geomagnetic activity.
+	•	A Dst index below -100 nT signals a strong geomagnetic storm.
+
+How This Data Is Used:
+	•	NOAA, NASA, and Space Weather Agencies use it for storm prediction models.
+	•	Power Grid Operators monitor Dst to prevent geomagnetic-induced currents (GICs) that could damage transformers.
+	•	Satellite Operators track geomagnetic storms to avoid system failures and communication disruptions.
+	•	Amateur Radio Operators use it to adjust radio frequencies for HF communication.
+
+Current Data Insights:
+	•	The Dst values in this dataset fluctuate between -20 nT to -38 nT, indicating mild to moderate geomagnetic activity.
+	•	If values drop below -100 nT, it would suggest an ongoing strong geomagnetic storm.

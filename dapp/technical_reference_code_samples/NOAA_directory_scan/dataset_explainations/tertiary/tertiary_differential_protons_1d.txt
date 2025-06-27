@@ -1,0 +1,54 @@
+The JSON file tertiary_differential_protons_1d.json contains differential proton flux data collected by NOAA’s GOES-18 satellite over a 1-day period. This dataset provides measurements of proton flux at various energy levels, which are crucial for space weather analysis, radiation storm detection, and geomagnetic storm forecasting.
+
+Breakdown of Key Fields
+	1.	time_tag – Timestamp (UTC) of the recorded measurement.
+	2.	satellite – Identifier of the NOAA satellite (GOES-18 in this dataset).
+	3.	flux – Measured proton flux (particles per cm²·s·sr).
+	4.	energy – The energy range of detected protons (e.g., “1020-1860 keV”, “115000-143000 keV”).
+	5.	channel – Proton energy measurement channel (e.g., P1, P2A, P3, P7, P8C).
+	6.	yaw_flip – Indicator of satellite yaw flip (0 means no flip, 1 means flipped orientation).
+
+Purpose of This Data
+	•	Radiation Storm Warnings:
+	•	Elevated proton flux levels indicate solar energetic particle (SEP) events, which can disrupt satellites and pose a radiation hazard to astronauts.
+	•	Geomagnetic Storm Forecasting:
+	•	High-energy proton storms contribute to magnetospheric disturbances affecting power grids, GPS, and communication networks.
+	•	Solar Activity Monitoring:
+	•	Helps detect coronal mass ejections (CMEs) and solar flares, which accelerate protons to high speeds.
+	•	Satellite and Aviation Protection:
+	•	Helps in issuing radiation alerts for aircraft flying over polar regions.
+	•	Space Weather Impact Assessment:
+	•	Provides data to predict ionospheric disturbances affecting HF radio and GPS signals.
+
+Understanding Proton Flux Levels
+
+Proton Energy Range	Impact
+1020-1860 keV	Normal background levels
+11640-23270 keV	Slightly elevated levels can signal increased activity
+115000-143000 keV	High-energy protons, potential for satellite disruptions
+276000-404000 keV	Extremely high-energy protons, may indicate strong space weather events
+
+	•	Proton flux values above 10 particles/cm²·s·sr indicate significant space weather events.
+	•	High-energy protons (>100 MeV) can cause satellite charging, radio blackouts, and radiation hazards.
+
+Recent Data Observations
+
+Date (UTC)	Proton Flux (1020-1860 keV)	Proton Flux (115000-143000 keV)
+2025-02-22 02:20	0.0377	6.5e-07
+2025-02-22 02:25	0.0399	3.9e-07
+2025-02-22 02:30	0.0410	2.6e-07
+2025-02-22 02:35	0.0376	0.0
+2025-02-22 02:40	0.0401	7.8e-07
+
+🔹 Recent observations indicate stable proton flux levels, suggesting normal space weather conditions.
+🔸 Any rapid increase in high-energy proton levels would indicate an incoming radiation storm or CME event.
+
+How This Data Is Used
+	•	NOAA Space Weather Prediction Center (SWPC): Issues alerts for geomagnetic storms and radiation hazards.
+	•	NASA & ESA Missions: Protects satellites and space probes from high-energy proton damage.
+	•	Aviation & Military Operations: Ensures reliable radio and GPS communications in polar regions.
+	•	Geophysics & Research Institutes: Studies proton interactions in Earth’s magnetosphere.
+
+Would You Like a Graphical Visualization?
+
+I can generate time-series plots to show how proton flux levels are changing over time. Let me know if you’d like that! 🚀

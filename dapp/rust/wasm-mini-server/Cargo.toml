@@ -1,0 +1,41 @@
+[package]
+name = "wasm_mini_server"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+wasm-bindgen = { version = "0.2", features = ["serde"] } # ✅ Enable serde
+wee_alloc = "0.4"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+wasm-bindgen-futures = "0.4"
+wasm-bindgen-test = "0.3"
+js-sys = "0.3"
+http = "0.2"
+web-sys = { version = "0.3", features = [
+    "Window",
+    "Document",
+    "Location",
+    "Request",
+    "RequestInit",
+    "RequestMode",
+    "Response",
+    "console",
+    "Headers",
+    "Storage",
+]}
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3"  # ✅ Ensure this is included
+
+[profile.release]
+lto = true
+opt-level = "z"
+
+[[test]]
+name = "wasm_mini_server_tests"
+path = "tests/tests.rs"
+harness = false  # Required for `wasm-bindgen-test`

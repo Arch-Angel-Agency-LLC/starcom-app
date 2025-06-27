@@ -1,0 +1,33 @@
+[package]
+name = "starcom-crypto-core"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wasm-bindgen = "0.2"
+js-sys = "0.3"
+wasm-bindgen-futures = "0.4"
+web-sys = { version = "0.3", features = ["console"] }
+serde = { version = "1.0", features = ["derive"] }
+serde-wasm-bindgen = "0.6"
+getrandom = { version = "0.2", features = ["js"] }
+
+# Pure Rust crypto libraries that compile to WASM
+chacha20poly1305 = "0.10"
+sha3 = "0.10"
+blake3 = "1.5"
+
+# Utilities
+hex = "0.4"
+base64 = "0.22"
+
+[features]
+default = ["console_error_panic_hook"]
+console_error_panic_hook = ["dep:console_error_panic_hook"]
+
+[dependencies.console_error_panic_hook]
+version = "0.1.7"
+optional = true
