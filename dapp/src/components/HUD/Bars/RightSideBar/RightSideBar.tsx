@@ -12,15 +12,15 @@ import DeveloperToolbar from '../../DeveloperToolbar/DeveloperToolbar';
 import CyberInvestigationHub from './CyberInvestigationHub';
 
 // Import assets properly for production builds
-import cryptoSentinelIcon from '/src/assets/images/icons/x128/starcom_icon-cryptosentinel-01a.jpg';
-import astroTraderIcon from '/src/assets/images/icons/x128/starcom_icon-astromarkettrader-01a.jpg';
-import globalPulseIcon from '/src/assets/images/icons/x128/starcom_icon-globalpulse.jpg';
-import dataFeedIcon from '/src/assets/images/icons/x128/starcom_icon-datafeed-01a.jpg';
-import astroTrader2Icon from '/src/assets/images/icons/x128/starcom_icon-astromarkettrader-02a.jpg';
-import cryptoWatchdogIcon from '/src/assets/images/icons/x128/starcom_icon-cryptowatchdog.jpg';
-import marketSeerIcon from '/src/assets/images/icons/x128/starcom_icon-astromarketseer-01a.jpg';
-import marketAstrologyIcon from '/src/assets/images/icons/x128/starcom_icon-marketastrology-01a.jpg';
-import netTraderIcon from '/src/assets/images/icons/x128/starcom_icon-globalnettrader-01a.jpg';
+import cryptoSentinelIcon from '../../../../assets/images/icons/x128/starcom_icon-cryptosentinel-01a.jpg';
+import astroTraderIcon from '../../../../assets/images/icons/x128/starcom_icon-astromarkettrader-01a.jpg';
+import globalPulseIcon from '../../../../assets/images/icons/x128/starcom_icon-globalpulse.jpg';
+import dataFeedIcon from '../../../../assets/images/icons/x128/starcom_icon-datafeed-01a.jpg';
+import astroTrader2Icon from '../../../../assets/images/icons/x128/starcom_icon-astromarkettrader-02a.jpg';
+import cryptoWatchdogIcon from '../../../../assets/images/icons/x128/starcom_icon-cryptowatchdog.jpg';
+import marketSeerIcon from '../../../../assets/images/icons/x128/starcom_icon-astromarketseer-01a.jpg';
+import marketAstrologyIcon from '../../../../assets/images/icons/x128/starcom_icon-marketastrology-01a.jpg';
+import netTraderIcon from '../../../../assets/images/icons/x128/starcom_icon-globalnettrader-01a.jpg';
 
 // External apps data (moved to collapsed section)
 const externalApps = [

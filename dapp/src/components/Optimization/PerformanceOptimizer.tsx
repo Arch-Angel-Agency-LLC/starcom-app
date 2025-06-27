@@ -195,8 +195,8 @@ export const PerformanceOptimizer: React.FC<PerformanceOptimizerProps> = ({
           caches.open('enhanced-hud-cache').then(cache => {
             // Cache critical resources
             cache.addAll([
-              '/src/assets/fonts/Aldrich-Regular.ttf',
-              '/src/styles/rts-gaming-theme.css'
+              '/assets/fonts/Aldrich-Regular.ttf',
+              '/styles/rts-gaming-theme.css'
             ]);
           });
         }
