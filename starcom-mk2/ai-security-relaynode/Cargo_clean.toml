@@ -1,0 +1,56 @@
+[package]
+name = "ai-security-relaynode"
+version = "0.1.0"
+edition = "2021"
+description = "AI Security RelayNode - Combined Nostr Relay and IPFS Node for Starcom Teams"
+license = "MIT"
+repository = "https://github.com/starcom-app/starcom-mk2"
+
+[dependencies]
+# Core runtime
+tokio = { version = "1.0", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1.0", features = ["v4"] }
+anyhow = "1.0"
+thiserror = "1.0"
+
+# Temporarily disable Tauri to fix build issues
+# tauri = { version = "1.5", features = ["api-all"] }
+
+# Nostr relay dependencies
+tokio-tungstenite = "0.20"
+futures-util = "0.3"
+
+# IPFS node dependencies  
+libp2p = { version = "0.53", features = ["tcp", "noise", "yamux"] }
+
+# Web API server
+axum = "0.7"
+tower = "0.4"
+tower-http = { version = "0.5", features = ["cors"] }
+
+# Security & encryption
+ring = "0.17"
+base64 = "0.21"
+
+# Configuration and logging
+config = "0.14"
+toml = "0.8"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+
+# Additional dependencies for clean architecture
+async-trait = "0.1"
+
+# [build-dependencies]
+# tauri-build = { version = "1.5", features = [] }
+
+[[bin]]
+name = "ai-security-relaynode"
+path = "src/main.rs"
+
+# Test configuration
+[dev-dependencies]
+tokio-test = "0.4"

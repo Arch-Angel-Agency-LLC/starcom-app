@@ -1,24 +1,19 @@
-// Prevent additional console window on Windows in release, if not using console
+// AI Security RelayNode - Production Ready
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use std::sync::Arc;
-use tokio::sync::RwLock;
 use tracing::{info, error};
 use serde::{Deserialize, Serialize};
-use tauri::State;
+use anyhow::Result;
 
-mod nostr_relay;
-mod ipfs_node;
-mod security_layer;
-mod api_gateway;
-mod config;
-
-use crate::{
-    nostr_relay::NostrRelay,
-    ipfs_node::IPFSNode,
-    security_layer::SecurityLayer,
-    api_gateway::APIGateway,
-    config::Config,
+use ai_security_relaynode::{
+    NostrRelay,
+    IPFSNode,
+    SecurityLayer,
+    APIGateway,
+    Config,
+    DatabaseManager,
+    InvestigationService,
 };
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -28,198 +23,117 @@ struct ServiceStatus {
     events: Option<u32>,
     peers: Option<u32>,
     storage: Option<u32>,
+    investigations: Option<i64>,
     #[serde(rename = "peerId")]
     peer_id: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct AllServiceStatus {
-    nostr: Option<ServiceStatus>,
-    ipfs: Option<ServiceStatus>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct TeamConfig {
-    team_name: Option<String>,
-    team_key: Option<String>,
-    relay_url: Option<String>,
-}
-
-// Global application state
-struct AppState {
-    nostr_relay: Arc<NostrRelay>,
-    ipfs_node: Arc<IPFSNode>,
-    security_layer: Arc<SecurityLayer>,
-    api_gateway: Arc<APIGateway>,
-    config: Arc<RwLock<Config>>,
-    services_running: Arc<RwLock<bool>>,
-}
-
-// Tauri commands
-#[tauri::command]
-async fn start_services(state: tauri::State<'_, AppState>) -> Result<(), String> {
-    info!("Starting all services...");
-    
-    let mut running = state.services_running.write().await;
-    if *running {
-        return Err("Services are already running".to_string());
-    }
-    
-    // Start Nostr relay
-    match state.nostr_relay.start().await {
-        Ok(_) => info!("Nostr relay started successfully"),
-        Err(e) => {
-            error!("Failed to start Nostr relay: {}", e);
-            return Err(format!("Failed to start Nostr relay: {}", e));
-        }
-    }
-    
-    // Start IPFS node
-    match state.ipfs_node.start().await {
-        Ok(_) => info!("IPFS node started successfully"),
-        Err(e) => {
-            error!("Failed to start IPFS node: {}", e);
-            return Err(format!("Failed to start IPFS node: {}", e));
-        }
-    }
-    
-    // Start API gateway
-    match state.api_gateway.start().await {
-        Ok(_) => info!("API gateway started successfully"),
-        Err(e) => {
-            error!("Failed to start API gateway: {}", e);
-            return Err(format!("Failed to start API gateway: {}", e));
-        }
-    }
-    
-    *running = true;
-    info!("All services started successfully");
-    Ok(())
-}
-
-#[tauri::command]
-async fn stop_services(state: tauri::State<'_, AppState>) -> Result<(), String> {
-    info!("Stopping all services...");
-    
-    let mut running = state.services_running.write().await;
-    if !*running {
-        return Err("Services are not running".to_string());
-    }
-    
-    // Stop services (implement graceful shutdown)
-    // For now, just mark as stopped
-    *running = false;
-    info!("All services stopped successfully");
-    Ok(())
-}
-
-#[tauri::command]
-async fn get_service_status(state: tauri::State<'_, AppState>) -> Result<AllServiceStatus, String> {
-    let running = *state.services_running.read().await;
-    
-    let status = if running { "online" } else { "offline" };
-    
-    Ok(AllServiceStatus {
-        nostr: Some(ServiceStatus {
-            status: status.to_string(),
-            connections: Some(if running { 3 } else { 0 }),
-            events: Some(if running { 47 } else { 0 }),
-            peers: None,
-            storage: None,
-            peer_id: None,
-        }),
-        ipfs: Some(ServiceStatus {
-            status: status.to_string(),
-            connections: None,
-            events: None,
-            peers: Some(if running { 12 } else { 0 }),
-            storage: Some(if running { 256 } else { 0 }),
-            peer_id: Some(if running { "12D3KooWABC123...".to_string() } else { "Offline".to_string() }),
-        }),
-    })
-}
-
-#[tauri::command]
-async fn save_configuration(state: tauri::State<'_, AppState>, config: TeamConfig) -> Result<(), String> {
-    info!("Saving configuration...");
-    
-    let mut app_config = state.config.write().await;
-    
-    if let Some(team_name) = config.team_name {
-        app_config.team_name = team_name;
-    }
-    
-    // Save configuration to file
-    match app_config.save("config.toml") {
-        Ok(_) => {
-            info!("Configuration saved successfully");
-            Ok(())
-        }
-        Err(e) => {
-            error!("Failed to save configuration: {}", e);
-            Err(format!("Failed to save configuration: {}", e))
-        }
-    }
-}
-
-#[tauri::command]
-async fn load_configuration(state: tauri::State<'_, AppState>) -> Result<TeamConfig, String> {
-    info!("Loading configuration...");
-    
-    let config = state.config.read().await;
-    
-    Ok(TeamConfig {
-        team_name: Some(config.team_name.clone()),
-        team_key: None, // TODO: implement team key management
-        relay_url: Some(format!("ws://localhost:{}", config.nostr_port)),
-    })
+struct SystemStatus {
+    version: String,
+    timestamp: String,
+    services: ServiceStatus,
+    subnet_role: String,
+    gateway_status: String,
 }
 
 #[tokio::main]
-async fn main() -> anyhow::Result<()> {
-    // Initialize tracing
+async fn main() -> Result<(), anyhow::Error> {
+    // Initialize logging
     tracing_subscriber::fmt::init();
     
-    info!("� Starting AI Security RelayNode...");
+    info!("🚀 AI Security RelayNode - Production Deployment");
+    info!("================================================");
     
     // Load configuration
-    let config = Config::load().unwrap_or_else(|_| {
-        info!("Using default configuration");
-        Config::default()
-    });
+    let _config = Config::load()?;
+    info!("✅ Configuration loaded");
     
-    info!("Configuration loaded successfully");
+    // Initialize database and run migrations
+    let database_url = "sqlite:./data/relaynode.db";
+    let db_manager = DatabaseManager::new(database_url).await?;
+    db_manager.run_migrations().await?;
+    info!("✅ Database initialized and migrations completed");
     
+    // Initialize investigation service
+    let investigation_service = Arc::new(InvestigationService::new(db_manager.pool().clone()).await?);
+    info!("✅ Investigation service initialized");
+
     // Initialize services
-    let security_layer = Arc::new(SecurityLayer::new(&config).await?);
-    let nostr_relay = Arc::new(NostrRelay::new(security_layer.clone()).await?);
+    let security_layer = SecurityLayer::new().await?;
     let ipfs_node = Arc::new(IPFSNode::new(security_layer.clone()).await?);
-    let api_gateway = Arc::new(APIGateway::new(nostr_relay.clone(), ipfs_node.clone()).await?);
+    let nostr_relay = Arc::new(NostrRelay::new(security_layer.clone(), None).await?);
+    let api_gateway = Arc::new(APIGateway::new(
+        nostr_relay.clone(), 
+        ipfs_node.clone(),
+        investigation_service.clone(),
+    ).await?);
     
-    info!("All services initialized");
+    info!("✅ All services initialized");
     
-    // Create application state
-    let app_state = AppState {
-        nostr_relay,
-        ipfs_node,
-        security_layer,
-        api_gateway,
-        config: Arc::new(RwLock::new(config)),
-        services_running: Arc::new(RwLock::new(false)),
+    // Start services
+    let ipfs_handle = {
+        let ipfs = ipfs_node.clone();
+        tokio::spawn(async move {
+            if let Err(e) = ipfs.start().await {
+                error!("IPFS service error: {}", e);
+            }
+        })
     };
     
-    // Start Tauri application
-    tauri::Builder::default()
-        .manage(app_state)
-        .invoke_handler(tauri::generate_handler![
-            start_services,
-            stop_services,
-            get_service_status,
-            save_configuration,
-            load_configuration
-        ])
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+    let nostr_handle = {
+        let nostr = nostr_relay.clone();
+        tokio::spawn(async move {
+            if let Err(e) = nostr.start().await {
+                error!("Nostr relay error: {}", e);
+            }
+        })
+    };
+    
+    let api_handle = {
+        let gateway = api_gateway.clone();
+        tokio::spawn(async move {
+            if let Err(e) = gateway.start().await {
+                error!("API Gateway error: {}", e);
+            }
+        })
+    };
+    
+    info!("🎯 RelayNode operational - Ready for cyber investigation team");
+    info!("📊 Monitoring services...");
+    
+    // Background task for status monitoring including investigation metrics
+    let status_task = {
+        let db_manager_clone = Arc::new(db_manager);
+        tokio::spawn(async move {
+            let mut interval = tokio::time::interval(tokio::time::Duration::from_secs(30));
+            loop {
+                interval.tick().await;
+                
+                // Get investigation count
+                match db_manager_clone.get_investigation_count().await {
+                    Ok(count) => {
+                        info!("📊 System Status - Active investigations: {}", count);
+                        
+                        // Health check
+                        if let Ok(healthy) = db_manager_clone.health_check().await {
+                            if healthy {
+                                info!("✅ Database health check passed");
+                            } else {
+                                error!("❌ Database health check failed");
+                            }
+                        }
+                    }
+                    Err(e) => {
+                        error!("Failed to get investigation count: {}", e);
+                    }
+                }
+            }
+        })
+    };
+
+    // Wait for services
+    let _ = tokio::try_join!(ipfs_handle, nostr_handle, api_handle, status_task)?;
     
     Ok(())
 }

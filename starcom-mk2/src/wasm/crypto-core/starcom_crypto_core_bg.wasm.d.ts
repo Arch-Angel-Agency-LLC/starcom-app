@@ -1,5 +1,5 @@
 /* tslint:disable */
-/* eslint-disable */
+ 
 export const memory: WebAssembly.Memory;
 export const __wbg_cryptokeypair_free: (a: number, b: number) => void;
 export const cryptokeypair_public_key: (a: number) => [number, number];

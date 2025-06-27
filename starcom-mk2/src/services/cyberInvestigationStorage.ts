@@ -2,6 +2,7 @@
 // Provides persistence for teams, intel packages, and investigations
 
 import { CyberTeam, IntelPackage, CyberInvestigation } from '../types/cyberInvestigation';
+import { secureStorage } from '../utils/secureStorage';
 
 const STORAGE_KEYS = {
   TEAMS: 'starcom_cyber_teams',
@@ -33,17 +34,16 @@ export class CyberInvestigationStorage {
   // Teams Management
   static saveTeams(teams: CyberTeam[]): void {
     try {
-      localStorage.setItem(STORAGE_KEYS.TEAMS, JSON.stringify(teams));
-    } catch (error) {
-      console.error('Failed to save teams:', error);
+      secureStorage.setItem(STORAGE_KEYS.TEAMS, teams);
+    } catch {
+      // Silent failure for production security
     }
   }
 
   static loadTeams(): CyberTeam[] {
     try {
-      const data = localStorage.getItem(STORAGE_KEYS.TEAMS);
-      if (data) {
-        const teams: SerializedTeam[] = JSON.parse(data);
+      const teams = secureStorage.getItem<SerializedTeam[]>(STORAGE_KEYS.TEAMS);
+      if (teams) {
         // Convert date strings back to Date objects
         return teams.map((team) => ({
           ...team,
@@ -55,8 +55,8 @@ export class CyberInvestigationStorage {
           }))
         }));
       }
-    } catch (error) {
-      console.error('Failed to load teams:', error);
+    } catch {
+      // Silent failure for production security
     }
     return [];
   }
@@ -84,17 +84,16 @@ export class CyberInvestigationStorage {
   // Intel Packages Management
   static savePackages(packages: IntelPackage[]): void {
     try {
-      localStorage.setItem(STORAGE_KEYS.PACKAGES, JSON.stringify(packages));
-    } catch (error) {
-      console.error('Failed to save packages:', error);
+      secureStorage.setItem(STORAGE_KEYS.PACKAGES, packages);
+    } catch {
+      // Silent failure for production security
     }
   }
 
   static loadPackages(): IntelPackage[] {
     try {
-      const data = localStorage.getItem(STORAGE_KEYS.PACKAGES);
-      if (data) {
-        const packages: SerializedPackage[] = JSON.parse(data);
+      const packages = secureStorage.getItem<SerializedPackage[]>(STORAGE_KEYS.PACKAGES);
+      if (packages) {
         // Convert date strings back to Date objects
         return packages.map((pkg) => ({
           ...pkg,
@@ -103,8 +102,8 @@ export class CyberInvestigationStorage {
           incidentDate: pkg.incidentDate ? new Date(pkg.incidentDate) : undefined
         }));
       }
-    } catch (error) {
-      console.error('Failed to load packages:', error);
+    } catch {
+      // Silent failure for production security
     }
     return [];
   }
@@ -132,17 +131,16 @@ export class CyberInvestigationStorage {
   // Investigations Management
   static saveInvestigations(investigations: CyberInvestigation[]): void {
     try {
-      localStorage.setItem(STORAGE_KEYS.INVESTIGATIONS, JSON.stringify(investigations));
-    } catch (error) {
-      console.error('Failed to save investigations:', error);
+      secureStorage.setItem(STORAGE_KEYS.INVESTIGATIONS, investigations);
+    } catch {
+      // Silent failure for production security
     }
   }
 
   static loadInvestigations(): CyberInvestigation[] {
     try {
-      const data = localStorage.getItem(STORAGE_KEYS.INVESTIGATIONS);
-      if (data) {
-        const investigations: SerializedInvestigation[] = JSON.parse(data);
+      const investigations = secureStorage.getItem<SerializedInvestigation[]>(STORAGE_KEYS.INVESTIGATIONS);
+      if (investigations) {
         // Convert date strings back to Date objects
         return investigations.map((inv) => ({
           ...inv,
@@ -155,8 +153,8 @@ export class CyberInvestigationStorage {
           })) || []
         }));
       }
-    } catch (error) {
-      console.error('Failed to load investigations:', error);
+    } catch {
+      // Silent failure for production security
     }
     return [];
   }
@@ -188,11 +186,11 @@ export class CyberInvestigationStorage {
 
   static clearAllData(): void {
     try {
-      localStorage.removeItem(STORAGE_KEYS.TEAMS);
-      localStorage.removeItem(STORAGE_KEYS.PACKAGES);
-      localStorage.removeItem(STORAGE_KEYS.INVESTIGATIONS);
-    } catch (error) {
-      console.error('Failed to clear data:', error);
+      secureStorage.removeItem(STORAGE_KEYS.TEAMS);
+      secureStorage.removeItem(STORAGE_KEYS.PACKAGES);
+      secureStorage.removeItem(STORAGE_KEYS.INVESTIGATIONS);
+    } catch {
+      // Silent failure for production security
     }
   }
 
@@ -213,8 +211,8 @@ export class CyberInvestigationStorage {
       if (data.packages) this.savePackages(data.packages);
       if (data.investigations) this.saveInvestigations(data.investigations);
       return true;
-    } catch (error) {
-      console.error('Failed to import data:', error);
+    } catch {
+      // Silent failure for production security
       return false;
     }
   }

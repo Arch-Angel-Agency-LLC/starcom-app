@@ -8,6 +8,7 @@
 // Enhanced with zero-trust validation, audit trails, and classification enforcement
 
 import { CyberTeam, IntelPackage, CyberInvestigation } from '../types/cyberInvestigation';
+import { secureStorage } from '../utils/secureStorage';
 import { SOCOMPQCryptoService } from './crypto/SOCOMPQCryptoService';
 
 // Advanced Cybersecurity Interfaces
@@ -350,7 +351,7 @@ export class IPFSService {
 
   private loadMockStorage(): void {
     try {
-      const stored = localStorage.getItem('ipfs-mock-storage');
+      const stored = secureStorage.getItem<string>('ipfs-mock-storage');
       if (stored) {
         const data = JSON.parse(stored);
         this.mockStorage = new Map(Object.entries(data));
@@ -363,7 +364,7 @@ export class IPFSService {
   private saveMockStorage(): void {
     try {
       const data = Object.fromEntries(this.mockStorage);
-      localStorage.setItem('ipfs-mock-storage', JSON.stringify(data));
+      secureStorage.setItem('ipfs-mock-storage', JSON.stringify(data));
     } catch (error) {
       console.warn('Failed to save mock IPFS storage:', error);
     }
@@ -990,7 +991,7 @@ export class IPFSService {
   clearMockStorage(): void {
     try {
       this.mockStorage.clear();
-      localStorage.removeItem('ipfs-mock-storage');
+      secureStorage.removeItem('ipfs-mock-storage');
       
       // Reset failure counters
       this.failureCount = 0;

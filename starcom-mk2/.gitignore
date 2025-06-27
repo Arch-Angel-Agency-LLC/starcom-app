@@ -1,3 +1,28 @@
+# Dependencies
+node_modules
+/node_modules
+
+# Build outputs
+dist
+dist-ssr
+build
+out
+target/
+*.d.ts.map
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+*.pfx
+devnet-keypair.json
+mainnet-keypair.json
+testnet-keypair.json
+*-keypair.json
+
 # Logs
 logs
 *.log
@@ -7,14 +32,43 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage
+*.lcov
+
+# nyc test coverage
+.nyc_output
+
+# Test outputs and artifacts
+test-results/
+playwright-report/
+/test-results/
+/playwright-report/
+*.junit.xml
+
+# Cache directories
+cache/
+.cache/
+.npm
+.eslintcache
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
 
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
 .idea
 .DS_Store
 *.suo
@@ -22,4 +76,69 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Binary files and archives
+*.tar.gz
+*.tgz
+*.zip
+*.rar
+*.7z
+*.exe
+*.dll
+*.so
+*.dylib
+*.wasm
+!src/wasm/*.wasm
+
+# Rust specific
+/target/
+**/*.rs.bk
+Cargo.lock
+
+# WebAssembly
+*.wasm.map
+
+# Documentation backups and artifacts
+docs-artifacts-backup-*.tar.gz
+*-backup-*.tar.gz
+
+# Local development
+.local
+*.local
 .vercel
+
+# Generated files
+*.generated.*
+codegen.*
+
+# Solana/Anchor specific
+.anchor
+target/
+deploy/
+migrations/
+programs/.bin/
+
+# AI/ML model files
+*.model
+*.pkl
+*.h5
+*.pb
+
+# Large data files
+*.csv
+*.json.bak
+*.db
+*.sqlite
+*.sqlite3

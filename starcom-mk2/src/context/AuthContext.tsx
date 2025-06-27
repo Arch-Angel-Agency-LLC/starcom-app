@@ -82,8 +82,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode; value?: AuthCon
     const auditTrail: SecurityAuditEvent[] = [];
     
     try {
-      console.log('🔐 Performing Advanced Authentication Security Processing...');
-      
       // 1. DID Verification
       let didVerified = false;
       if (AUTH_SECURITY_CONFIG.DID_VERIFICATION_REQUIRED) {
@@ -158,18 +156,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode; value?: AuthCon
         auditTrail
       };
       
-      console.log('🛡️ Advanced Authentication Security Complete:', {
-        pqcAuthEnabled,
-        didVerified,
-        securityLevel,
-        classificationLevel
-      });
-      
       return metadata;
       
-    } catch (error) {
-      console.error('❌ Advanced authentication security failed:', error);
-      
+    } catch (_error) {
       // Fallback security metadata
       return {
         pqcAuthEnabled: false,
@@ -182,24 +171,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode; value?: AuthCon
   }, [didAuthState.did, didAuthState.credentials]);
 
   // Helper Functions for Advanced Security
-  const verifyUserDID = async (walletAddress: string): Promise<{
+  const verifyUserDID = async (_walletAddress: string): Promise<{
     verified: boolean;
     did: string;
     credentials: string[];
   }> => {
-    // Mock DID verification - in production would verify with DID registry
-    const mockDID = `did:socom:${walletAddress.slice(0, 8)}`;
-    const mockCredentials = ['authenticated-user', 'wallet-verified'];
-    
-    // Enhanced credentials based on wallet analysis
-    if (walletAddress.length === 44) { // Solana address format
-      mockCredentials.push('solana-verified');
-    }
-    
+    // TODO: Replace with real server-side DID verification
+    // Example placeholder for integration:
+    // const response = await fetch('/api/v1/auth/verify-did', {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify({ walletAddress })
+    // });
+    // return await response.json();
     return {
-      verified: true,
-      did: mockDID,
-      credentials: mockCredentials
+      verified: false,
+      did: '',
+      credentials: []
     };
   };
 
@@ -215,20 +203,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode; value?: AuthCon
       await pqCryptoService.generateKEMKeyPair();
       await pqCryptoService.generateSignatureKeyPair();
       
-      // Generate one-time key for session
-      const otkId = `otk-auth-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      
-      console.log('🔐 PQC Authentication Enhanced:', {
-        algorithm: 'ML-KEM-768 + ML-DSA-65',
-        otkId
-      });
+      // TODO: Replace with server-side secure OTK generation
+      // Example: const response = await fetch('/api/v1/auth/generate-otk')
+      const otkId = '';
       
       return {
-        enabled: true,
+        enabled: false, // Disabled until real server-side implementation
         otkId
       };
-    } catch (error) {
-      console.error('PQC auth enhancement failed:', error);
+    } catch (_error) {
+      // TODO: Send error to secure logging service
       return {
         enabled: false,
         otkId: ''
@@ -245,9 +229,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode; value?: AuthCon
     };
   };
 
-  const generatePQCSignature = async (operation: string, walletAddress: string): Promise<string> => {
-    const message = `${operation}:${walletAddress}:${Date.now()}`;
-    return `pqc-sig-${Buffer.from(message).toString('base64').slice(0, 16)}`;
+  const generatePQCSignature = async (_operation: string, _walletAddress: string): Promise<string> => {
+    // TODO: Replace with real PQC implementation
+    // Example integration with server-side PQC:
+    // const response = await fetch('/api/v1/auth/pqc-sign', {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify({ operation, walletAddress })
+    // });
+    // return await response.text();
+    return '';
   };
 
   const determineSecurityLevel = (
@@ -402,35 +393,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode; value?: AuthCon
 
   const forceReset = useCallback(async () => {
     try {
-      console.log('🔄 Force resetting authentication state...');
-      
       // Clear all errors first
       setAuthError(null);
       
       // Force sign out to clear any stale sessions
       signOut();
       
-      // Clear any additional localStorage items that might be stale
+      // Clear any additional session and wallet storage securely
       try {
+        // Remove secure session and auth data
+        if (typeof window !== 'undefined' && window.sessionStorage) {
+          sessionStorage.clear();
+        }
+        // Remove legacy localStorage items for backward compatibility
         localStorage.removeItem('siws-session');
         localStorage.removeItem('wallet-adapter');
-        // Clear any other wallet-related storage
         Object.keys(localStorage).forEach(key => {
           if (key.includes('wallet') || key.includes('solana') || key.includes('auth')) {
             localStorage.removeItem(key);
           }
         });
-        
-        // In development, log what was cleared
-        if (process.env.NODE_ENV === 'development') {
-          console.log('🧹 Cleared localStorage items:', 
-            Object.keys(localStorage).filter(key => 
-              key.includes('wallet') || key.includes('solana') || key.includes('auth')
-            )
-          );
-        }
-      } catch (err) {
-        console.warn('Failed to clear some localStorage items:', err);
+      } catch {
+        // Ignore errors during storage clearing
       }
       
       // Force disconnect wallet
@@ -440,8 +424,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode; value?: AuthCon
       
       // Wait a bit for state to settle
       await new Promise(resolve => setTimeout(resolve, 500));
-      
-      console.log('✅ Authentication state reset complete');
       
     } catch (error) {
       console.error('Force reset failed:', error);

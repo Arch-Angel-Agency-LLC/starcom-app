@@ -1,16 +1,23 @@
 use anyhow::{Result, Context};
 use axum::{
     extract::State,
-    http::StatusCode,
+    http::{StatusCode, Method, header::{AUTHORIZATION, CONTENT_TYPE}},
     response::Json,
     routing::{get, post},
-    Router,
+    Router, middleware,
 };
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tracing::{info, error};
+use tower_http::cors::{CorsLayer, Any};
 
-use crate::{nostr_relay::NostrRelay, ipfs_node::IPFSNode};
+use crate::{
+    nostr_relay::NostrRelay, 
+    ipfs_node::IPFSNode, 
+    investigation_service::InvestigationService, 
+    investigation_api,
+    auth::auth_middleware,
+};
 
 #[derive(thiserror::Error, Debug)]
 pub enum APIError {
@@ -69,38 +76,61 @@ pub struct StoreContentResponse {
 pub struct APIGateway {
     nostr_relay: Arc<NostrRelay>,
     ipfs_node: Arc<IPFSNode>,
+    investigation_service: Arc<InvestigationService>,
 }
 
 impl APIGateway {
     pub async fn new(
         nostr_relay: Arc<NostrRelay>,
         ipfs_node: Arc<IPFSNode>,
+        investigation_service: Arc<InvestigationService>,
     ) -> Result<Self> {
         Ok(Self {
             nostr_relay,
             ipfs_node,
+            investigation_service,
         })
     }
 
     pub async fn start(&self) -> Result<()> {
-        let app = Router::new()
-            // Health and discovery endpoints
+        // Configure CORS for secure cross-origin requests
+        let cors = CorsLayer::new()
+            .allow_origin("http://localhost:3000".parse::<axum::http::HeaderValue>().unwrap())
+            .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE, Method::OPTIONS])
+            .allow_headers([AUTHORIZATION, CONTENT_TYPE])
+            .allow_credentials(true);
+
+        // Create investigation router with investigation service
+        let investigation_router = investigation_api::create_investigation_router()
+            .with_state(self.investigation_service.clone());
+
+        // Create public routes (no authentication required)
+        let public_routes = Router::new()
             .route("/api/v1/health", get(health_check))
             .route("/api/v1/services", get(get_services))
-            
-            // Nostr relay endpoints
+            .with_state(self.clone());
+
+        // Create protected routes (authentication required)
+        let protected_routes = Router::new()
             .route("/api/v1/nostr/status", get(nostr_status))
-            
-            // IPFS node endpoints  
             .route("/api/v1/ipfs/status", get(ipfs_status))
             .route("/api/v1/ipfs/store", post(store_content))
-            
+            .merge(investigation_router)
+            .layer(middleware::from_fn(auth_middleware))
             .with_state(self.clone());
+            
+        let app = Router::new()
+            .merge(public_routes)
+            .merge(protected_routes)
+            // Apply CORS to all routes
+            .layer(cors);
 
         let listener = tokio::net::TcpListener::bind("127.0.0.1:8081").await
             .context("Failed to bind API server to port 8081")?;
             
         info!("🌐 API Gateway started on http://127.0.0.1:8081");
+        info!("🔐 Authentication middleware enabled");
+        info!("🛡️  CORS protection configured");
         
         axum::serve(listener, app).await
             .context("API server failed")?;

@@ -139,6 +139,41 @@
       "text": "TODO: Integrate with live Solana/secure backend overlays when available."
     },
     {
+      "file": "src/components/Investigation/InvestigationDashboard.tsx",
+      "line": 317,
+      "text": "TODO: Get from auth context"
+    },
+    {
+      "file": "src/components/Investigation/InvestigationGrid.tsx",
+      "line": 307,
+      "text": "TODO: Connect to actual task counts */}"
+    },
+    {
+      "file": "src/components/Investigation/InvestigationGrid.tsx",
+      "line": 314,
+      "text": "TODO: Connect to actual evidence counts */}"
+    },
+    {
+      "file": "src/components/Investigation/InvestigationGrid.tsx",
+      "line": 356,
+      "text": "TODO: Implement full create form */}"
+    },
+    {
+      "file": "src/components/Investigation/TaskKanban.tsx",
+      "line": 130,
+      "text": "TODO: Show error notification"
+    },
+    {
+      "file": "src/components/Investigation/TaskKanban.tsx",
+      "line": 148,
+      "text": "TODO: Get from auth context"
+    },
+    {
+      "file": "src/components/Investigation/TaskKanban.tsx",
+      "line": 168,
+      "text": "TODO: Show error notification"
+    },
+    {
       "file": "src/components/SpaceWeather/SpaceWeatherStatus.tsx",
       "line": 6,
       "text": "TODO: Integrate with existing HUD system and globe overlays"
@@ -147,6 +182,26 @@
       "file": "src/components/TinyGlobe/TinyGlobe.test.tsx",
       "line": 46,
       "text": "TODO: Add more tests to check globe material changes and fallback behavior"
+    },
+    {
+      "file": "src/context/AuthContext.tsx",
+      "line": 179,
+      "text": "TODO: Replace with real server-side DID verification"
+    },
+    {
+      "file": "src/context/AuthContext.tsx",
+      "line": 206,
+      "text": "TODO: Replace with server-side secure OTK generation"
+    },
+    {
+      "file": "src/context/AuthContext.tsx",
+      "line": 215,
+      "text": "TODO: Send error to secure logging service"
+    },
+    {
+      "file": "src/context/AuthContext.tsx",
+      "line": 233,
+      "text": "TODO: Replace with real PQC implementation"
     },
     {
       "file": "src/globe-engine/GlobeEngine.ts",
@@ -209,6 +264,56 @@
       "text": "TODO: Implement actual proof lookup using ipfsHash"
     },
     {
+      "file": "src/services/IPFSContentOrchestrator.ts",
+      "line": 450,
+      "text": "TODO: Implement full-text search on query and tags"
+    },
+    {
+      "file": "src/services/IPFSContentOrchestrator.ts",
+      "line": 634,
+      "text": "TODO: Implement actual replication to peers"
+    },
+    {
+      "file": "src/services/IPFSContentOrchestrator.ts",
+      "line": 644,
+      "text": "TODO: Implement intelligent source selection based on network performance"
+    },
+    {
+      "file": "src/services/IPFSContentOrchestrator.ts",
+      "line": 685,
+      "text": "TODO: Implement content recovery from alternative sources"
+    },
+    {
+      "file": "src/services/IPFSContentOrchestrator.ts",
+      "line": 690,
+      "text": "TODO: Implement comprehensive access logging"
+    },
+    {
+      "file": "src/services/IPFSNostrBridgeService.ts",
+      "line": 678,
+      "text": "TODO: Implement investigation timeline handling"
+    },
+    {
+      "file": "src/services/IPFSNostrBridgeService.ts",
+      "line": 684,
+      "text": "TODO: Implement evidence custody chain handling"
+    },
+    {
+      "file": "src/services/IPFSNostrBridgeService.ts",
+      "line": 689,
+      "text": "TODO: Implement search query handling"
+    },
+    {
+      "file": "src/services/IPFSNostrBridgeService.ts",
+      "line": 695,
+      "text": "TODO: Implement search result handling"
+    },
+    {
+      "file": "src/services/IPFSNostrBridgeService.ts",
+      "line": 701,
+      "text": "TODO: Implement peer discovery handling"
+    },
+    {
       "file": "src/services/IntelReportService.ts",
       "line": 57,
       "text": "TODO: Re-enable when Anchor integration is ready"
@@ -234,9 +339,59 @@
       "text": "TODO: Implement actual account fetching once program is deployed"
     },
     {
+      "file": "src/services/InvestigationApiService.ts",
+      "line": 183,
+      "text": "TODO: Integrate with actual auth system"
+    },
+    {
+      "file": "src/services/InvestigationApiService.ts",
+      "line": 608,
+      "text": "TODO: Add message handling logic"
+    },
+    {
       "file": "src/services/NOAAGeomagneticService.test.ts",
       "line": 8,
       "text": "TODO: Implement NOAAGeomagneticService tests"
+    },
+    {
+      "file": "src/services/RelayNodeIPFSService.ts",
+      "line": 406,
+      "text": "TODO: Implement DID verification"
+    },
+    {
+      "file": "src/services/RelayNodeIPFSService.ts",
+      "line": 407,
+      "text": "TODO: Implement OTK"
+    },
+    {
+      "file": "src/services/RelayNodeIPFSService.ts",
+      "line": 655,
+      "text": "TODO: Implement actual event emission"
+    },
+    {
+      "file": "src/services/UnifiedIPFSNostrService.ts",
+      "line": 425,
+      "text": "TODO: Implement distributed search via Nostr"
+    },
+    {
+      "file": "src/services/UnifiedIPFSNostrService.ts",
+      "line": 626,
+      "text": "TODO: Implement actual replication checking"
+    },
+    {
+      "file": "src/services/UnifiedIPFSNostrService.ts",
+      "line": 797,
+      "text": "TODO: Implement IPFS update handling"
+    },
+    {
+      "file": "src/services/UnifiedIPFSNostrService.ts",
+      "line": 802,
+      "text": "TODO: Implement Nostr announcement handling"
+    },
+    {
+      "file": "src/services/collaborationService.ts",
+      "line": 517,
+      "text": "TODO: Replace with real server-side PQC implementation"
     },
     {
       "file": "src/services/data-management/StarcomDataManager.ts",
@@ -307,6 +462,11 @@
       "file": "src/services/nftService.ts",
       "line": 9,
       "text": "TODO: Implement mintIntelReportNFT() using secure Solana logic only."
+    },
+    {
+      "file": "src/services/nostrService.ts",
+      "line": 1050,
+      "text": "TODO: Send auditEvent to security audit service"
     },
     {
       "file": "src/services/shared/FallbackProvider.unit.test.ts",
@@ -432,8 +592,8 @@
     },
     {
       "file": "src/components/CyberInvestigation/CyberInvestigationMVP.tsx",
-      "line": 9,
-      "text": "AI-NOTE: MVP POC for small cyber investigation teams (3-9 people)"
+      "line": 6,
+      "text": "AI-NOTE: Enhanced MVP for cyber investigation teams"
     },
     {
       "file": "src/components/CyberInvestigation/IntelReportSubmission.tsx",
@@ -567,7 +727,7 @@
     },
     {
       "file": "src/components/SettingsInitializer.tsx",
-      "line": 8,
+      "line": 9,
       "text": "AI-NOTE: Component to ensure all persistent settings are properly initialized and reflected in the UI"
     },
     {
@@ -592,7 +752,7 @@
     },
     {
       "file": "src/context/AuthContext.tsx",
-      "line": 537,
+      "line": 519,
       "text": "AI-NOTE: EVM/ethers.js version archived in legacy-evm/AuthContext.tsx. Implement Solana logic here."
     },
     {
@@ -867,7 +1027,7 @@
     },
     {
       "file": "src/services/nostrService.ts",
-      "line": 1054,
+      "line": 1077,
       "text": "AI-NOTE: \"Resistance cell\" is misnomer - these are reclamation cells taking planet back"
     },
     {
@@ -931,5 +1091,5 @@
       "text": "AI-NOTE: EVM/ethers.js version archived in legacy-evm/wallet.ts. Implement Solana logic here."
     }
   ],
-  "generatedAt": "2025-06-25T22:51:22.989Z"
+  "generatedAt": "2025-06-27T01:53:01.099Z"
 }

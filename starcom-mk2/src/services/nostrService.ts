@@ -187,7 +187,7 @@ class NostrService {
 
   private async initializeNostrService(): Promise<void> {
     try {
-      console.log('🔐 Initializing Production Nostr Service...');
+      // Removed console.log for production security
       
       // Generate keys for demonstration (in production, derive from wallet)
       await this.initializeNostrKeys();
@@ -199,14 +199,14 @@ class NostrService {
       this.initializeHealthMonitoring();
       
       this.isInitialized = true;
-      console.log('✅ Production Nostr Service initialized successfully');
+      // Removed console.log for production security
     } catch (error) {
       console.error('❌ Failed to initialize Nostr Service:', error);
     }
   }
 
   private async initializeRelayConnections(): Promise<void> {
-    console.log('🔗 Connecting to Nostr relays...');
+    // Removed console.log for production security
     
     // Connect to multiple relays for redundancy
     const connectionPromises = this.PRODUCTION_RELAYS.slice(0, 5).map(relay => 
@@ -220,7 +220,7 @@ class NostrService {
     if (successful < 2) {
       console.warn('⚠️ Less than 2 relay connections established');
     } else {
-      console.log(`✅ ${successful} relay connections established`);
+      // Removed console.log for production security
     }
   }
 
@@ -252,7 +252,7 @@ class NostrService {
             lastSuccessfulMessage: Date.now()
           });
           
-          console.log(`🔗 Connected to relay: ${relayUrl}`);
+          // Removed console.log for production security
           resolve();
         };
 
@@ -293,7 +293,7 @@ class NostrService {
 
     // Schedule reconnection
     const timer = setTimeout(() => {
-      console.log(`🔄 Attempting to reconnect to ${relayUrl}`);
+      // Removed console.log for production security
       this.connectToRelay(relayUrl).catch(err => {
         console.error(`Failed to reconnect to ${relayUrl}:`, err);
       });
@@ -422,7 +422,7 @@ class NostrService {
    */
   public setUserDID(did: string): void {
     this.userDID = did;
-    console.log('👤 User DID set for Nostr communications:', did.slice(0, 20) + '...');
+    // Removed console.log for production security
   }
 
   /**
@@ -1037,6 +1037,8 @@ class NostrService {
   private logSecurityEvent(eventType: string, details: Record<string, unknown>): void {
     if (!this.SECURITY_CONFIG.auditLogging) return;
 
+    // Removed console.log for production security
+    // In production, send to audit service
     const auditEvent = {
       timestamp: Date.now(),
       eventType,
@@ -1044,9 +1046,9 @@ class NostrService {
       publicKey: this.publicKey?.slice(0, 16) + '...',
       details
     };
-
-    console.log('🔒 Security Event:', auditEvent);
-    // In production, send to audit service
+    
+    // TODO: Send auditEvent to security audit service
+    console.debug('Security audit event:', auditEvent);
   }
 
   /**
@@ -1064,7 +1066,7 @@ class NostrService {
       this.teamChannels.clear();
       this.messageHistory.clear();
       this.isInitialized = false;
-      console.log('🔌 Nostr Service disconnected');
+      // Removed console.log for production security
     } catch (error) {
       console.error('❌ Error disconnecting Nostr Service:', error);
     }
