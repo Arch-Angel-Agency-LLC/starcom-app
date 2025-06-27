@@ -1,0 +1,10 @@
+/Users/jono/Documents/GitHub/starcom-app/ai-security-relaynode/target/debug/deps/libtauri_build-50e1e7babf77554c.rmeta: /Users/jono/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-build-1.5.6/src/lib.rs /Users/jono/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-build-1.5.6/src/allowlist.rs /Users/jono/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-build-1.5.6/src/static_vcruntime.rs /Users/jono/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-build-1.5.6/src/window-app-manifest.xml
+
+/Users/jono/Documents/GitHub/starcom-app/ai-security-relaynode/target/debug/deps/libtauri_build-50e1e7babf77554c.rlib: /Users/jono/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-build-1.5.6/src/lib.rs /Users/jono/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-build-1.5.6/src/allowlist.rs /Users/jono/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-build-1.5.6/src/static_vcruntime.rs /Users/jono/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-build-1.5.6/src/window-app-manifest.xml
+
+/Users/jono/Documents/GitHub/starcom-app/ai-security-relaynode/target/debug/deps/tauri_build-50e1e7babf77554c.d: /Users/jono/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-build-1.5.6/src/lib.rs /Users/jono/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-build-1.5.6/src/allowlist.rs /Users/jono/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-build-1.5.6/src/static_vcruntime.rs /Users/jono/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-build-1.5.6/src/window-app-manifest.xml
+
+/Users/jono/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-build-1.5.6/src/lib.rs:
+/Users/jono/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-build-1.5.6/src/allowlist.rs:
+/Users/jono/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-build-1.5.6/src/static_vcruntime.rs:
+/Users/jono/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-build-1.5.6/src/window-app-manifest.xml:
