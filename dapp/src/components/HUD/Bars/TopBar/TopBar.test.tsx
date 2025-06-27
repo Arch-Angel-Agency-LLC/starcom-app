@@ -9,7 +9,7 @@ import { vi, describe, it, expect } from 'vitest';
 import { AuthProvider } from '../../../../context/AuthContext';
 
 // Mock logo import
-vi.mock('../../../../assets/images/WingCommanderLogo-288x162.gif', () => ({ default: 'logo.png' }));
+vi.mock('/src/assets/images/WingCommanderLogo-288x162.gif', () => ({ default: 'logo.png' }));
 
 // Mock useTopBarData to return stable values
 vi.mock('./useTopBarData', () => ({
