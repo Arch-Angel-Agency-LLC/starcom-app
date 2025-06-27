@@ -1,0 +1,535 @@
+/**
+ * Progressive Disclosure Component Styles
+ * 
+ * RTS-inspired styling for skill progression, feature unlocking,
+ * and adaptive learning interface components.
+ */
+
+.progressiveDisclosure {
+  background: linear-gradient(135deg, #1a1d2e 0%, #16213e 100%);
+  border: 1px solid #00ffff40;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 
+    0 4px 20px rgba(0, 255, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.progressiveDisclosure::-webkit-scrollbar {
+  width: 8px;
+}
+
+.progressiveDisclosure::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+.progressiveDisclosure::-webkit-scrollbar-thumb {
+  background: rgba(0, 255, 255, 0.3);
+  border-radius: 4px;
+}
+
+.progressiveDisclosure::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 255, 255, 0.5);
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #00ffff30;
+}
+
+.title {
+  color: #00ffff;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.overallProgress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.progressLabel {
+  color: #b0b0b0;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.progressBar {
+  position: relative;
+  width: 120px;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #00ff00, #00ffff);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progressText {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+/* Compact Mode */
+.compactDisclosure {
+  background: rgba(0, 255, 255, 0.1);
+  border: 1px solid #00ffff40;
+  border-radius: 6px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 120px;
+}
+
+.compactHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.progressBadge {
+  background: #00ffff;
+  color: #000000;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  min-width: 32px;
+  text-align: center;
+}
+
+.compactTitle {
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.compactProgressBar {
+  flex: 1;
+  height: 4px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.compactProgressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #00ff00, #00ffff);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+/* Section Styling */
+.skillsSection,
+.featuresSection,
+.recommendationsSection,
+.tutorialsSection,
+.achievementSection {
+  margin-bottom: 20px;
+}
+
+.sectionTitle {
+  color: #00ffff;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Skills Grid */
+.skillsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.skillCard {
+  background: rgba(0, 0, 0, 0.3);
+  border: 2px solid transparent;
+  border-radius: 8px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.skillCard:hover {
+  background: rgba(0, 255, 255, 0.05);
+  transform: translateY(-2px);
+}
+
+.skillCard.selected {
+  background: rgba(0, 255, 255, 0.1);
+  border-color: #00ffff;
+}
+
+.skillHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.skillName {
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.skillLevel {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 8px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 4px;
+}
+
+.skillProgress {
+  margin-bottom: 8px;
+}
+
+.skillProgressBar {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.skillProgressFill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.skillCategory {
+  color: #b0b0b0;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.nextUnlock {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #ffffff20;
+}
+
+.unlockText {
+  color: #ffff00;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+/* Skill Details */
+.skillDetails {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #00ffff30;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.detailSection {
+  margin-bottom: 8px;
+}
+
+.detailLabel {
+  color: #b0b0b0;
+  font-size: 11px;
+  font-weight: 500;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.detailValue {
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.featureList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.featureTag {
+  background: rgba(0, 255, 255, 0.2);
+  color: #00ffff;
+  font-size: 9px;
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: 3px;
+  text-transform: capitalize;
+}
+
+.levelUpButton {
+  background: linear-gradient(135deg, #00ff00, #00ffff);
+  color: #000000;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 8px;
+  width: 100%;
+}
+
+.levelUpButton:hover:not(:disabled) {
+  background: linear-gradient(135deg, #00ffff, #00ff00);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 255, 255, 0.3);
+}
+
+.levelUpButton:disabled {
+  background: rgba(128, 128, 128, 0.3);
+  color: #666666;
+  cursor: not-allowed;
+}
+
+/* Features Section */
+.featuresHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  padding: 8px 0;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.featuresHeader:hover {
+  background: rgba(0, 255, 255, 0.05);
+}
+
+.expandIcon {
+  color: #00ffff;
+  font-size: 12px;
+  transition: transform 0.2s ease;
+}
+
+.expandIcon.expanded {
+  transform: rotate(180deg);
+}
+
+.featuresList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.featureItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 255, 0, 0.1);
+  border: 1px solid rgba(0, 255, 0, 0.3);
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+
+.featureIcon {
+  color: #00ff00;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.featureName {
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* Recommendations */
+.recommendationsList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.recommendationItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 0, 0.1);
+  border: 1px solid rgba(255, 255, 0, 0.3);
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+
+.recommendationIcon {
+  font-size: 14px;
+}
+
+.recommendationText {
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* Tutorials */
+.tutorialsList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 8px;
+}
+
+.tutorialItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 100, 255, 0.1);
+  border: 1px solid rgba(0, 100, 255, 0.3);
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+
+.tutorialIcon {
+  font-size: 12px;
+}
+
+.tutorialName {
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+/* Achievement */
+.achievementDisplay {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(255, 0, 128, 0.1);
+  border: 1px solid rgba(255, 0, 128, 0.3);
+  border-radius: 8px;
+  padding: 12px 16px;
+}
+
+.achievementLevel {
+  color: #ff0080;
+  font-size: 18px;
+  font-weight: 700;
+  text-shadow: 0 0 10px rgba(255, 0, 128, 0.5);
+}
+
+.achievementProgress {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.achievementBar {
+  width: 100%;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.achievementFill {
+  height: 100%;
+  background: linear-gradient(90deg, #ff0080, #ff8000);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.achievementText {
+  color: #b0b0b0;
+  font-size: 10px;
+  font-weight: 500;
+  text-align: center;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .progressiveDisclosure {
+    padding: 16px;
+  }
+  
+  .skillsGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .overallProgress {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .progressBar {
+    width: 100px;
+  }
+  
+  .featuresList {
+    grid-template-columns: 1fr;
+  }
+  
+  .tutorialsList {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Accessibility */
+.skillCard:focus {
+  outline: 2px solid #00ffff;
+  outline-offset: 2px;
+}
+
+.levelUpButton:focus {
+  outline: 2px solid #00ffff;
+  outline-offset: 2px;
+}
+
+.featuresHeader:focus {
+  outline: 2px solid #00ffff;
+  outline-offset: 2px;
+}

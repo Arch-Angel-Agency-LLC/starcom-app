@@ -1,0 +1,86 @@
+[
+    {
+        "energy": ">=1 MeV",
+        "instrument": "protons",
+        "satellite": 18,
+        "time_tag": "2025-02-17T00:00:00Z",
+        "fluence": 503939.9556420666
+    },
+    {
+        "energy": ">=10 MeV",
+        "instrument": "protons",
+        "satellite": 18,
+        "time_tag": "2025-02-17T00:00:00Z",
+        "fluence": 16614.35915409075
+    },
+    {
+        "energy": ">=1 MeV",
+        "instrument": "protons",
+        "satellite": 18,
+        "time_tag": "2025-02-18T00:00:00Z",
+        "fluence": 779467.0846379752
+    },
+    {
+        "energy": ">=10 MeV",
+        "instrument": "protons",
+        "satellite": 18,
+        "time_tag": "2025-02-18T00:00:00Z",
+        "fluence": 16529.368712415333
+    },
+    {
+        "energy": ">=1 MeV",
+        "instrument": "protons",
+        "satellite": 18,
+        "time_tag": "2025-02-19T00:00:00Z",
+        "fluence": 341639.601799361
+    },
+    {
+        "energy": ">=10 MeV",
+        "instrument": "protons",
+        "satellite": 18,
+        "time_tag": "2025-02-19T00:00:00Z",
+        "fluence": 15760.327901312225
+    },
+    {
+        "energy": ">=1 MeV",
+        "instrument": "protons",
+        "satellite": 18,
+        "time_tag": "2025-02-20T00:00:00Z",
+        "fluence": 45198.24400839096
+    },
+    {
+        "energy": ">=10 MeV",
+        "instrument": "protons",
+        "satellite": 18,
+        "time_tag": "2025-02-20T00:00:00Z",
+        "fluence": 16462.321672142585
+    },
+    {
+        "energy": ">=1 MeV",
+        "instrument": "protons",
+        "satellite": 18,
+        "time_tag": "2025-02-21T00:00:00Z",
+        "fluence": 82894.86645035265
+    },
+    {
+        "energy": ">=10 MeV",
+        "instrument": "protons",
+        "satellite": 18,
+        "time_tag": "2025-02-21T00:00:00Z",
+        "fluence": 18058.692062767317
+    },
+    {
+        "energy": ">=1 MeV",
+        "instrument": "protons",
+        "satellite": 18,
+        "time_tag": "2025-02-22T00:00:00Z",
+        "fluence": 12335233.59267291
+    },
+    {
+        "energy": ">=10 MeV",
+        "instrument": "protons",
+        "satellite": 18,
+        "time_tag": "2025-02-22T00:00:00Z",
+        "fluence": 26353.86517683115
+    }
+]

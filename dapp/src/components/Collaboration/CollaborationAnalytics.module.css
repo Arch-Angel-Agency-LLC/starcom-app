@@ -1,0 +1,439 @@
+/**
+ * Collaboration Analytics Styles
+ * Styles for analytics dashboard and data visualization components
+ */
+
+.analytics {
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(0, 20, 40, 0.95), rgba(0, 40, 80, 0.85));
+  border-radius: 8px;
+  color: #ffffff;
+  font-family: 'Orbitron', monospace;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+/* Analytics Header */
+.analyticsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(100, 200, 255, 0.2);
+}
+
+.analyticsTitle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.analyticsIcon {
+  font-size: 1.5rem;
+}
+
+.analyticsTitle h2 {
+  color: #64b5f6;
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.timeRangeSelector {
+  display: flex;
+  gap: 4px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  padding: 4px;
+}
+
+.timeRangeButton {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.timeRangeButton:hover {
+  background: rgba(100, 200, 255, 0.1);
+  color: #ffffff;
+}
+
+.activeTimeRange {
+  background: rgba(100, 200, 255, 0.2) !important;
+  color: #64b5f6 !important;
+}
+
+/* Metrics Grid */
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.metricCard {
+  background: rgba(0, 30, 60, 0.8);
+  border: 1px solid rgba(100, 200, 255, 0.2);
+  border-radius: 8px;
+  padding: 16px;
+  transition: all 0.2s ease;
+}
+
+.metricCard:hover {
+  background: rgba(0, 40, 80, 0.9);
+  border-color: rgba(100, 200, 255, 0.4);
+  transform: translateY(-2px);
+}
+
+.metricHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.metricIcon {
+  font-size: 1.2rem;
+}
+
+.metricTitle {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.metricValue {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 4px;
+}
+
+.trendIndicator {
+  font-size: 1rem;
+}
+
+.metricSubtitle {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.75rem;
+}
+
+/* Charts Grid */
+.chartsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.chartContainer {
+  background: rgba(0, 30, 60, 0.8);
+  border: 1px solid rgba(100, 200, 255, 0.2);
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.chartTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #64b5f6;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.chartIcon {
+  font-size: 1.1rem;
+}
+
+/* Bar Chart */
+.barChart {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.barItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.barLabel {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.barContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 24px;
+}
+
+.bar {
+  height: 8px;
+  border-radius: 4px;
+  min-width: 4px;
+  transition: width 0.3s ease;
+}
+
+.barValue {
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  min-width: 20px;
+}
+
+/* Timeline */
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.timelineItem {
+  display: flex;
+  gap: 12px;
+}
+
+.timelineMarker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.timelineDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid rgba(0, 30, 60, 1);
+}
+
+.timelineLine {
+  width: 2px;
+  flex: 1;
+  background: rgba(100, 200, 255, 0.2);
+  margin-top: 4px;
+}
+
+.timelineContent {
+  flex: 1;
+  padding-bottom: 4px;
+}
+
+.timelineHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.timelineTitle {
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.timelineDate {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.75rem;
+}
+
+.timelineMeta {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.timelineAgency, .timelineParticipants, .timelineStatus {
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.timelineAgency {
+  color: #2196f3;
+}
+
+.timelineParticipants {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Intelligence Sharing */
+.sharingGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.sharingMetric {
+  text-align: center;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+}
+
+.sharingValue {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #64b5f6;
+  margin-bottom: 4px;
+}
+
+.sharingLabel {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.75rem;
+}
+
+.topLists {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.topList h4 {
+  color: #64b5f6;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.topListItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 8px;
+  margin-bottom: 4px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+.topListLabel {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.75rem;
+  text-transform: capitalize;
+}
+
+.topListValue {
+  color: #64b5f6;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* Communication Stats */
+.communicationStats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.statItem {
+  text-align: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+}
+
+.statValue {
+  display: block;
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #64b5f6;
+  margin-bottom: 4px;
+}
+
+.statLabel {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.75rem;
+  line-height: 1.2;
+}
+
+/* Scrollbar Styling */
+.analytics::-webkit-scrollbar {
+  width: 6px;
+}
+
+.analytics::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.analytics::-webkit-scrollbar-thumb {
+  background: rgba(100, 200, 255, 0.3);
+  border-radius: 3px;
+}
+
+.analytics::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 200, 255, 0.5);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .analyticsHeader {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+  
+  .metricsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .chartsGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .sharingGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .topLists {
+    grid-template-columns: 1fr;
+  }
+  
+  .communicationStats {
+    grid-template-columns: 1fr;
+  }
+  
+  .timelineHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  
+  .timelineMeta {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .metricsGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .barContainer {
+    flex-direction: column;
+    align-items: flex-start;
+    height: auto;
+    gap: 4px;
+  }
+  
+  .bar {
+    width: 100%;
+    height: 6px;
+  }
+}

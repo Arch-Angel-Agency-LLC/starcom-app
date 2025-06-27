@@ -1,0 +1,10 @@
+[workspace]
+members = [
+    "ephemeris",
+    "positions",
+    "gravimetrics",
+    "harmonics",
+    "loader",
+    "wasm-ephemeris-api"
+]
+resolver = "2"

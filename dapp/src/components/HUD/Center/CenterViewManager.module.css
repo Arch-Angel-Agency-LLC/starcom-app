@@ -1,0 +1,521 @@
+/* Center View Manager Styles - Multi-Context Display System */
+
+.centerViewManager {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #0a0f1c 0%, #1a2332 100%);
+  border: 1px solid rgba(64, 224, 255, 0.2);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Context Switcher Controls */
+.contextSwitcher {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+  background: rgba(15, 23, 42, 0.8);
+  border-bottom: 1px solid rgba(64, 224, 255, 0.2);
+  backdrop-filter: blur(8px);
+  z-index: 10;
+}
+
+.displayModeControls {
+  display: flex;
+  gap: 8px;
+}
+
+.displayModeControls button {
+  padding: 6px 12px;
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(64, 224, 255, 0.3);
+  border-radius: 4px;
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.displayModeControls button:hover {
+  background: rgba(64, 224, 255, 0.1);
+  color: #40e0ff;
+  border-color: rgba(64, 224, 255, 0.5);
+  transform: translateY(-1px);
+}
+
+.displayModeControls button.active {
+  background: rgba(64, 224, 255, 0.2);
+  color: #40e0ff;
+  border-color: #40e0ff;
+  box-shadow: 0 0 8px rgba(64, 224, 255, 0.3);
+}
+
+.splitControls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.splitControls button {
+  padding: 4px 8px;
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(64, 224, 255, 0.2);
+  border-radius: 3px;
+  color: #94a3b8;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.splitControls button:hover {
+  background: rgba(64, 224, 255, 0.1);
+  color: #40e0ff;
+}
+
+.splitControls button.active {
+  background: rgba(64, 224, 255, 0.15);
+  color: #40e0ff;
+  border-color: #40e0ff;
+}
+
+/* Main Display Area */
+.displayArea {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+}
+
+/* Layout Configurations */
+.singleView {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: stretch; /* Fill available height */
+  justify-content: stretch; /* Fill available width */
+}
+
+.horizontalSplit {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+}
+
+.verticalSplit {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.quadSplit {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 2px;
+}
+
+.viewInstance {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(64, 224, 255, 0.1);
+  background: rgba(15, 23, 42, 0.4);
+  
+  /* Fill all available space */
+  flex: 1;
+  width: 100%;
+  height: 100%;
+}
+
+.horizontalSplit .viewInstance:not(:last-child),
+.verticalSplit .viewInstance:not(:last-child) {
+  border-right: 1px solid rgba(64, 224, 255, 0.2);
+  border-bottom: 1px solid rgba(64, 224, 255, 0.2);
+}
+
+/* Placeholder View Styles */
+.placeholderView {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  position: relative;
+}
+
+.placeholderContent {
+  text-align: center;
+  color: #94a3b8;
+  padding: 20px;
+}
+
+.placeholderContent h3 {
+  color: #40e0ff;
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  text-shadow: 0 0 8px rgba(64, 224, 255, 0.3);
+}
+
+.placeholderContent p {
+  font-size: 14px;
+  margin-bottom: 8px;
+  opacity: 0.8;
+}
+
+.contextControls {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+.contextControls button {
+  padding: 8px 16px;
+  background: rgba(64, 224, 255, 0.1);
+  border: 1px solid rgba(64, 224, 255, 0.3);
+  border-radius: 6px;
+  color: #40e0ff;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 180px;
+}
+
+.contextControls button:hover {
+  background: rgba(64, 224, 255, 0.2);
+  border-color: rgba(64, 224, 255, 0.5);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(64, 224, 255, 0.2);
+}
+
+/* Status Bar */
+.statusBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 16px;
+  background: rgba(15, 23, 42, 0.9);
+  border-top: 1px solid rgba(64, 224, 255, 0.2);
+  font-size: 11px;
+  color: #64748b;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+.statusBar span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.statusBar span:before {
+  content: '•';
+  color: #40e0ff;
+  font-weight: bold;
+}
+
+/* Animation and Transitions */
+.viewInstance {
+  transition: all 0.3s ease;
+}
+
+.centerViewManager[data-layout="horizontal"] .viewInstance {
+  animation: slideInHorizontal 0.3s ease;
+}
+
+.centerViewManager[data-layout="vertical"] .viewInstance {
+  animation: slideInVertical 0.3s ease;
+}
+
+@keyframes slideInHorizontal {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInVertical {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .contextSwitcher {
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px;
+  }
+  
+  .displayModeControls,
+  .splitControls {
+    justify-content: center;
+  }
+  
+  .statusBar {
+    flex-direction: column;
+    gap: 4px;
+    font-size: 10px;
+  }
+  
+  .placeholderContent h3 {
+    font-size: 18px;
+  }
+  
+  .placeholderContent p {
+    font-size: 12px;
+  }
+}
+
+/* Focus and Accessibility */
+.displayModeControls button:focus,
+.splitControls button:focus,
+.contextControls button:focus {
+  outline: 2px solid #40e0ff;
+  outline-offset: 2px;
+}
+
+/* Loading States */
+.viewInstance.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.viewInstance.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 32px;
+  height: 32px;
+  margin: -16px 0 0 -16px;
+  border: 3px solid rgba(64, 224, 255, 0.2);
+  border-top: 3px solid #40e0ff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { 
+    transform: rotate(0deg);
+    transform-origin: center center;
+  }
+  100% { 
+    transform: rotate(360deg);
+    transform-origin: center center;
+  }
+}
+
+/* Node Graph View Styles */
+.nodeGraphView {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #0a0f1c 0%, #1a2332 100%);
+  border: 1px solid rgba(64, 224, 255, 0.2);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.nodeGraphContent {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 1rem;
+}
+
+.viewHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(64, 224, 255, 0.2);
+}
+
+.viewHeader h3 {
+  color: #40e0ff;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.viewMode {
+  color: #94a3b8;
+  font-size: 0.8rem;
+}
+
+.graphCanvas {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.graphPlaceholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #64748b;
+  gap: 2rem;
+}
+
+.nodeVisualization {
+  position: relative;
+  width: 300px;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.centralNode {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(45deg, #40e0ff, #0ea5e9);
+  color: white;
+  padding: 0.8rem 1.2rem;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  box-shadow: 0 4px 20px rgba(64, 224, 255, 0.3);
+  z-index: 2;
+}
+
+.satelliteNodes {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.node {
+  position: absolute;
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(64, 224, 255, 0.4);
+  color: #94a3b8;
+  padding: 0.5rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  backdrop-filter: blur(8px);
+}
+
+.node:nth-child(1) {
+  top: 20%;
+  left: 10%;
+}
+
+.node:nth-child(2) {
+  top: 20%;
+  right: 10%;
+}
+
+.node:nth-child(3) {
+  bottom: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.analysisInfo {
+  color: #64748b;
+  font-size: 0.85rem;
+  font-style: italic;
+  max-width: 300px;
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* Unknown View Styles */
+.unknownView {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #1e1e2e 0%, #2d2d44 100%);
+  border: 1px solid rgba(255, 68, 68, 0.3);
+  border-radius: 8px;
+}
+
+.unknownContent {
+  text-align: center;
+  color: #fbbf24;
+  padding: 2rem;
+}
+
+.unknownContent h3 {
+  color: #fbbf24;
+  margin-bottom: 1rem;
+}
+
+.unknownContent p {
+  color: #94a3b8;
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+}
+
+/* Enhanced Context Controls */
+.contextControls {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(64, 224, 255, 0.2);
+  flex-wrap: wrap;
+}
+
+.splitButton {
+  padding: 0.4rem 0.8rem;
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(64, 224, 255, 0.3);
+  border-radius: 4px;
+  color: #94a3b8;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.splitButton:hover {
+  background: rgba(64, 224, 255, 0.1);
+  color: #40e0ff;
+  border-color: rgba(64, 224, 255, 0.5);
+  transform: translateY(-1px);
+}
+
+.splitButton:active {
+  transform: translateY(0);
+}

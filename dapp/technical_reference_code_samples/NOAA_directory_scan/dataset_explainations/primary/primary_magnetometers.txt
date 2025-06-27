@@ -1,0 +1,22 @@
+The JSON file primary_magnetometers.json contains magnetometer data from NOAA, specifically from the GOES (Geostationary Operational Environmental Satellites) system. This dataset provides measurements of Earth’s geomagnetic field strength at different components, recorded at specific timestamps.
+
+Breakdown of Key Fields:
+	1.	time_tag – The timestamp in UTC, indicating when the reading was taken.
+	2.	satellite – The satellite identifier (e.g., GOES-18), indicating which spacecraft recorded the data.
+	3.	He (Eastward component) – The strength of the horizontal geomagnetic field in the eastward direction, measured in nanoteslas (nT).
+	4.	Hp (Parallel component) – The main parallel component of the geomagnetic field, which aligns with Earth’s magnetic dipole field.
+	5.	Hn (Northward component) – The strength of the horizontal geomagnetic field in the northward direction.
+	6.	total – The total measured geomagnetic field strength, calculated from the vector components.
+	7.	arcjet_flag – A flag indicating whether the satellite’s arcjet propulsion system was active (which can affect magnetometer readings).
+
+Purpose of This Data:
+	•	Geomagnetic Storm Monitoring: Used to track solar storms and space weather conditions.
+	•	Space Weather Forecasting: Helps predict geomagnetic disturbances caused by coronal mass ejections (CMEs), solar flares, and solar wind interactions.
+	•	Auroral Activity Assessment: Variations in geomagnetic field strength correlate with auroral intensity and location.
+	•	Satellite and Communication System Protection: Space weather events can disrupt GPS, satellite communication, and power grids.
+	•	Magnetospheric Research: Used to study Earth’s magnetic field behavior and how it interacts with solar wind.
+
+How This Data Is Used:
+	•	A sharp fluctuation in Hp (parallel component) often indicates a geomagnetic storm.
+	•	Increases in total field strength can signal enhanced solar activity.
+	•	Space agencies and researchers use this to predict aurora activity and geomagnetic disturbances.

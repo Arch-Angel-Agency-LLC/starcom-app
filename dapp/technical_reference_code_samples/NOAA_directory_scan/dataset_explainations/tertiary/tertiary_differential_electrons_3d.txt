@@ -1,0 +1,49 @@
+The JSON file tertiary_differential_electrons_3d.json contains differential electron flux data collected by GOES-16 for a 3-day period. This dataset measures electron flux at various energy levels, which is crucial for monitoring space weather conditions, particularly the behavior of electrons in Earth’s radiation belts.
+
+Breakdown of Key Fields
+	1.	time_tag – Timestamp (UTC) of the recorded measurement.
+	2.	satellite – Identifier of the NOAA satellite (GOES-16).
+	3.	flux – Measured electron flux (particles per cm²·s·sr).
+	4.	energy – The energy range of detected electrons (e.g., “1000-1900 keV”, “80-115 keV”).
+
+Purpose of This Data
+	•	Monitoring Earth’s Radiation Belts:
+	•	This data tracks electron behavior in Earth’s magnetosphere and Van Allen radiation belts.
+	•	Space Weather Impact Assessment:
+	•	High-energy electron storms can cause satellite anomalies, spacecraft charging, and GPS disruptions.
+	•	Prediction of Geomagnetic Storm Effects:
+	•	Increases in electron flux at specific energy levels can signal impending geomagnetic disturbances.
+	•	Satellite & Spacecraft Protection:
+	•	Space weather models use this data to forecast hazardous conditions for satellites and astronauts.
+	•	HF Radio & GPS Signal Disruptions:
+	•	Electron flux variations can affect radio wave propagation, impacting aviation and military communications.
+
+Understanding Differential Electron Flux
+
+Electron Energy Range	Impact
+80-115 keV	Background levels, minimal space weather effects
+115-165 keV	Slight increase, potential early signs of activity
+700-1000 keV	Moderate geomagnetic activity possible
+1000-1900 keV	High-energy electrons, potential for satellite anomalies
+3200-6500 keV	Extremely high energy, may indicate a strong space weather event
+
+	•	High flux values (> 10,000 particles/cm²·s·sr) suggest enhanced solar activity.
+	•	Low values indicate calm space weather conditions.
+
+Recent Data Observations
+
+Date (UTC)	Electron Flux (80-115 keV)	Electron Flux (1000-1900 keV)
+2025-02-20 02:20	14,290	0.449
+2025-02-20 02:25	9,864	0.231
+2025-02-20 02:30	16,199	0.580
+2025-02-20 02:35	21,389	0.900
+2025-02-20 02:40	18,346	1.044
+
+🔹 Electron flux in the 80-115 keV range has increased significantly over the observation period.
+🔸 Higher-energy electron flux (1000-1900 keV) is rising but remains low, suggesting no immediate radiation storm.
+
+How This Data Is Used
+	•	NOAA Space Weather Prediction Center (SWPC): Issues alerts for geomagnetic storms and radiation hazards.
+	•	NASA & ESA Missions: Protects satellites and space probes from high-energy electron damage.
+	•	Aviation & Military Operations: Ensures reliable radio and GPS communications.
+	•	Geophysics & Research Institutes: Studies electron dynamics in Earth’s magnetosphere.
