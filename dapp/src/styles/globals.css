@@ -4,7 +4,7 @@
 /* Load custom font with preload optimization */
 @font-face {
   font-family: 'Aldrich-Regular';
-  src: url('/assets/fonts/Aldrich-Regular.ttf') format('truetype');
+  src: url('/src/assets/fonts/Aldrich-Regular.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: block; /* Block rendering until font loads to prevent layout shift */
@@ -13,7 +13,7 @@
 /* Also define Aldrich for compatibility with existing CSS */
 @font-face {
   font-family: 'Aldrich';
-  src: url('/assets/fonts/Aldrich-Regular.ttf') format('truetype');
+  src: url('/src/assets/fonts/Aldrich-Regular.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: block; /* Block rendering until font loads to prevent layout shift */

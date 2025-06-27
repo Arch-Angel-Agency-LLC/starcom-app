@@ -2,9 +2,112 @@
 // Service for managing Intel Report visualization data for the 3D Globe
 
 import { IntelReportOverlayMarker } from '../interfaces/IntelReportOverlay';
-import { IntelReportData, IntelReportTransformer } from '../models/IntelReportData';
 import { fetchIntelReports } from '../api/intelligence';
-import type { IntelReport } from '../models/IntelReport';
+
+// Inline interface definitions to avoid import issues on Vercel
+interface IntelReportData {
+  id?: string;
+  title: string;
+  content: string;
+  tags: string[];
+  latitude: number;
+  longitude: number;
+  timestamp: number;
+  author: string;
+  pubkey?: string;
+  signature?: string;
+  subtitle?: string;
+  date?: string;
+  categories?: string[];
+  metaDescription?: string;
+  lat?: number;
+  long?: number;
+}
+
+interface IntelReportFormData {
+  title: string;
+  subtitle: string;
+  content: string;
+  tags: string;
+  categories: string;
+  lat: string;
+  long: string;
+  date: string;
+  author: string;
+}
+
+interface BlockchainIntelReport {
+  title: string;
+  content: string;
+  tags: string[];
+  latitude: number;
+  longitude: number;
+  timestamp: number;
+  author: string;
+}
+
+interface IntelReport {
+  title: string;
+  content: string;
+  tags: string[];
+  lat?: number;
+  long?: number;
+  date: string;
+  author: string;
+}
+
+// Inline transformer class to avoid import issues
+class IntelReportTransformer {
+  static formToBlockchain(form: IntelReportFormData): BlockchainIntelReport {
+    return {
+      title: form.title.trim(),
+      content: form.content.trim(),
+      tags: form.tags
+        .split(',')
+        .map((tag: string) => tag.trim())
+        .filter((tag: string) => tag.length > 0),
+      latitude: parseFloat(form.lat) || 0,
+      longitude: parseFloat(form.long) || 0,
+      timestamp: form.date ? new Date(form.date).getTime() : Date.now(),
+      author: form.author.trim(),
+    };
+  }
+
+  static blockchainToData(
+    blockchain: BlockchainIntelReport,
+    pubkey?: string,
+    signature?: string
+  ): IntelReportData {
+    return {
+      title: blockchain.title,
+      content: blockchain.content,
+      tags: blockchain.tags,
+      latitude: blockchain.latitude,
+      longitude: blockchain.longitude,
+      timestamp: blockchain.timestamp,
+      author: blockchain.author,
+      pubkey,
+      signature,
+      date: new Date(blockchain.timestamp).toISOString().split('T')[0],
+      metaDescription: blockchain.content.substring(0, 100) + '...',
+      lat: blockchain.latitude,
+      long: blockchain.longitude,
+    };
+  }
+
+  static dataToOverlayMarker(data: IntelReportData): IntelReportOverlayMarker {
+    return {
+      pubkey: data.pubkey || '',
+      title: data.title,
+      content: data.content,
+      tags: data.tags,
+      latitude: data.latitude,
+      longitude: data.longitude,
+      timestamp: data.timestamp,
+      author: data.author,
+    };
+  }
+}
 
 export interface IntelReportVisualizationOptions {
   maxReports?: number;

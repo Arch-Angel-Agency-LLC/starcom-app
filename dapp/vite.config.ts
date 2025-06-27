@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
+import path from 'path';
 
 export default defineConfig({
   plugins: [
@@ -58,10 +59,23 @@ export default defineConfig({
     port: 5174,
     host: true,
   },
+  build: {
+    assetsInlineLimit: 0, // Ensure all assets are properly externalized
+    rollupOptions: {
+      output: {
+        assetFileNames: 'assets/[name]-[hash][extname]'
+      }
+    }
+  },
   resolve: {
     alias: {
-      // Assets alias for consistent imports
-      '@assets': '/src/assets',
+      // Source code aliases for reliable path resolution
+      '@': path.resolve(__dirname, './src'),
+      '@models': path.resolve(__dirname, './src/models'),
+      '@components': path.resolve(__dirname, './src/components'),
+      '@services': path.resolve(__dirname, './src/services'),
+      '@hooks': path.resolve(__dirname, './src/hooks'),
+      '@utils': path.resolve(__dirname, './src/utils'),
       // Polyfill Node.js modules for browser compatibility
       stream: 'stream-browserify',
       util: 'util',
