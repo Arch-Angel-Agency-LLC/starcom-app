@@ -60,6 +60,8 @@ export default defineConfig({
   },
   resolve: {
     alias: {
+      // Assets alias for consistent imports
+      '@assets': '/src/assets',
       // Polyfill Node.js modules for browser compatibility
       stream: 'stream-browserify',
       util: 'util',
