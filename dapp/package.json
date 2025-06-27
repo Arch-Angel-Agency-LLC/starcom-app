@@ -90,7 +90,12 @@
     "uuid": "^11.1.0",
     "websocket": "^1.0.35",
     "xml2js": "^0.6.2",
-    "zustand": "^5.0.3"
+    "zustand": "^5.0.3",
+    "@vitejs/plugin-react-swc": "^3.5.0",
+    "typescript": "~5.6.2",
+    "vite": "^6.0.5",
+    "vite-plugin-node-polyfills": "^0.23.0",
+    "vite-tsconfig-paths": "^5.1.4"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.10.2",
@@ -113,7 +118,6 @@
     "@types/styled-components": "^5.1.34",
     "@types/three": "^0.174.0",
     "@types/xml2js": "^0.4.14",
-    "@vitejs/plugin-react-swc": "^3.5.0",
     "autoprefixer": "^10.4.21",
     "axios-mock-adapter": "^2.1.0",
     "crypto-browserify": "^3.12.1",
@@ -136,11 +140,7 @@
     "tailwindcss": "^3.4.17",
     "ts-node": "^10.9.2",
     "tsx": "^4.20.3",
-    "typescript": "~5.6.2",
     "typescript-eslint": "^8.18.2",
-    "vite": "^6.0.5",
-    "vite-plugin-node-polyfills": "^0.23.0",
-    "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.2.3",
     "vm-browserify": "^1.1.2",
     "webpack-bundle-analyzer": "^4.10.2"
