@@ -17,15 +17,21 @@ interface UseIntelReport3DMarkersOptions {
 }
 
 interface ModelInstance {
-  mesh: THREE.Object3D;
+  positionContainer: THREE.Group;   // Positioned on globe surface
+  orientationContainer: THREE.Group; // Handles world/camera orientation
+  rotationContainer: THREE.Group;   // Handles local rotation animation
+  mesh: THREE.Object3D;             // The actual model
   report: IntelReportOverlayMarker;
   basePosition: THREE.Vector3;
   hoverOffset: number;
+  localRotationY: number;
 }
 
 export const useIntelReport3DMarkers = (
   reports: IntelReportOverlayMarker[],
   scene: THREE.Scene | null,
+  camera: THREE.Camera | null,
+  globeObject: THREE.Object3D | null,
   options: UseIntelReport3DMarkersOptions = {}
 ) => {
   const {
@@ -100,7 +106,7 @@ export const useIntelReport3DMarkers = (
     // Clear existing models first
     setModels(prevModels => {
       prevModels.forEach(model => {
-        groupRef.current.remove(model.mesh);
+        groupRef.current.remove(model.positionContainer);
       });
       return [];
     });
@@ -112,23 +118,38 @@ export const useIntelReport3DMarkers = (
     const newModels: ModelInstance[] = reports.map((report) => {
       const mesh = gltfModel.clone();
       
+      // Create nested container hierarchy for proper 3D math
+      const positionContainer = new THREE.Group();      // Level 1: Position on globe
+      const orientationContainer = new THREE.Group();   // Level 2: World/camera orientation
+      const rotationContainer = new THREE.Group();      // Level 3: Local rotation animation
+      
       const basePosition = latLngToVector3(
         report.latitude, 
         report.longitude, 
         globeRadius + hoverAltitude
       );
       
-      mesh.position.copy(basePosition);
-      mesh.lookAt(new THREE.Vector3(0, 0, 0));
-      mesh.rotateX(Math.PI);
+      // Set up hierarchy: position → orientation → rotation → mesh
+      positionContainer.position.copy(basePosition);
+      positionContainer.add(orientationContainer);
       
-      groupRef.current.add(mesh);
+      orientationContainer.add(rotationContainer);
+      
+      mesh.position.set(0, 0, 0);
+      mesh.rotation.set(0, 0, 0);
+      rotationContainer.add(mesh);
+      
+      groupRef.current.add(positionContainer);
       
       return {
+        positionContainer,
+        orientationContainer,
+        rotationContainer,
         mesh,
         report,
         basePosition: basePosition.clone(),
-        hoverOffset: Math.random() * Math.PI * 2
+        hoverOffset: Math.random() * Math.PI * 2,
+        localRotationY: 0
       };
     });
 
@@ -137,21 +158,68 @@ export const useIntelReport3DMarkers = (
 
   // Animation loop
   useEffect(() => {
-    if (!models.length) return;
+    if (!models.length || !camera || !scene) return;
 
     const animate = () => {
       const time = Date.now() * 0.001;
 
+      // Find the globe mesh to track its rotation
+      let globeMesh: THREE.Object3D | null = null;
+      scene.traverse((child) => {
+        if (child instanceof THREE.Mesh && 
+            child.geometry instanceof THREE.SphereGeometry) {
+          globeMesh = child;
+          return false; // Stop traversing once found
+        }
+      });
+
       models.forEach((model) => {
-        // Rotate while maintaining relative orientation
-        model.mesh.rotateY(rotationSpeed);
-        
-        // Hovering animation
+        // Level 1: Position animation - hovering on globe surface
+        // The position should follow the globe's rotation (stay attached to surface)
         const hoverAmount = Math.sin(time * 2 + model.hoverOffset) * 0.2;
-        const direction = model.basePosition.clone().normalize();
-        model.mesh.position.copy(
-          model.basePosition.clone().add(direction.multiplyScalar(hoverAmount))
+        
+        // Calculate the base position for this lat/lng
+        const currentPosition = latLngToVector3(
+          model.report.latitude,
+          model.report.longitude,
+          globeRadius + hoverAltitude + hoverAmount
         );
+        
+        // If we found the globe mesh, apply its current rotation to the position
+        if (globeMesh) {
+          globeMesh.updateMatrixWorld(true);
+          currentPosition.applyMatrix4(globeMesh.matrixWorld);
+        }
+        
+        model.positionContainer.position.copy(currentPosition);
+        
+        // Level 2: Screen-Aligned Billboard - Common UI pattern for 3D markers
+        // This makes models always appear upright relative to the screen/camera view
+        
+        if (camera) {
+          // Method 1: Screen-Aligned Billboard (most common for UI elements)
+          // This aligns the model with the camera's coordinate system
+          model.orientationContainer.rotation.copy(camera.rotation);
+          
+          // Alternative Method 2: Y-Axis Billboard (uncomment to try)
+          // const cameraPosition = new THREE.Vector3();
+          // camera.getWorldPosition(cameraPosition);
+          // const modelPosition = new THREE.Vector3();
+          // model.positionContainer.getWorldPosition(modelPosition);
+          // const direction = new THREE.Vector3().subVectors(cameraPosition, modelPosition);
+          // direction.y = 0; // Keep upright
+          // direction.normalize();
+          // const angle = Math.atan2(direction.x, direction.z);
+          // model.orientationContainer.rotation.set(0, angle, 0);
+          
+        } else {
+          // Fallback: no rotation
+          model.orientationContainer.rotation.set(0, 0, 0);
+        }
+        
+        // Level 3: Local rotation animation - smooth Y-axis spin
+        model.localRotationY += rotationSpeed;
+        model.rotationContainer.rotation.y = model.localRotationY;
       });
 
       animationFrameRef.current = requestAnimationFrame(animate);
@@ -164,7 +232,7 @@ export const useIntelReport3DMarkers = (
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [models, rotationSpeed]);
+  }, [models, camera, scene, rotationSpeed, globeRadius, hoverAltitude]);
 
   return {
     group: groupRef.current,

@@ -4,6 +4,7 @@ import Globe, { GlobeMethods } from 'react-globe.gl';
 import * as THREE from 'three';
 import { useGlobeContext } from '../../context/GlobeContext';
 import { useVisualizationMode } from '../../context/VisualizationModeContext';
+import { useGlobeLoading } from '../../context/GlobeLoadingContext';
 import { GlobeEngine } from '../../globe-engine/GlobeEngine';
 import { useSpaceWeatherContext } from '../../context/SpaceWeatherContext';
 import GlobeLoadingManager from './GlobeLoadingManager';
@@ -16,6 +17,7 @@ const GlobeView: React.FC = () => {
   const globeRef = useRef<GlobeMethods>();
   const { setFocusLocation } = useGlobeContext();
   const { visualizationMode } = useVisualizationMode();
+  const { hasGlobeLoadedBefore, markGlobeAsLoaded, setGlobeInitialized } = useGlobeLoading();
   const [globeEngine, setGlobeEngine] = useState<GlobeEngine | null>(null);
   const [material, setMaterial] = useState<THREE.Material | null>(null);
   const bordersRef = useRef<THREE.Group>(null);
@@ -33,31 +35,41 @@ const GlobeView: React.FC = () => {
   } = useSpaceWeatherContext();
   
   const containerRef = useRef<HTMLDivElement>(null);
-  const [isInitializing, setIsInitializing] = useState(true);
+  const [isInitializing, setIsInitializing] = useState(!hasGlobeLoadedBefore);
   const [containerSize, setContainerSize] = useState({ width: 800, height: 600 });
 
   useEffect(() => {
-    // Delay Globe engine initialization to allow tactical animation to show
+    // Fast track initialization if Globe has loaded before
+    const initDelay = hasGlobeLoadedBefore ? 0 : 800; // No delay for subsequent loads
+    
     const initTimer = setTimeout(() => {
       const engine = new GlobeEngine({ mode: visualizationMode.mode });
       setGlobeEngine(engine);
       
-      // Check for material with a slight delay to ensure tactical animation plays
+      // Check for material with appropriate timing
+      const materialCheckInterval = hasGlobeLoadedBefore ? 10 : 100; // Faster checks for subsequent loads
       const checkMaterial = setInterval(() => {
         const mat = engine.getMaterial();
         if (mat) {
           setMaterial(mat);
           // Mark as ready for rendering
-          setTimeout(() => setIsInitializing(false), 100);
+          const readyDelay = hasGlobeLoadedBefore ? 0 : 100; // Instant for subsequent loads
+          setTimeout(() => {
+            setIsInitializing(false);
+            setGlobeInitialized(true);
+            if (!hasGlobeLoadedBefore) {
+              markGlobeAsLoaded(); // Mark as loaded only on first successful initialization
+            }
+          }, readyDelay);
           clearInterval(checkMaterial);
         }
-      }, 100);
+      }, materialCheckInterval);
       
       return () => clearInterval(checkMaterial);
-    }, 800); // Delay engine init by 800ms to let HUD load first
+    }, initDelay);
 
     return () => clearTimeout(initTimer);
-  }, [visualizationMode.mode]);
+  }, [visualizationMode.mode, hasGlobeLoadedBefore, markGlobeAsLoaded, setGlobeInitialized]);
 
   // Track container size for responsive Globe
   useEffect(() => {
@@ -147,13 +159,18 @@ const GlobeView: React.FC = () => {
   }, [globeRef, intelReports]);
 
   // Initialize 3D Intel Report markers using the hook
-  useIntelReport3DMarkers(intelReports, globeRef.current ? 
-    (globeRef.current as unknown as { scene: () => THREE.Scene }).scene() : null, {
-    globeRadius: 100,
-    hoverAltitude: 8,
-    rotationSpeed: 0.005,
-    scale: 0.8
-  });
+  useIntelReport3DMarkers(
+    intelReports, 
+    globeRef.current ? (globeRef.current as unknown as { scene: () => THREE.Scene }).scene() : null,
+    globeRef.current ? (globeRef.current as unknown as { camera: () => THREE.Camera }).camera() : null,
+    null, // No longer need globe object reference
+    {
+      globeRadius: 100,
+      hoverAltitude: 12,  // Increased from 8 to 12 for larger models
+      rotationSpeed: 0.005,
+      scale: 4.0  // Increased from 0.8 to 4.0 (5x larger)
+    }
+  );
 
   useEffect(() => {
     if (!globeRef.current) return;

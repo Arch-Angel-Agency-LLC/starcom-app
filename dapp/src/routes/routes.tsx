@@ -9,9 +9,55 @@ import UXFlowIntegrationTest from '../components/Testing/UXFlowIntegrationTest';
 import CyberInvestigationMVP from '../components/CyberInvestigation/CyberInvestigationMVP';
 import IPFSNostrIntegrationDemo from '../components/Demo/IPFSNostrIntegrationDemo';
 
+// New page imports
+import TeamsDashboard from '../pages/Teams/TeamsDashboard';
+import TeamWorkspace from '../pages/Teams/TeamWorkspace';
+import InvestigationsDashboard from '../pages/Investigations/InvestigationsDashboard';
+import IntelDashboard from '../pages/Intel/IntelDashboard';
+
+// Layout imports
+import BaseLayout from '../layouts/BaseLayout/BaseLayout';
+
 const AppRoutes: React.FC = () => (
   <Routes>
+    {/* Primary Globe Interface - unchanged */}
     <Route path="/" element={<MainPage />} />
+    
+    {/* Team Management Routes */}
+    <Route path="/teams" element={
+      <ProtectedRoute>
+        <BaseLayout>
+          <TeamsDashboard />
+        </BaseLayout>
+      </ProtectedRoute>
+    } />
+    <Route path="/teams/:teamId" element={
+      <ProtectedRoute>
+        <BaseLayout>
+          <TeamWorkspace />
+        </BaseLayout>
+      </ProtectedRoute>
+    } />
+    
+    {/* Investigation Management Routes */}
+    <Route path="/investigations" element={
+      <ProtectedRoute>
+        <BaseLayout>
+          <InvestigationsDashboard />
+        </BaseLayout>
+      </ProtectedRoute>
+    } />
+    
+    {/* Intel Management Routes */}
+    <Route path="/intel" element={
+      <ProtectedRoute>
+        <BaseLayout>
+          <IntelDashboard />
+        </BaseLayout>
+      </ProtectedRoute>
+    } />
+    
+    {/* Existing routes */}
     <Route path="/settings" element={
       <ProtectedRoute>
         <SettingsPage />
@@ -32,6 +78,8 @@ const AppRoutes: React.FC = () => (
         <TokenGatedPage />
       </ProtectedRoute>
     } />
+    
+    {/* Demo and test routes */}
     <Route path="/auth-demo" element={<AuthDemoPage />} />
     <Route path="/ipfs-nostr-demo" element={<IPFSNostrIntegrationDemo />} />
     <Route path="/test-ui" element={<UXFlowIntegrationTest />} />

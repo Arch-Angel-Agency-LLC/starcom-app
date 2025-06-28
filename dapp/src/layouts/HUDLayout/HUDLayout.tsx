@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styles from './HUDLayout.module.css';
 import TopBar from '../../components/HUD/Bars/TopBar/TopBar';
 import BottomBar from '../../components/HUD/Bars/BottomBar/BottomBar';
@@ -12,6 +12,8 @@ import FloatingPanelManager from '../../components/HUD/FloatingPanels/FloatingPa
 import FloatingPanelDemo from '../../components/HUD/FloatingPanels/FloatingPanelDemo';
 import NOAAFloatingIntegration from '../../components/HUD/FloatingPanels/NOAAFloatingIntegration';
 import CenterViewManager from '../../components/HUD/Center/CenterViewManager';
+import QuickAccessPanel from '../../components/HUD/QuickAccess/QuickAccessPanel';
+import NewUserHint from '../../components/HUD/NewUserHint/NewUserHint';
 // import FeatureFlagControls from '../../components/HUD/FeatureFlagControls/FeatureFlagControls';
 // import DiagnosticsToggle from '../../components/HUD/DiagnosticsToggle/DiagnosticsToggle';
 import NotificationSystem from '../../components/NotificationSystem/NotificationSystem';
@@ -26,8 +28,12 @@ import PerformanceOptimizer from '../../components/Optimization/PerformanceOptim
 import SecurityHardening from '../../components/Optimization/SecurityHardening';
 import { useFeatureFlag } from '../../utils/featureFlags';
 import { PopupProvider } from '../../components/Popup/PopupManager';
+import { ViewProvider } from '../../context/ViewContext';
+import { GlobeLoadingProvider } from '../../context/GlobeLoadingContext';
 
 const HUDLayout: React.FC = () => {
+  const [showQuickAccess, setShowQuickAccess] = useState(false);
+  
   const enhancedCenterEnabled = useFeatureFlag('enhancedCenter');
   const enhancedAdaptiveEnabled = useFeatureFlag('enhancedContextEnabled');
   const phase4EnabledFlag = useFeatureFlag('adaptiveInterfaceEnabled');
@@ -36,15 +42,33 @@ const HUDLayout: React.FC = () => {
   const securityHardeningEnabled = useFeatureFlag('securityHardeningEnabled');
   const uiTestingDiagnosticsEnabled = useFeatureFlag('uiTestingDiagnosticsEnabled');
 
+  // Keyboard shortcut to show quick access
+  React.useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
+        event.preventDefault();
+        setShowQuickAccess(true);
+      }
+      if (event.key === 'Escape') {
+        setShowQuickAccess(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   const AdaptiveProvider = enhancedAdaptiveEnabled ? EnhancedAdaptiveInterfaceProvider : AdaptiveInterfaceProvider;
 
   const HUDContent = () => (
-    <PopupProvider>
-      <AdaptiveProvider>
-      <AdaptiveUIController>
-        <PhaseTransitionManager>
-          <ContextBridge>
-            <FloatingPanelManager>
+    <ViewProvider>
+      <GlobeLoadingProvider>
+        <PopupProvider>
+          <AdaptiveProvider>
+          <AdaptiveUIController>
+            <PhaseTransitionManager>
+              <ContextBridge>
+                <FloatingPanelManager>
               <div className={styles.hudLayout}>
                 <div className={styles.topLeftCorner}><TopLeftCorner /></div>
                 <div className={styles.topRightCorner}><TopRightCorner /></div>
@@ -93,12 +117,28 @@ const HUDLayout: React.FC = () => {
                 {/* Development Diagnostics Toggle - Now integrated into RightSideBar */}
                 {/* <DiagnosticsToggle /> */}
               </div>
+              
+              {/* Quick Access Panel - Triggered by Ctrl+K */}
+              {showQuickAccess && (
+                <div className={styles.overlay} onClick={() => setShowQuickAccess(false)}>
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <QuickAccessPanel />
+                  </div>
+                </div>
+              )}
+              
             </FloatingPanelManager>
           </ContextBridge>
         </PhaseTransitionManager>
-      </AdaptiveUIController>
-    </AdaptiveProvider>
-    </PopupProvider>
+        </AdaptiveUIController>
+      </AdaptiveProvider>
+      
+      {/* Subtle New User Hint - Non-blocking */}
+      <NewUserHint />
+      
+      </PopupProvider>
+      </GlobeLoadingProvider>
+    </ViewProvider>
   );
 
   // Phase 4 Integration: Wrap with gaming enhancements if enabled

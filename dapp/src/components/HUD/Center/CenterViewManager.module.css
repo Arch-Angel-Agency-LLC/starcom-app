@@ -144,63 +144,60 @@
   border-bottom: 1px solid rgba(64, 224, 255, 0.2);
 }
 
-/* Placeholder View Styles */
-.placeholderView {
-  width: 100%;
-  height: 100%;
+/* Loading and Placeholder Views */
+.loadingView {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  color: #40e0ff;
+  font-family: 'Courier New', monospace;
+  font-size: 16px;
+  background: rgba(10, 15, 28, 0.8);
+  backdrop-filter: blur(8px);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.placeholderView {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  background: linear-gradient(135deg, #0a0f1c 0%, #1a2332 50%, #0a0f1c 100%);
+  padding: 40px;
 }
 
 .placeholderContent {
   text-align: center;
-  color: #94a3b8;
-  padding: 20px;
+  max-width: 500px;
+  padding: 40px;
+  border: 2px solid rgba(64, 224, 255, 0.2);
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(8px);
 }
 
-.placeholderContent h3 {
+.placeholderContent h2 {
+  margin: 0 0 16px 0;
   color: #40e0ff;
   font-size: 24px;
   font-weight: 600;
-  margin-bottom: 12px;
-  text-shadow: 0 0 8px rgba(64, 224, 255, 0.3);
 }
 
 .placeholderContent p {
-  font-size: 14px;
-  margin-bottom: 8px;
-  opacity: 0.8;
+  margin: 0;
+  color: #94a3b8;
+  font-size: 16px;
+  line-height: 1.5;
 }
 
-.contextControls {
-  margin-top: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  align-items: center;
-}
-
-.contextControls button {
-  padding: 8px 16px;
-  background: rgba(64, 224, 255, 0.1);
-  border: 1px solid rgba(64, 224, 255, 0.3);
-  border-radius: 6px;
-  color: #40e0ff;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  min-width: 180px;
-}
-
-.contextControls button:hover {
-  background: rgba(64, 224, 255, 0.2);
-  border-color: rgba(64, 224, 255, 0.5);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(64, 224, 255, 0.2);
+@keyframes pulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
 }
 
 /* Status Bar */
@@ -518,4 +515,21 @@
 
 .splitButton:active {
   transform: translateY(0);
+}
+
+/* Globe and Dynamic View Containers */
+.globeContainer {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.dynamicViewContainer {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
