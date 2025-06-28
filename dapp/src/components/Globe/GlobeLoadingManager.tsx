@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useGlobeLoading } from '../../context/GlobeLoadingContext';
 import './GlobeLoadingManager.css';
 
 // AI-NOTE: Generate matrix-style code rain for cyber command atmosphere
@@ -28,10 +29,11 @@ interface GlobeLoadingManagerProps {
  * GlobeLoadingManager - Manages smooth transitions from preloader to globe loading to actual globe
  * 
  * Transition Flow:
- * 1. Tactical loading animation plays (0.8s fast / 3s normal)
- * 2. Loader begins fading out (0.8s transition)
- * 3. Globe begins fading in with scale animation (0.6s)
- * 4. Loader is removed from DOM after globe is visible
+ * 1. First load: Full tactical loading animation plays (0.8s fast / 3s normal)
+ * 2. Subsequent loads: Skip animation and load instantly
+ * 3. Loader begins fading out (0.8s transition)
+ * 4. Globe begins fading in with scale animation (0.6s)
+ * 5. Loader is removed from DOM after globe is visible
  * 
  * This eliminates jarring transitions and blank screen flashes
  */
@@ -41,6 +43,7 @@ const GlobeLoadingManager: React.FC<GlobeLoadingManagerProps> = ({
   globeEngine,
   fastTrackMode = false, // Default to false if not provided
 }) => {
+  const { hasGlobeLoadedBefore } = useGlobeLoading();
   const [showGlobeLoader, setShowGlobeLoader] = useState(true);
   const [globeVisible, setGlobeVisible] = useState(false);
   const [loaderFadingOut, setLoaderFadingOut] = useState(false);
@@ -51,7 +54,20 @@ const GlobeLoadingManager: React.FC<GlobeLoadingManagerProps> = ({
       return;
     }
 
-    // Use fastTrackMode to determine animation duration
+    // Skip loading animation entirely if Globe has loaded before
+    if (hasGlobeLoadedBefore) {
+      // Immediate transition - no loading animation
+      setLoaderFadingOut(true);
+      setTimeout(() => {
+        setGlobeVisible(true);
+        setTimeout(() => {
+          setShowGlobeLoader(false);
+        }, 100); // Minimal delay for smooth transition
+      }, 50);
+      return;
+    }
+
+    // First-time loading with full animation
     const tacticalDuration = fastTrackMode ? 800 : 3000; // Fast track: 0.8s, Normal: 3s
     
     const tacticalTimer = setTimeout(() => {
@@ -73,7 +89,7 @@ const GlobeLoadingManager: React.FC<GlobeLoadingManagerProps> = ({
     }, tacticalDuration);
 
     return () => clearTimeout(tacticalTimer);
-  }, [material, globeEngine, fastTrackMode]);
+  }, [material, globeEngine, fastTrackMode, hasGlobeLoadedBefore]);
 
   return (
     <>

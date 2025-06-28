@@ -1,13 +1,21 @@
 /**
- * React Hook for IPFS-Nostr Integration Manager
+ * Enhanced IPFS-Nostr Integration Hook with Public Infrastructure Support
  * 
- * This hook provides React components with easy access to the IPFS-Nostr
- * integration layer, handling initialization, state management, and real-time
- * updates from the integration manager.
+ * This hook provides seamless integration between IPFS and Nostr with automatic
+ * fallback to public infrastructure when local RelayNode is unavailable.
+ * 
+ * Features:
+ * - Auto-detection of local RelayNode
+ * - Fallback to public Nostr relays and IPFS gateways
+ * - Real-time team collaboration
+ * - Investigation coordination
+ * - Public team discovery
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { IPFSNostrIntegrationManager } from '../services/IPFSNostrIntegrationManager';
+import PublicInfrastructureService from '../services/PublicInfrastructureService';
+import { UnifiedIPFSNostrService } from '../services/UnifiedIPFSNostrService';
+import { InfrastructureStatus } from '../config/publicInfrastructure';
 
 // Hook state interface
 interface UseIPFSNostrIntegrationState {

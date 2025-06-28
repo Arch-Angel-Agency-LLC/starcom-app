@@ -1,0 +1,111 @@
+.teamCard {
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid rgba(0, 255, 65, 0.3);
+  border-radius: 12px;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.teamCard:hover {
+  border-color: #00ff41;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 255, 65, 0.2);
+}
+
+.teamCard:hover .hoverAction {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.statusIndicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  border-radius: 0 0 0 12px;
+}
+
+.teamHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.teamName {
+  color: #00ff41;
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 0;
+  font-family: 'Courier New', monospace;
+}
+
+.teamStatus {
+  background: rgba(0, 255, 65, 0.1);
+  color: #00ff41;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  border: 1px solid rgba(0, 255, 65, 0.3);
+}
+
+.teamDescription {
+  color: rgba(0, 255, 65, 0.8);
+  font-size: 0.9rem;
+  line-height: 1.4;
+  margin-bottom: 1rem;
+  font-family: 'Courier New', monospace;
+}
+
+.teamStats {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.statValue {
+  color: #00ff41;
+  font-size: 1.5rem;
+  font-weight: bold;
+  font-family: 'Courier New', monospace;
+}
+
+.statLabel {
+  color: rgba(0, 255, 65, 0.6);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-family: 'Courier New', monospace;
+}
+
+.lastActivity {
+  color: rgba(0, 255, 65, 0.6);
+  font-size: 0.8rem;
+  font-family: 'Courier New', monospace;
+  margin-bottom: 0.5rem;
+}
+
+.hoverAction {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+  color: #00ff41;
+  font-size: 0.8rem;
+  font-weight: bold;
+  font-family: 'Courier New', monospace;
+}
