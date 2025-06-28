@@ -53,9 +53,23 @@ const GlobeStatus: React.FC<GlobeStatusProps> = ({ overlayData }) => {
         )}
       </div>
       
-      {/* NOAA Space Weather Status - Only show for EcoNatural mode */}
-      {visualizationMode.mode === 'EcoNatural' && (
+      {/* NOAA Space Weather Status - Only show for EcoNatural + SpaceWeather mode */}
+      {visualizationMode.mode === 'EcoNatural' && visualizationMode.subMode === 'SpaceWeather' && (
         <NOAAVisualizationStatus />
+      )}
+      
+      {/* Intel Reports Status - Only show for CyberCommand + IntelReports mode */}
+      {visualizationMode.mode === 'CyberCommand' && visualizationMode.subMode === 'IntelReports' && (
+        <div className={styles.intelReportsStatus}>
+          <div className={styles.statusHeader}>
+            <span className={styles.statusIcon}>🎯</span>
+            <span className={styles.statusTitle}>Intel Reports 3D</span>
+          </div>
+          <div className={styles.statusIndicator}>
+            <div className={styles.healthDot} style={{ backgroundColor: '#00ff41' }}></div>
+            <span>3D Models Active</span>
+          </div>
+        </div>
       )}
       
       <div className={styles.systemHealth}>

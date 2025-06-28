@@ -9,6 +9,9 @@ import { IntelReportOverlayMarker } from '../interfaces/IntelReportOverlay';
 // Use relative path to public assets - works in both dev and production
 const INTEL_REPORT_MODEL_URL = '/models/intel_report-01d.glb';
 
+// Default scale constant for Intel Report models
+const DEFAULT_INTEL_REPORT_SCALE = 4.0; // Make models visible and interactive
+
 interface UseIntelReport3DMarkersOptions {
   globeRadius?: number;
   hoverAltitude?: number;
@@ -32,13 +35,14 @@ export const useIntelReport3DMarkers = (
   scene: THREE.Scene | null,
   camera: THREE.Camera | null,
   globeObject: THREE.Object3D | null,
-  options: UseIntelReport3DMarkersOptions = {}
+  options: UseIntelReport3DMarkersOptions = {},
+  hoveredReportId?: string | null // Add hover state parameter
 ) => {
   const {
     globeRadius = 100,
     hoverAltitude = 5,
     rotationSpeed = 0.01,
-    scale = 1
+    scale = DEFAULT_INTEL_REPORT_SCALE // Use our constant as default
   } = options;
 
   const [models, setModels] = useState<ModelInstance[]>([]);
@@ -220,6 +224,33 @@ export const useIntelReport3DMarkers = (
         // Level 3: Local rotation animation - smooth Y-axis spin
         model.localRotationY += rotationSpeed;
         model.rotationContainer.rotation.y = model.localRotationY;
+        
+        // Level 4: Hover animation - scale and glow effects
+        const isHovered = hoveredReportId === model.report.pubkey;
+        const baseScale = scale; // Use the base scale from options
+        const targetScale = isHovered ? baseScale * 1.05 : baseScale; // 5% larger when hovered
+        const currentScale = model.mesh.scale.x;
+        const scaleLerpSpeed = 0.1;
+        
+        // Smooth scaling animation
+        const newScale = currentScale + (targetScale - currentScale) * scaleLerpSpeed;
+        model.mesh.scale.setScalar(newScale);
+        
+        // Apply glow effect to mesh materials
+        model.mesh.traverse((child) => {
+          if (child instanceof THREE.Mesh && child.material) {
+            const material = child.material as THREE.MeshStandardMaterial;
+            if (material.emissive) {
+              if (isHovered) {
+                material.emissive.setHex(0x00ffff); // Cyan glow
+                material.emissiveIntensity = 0.2;
+              } else {
+                material.emissive.setHex(0x000000);
+                material.emissiveIntensity = 0;
+              }
+            }
+          }
+        });
       });
 
       animationFrameRef.current = requestAnimationFrame(animate);
@@ -232,7 +263,7 @@ export const useIntelReport3DMarkers = (
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [models, camera, scene, rotationSpeed, globeRadius, hoverAltitude]);
+  }, [models, camera, scene, rotationSpeed, globeRadius, hoverAltitude, hoveredReportId, scale]);
 
   return {
     group: groupRef.current,

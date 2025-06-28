@@ -31,15 +31,13 @@ const AppContent: React.FC = () => {
 
   return (
     <>
-      <VisualizationModeProvider>
-        <SettingsInitializer />
-        <BrowserRouter>
-          <AppRoutes />
-        </BrowserRouter>
-        <SettingsStatusIndicator />
-        {/* Wallet Diagnostics - Only shown when feature flag is enabled */}
-        <WalletDiagnostic />
-      </VisualizationModeProvider>
+      <SettingsInitializer />
+      <BrowserRouter>
+        <AppRoutes />
+      </BrowserRouter>
+      <SettingsStatusIndicator />
+      {/* Wallet Diagnostics - Only shown when feature flag is enabled */}
+      <WalletDiagnostic />
     </>
   );
 };
@@ -51,17 +49,19 @@ const App: React.FC = () => (
         <AuthErrorBoundary>
           <WASMProvider>
             <DashboardProvider>
-              <GlobeProvider>
-                <SpaceWeatherProvider>
-                  <MarketplaceProvider>
-                    <UnifiedGlobalCommandProvider>
-                      <InvestigationProvider>
-                        <AppContent />
-                      </InvestigationProvider>
-                    </UnifiedGlobalCommandProvider>
-                  </MarketplaceProvider>
-                </SpaceWeatherProvider>
-              </GlobeProvider>
+              <VisualizationModeProvider>
+                <GlobeProvider>
+                  <SpaceWeatherProvider>
+                    <MarketplaceProvider>
+                      <UnifiedGlobalCommandProvider>
+                        <InvestigationProvider>
+                          <AppContent />
+                        </InvestigationProvider>
+                      </UnifiedGlobalCommandProvider>
+                    </MarketplaceProvider>
+                  </SpaceWeatherProvider>
+                </GlobeProvider>
+              </VisualizationModeProvider>
             </DashboardProvider>
           </WASMProvider>
         </AuthErrorBoundary>

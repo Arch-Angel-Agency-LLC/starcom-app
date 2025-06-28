@@ -17,10 +17,9 @@ const CyberCommandSettings: React.FC<CyberCommandSettingsProps> = ({ subMode }) 
 
   // Validate that UI state reflects persistent settings
   useSettingsValidation('CyberCommandSettings', config as unknown as Record<string, unknown>, {
-    currentSubMode: subMode,
-    intelReportsOpacity: config.intelReports.overlayOpacity,
-    timelinesSpeed: config.timelines.animationSpeed,
-    crisisZonesLevel: config.crisisZones.alertLevel
+    'intelReports.overlayOpacity': config.intelReports.overlayOpacity,
+    'timelines.animationSpeed': config.timelines.animationSpeed,
+    'crisisZones.alertLevel': config.crisisZones.alertLevel
   });
 
   const renderIntelReportsSettings = () => (

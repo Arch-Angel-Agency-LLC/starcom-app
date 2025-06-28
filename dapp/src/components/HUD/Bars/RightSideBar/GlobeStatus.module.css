@@ -153,3 +153,40 @@
   line-height: 1;
   margin-top: 1px;
 }
+
+/* Intel Reports Status Section */
+.intelReportsStatus {
+  background: rgba(0, 30, 0, 0.8);
+  border: 1px solid rgba(0, 255, 100, 0.3);
+  border-radius: 6px;
+  padding: 6px;
+  margin-top: 8px;
+}
+
+.statusHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.statusIcon {
+  font-size: 0.8rem;
+  color: #00ff64;
+}
+
+.statusTitle {
+  font-size: 0.65rem;
+  color: #00ff64;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.statusIndicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.55rem;
+  color: #b3ffcc;
+}

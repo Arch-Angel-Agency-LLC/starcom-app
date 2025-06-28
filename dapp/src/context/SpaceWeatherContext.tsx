@@ -6,6 +6,7 @@
 import React, { createContext, useContext, ReactNode } from 'react';
 import { useEcoNaturalSettings } from '../hooks/useEcoNaturalSettings';
 import { useSpaceWeatherData } from '../hooks/useSpaceWeatherData';
+import { useVisualizationMode } from './VisualizationModeContext';
 import { normalizeElectricFieldVectors, NormalizationConfig } from '../utils/electricFieldNormalization';
 import type { ProcessedElectricFieldData, SpaceWeatherAlert } from '../types';
 
@@ -42,6 +43,7 @@ interface SpaceWeatherContextType {
 const SpaceWeatherContext = createContext<SpaceWeatherContextType | undefined>(undefined);
 
 export const SpaceWeatherProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const { visualizationMode } = useVisualizationMode();
   const { 
     config, 
     updateSpaceWeather, 
@@ -57,10 +59,19 @@ export const SpaceWeatherProvider: React.FC<{ children: ReactNode }> = ({ childr
     enableAlerts: config.spaceWeather.showAlerts
   });
 
-  // Compute visualization vectors based on settings
+  // Check if we should show space weather visualization based on mode
+  const shouldShowSpaceWeatherVisualization = (
+    visualizationMode.mode === 'EcoNatural' && 
+    visualizationMode.subMode === 'SpaceWeather' &&
+    isElectricFieldsEnabled
+  );
+
+  // Compute visualization vectors based on settings and visualization mode
   const visualizationVectors = React.useMemo(() => {
-    // Return empty array if electric fields are disabled
-    if (!isElectricFieldsEnabled) return [];
+    // Return empty array if not in correct visualization mode or electric fields are disabled
+    if (!shouldShowSpaceWeatherVisualization) {
+      return [];
+    }
     
     if (!spaceWeatherData.interMagData && !spaceWeatherData.usCanadaData) return [];
     
@@ -69,7 +80,22 @@ export const SpaceWeatherProvider: React.FC<{ children: ReactNode }> = ({ childr
       ...(spaceWeatherData.usCanadaData?.vectors || [])
     ];
     
-    // Apply advanced normalization
+    // PERFORMANCE OPTIMIZATION: Limit and batch process vectors
+    const MAX_VECTORS = 500; // Further reduced from 1000 to 500 for better performance
+    
+    let sampledVectors;
+    if (allVectors.length > MAX_VECTORS) {
+      // Use intelligent sampling - prioritize high-quality, high-magnitude vectors
+      const sortedVectors = allVectors
+        .filter(v => v.quality >= 3) // Pre-filter for quality
+        .sort((a, b) => (b.magnitude * b.quality) - (a.magnitude * a.quality)); // Sort by importance
+      
+      sampledVectors = sortedVectors.slice(0, MAX_VECTORS);
+    } else {
+      sampledVectors = allVectors.filter(v => v.quality >= 3);
+    }
+    
+    // Apply advanced normalization only to sampled vectors
     const normalizationConfig: NormalizationConfig = {
       method: config.spaceWeather.normalization.method,
       outlierFactor: config.spaceWeather.normalization.outlierFactor,
@@ -78,13 +104,10 @@ export const SpaceWeatherProvider: React.FC<{ children: ReactNode }> = ({ childr
       clampMax: config.spaceWeather.normalization.clampMax || undefined
     };
     
-    const normalizedVectors = normalizeElectricFieldVectors(allVectors, normalizationConfig);
+    const normalizedVectors = normalizeElectricFieldVectors(sampledVectors, normalizationConfig);
     
     return normalizedVectors
       .filter(vector => {
-        // Quality filter
-        if (vector.quality < 3) return false;
-        
         // Magnitude threshold (still applied to original magnitude)
         const magnitudeThreshold = alertThresholds.moderate / 1000; // Convert mV to V
         return vector.originalMagnitude >= magnitudeThreshold;
@@ -127,7 +150,7 @@ export const SpaceWeatherProvider: React.FC<{ children: ReactNode }> = ({ childr
     alertThresholds, 
     config.spaceWeather.vectorScale,
     config.spaceWeather.normalization,
-    isElectricFieldsEnabled
+    shouldShowSpaceWeatherVisualization
   ]);
 
   const contextValue: SpaceWeatherContextType = {

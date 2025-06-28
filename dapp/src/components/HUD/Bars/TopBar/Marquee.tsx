@@ -38,18 +38,26 @@ const Marquee: React.FC<MarqueeProps> = ({ dataPoints, loading = false, error = 
   // Auto-animate marquee (continuous, seamless loop)
   useEffect(() => {
     if (paused || !contentWidth) return;
+    
     let frame: number;
-    function step() {
-      setOffset(prev => {
-        // Loop seamlessly: when offset reaches contentWidth, reset to 0
-        const next = prev - SCROLL_SPEED;
-        return Math.abs(next) >= contentWidth ? 0 : next;
-      });
+    let lastTime = 0;
+    const FPS_LIMIT = 60; // Limit to 60 FPS
+    const frameInterval = 1000 / FPS_LIMIT;
+    
+    function step(currentTime: number) {
+      if (currentTime - lastTime >= frameInterval) {
+        setOffset(prev => {
+          // Loop seamlessly: when offset reaches contentWidth, reset to 0
+          const next = prev - SCROLL_SPEED;
+          return Math.abs(next) >= contentWidth ? 0 : next;
+        });
+        lastTime = currentTime;
+      }
       frame = requestAnimationFrame(step);
     }
     frame = requestAnimationFrame(step);
     return () => cancelAnimationFrame(frame);
-  }, [paused, contentWidth, dataPoints]);
+  }, [paused, contentWidth]);
 
   // Pause on hover/focus
   const handlePause = () => setPaused(true);

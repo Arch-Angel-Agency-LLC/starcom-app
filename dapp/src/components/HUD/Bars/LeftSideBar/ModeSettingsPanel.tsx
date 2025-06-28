@@ -7,6 +7,7 @@ import styles from './ModeSettingsPanel.module.css';
 
 // AI-NOTE: Dynamic settings panel that displays different controls based on visualization mode
 // Integrates with NOAA space weather data and other visualization systems
+// Mode switching controls moved to RightSideBar VisualizationModeControls component
 
 const ModeSettingsPanel: React.FC = () => {
   const { visualizationMode } = useVisualizationMode();
@@ -35,14 +36,7 @@ const ModeSettingsPanel: React.FC = () => {
 
   return (
     <div className={styles.modeSettingsPanel}>
-      <div className={styles.header}>
-        <div className={styles.modeIndicator}>
-          {visualizationMode.mode}
-        </div>
-        <div className={styles.subModeIndicator}>
-          {visualizationMode.subMode}
-        </div>
-      </div>
+      {/* Settings Content */}
       <div className={styles.settingsContent}>
         {renderSettingsForMode()}
       </div>

@@ -1,6 +1,7 @@
 import React, { lazy, Suspense } from 'react';
 import styles from './LeftSideBar.module.css';
 import ModeSettingsPanel from './ModeSettingsPanel';
+import VisualizationModeButtons from './VisualizationModeButtons';
 // Adaptive interface imports commented out but preserved for easy re-enabling
 // import RoleSelector from '../../../Adaptive/RoleSelector';
 // import ProgressiveDisclosure from '../../../Adaptive/ProgressiveDisclosure';
@@ -18,6 +19,7 @@ const LeftSideBar: React.FC = () => {
         <Suspense fallback={<div className={styles.tinyGlobePlaceholder}>Loading Globe...</div>}>
           <TinyGlobe />
         </Suspense>
+        <VisualizationModeButtons />
         <ModeSettingsPanel />
         
         {/* Adaptive Interface Controls - Hidden for clean human UX, functionality preserved for AI agents */}
