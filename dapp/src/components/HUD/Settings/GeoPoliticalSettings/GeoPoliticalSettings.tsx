@@ -17,10 +17,9 @@ const GeoPoliticalSettings: React.FC<GeoPoliticalSettingsProps> = ({ subMode }) 
 
   // Validate that UI state reflects persistent settings
   useSettingsValidation('GeoPoliticalSettings', config as unknown as Record<string, unknown>, {
-    currentSubMode: subMode,
-    borderVisibility: config.nationalTerritories.borderVisibility,
-    eventTimeRange: config.diplomaticEvents.timeRange,
-    zoneOpacity: config.resourceZones.zoneOpacity
+    'nationalTerritories.borderVisibility': config.nationalTerritories.borderVisibility,
+    'diplomaticEvents.timeRange': config.diplomaticEvents.timeRange,
+    'resourceZones.zoneOpacity': config.resourceZones.zoneOpacity
   });
 
   const renderNationalTerritoriesSettings = () => (

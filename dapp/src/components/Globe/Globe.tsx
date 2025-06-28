@@ -2,7 +2,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Globe, { GlobeMethods } from 'react-globe.gl';
 import * as THREE from 'three';
-import { useGlobeContext } from '../../context/GlobeContext';
 import { useVisualizationMode } from '../../context/VisualizationModeContext';
 import { useGlobeLoading } from '../../context/GlobeLoadingContext';
 import { GlobeEngine } from '../../globe-engine/GlobeEngine';
@@ -11,11 +10,23 @@ import GlobeLoadingManager from './GlobeLoadingManager';
 import { useIntelReport3DMarkers } from '../../hooks/useIntelReport3DMarkers';
 import { intelReportVisualizationService } from '../../services/IntelReportVisualizationService';
 import { IntelReportOverlayMarker } from '../../interfaces/IntelReportOverlay';
+import { Enhanced3DGlobeInteractivity } from './Enhanced3DGlobeInteractivity';
+
+// Define ModelInstance interface locally since it's used in multiple files
+interface ModelInstance {
+  positionContainer: THREE.Group;
+  orientationContainer: THREE.Group;
+  rotationContainer: THREE.Group;
+  mesh: THREE.Object3D;
+  report: IntelReportOverlayMarker;
+  basePosition: THREE.Vector3;
+  hoverOffset: number;
+  localRotationY: number;
+}
 
 const GlobeView: React.FC = () => {
   const [globeData, setGlobeData] = useState<object[]>([]);
   const globeRef = useRef<GlobeMethods>();
-  const { setFocusLocation } = useGlobeContext();
   const { visualizationMode } = useVisualizationMode();
   const { hasGlobeLoadedBefore, markGlobeAsLoaded, setGlobeInitialized } = useGlobeLoading();
   const [globeEngine, setGlobeEngine] = useState<GlobeEngine | null>(null);
@@ -26,6 +37,8 @@ const GlobeView: React.FC = () => {
   // Intel Report 3D markers state
   const [intelReports, setIntelReports] = useState<IntelReportOverlayMarker[]>([]);
   const intelMarkerGroupRef = useRef<THREE.Group>(new THREE.Group());
+  const [intelModels, setIntelModels] = useState<ModelInstance[]>([]); // Store 3D model instances for interactivity
+  const [hoveredReportId, setHoveredReportId] = useState<string | null>(null); // Track hovered model
   
   // Space weather integration via context
   const { 
@@ -107,48 +120,67 @@ const GlobeView: React.FC = () => {
     setGlobeData([]); // TODO: Use overlay/event data from GlobeEngine if needed
   }, [globeEngine]);
 
-  // Intel Report 3D markers integration
+  // Intel Report 3D markers integration - only show when CyberCommand + IntelReports mode
   useEffect(() => {
     let mounted = true;
 
-    // Fetch Intel Reports for 3D visualization
-    const loadIntelReports = async () => {
-      try {
-        const markers = await intelReportVisualizationService.getIntelReportMarkers({
-          maxReports: 50 // Limit for performance
-        });
-        
-        if (mounted) {
-          setIntelReports(markers);
-          console.log(`Loaded ${markers.length} Intel Report 3D markers`);
+    // Only fetch Intel Reports when in the correct visualization mode
+    if (visualizationMode.mode === 'CyberCommand' && visualizationMode.subMode === 'IntelReports') {
+      // Fetch Intel Reports for 3D visualization
+      const loadIntelReports = async () => {
+        try {
+          const markers = await intelReportVisualizationService.getIntelReportMarkers({
+            maxReports: 50 // Limit for performance
+          });
+          
+          if (mounted) {
+            setIntelReports(markers);
+            console.log(`Loaded ${markers.length} Intel Report 3D markers for CyberCommand/IntelReports mode`);
+          }
+        } catch (error) {
+          console.error('Error loading Intel Report markers:', error);
         }
-      } catch (error) {
-        console.error('Error loading Intel Report markers:', error);
+      };
+
+      loadIntelReports();
+
+      // Set up periodic refresh (every 30 seconds) only when in correct mode
+      const interval = setInterval(loadIntelReports, 30000);
+
+      return () => {
+        mounted = false;
+        clearInterval(interval);
+      };
+    } else {
+      // Clear Intel Reports when not in the correct mode
+      if (mounted) {
+        setIntelReports([]);
+        console.log('Intel Report 3D markers cleared - not in CyberCommand/IntelReports mode');
       }
-    };
+    }
+  }, [visualizationMode.mode, visualizationMode.subMode]);
 
-    loadIntelReports();
-
-    // Set up periodic refresh (every 30 seconds)
-    const interval = setInterval(loadIntelReports, 30000);
-
-    return () => {
-      mounted = false;
-      clearInterval(interval);
-    };
-  }, []);
-
-  // Add Intel Report 3D markers to the Globe scene
+  // Add Intel Report 3D markers to the Globe scene - respect visualization mode
   useEffect(() => {
-    if (!globeRef.current || !intelReports.length) return;
+    if (!globeRef.current) return;
 
     const globeObj = globeRef.current as unknown as { scene: () => THREE.Scene };
     const scene = globeObj?.scene();
     const intelGroup = intelMarkerGroupRef.current;
 
-    if (scene && intelGroup && !scene.children.includes(intelGroup)) {
-      scene.add(intelGroup);
-      console.log('Intel Report 3D marker group added to Globe scene');
+    if (scene && intelGroup) {
+      // Only add to scene if we're in the correct visualization mode and have reports
+      if (visualizationMode.mode === 'CyberCommand' && 
+          visualizationMode.subMode === 'IntelReports' && 
+          intelReports.length > 0 &&
+          !scene.children.includes(intelGroup)) {
+        scene.add(intelGroup);
+        console.log('Intel Report 3D marker group added to Globe scene');
+      } else if (scene.children.includes(intelGroup)) {
+        // Remove from scene if mode changed or no reports
+        scene.remove(intelGroup);
+        console.log('Intel Report 3D marker group removed from Globe scene');
+      }
     }
 
     return () => {
@@ -156,11 +188,14 @@ const GlobeView: React.FC = () => {
         scene.remove(intelGroup);
       }
     };
-  }, [globeRef, intelReports]);
+  }, [globeRef, intelReports, visualizationMode.mode, visualizationMode.subMode]);
 
-  // Initialize 3D Intel Report markers using the hook
-  useIntelReport3DMarkers(
-    intelReports, 
+  // Initialize 3D Intel Report markers using the hook - capture models for interactivity
+  const { models: intel3DModels } = useIntelReport3DMarkers(
+    // Pass reports only when in correct visualization mode
+    (visualizationMode.mode === 'CyberCommand' && visualizationMode.subMode === 'IntelReports') 
+      ? intelReports 
+      : [], 
     globeRef.current ? (globeRef.current as unknown as { scene: () => THREE.Scene }).scene() : null,
     globeRef.current ? (globeRef.current as unknown as { camera: () => THREE.Camera }).camera() : null,
     null, // No longer need globe object reference
@@ -169,8 +204,14 @@ const GlobeView: React.FC = () => {
       hoverAltitude: 12,  // Increased from 8 to 12 for larger models
       rotationSpeed: 0.005,
       scale: 4.0  // Increased from 0.8 to 4.0 (5x larger)
-    }
+    },
+    hoveredReportId // Pass the currently hovered report ID
   );
+
+  // Update the models state when intel3DModels changes
+  useEffect(() => {
+    setIntelModels(intel3DModels);
+  }, [intel3DModels]);
 
   useEffect(() => {
     if (!globeRef.current) return;
@@ -194,18 +235,8 @@ const GlobeView: React.FC = () => {
     return () => {
       if (scene && bordersGroup) scene.remove(bordersGroup);
       if (scene && territoriesGroup) scene.remove(territoriesGroup);
-      if (scene && intelGroup) scene.remove(intelGroup);
     };
   }, [globeRef, bordersRef, territoriesRef, globeEngine]);
-
-  const handleGlobeClick = ({ lat, lng }: { lat: number; lng: number }) => {
-    const newMarker = { lat, lng, size: 0.5, color: 'red' };
-    setGlobeData((prevData) => [...prevData, newMarker]);
-    setFocusLocation({ lat, lng });
-    if (globeRef.current) {
-      globeRef.current.pointOfView({ lat, lng, altitude: 1.5 });
-    }
-  };
 
   // Add debounce utility for resize handling
   // AI-NOTE: Fix for stack overflow caused by recursive resize event dispatch
@@ -257,13 +288,21 @@ const GlobeView: React.FC = () => {
     };
   }, []);
 
-  // Space weather data visualization effect
+  // Space weather data visualization effect - only show when EcoNatural + SpaceWeather mode
   useEffect(() => {
     if (!globeEngine) return;
     
-    if (!visualizationVectors.length) {
-      // Clear space weather markers when no data or disabled
+    // Only show space weather data when in the correct visualization mode
+    const shouldShowSpaceWeather = (
+      visualizationMode.mode === 'EcoNatural' && 
+      visualizationMode.subMode === 'SpaceWeather' &&
+      visualizationVectors.length > 0
+    );
+    
+    if (!shouldShowSpaceWeather) {
+      // Clear space weather markers when mode changed or no data
       setGlobeData(prevData => prevData.filter((d: { type?: string }) => d.type !== 'space-weather'));
+      console.log('Space weather data cleared - not in EcoNatural/SpaceWeather mode');
       return;
     }
     
@@ -291,7 +330,9 @@ const GlobeView: React.FC = () => {
       return [...nonSpaceWeatherData, ...spaceWeatherMarkers];
     });
     
-  }, [globeEngine, visualizationVectors]);
+    console.log(`Updated space weather visualization with ${spaceWeatherMarkers.length} markers for EcoNatural/SpaceWeather mode`);
+    
+  }, [globeEngine, visualizationVectors, visualizationMode.mode, visualizationMode.subMode]);
 
   return (
     <div ref={containerRef} style={{ 
@@ -337,7 +378,6 @@ const GlobeView: React.FC = () => {
             return d.color || 'white';
           }}
           globeMaterial={material ?? undefined}
-          onGlobeClick={handleGlobeClick}
           // Configure renderer for optimal space usage
           rendererConfig={{
             antialias: true,
@@ -348,9 +388,19 @@ const GlobeView: React.FC = () => {
           enablePointerInteraction={true}
           // ...existing Globe props...
         />
-      </div>
-      
-      {/* Borders and territories overlays would be attached to the Three.js scene here in a custom renderer or with react-three-fiber */}
+        </div>
+        
+        {/* Enhanced 3D Globe Interactivity - handles Intel Report model interactions with game-inspired 3D system */}
+        <Enhanced3DGlobeInteractivity 
+          globeRef={globeRef}
+          intelReports={intelReports}
+          visualizationMode={visualizationMode}
+          models={intelModels}
+          onHoverChange={setHoveredReportId}
+          containerRef={containerRef}
+        />
+        
+        {/* Borders and territories overlays would be attached to the Three.js scene here in a custom renderer or with react-three-fiber */}
       </GlobeLoadingManager>
     </div>
   );

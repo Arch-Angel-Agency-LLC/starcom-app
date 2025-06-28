@@ -37,7 +37,7 @@ export const useSettingsSync = (dependencies: React.DependencyList) => {
 
   useEffect(() => {
     setSyncKey(prev => prev + 1);
-  }, dependencies);
+  }, dependencies); // eslint-disable-line react-hooks/exhaustive-deps
 
   return syncKey;
 };
@@ -55,7 +55,11 @@ export const useSettingsValidation = <T extends Record<string, unknown>>(
     const mismatches: string[] = [];
     
     Object.entries(uiSettings).forEach(([key, uiValue]) => {
-      const persistentValue = persistentSettings[key];
+      // Handle nested properties (e.g., 'intelReports.overlayOpacity')
+      const persistentValue = key.includes('.') 
+        ? key.split('.').reduce((obj, k) => obj?.[k], persistentSettings as unknown as Record<string, unknown>)
+        : persistentSettings[key];
+        
       if (persistentValue !== uiValue) {
         mismatches.push(`${key}: UI=${JSON.stringify(uiValue)} ≠ Persistent=${JSON.stringify(persistentValue)}`);
       }
@@ -63,12 +67,8 @@ export const useSettingsValidation = <T extends Record<string, unknown>>(
 
     if (mismatches.length > 0) {
       console.warn(`⚠️ ${componentName} UI/Persistent mismatch:`, mismatches);
-    } else {
-      // Only log in dev mode to reduce console noise
-      if (import.meta.env.DEV) {
-        console.log(`✅ ${componentName} UI state in sync with persistent settings`);
-      }
     }
+    // Remove success logging to reduce console noise and prevent render loops
   }, [componentName, persistentSettings, uiSettings]);
 };
 
