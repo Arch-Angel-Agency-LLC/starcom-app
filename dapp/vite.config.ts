@@ -5,6 +5,7 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import path from 'path';
 
 export default defineConfig({
+  assetsInclude: ['**/*.glb', '**/*.gltf'], // Include 3D model files as assets
   plugins: [
     react(), 
     tsconfigPaths(),
@@ -71,6 +72,7 @@ export default defineConfig({
     alias: {
       // Source code aliases for reliable path resolution
       '@': path.resolve(__dirname, './src'),
+      '@assets': path.resolve(__dirname, './src/assets'),
       '@models': path.resolve(__dirname, './src/models'),
       '@components': path.resolve(__dirname, './src/components'),
       '@services': path.resolve(__dirname, './src/services'),

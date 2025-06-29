@@ -1,0 +1,209 @@
+# Asset Handling Best Practices - Vercel Deployment Guide
+
+**Artifact Type**: Critical Development Protocol  
+**Priority**: HIGH - Prevents Hours of Development Time Loss  
+**Context**: Starcom dApp Static Asset Management  
+**Deployment**: Vercel `--prod` Manual Upload  
+
+---
+
+## 🚨 **CRITICAL SUCCESS PATTERN**
+
+### **THE RULE THAT SAVES HOURS:**
+**Use relative path imports for ALL static assets in production deployments.**
+
+```typescript
+// ✅ THIS WORKS IN VERCEL PRODUCTION
+import modelUrl from '../assets/models/intel_report.glb?url';
+import texture from '../../assets/textures/earth.jpg?url'; 
+import audio from '../../../assets/sounds/alert.mp3?url';
+
+// ❌ THIS FAILS IN VERCEL PRODUCTION  
+import modelUrl from '@assets/models/intel_report.glb?url';
+import texture from '@assets/textures/earth.jpg?url';
+```
+
+---
+
+## 📋 **ASSET HANDLING CHECKLIST**
+
+### **Before Starting Asset Work:**
+- [ ] **Vite Config**: Verify `assetsInclude: ['**/*.glb', '**/*.gltf', '**/*.jpg', '**/*.png']`
+- [ ] **TypeScript Declarations**: Check `src/types/assets.d.ts` includes asset types
+- [ ] **File Structure**: Ensure assets are in `src/assets/` not `public/`
+
+### **During Development:**
+- [ ] **Import Strategy**: Use relative paths from the importing file
+- [ ] **URL Suffix**: Add `?url` to asset imports for URL resolution
+- [ ] **File Verification**: Confirm asset files exist at expected paths
+
+### **Before Deployment:**
+- [ ] **Local Build Test**: Run `npm run build` and verify assets in `dist/assets/`
+- [ ] **Asset Size Check**: Ensure critical assets are reasonable size (<50MB)
+- [ ] **Path Verification**: Double-check no alias imports remain for assets
+
+---
+
+## 🔧 **TECHNICAL IMPLEMENTATION**
+
+### **Vite Configuration Requirements:**
+```typescript
+// vite.config.ts
+export default defineConfig({
+  assetsInclude: ['**/*.glb', '**/*.gltf', '**/*.fbx', '**/*.obj'], // 3D models
+  build: {
+    assetsInlineLimit: 0, // Externalize all assets
+    rollupOptions: {
+      output: {
+        assetFileNames: 'assets/[name]-[hash][extname]' // Hash for caching
+      }
+    }
+  },
+  // NOTE: Aliases are OK for code, but NOT for assets in production
+});
+```
+
+### **TypeScript Asset Declarations:**
+```typescript
+// src/types/assets.d.ts
+declare module '*.glb' {
+  const src: string;
+  export default src;
+}
+
+declare module '*.glb?url' {
+  const src: string;
+  export default src;
+}
+```
+
+### **Import Patterns by File Location:**
+```typescript
+// From src/hooks/
+import asset from '../assets/models/file.glb?url';
+
+// From src/components/Feature/
+import asset from '../../assets/models/file.glb?url';
+
+// From src/components/Deep/Nested/Component/
+import asset from '../../../../assets/models/file.glb?url';
+```
+
+---
+
+## 🐛 **DEBUGGING GUIDE**
+
+### **Common Error Patterns:**
+
+#### **"Could not resolve asset" Error:**
+```bash
+[vite:asset] Could not load /vercel/path0/src/assets/models/file.glb?url
+```
+**Solution**: Switch from alias import to relative path import.
+
+#### **"File not found" in Production:**
+**Check**: 
+1. File exists in `src/assets/` (not `public/`)
+2. Using relative path import (not alias)
+3. Added to `assetsInclude` in vite.config.ts
+
+#### **Asset Missing from Build:**
+```bash
+# Check if asset was included in build
+ls dist/assets/ | grep filename
+find dist/ -name "*.glb"
+```
+
+### **Quick Fix Commands:**
+```bash
+# Verify asset exists
+ls -la src/assets/models/
+
+# Test local build
+npm run build
+
+# Check build output
+ls -la dist/assets/
+
+# Find specific asset type
+find dist/ -name "*.glb" -o -name "*.gltf"
+```
+
+---
+
+## 📈 **DEPLOYMENT VERIFICATION**
+
+### **Pre-Deployment Tests:**
+```bash
+# 1. Clean build
+rm -rf dist/
+npm run build
+
+# 2. Verify critical assets included
+ls dist/assets/ | grep intel_report
+ls dist/assets/ | grep texture
+ls dist/assets/ | grep model
+
+# 3. Check file sizes (should have hashes)
+ls -lh dist/assets/*.glb
+```
+
+### **Post-Deployment Validation:**
+- [ ] **Asset URLs resolve**: Check browser network tab for 200 responses
+- [ ] **3D models load**: Verify GLB/GLTF files render correctly
+- [ ] **Textures display**: Confirm images load in production
+- [ ] **No 404 errors**: Monitor console for missing asset errors
+
+---
+
+## 🎯 **SUCCESS METRICS**
+
+### **Build Success Indicators:**
+- ✅ `npm run build` completes without asset errors
+- ✅ Assets appear in `dist/assets/` with hash suffixes
+- ✅ File sizes match expected values
+- ✅ No TypeScript compilation errors for imports
+
+### **Production Success Indicators:**
+- ✅ 3D models render correctly in deployed app
+- ✅ Textures and images load without errors
+- ✅ Audio files play when triggered
+- ✅ No console errors related to missing assets
+
+---
+
+## 💡 **AI AGENT QUICK REFERENCE**
+
+### **When Working with Assets:**
+1. **FIRST**: Check if using relative paths or aliases
+2. **IF FAILING**: Switch aliases to relative paths immediately
+3. **ALWAYS**: Test `npm run build` before assuming it works
+4. **VERIFY**: Check `dist/assets/` contains the files
+
+### **Red Flags to Watch For:**
+- Import statements with `@assets/` prefix
+- Assets in `public/` folder (should be in `src/assets/`)
+- Missing `?url` suffix on asset imports
+- Build succeeding but assets missing from `dist/`
+
+### **Safe Development Pattern:**
+```typescript
+// 1. Place asset in src/assets/subdirectory/
+// 2. Import with relative path + ?url
+import assetUrl from '../assets/models/file.glb?url';
+
+// 3. Use in component
+const model = await loader.loadAsync(assetUrl);
+```
+
+---
+
+## 🏆 **LESSON LEARNED**
+
+**The Cost**: Many hours of development time lost to asset import issues.
+
+**The Solution**: Always use relative path imports for static assets in production deployments.
+
+**The Prevention**: This artifact ensures future AI agents immediately know the correct approach and avoid the same pitfall.
+
+**AI-NOTE**: This protocol was created after successfully resolving a critical GLB asset loading failure in Vercel production deployment. The key insight was that TypeScript aliases work in development but may fail in production build environments, especially with manual deployment workflows.

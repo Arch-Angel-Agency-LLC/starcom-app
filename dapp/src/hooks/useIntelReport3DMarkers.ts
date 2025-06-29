@@ -3,11 +3,11 @@
 
 import { useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { IntelReportOverlayMarker } from '../interfaces/IntelReportOverlay';
+import { assetLoader } from '../utils/assetLoader';
 
-// Use relative path to public assets - works in both dev and production
-const INTEL_REPORT_MODEL_URL = '/models/intel_report-01d.glb';
+// Import GLB asset using Vite's asset handling for static deployment compatibility
+import intelReportModelUrl from '../assets/models/intel_report-01d.glb?url';
 
 // Default scale constant for Intel Report models
 const DEFAULT_INTEL_REPORT_SCALE = 4.0; // Make models visible and interactive
@@ -50,35 +50,26 @@ export const useIntelReport3DMarkers = (
   const animationFrameRef = useRef<number>();
   const groupRef = useRef<THREE.Group>(new THREE.Group());
 
-  // Load the GLB model once
+  // Load the GLB model once using robust asset loader
   useEffect(() => {
-    const loader = new GLTFLoader();
-    
-    loader.load(
-      INTEL_REPORT_MODEL_URL,
-      (gltf) => {
-        const model = gltf.scene.clone();
-        model.scale.setScalar(scale);
-        model.rotation.set(0, 0, 0);
+    const loadModel = async () => {
+      try {
+        const model = await assetLoader.loadModel(intelReportModelUrl, {
+          scale,
+          fallbackColor: 0xff6b35,
+          fallbackGeometry: 'cone',
+          retryCount: 3,
+          timeout: 15000
+        });
+        
         setGltfModel(model);
         console.log('Intel Report 3D model loaded successfully');
-      },
-      undefined,
-      (error) => {
+      } catch (error) {
         console.error('Error loading Intel Report 3D model:', error);
-        
-        // Fallback: Create a simple geometric marker
-        const fallbackGeometry = new THREE.ConeGeometry(1, 3, 8);
-        const fallbackMaterial = new THREE.MeshPhongMaterial({ 
-          color: 0xff6b35,
-          transparent: true,
-          opacity: 0.8
-        });
-        const fallbackModel = new THREE.Mesh(fallbackGeometry, fallbackMaterial);
-        fallbackModel.scale.setScalar(scale);
-        setGltfModel(fallbackModel);
       }
-    );
+    };
+
+    loadModel();
   }, [scale]);
 
   // Convert lat/lng to 3D position on sphere

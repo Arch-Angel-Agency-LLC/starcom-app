@@ -55,6 +55,30 @@
 
 **Development Mindset**: Build robust dApp functionality with immersive Earth Alliance theming.
 
+### **🎯 DEPLOYMENT-CRITICAL QUICK REFERENCE**
+
+#### **Asset Imports (MOST COMMON FAILURE POINT):**
+- **✅ USE**: Relative paths (`../assets/file.glb?url`)
+- **❌ AVOID**: Aliases (`@assets/file.glb?url`) - FAILS IN VERCEL
+- **Why**: Manual `vercel --prod` deployments don't resolve aliases reliably
+
+#### **Safe Test Commands:**
+- **✅ USE**: `npm run test:safe` or `npm run test:noaa-safe`
+- **❌ NEVER**: `npm test`, `npx vitest` - CAUSES SYSTEM FREEZES
+
+#### **Asset Processing Verification:**
+```bash
+npm run build                    # Build locally first
+ls dist/assets/                  # Verify assets included
+find dist/ -name "*.glb"         # Check for specific file types
+```
+
+#### **Common Debugging Steps:**
+1. **Asset not loading?** → Check if using aliases instead of relative paths
+2. **Vercel build failing?** → Switch from `@assets/` to `../assets/`
+3. **File not found?** → Verify file exists in `src/assets/` not `public/`
+4. **Tests hanging?** → Use safe test runners only
+
 ---
 
 ## 4. Data Accumulation Prevention (MANDATORY)
@@ -76,6 +100,62 @@ The dApp includes data-intensive systems (3D visualization, IPFS storage, blockc
 4. **Copilot Sessions**: Extended AI sessions may trigger repeated data fetches
 
 **VIOLATION OF DATA LIMITS WILL CAUSE SYSTEM STORAGE BLOAT**
+
+---
+
+## 5. Asset Handling Protocol (CRITICAL FOR DEPLOYMENT)
+
+### **🚨 CRITICAL LESSON: Vercel Static Deployment Asset Imports**
+
+**MOST IMPORTANT RULE**: When working with static assets (GLB, GLTF, images, etc.) that must work in `vercel --prod` manual deployments:
+
+#### **✅ DO THIS (WORKS):**
+```typescript
+// Use RELATIVE PATH imports for production reliability
+import modelUrl from '../assets/models/file.glb?url';           // From hooks/
+import modelUrl from '../../../../assets/models/file.glb?url';  // From deep components/
+```
+
+#### **❌ NEVER DO THIS (FAILS IN VERCEL):**
+```typescript
+// Alias imports FAIL in Vercel production builds
+import modelUrl from '@assets/models/file.glb?url';
+```
+
+### **Why This Matters:**
+- **Hours Lost**: This exact issue has wasted many development hours
+- **Vercel Specificity**: Manual `--prod` deployments behave differently than git-linked
+- **Alias Resolution**: TypeScript aliases may not resolve in all build environments
+- **Production Critical**: 3D models, textures, and other assets must load in production
+
+### **Asset Handling Checklist:**
+1. **✅ Vite Config**: Ensure `assetsInclude: ['**/*.glb', '**/*.gltf']` is set
+2. **✅ File Location**: Place assets in `src/assets/` not `public/`
+3. **✅ Import Strategy**: Use relative paths, not aliases for assets
+4. **✅ TypeScript Support**: Add asset declarations to `src/types/assets.d.ts`
+5. **✅ Local Test**: Verify `npm run build` includes assets in `dist/assets/`
+6. **✅ Deployment Test**: Test with `vercel --prod` before assuming it works
+
+### **Asset Import Patterns:**
+```typescript
+// ✅ CORRECT: Relative paths work everywhere
+import texture from '../assets/images/texture.png?url';
+import model from '../../assets/models/model.glb?url';
+import sound from '../../../assets/audio/sound.mp3?url';
+
+// ❌ WRONG: Aliases fail in production builds
+import texture from '@assets/images/texture.png?url';
+import model from '@assets/models/model.glb?url';
+```
+
+### **Debugging Asset Issues:**
+1. **Check build output**: Look for assets in `dist/assets/` folder
+2. **Test locally first**: Run `npm run build` before deploying
+3. **Verify file exists**: Confirm asset file is in expected `src/assets/` location
+4. **Check import syntax**: Use `?url` suffix for asset URL imports
+5. **Try relative paths**: If aliases fail, switch to relative imports
+
+### **AI-NOTE**: This asset handling protocol was created after resolving a critical GLB import failure that cost many development hours. The key insight: manual Vercel deployments require relative path imports for reliability.
 
 ---
 
