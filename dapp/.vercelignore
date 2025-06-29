@@ -96,7 +96,7 @@ eslint.config.js
 
 # Large asset files that aren't essential
 asset\ development/
-models/
+# models/ - REMOVED: Need GLB files for 3D visualization
 stock/
 Icons/
 

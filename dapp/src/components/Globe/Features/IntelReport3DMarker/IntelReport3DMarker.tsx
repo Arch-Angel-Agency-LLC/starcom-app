@@ -4,11 +4,14 @@
 
 import React, { useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { IntelReportOverlayMarker } from '../../../../interfaces/IntelReportOverlay';
+import { assetLoader } from '../../../../utils/assetLoader';
 
-// Use relative path to public assets - works in both dev and production
-const INTEL_REPORT_MODEL_URL = '/models/intel_report-01d.glb';
+// Import GLB asset using Vite's asset handling for static deployment compatibility
+import intelReportModelUrl from '../../../../assets/models/intel_report-01d.glb?url';
+
+// AI-NOTE: Using Vite's ?url suffix ensures proper asset URL resolution in production
+// This approach works with static deployment environments like Vercel
 
 interface IntelReport3DMarkerProps {
   reports: IntelReportOverlayMarker[];
@@ -40,41 +43,27 @@ const IntelReport3DMarker: React.FC<IntelReport3DMarkerProps> = ({
   const groupRef = useRef<THREE.Group>(new THREE.Group());
   const [models, setModels] = useState<ModelInstance[]>([]);
   const [gltfModel, setGltfModel] = useState<THREE.Object3D | null>(null);
-  const animationFrameRef = useRef<number>();    // Load the GLB model once
-    useEffect(() => {
-      const loader = new GLTFLoader();
-      loader.load(
-        INTEL_REPORT_MODEL_URL,
-      (gltf) => {
-        const model = gltf.scene.clone();
-        
-        // Scale the model to appropriate size
-        model.scale.setScalar(scale);
-        
-        // Ensure the model is facing the correct direction
-        model.rotation.set(0, 0, 0);
+  const animationFrameRef = useRef<number>();    // Load the GLB model once using robust asset loader
+  useEffect(() => {
+    const loadModel = async () => {
+      try {
+        const model = await assetLoader.loadModel(intelReportModelUrl, {
+          scale,
+          fallbackColor: 0xff6b35,
+          fallbackGeometry: 'cone',
+          retryCount: 3,
+          timeout: 15000
+        });
         
         setGltfModel(model);
         console.log('Intel Report 3D model loaded successfully');
-      },
-      (progress) => {
-        console.log('Loading Intel Report model:', (progress.loaded / progress.total) * 100 + '%');
-      },
-      (error) => {
+      } catch (error) {
         console.error('Error loading Intel Report 3D model:', error);
-        
-        // Fallback: Create a simple geometric marker if GLB fails to load
-        const fallbackGeometry = new THREE.ConeGeometry(1, 3, 8);
-        const fallbackMaterial = new THREE.MeshPhongMaterial({ 
-          color: 0xff6b35,
-          transparent: true,
-          opacity: 0.8
-        });
-        const fallbackModel = new THREE.Mesh(fallbackGeometry, fallbackMaterial);
-        fallbackModel.scale.setScalar(scale);
-        setGltfModel(fallbackModel);
+        // Fallback model already created by assetLoader
       }
-    );
+    };
+
+    loadModel();
   }, [scale]);
 
   // Convert lat/lng to 3D position on sphere
