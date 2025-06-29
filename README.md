@@ -6,7 +6,7 @@
 
 ---
 
-*[View Complete Architecture Diagram](./ARCHITECTURE-DIAGRAM.md)*
+*[View Complete Architecture Diagram](./docs/architecture/ARCHITECTURE-DIAGRAM.md)*
 
 **The Earth Alliance's Decentralized Intelligence Exchange Platform**  
 *Empowering Global Citizens with Professional Intelligence Tools*
@@ -18,6 +18,8 @@
 [![React](https://img.shields.io/badge/React-20232A?logo=react&logoColor=61DAFB)](https://reactjs.org/)
 [![Solana](https://img.shields.io/badge/Solana-9945FF?logo=solana&logoColor=white)](https://solana.com/)
 [![Rust](https://img.shields.io/badge/Rust-000000?logo=rust&logoColor=white)](https://www.rust-lang.org/)
+
+📚 **[Complete Documentation](./docs/README.md)** | 📊 **[Project Overview](./docs/PROJECT-OVERVIEW.md)** | 🏗️ **[Architecture](./docs/architecture/ARCHITECTURE-DIAGRAM.md)**
 
 </div>
 
@@ -35,6 +37,7 @@
 - [🛠️ Development](#️-development)
 - [📊 Market Opportunity](#-market-opportunity)
 - [🤝 Contributing](#-contributing)
+- [📚 Documentation](#-documentation)
 
 ---
 
@@ -363,6 +366,23 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
+## 📚 Documentation
+
+For comprehensive documentation, please visit our organized docs structure:
+
+- **📊 [Project Overview](./docs/PROJECT-OVERVIEW.md)** - Complete project status and architecture overview
+- **🏗️ [Architecture](./docs/architecture/ARCHITECTURE-DIAGRAM.md)** - System architecture and design
+- **🚀 [Deployment](./docs/deployment/)** - Deployment guides and procedures
+- **🎨 [UI/UX Design](./docs/ui-ux/)** - User interface and experience documentation
+- **👥 [Team Collaboration](./docs/team-collaboration/)** - Team workflow and collaboration guides
+- **🌐 [dApp Documentation](./docs/dapp/)** - Frontend application documentation
+- **🤖 [AI Security RelayNode](./docs/ai-security-relaynode/)** - Backend security node documentation
+- **📋 [Project Management](./docs/project-management/)** - Project status and completion reports
+
+📚 **[Full Documentation Index](./docs/README.md)**
+
+---
+
 <div align="center">
 
 **🌍 Earth Alliance Star Command • Global Citizen Intelligence Platform 🌍**
@@ -371,6 +391,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 *Democratizing Intelligence Operations for Truth & Transparency*
 
-[Documentation](./docs/) • [Architecture](./docs/AI-SECURITY-RELAYNODE-ARCHITECTURE.md) • [Security](./docs/COMPREHENSIVE-SECURITY-GAP-ANALYSIS.md) • [Earth Alliance Mission](./docs/EARTH-ALLIANCE-MISSION-ANALYSIS.md)
+[Documentation](./docs/README.md) • [Architecture](./docs/architecture/ARCHITECTURE-DIAGRAM.md) • [Project Overview](./docs/PROJECT-OVERVIEW.md)
 
 </div>

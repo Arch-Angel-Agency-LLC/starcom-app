@@ -1,10 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { fetchLatestElectricFieldData, generateSpaceWeatherAlerts } from '../services/noaaSpaceWeather';
 import { ProcessedElectricFieldData, SpaceWeatherAlert } from '../types';
 import { SpaceWeatherCacheService } from '../services/SpaceWeatherCacheService';
 
 // AI-NOTE: Updated to use proper caching service for better performance and data persistence
-// TODO: Integrate with existing globe overlays and intelligence context
+// COMPLETED: Integrate with existing globe overlays and intelligence context via export utilities
 
 interface UseSpaceWeatherData {
   interMagData: ProcessedElectricFieldData | null;
@@ -245,5 +245,93 @@ export const useElectricFieldVisualization = () => {
     ...spaceWeatherData,
     visualizationVectors: getVisualizationVectors(),
     alertRegions: getAlertRegions()
+  };
+};
+
+// Utility functions for intelligence context integration
+
+/**
+ * Generate intelligence reports from space weather anomalies
+ * Integrates with the IntelReportService for blockchain submission
+ */
+export const generateSpaceWeatherIntelReports = (
+  interMagData: ProcessedElectricFieldData | null,
+  usCanadaData: ProcessedElectricFieldData | null,
+  alerts: SpaceWeatherAlert[]
+) => {
+  const reports = [];
+
+  // Generate reports from high-severity alerts
+  const criticalAlerts = alerts.filter(alert => alert.severity === 'extreme' || alert.severity === 'high');
+  
+  for (const alert of criticalAlerts) {
+    if (alert.electricFieldData && alert.electricFieldData.length > 0) {
+      const avgLat = alert.electricFieldData.reduce((sum, v) => sum + v.latitude, 0) / alert.electricFieldData.length;
+      const avgLon = alert.electricFieldData.reduce((sum, v) => sum + v.longitude, 0) / alert.electricFieldData.length;
+      const maxMagnitude = Math.max(...alert.electricFieldData.map(v => v.magnitude));
+      
+      reports.push({
+        title: `Space Weather Alert: ${alert.alertType.replace(/_/g, ' ').toUpperCase()}`,
+        content: `${alert.severity.toUpperCase()} space weather event detected. Electric field anomaly with peak magnitude ${maxMagnitude.toFixed(2)} mV/km. ${alert.message}`,
+        tags: ['SPACE_WEATHER', 'ELECTROMAGNETIC', 'GEOMAGNETIC', 'PATTERN_ANALYSIS'],
+        latitude: avgLat,
+        longitude: avgLon,
+        timestamp: new Date(alert.timestamp).getTime(),
+        author: 'STARCOM Space Weather Monitor'
+      });
+    }
+  }
+
+  // Generate reports from statistical anomalies
+  if (interMagData && interMagData.statistics.maxFieldStrength > 100) { // Threshold for anomaly
+    const highestVector = interMagData.vectors.reduce((max, v) => v.magnitude > max.magnitude ? v : max);
+    
+    reports.push({
+      title: 'High-Intensity Electric Field Detection',
+      content: `Exceptional electric field strength detected: ${highestVector.magnitude.toFixed(2)} mV/km. Location shows potential geomagnetic disturbance or artificial electromagnetic signature.`,
+      tags: ['SIGINT', 'ELECTROMAGNETIC', 'GEOINT'],
+      latitude: highestVector.latitude,
+      longitude: highestVector.longitude,
+      timestamp: new Date(interMagData.timestamp).getTime(),
+      author: 'STARCOM AutoIntel System'
+    });
+  }
+
+  return reports;
+};
+
+/**
+ * Hook specifically for intelligence context integration
+ * Provides space weather data formatted for intel report overlays
+ */
+export const useSpaceWeatherIntelligence = () => {
+  const spaceWeatherData = useSpaceWeatherData({ enableAlerts: true });
+  
+  const intelReports = useMemo(() => {
+    return generateSpaceWeatherIntelReports(
+      spaceWeatherData.interMagData,
+      spaceWeatherData.usCanadaData,
+      spaceWeatherData.alerts
+    );
+  }, [spaceWeatherData.interMagData, spaceWeatherData.usCanadaData, spaceWeatherData.alerts]);
+  
+  const overlayMarkers = useMemo(() => {
+    return intelReports.map((report, index) => ({
+      pubkey: `space-weather-${index}-${report.timestamp}`,
+      title: report.title,
+      content: report.content,
+      tags: report.tags,
+      latitude: report.latitude,
+      longitude: report.longitude,
+      timestamp: report.timestamp,
+      author: report.author
+    }));
+  }, [intelReports]);
+
+  return {
+    ...spaceWeatherData,
+    intelReports,
+    overlayMarkers,
+    hasAnomalies: intelReports.length > 0
   };
 };

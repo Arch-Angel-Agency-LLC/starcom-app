@@ -137,7 +137,22 @@ export function useIntel3DInteraction({
     };
   }, [enabled]);
 
-  // Mouse event handling
+  // Advanced interaction state for drag vs click detection (game development pattern)
+  const [interactionState, setInteractionState] = useState({
+    isMouseDown: false,
+    dragStartPos: { x: 0, y: 0 },
+    currentPos: { x: 0, y: 0 },
+    dragDistance: 0,
+    mouseDownTime: 0,
+    isDragging: false,
+    hasDraggedPastThreshold: false
+  });
+
+  // Configuration for drag/click detection
+  const dragThreshold = 5; // pixels
+  const timeThreshold = 300; // ms
+
+  // Mouse event handling with drag/click detection
   const handleMouseMove = useCallback((event: MouseEvent) => {
     if (!enabled || !containerRef.current) return;
 
@@ -154,29 +169,112 @@ export function useIntel3DInteraction({
       }
     }));
 
+    // Update interaction state for drag detection
+    if (interactionState.isMouseDown) {
+      const dragDistance = Math.sqrt(
+        Math.pow(x - interactionState.dragStartPos.x, 2) + 
+        Math.pow(y - interactionState.dragStartPos.y, 2)
+      );
+      
+      const isDragging = dragDistance > dragThreshold;
+      const hasDraggedPastThreshold = interactionState.hasDraggedPastThreshold || isDragging;
+      
+      setInteractionState(prev => ({
+        ...prev,
+        currentPos: { x, y },
+        dragDistance,
+        isDragging,
+        hasDraggedPastThreshold
+      }));
+      
+      // Debug logging when drag state changes
+      if (isDragging && !interactionState.isDragging) {
+        console.log('🖱️ 3D Hook - Drag detected:', { dragDistance, dragThreshold });
+      }
+    }
+
     // Update interaction manager
     managerRef.current.updateMousePosition(x, y, rect.width, rect.height);
+  }, [enabled, containerRef, interactionState, dragThreshold]);
+
+  const handleMouseDown = useCallback((event: MouseEvent) => {
+    if (!enabled || !containerRef.current) return;
+    
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    
+    console.log('🖱️ 3D Hook - Mouse Down:', { x, y, timestamp: Date.now() });
+    
+    setInteractionState({
+      isMouseDown: true,
+      dragStartPos: { x, y },
+      currentPos: { x, y },
+      dragDistance: 0,
+      mouseDownTime: Date.now(),
+      isDragging: false,
+      hasDraggedPastThreshold: false
+    });
   }, [enabled, containerRef]);
 
-  const handleMouseClick = useCallback(() => {
-    if (!enabled) return;
-    managerRef.current.handleClick();
-  }, [enabled]);
+  const handleMouseUp = useCallback((event: MouseEvent) => {
+    if (!enabled || !interactionState.isMouseDown) return;
+    
+    const currentTime = Date.now();
+    const timeSinceMouseDown = currentTime - interactionState.mouseDownTime;
+    
+    // Determine if this was a click or drag based on distance and time
+    const wasClick = !interactionState.hasDraggedPastThreshold && 
+                     timeSinceMouseDown < timeThreshold;
+    
+    // Debug logging to help diagnose issues
+    console.log('🖱️ 3D Hook - Mouse Up Analysis:', {
+      dragDistance: interactionState.dragDistance,
+      dragThreshold,
+      timeSinceMouseDown,
+      timeThreshold,
+      hasDraggedPastThreshold: interactionState.hasDraggedPastThreshold,
+      wasClick
+    });
+    
+    // Reset interaction state
+    setInteractionState({
+      isMouseDown: false,
+      dragStartPos: { x: 0, y: 0 },
+      currentPos: { x: 0, y: 0 },
+      dragDistance: 0,
+      mouseDownTime: 0,
+      isDragging: false,
+      hasDraggedPastThreshold: false
+    });
+    
+    // Only process click actions if it was actually a click (not a drag release)
+    if (wasClick) {
+      console.log('✅ 3D Hook - Processing click action');
+      managerRef.current.handleClick();
+    } else {
+      console.log('❌ 3D Hook - Ignoring mouse up - was a drag');
+    }
+  }, [enabled, interactionState, timeThreshold, dragThreshold]);
 
-  // Set up mouse event listeners
+  // Set up mouse event listeners with drag/click detection
   useEffect(() => {
     if (!enabled || !containerRef.current) return;
 
     const container = containerRef.current;
     
     container.addEventListener('mousemove', handleMouseMove);
-    container.addEventListener('click', handleMouseClick);
+    container.addEventListener('mousedown', handleMouseDown);
+    container.addEventListener('mouseup', handleMouseUp);
+    container.addEventListener('mouseleave', handleMouseUp); // Reset on mouse leave
 
     return () => {
       container.removeEventListener('mousemove', handleMouseMove);
-      container.removeEventListener('click', handleMouseClick);
+      container.removeEventListener('mousedown', handleMouseDown);
+      container.removeEventListener('mouseup', handleMouseUp);
+      container.removeEventListener('mouseleave', handleMouseUp);
     };
-  }, [enabled, containerRef, handleMouseMove, handleMouseClick]);
+  }, [enabled, containerRef, handleMouseMove, handleMouseDown, handleMouseUp]);
 
   // Update screen positions for UI positioning
   useEffect(() => {

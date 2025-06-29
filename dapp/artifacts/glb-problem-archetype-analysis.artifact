@@ -1,0 +1,235 @@
+# GLB Loading Problem Analysis - Archetype Consensus Building
+
+**Artifact Type:** Problem Analysis Framework Application  
+**Problem:** GLB 3D models not loading in Vercel production (SPA rewrite intercepting requests)  
+**Date:** June 29, 2025  
+**Status:** Phase 1 - Problem Analysis  
+
+---
+
+## **Systems Architect (SA) Analysis**
+
+### **System Flow Investigation:**
+
+**Vite Build Process:**
+1. **Development:** `vite dev` serves from `public/` directly
+2. **Production:** `vite build` processes `src/` and copies `public/` to `dist/`
+3. **Asset Import Handling:** `import asset from './file'` should generate hashed URLs
+4. **Public Folder Handling:** Files in `public/` copied as-is to `dist/`
+
+**Vercel Deployment Process:**
+1. **Build Phase:** Runs `npm run build` → generates `dist/`
+2. **Asset Serving:** Serves files from `dist/` as static content
+3. **Routing Phase:** Applies `vercel.json` rules in order:
+   - Static files (exact matches)
+   - Headers
+   - Redirects
+   - **Rewrites** ← OUR PROBLEM
+
+**Critical System Constraint Identified:**
+```
+VERCEL ROUTING ORDER:
+1. Static File Check (if exact match found → serve file)
+2. SPA Rewrite Rule (if no exact match → serve index.html)
+```
+
+**✅ SYSTEM FLOW CONFIRMED:**
+
+**Actual Code Flow:**
+1. `Globe.tsx` → calls `useIntelReport3DMarkers` hook
+2. Hook defines: `const INTEL_REPORT_MODEL_URL = '/models/intel_report-01d.glb'`
+3. GLTFLoader requests: `/models/intel_report-01d.glb`
+4. **Vercel Routing Logic:**
+   - Check for exact static file match → GLB file exists in `dist/models/intel_report-01d.glb`
+   - **BUT:** Global SPA rewrite `"source": "/(.*)"` intercepts request
+   - Returns `index.html` content instead of GLB file
+
+**Build Process Verification:**
+1. ✅ Vite builds and copies GLB from `public/models/` → `dist/models/`
+2. ✅ File exists at correct location with correct size (42KB)
+3. ✅ Vercel deploys `dist/` folder correctly
+
+**SA CONFIRMS:** The system is working correctly except for Vercel's routing configuration. The catch-all SPA rewrite rule is too aggressive and needs to exclude static assets.
+
+---
+
+## **Detective (DT) Analysis**
+
+### **Evidence Gathering Status:**
+
+**✅ CONFIRMED EVIDENCE:**
+- Console shows: `Error loading Intel Report 3D model from: /models/intel_report-01d.glb`
+- Error message: `SyntaxError: Unexpected token '<', "<!doctype "`
+- This proves the request is returning HTML instead of GLB binary data
+- Local development works perfectly with same path
+
+**✅ CRITICAL EVIDENCE FOUND:**
+1. **Build Output Verified:** GLB file exists at `dist/models/intel_report-01d.glb` (42KB) ✅
+2. **Wrong Implementation Used:** Globe uses `useIntelReport3DMarkers` hook with public path `/models/intel_report-01d.glb`, NOT Vite asset import ✅
+3. **Vercel SPA Rewrite:** Global rule `"source": "/(.*)"` intercepts ALL requests including static assets ✅
+4. **File vs Route Conflict:** Static file exists but Vercel routes request to `index.html` instead ✅
+
+**EVIDENCE DETAILS:**
+- **Component Code:** Uses Vite import `import intelReportModelUrl from '../../../../assets/models/intel_report-01d.glb'` (NOT USED)
+- **Hook Code:** Uses public path `const INTEL_REPORT_MODEL_URL = '/models/intel_report-01d.glb'` (ACTUALLY USED)
+- **Globe Usage:** Calls `useIntelReport3DMarkers` hook, not component directly
+- **Vercel Config Issue:** Catch-all rewrite prevents static file serving
+
+**DT CONFIRMS ROOT CAUSE:** The issue is NOT with Vite asset import (which we weren't actually using), but with Vercel's SPA rewrite rule intercepting a perfectly valid static file request.
+
+---
+
+## **Innovation Engineer (IE) Analysis**
+
+### **Conventional Approach Failures:**
+- ❌ Public folder + string paths (Vercel SPA rewrite intercepts)
+- ❌ Asset imports with ?url (doesn't work, returns original path)
+- ❌ Asset imports without ?url (returns original path)
+- ❌ Vercel.json rewrite exclusions (regex pattern issues)
+
+### **Innovative Alternative Approaches:**
+
+**✅ ROOT CAUSE CONFIRMED - SOLUTION APPROACHES:**
+
+**Current Problem:** Vercel's global SPA rewrite `"source": "/(.*)"` intercepts static GLB file requests.
+
+**INNOVATIVE SOLUTIONS:**
+
+**1. Vercel Routing Fix (Preferred):**
+```json
+{
+  "rewrites": [
+    {
+      "source": "/models/(.*)",
+      "destination": "/models/$1"
+    },
+    {
+      "source": "/((?!api|models|assets|_next|favicon.ico).*)",
+      "destination": "/index.html"
+    }
+  ]
+}
+```
+
+**2. Vite Asset Import (Alternative):**
+- Switch hook to use Vite imports like the component already does
+- Import generates hashed URLs that bypass routing issues
+
+**3. Asset Proxy API (Fallback):**
+```typescript
+// /api/assets/[...path].ts
+export default function handler(req, res) {
+  // Serve files directly from filesystem
+}
+```
+
+**4. CDN External Hosting:**
+- Host GLB files on external CDN (Cloudinary, AWS S3)
+- Eliminates Vercel routing dependency entirely
+
+**IE RECOMMENDATION:** Fix #1 (Vercel routing) is simplest and most maintainable. If that fails, implement #2 (Vite imports).
+
+---
+
+## **Risk Analyst (RA) Analysis**
+
+### **Risk Assessment of Proposed Solutions:**
+
+**Solution 1: Vercel Routing Fix**
+```json
+{
+  "rewrites": [
+    { "source": "/models/(.*)", "destination": "/models/$1" },
+    { "source": "/((?!api|models|assets|_next|favicon.ico).*)", "destination": "/index.html" }
+  ]
+}
+```
+- ✅ **Low Technical Risk:** Standard Vercel configuration
+- ✅ **Low Operational Risk:** No additional dependencies  
+- ⚠️ **Medium Platform Risk:** Relies on Vercel-specific routing
+- ✅ **Low Maintenance Risk:** Simple config change
+- **Risk Rating:** ⭐ LOW (PREFERRED)
+
+**Solution 2: Vite Asset Import in Hook**
+```typescript
+import intelReportModelUrl from '../assets/models/intel_report-01d.glb';
+const INTEL_REPORT_MODEL_URL = intelReportModelUrl;
+```
+- ✅ **Low Technical Risk:** Standard Vite feature
+- ✅ **Low Platform Risk:** Works on any static hosting
+- ⚠️ **Medium Implementation Risk:** Code changes required
+- ✅ **Low Maintenance Risk:** Standard build-time processing
+- **Risk Rating:** ⭐ LOW (BACKUP)
+
+**Solution 3: Asset Proxy API**
+- ⚠️ **Medium Technical Risk:** Additional API endpoint
+- ⚠️ **Medium Performance Risk:** Additional HTTP hop
+- ⚠️ **Medium Maintenance Risk:** Complex infrastructure
+- **Risk Rating:** 🟡 MEDIUM (BLOCKED)
+
+**Solution 4: CDN External Hosting**
+- ⚠️ **Medium Cost Risk:** Additional service dependency
+- ⚠️ **Medium Operational Risk:** Multiple providers
+- **Risk Rating:** 🟡 MEDIUM (BLOCKED)
+
+**RA APPROVAL:** Solutions 1 & 2 only. Block complex solutions for simple static file issue.
+
+---
+
+## **Implementation Guardian (IG) Analysis**
+
+### **Code Quality Requirements:**
+- 🏗️ **Architecture:** Solution must be clean and maintainable
+- 📝 **Documentation:** Clear explanation of how and why it works
+- 🧪 **Testing:** Verifiable in both development and production
+- 🔧 **Debugging:** Easy to troubleshoot when issues arise
+
+### **IG DESIGN REVIEW - FINAL APPROVAL**
+
+**Solution 1: Vercel Routing Fix (PRIMARY)**
+- ✅ **Maintainability:** Simple JSON config, well-documented
+- ✅ **Clarity:** Clear intent - exclude models from SPA routing  
+- ✅ **Testability:** Direct URL test verifies fix
+- ✅ **Performance:** Zero overhead
+- ✅ **Implementation:** 2-minute config change
+
+**Solution 2: Vite Asset Import (SECONDARY)**  
+- ✅ **Maintainability:** Standard Vite pattern, future-proof
+- ✅ **Clarity:** Import makes dependency explicit
+- ✅ **Testability:** Build output verification  
+- ✅ **Performance:** Optimal (build-time optimization)
+- ✅ **Platform Independence:** Works anywhere
+
+**IG IMPLEMENTATION PLAN:**
+1. **Phase 1:** Fix Vercel routing config
+2. **Phase 2:** If #1 fails, implement Vite imports
+3. **Testing:** Verify each phase works in production
+4. **Documentation:** Document chosen solution
+
+**IG FINAL APPROVAL:** ✅ Proceed with implementation
+
+---
+
+## **Current Consensus Status:**
+
+### **CURRENT CONSENSUS STATUS:**
+
+### **PHASE 1 CONSENSUS:** ✅ ACHIEVED
+- **SA:** ✅ System flow confirmed - Vercel routing issue identified
+- **DT:** ✅ Evidence complete - root cause proven with file verification  
+- **IE:** ✅ Solutions identified - prefers Vercel config fix
+- **RA:** ✅ Risk assessment complete - approves Solutions 1 & 2
+- **IG:** ✅ Design review complete - implementation plan approved
+
+### **IMPLEMENTATION APPROVED:** ✅ READY TO PROCEED
+
+**Implementation Order:**
+1. **Phase 1:** Fix Vercel routing configuration (Primary solution)
+2. **Phase 2:** If needed, implement Vite asset imports (Backup solution)
+3. **Testing:** Verify fix works in production deployment
+4. **Documentation:** Document the working solution
+
+**ALL ARCHETYPES CONSENSUS ACHIEVED** - Proceeding to implementation phase.
+
+### **NO IMPLEMENTATION PERMITTED UNTIL:**
+✅ All archetypes achieve Phase 1 consensus

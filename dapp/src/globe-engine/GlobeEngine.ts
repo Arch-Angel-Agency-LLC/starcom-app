@@ -286,23 +286,32 @@ export class GlobeEngine {
           });
       }
       if (overlay === 'intelMarkers') {
-        // AI-NOTE: Fetch intel markers from secure API (see overlays artifact)
-        // TODO: Replace mock with live fetch from API/backend/Solana
-        import('../api/intelligence').then(({ fetchIntelReports }) => {
-          fetchIntelReports().then((reports: import('../models/IntelReport').IntelReport[]) => {
-            // Map IntelReport to IntelReportOverlayMarker
-            const overlayMarkers = reports.map((r) => ({
-              pubkey: '', // IntelReport doesn't have pubkey field
-              title: r.title || '',
-              content: r.content || '',
-              tags: r.tags || [],
-              latitude: r.lat || 0,
-              longitude: r.long || 0,
-              timestamp: Date.parse(r.date || '') || 0,
-              author: r.author || '',
-            }));
-            this.overlayDataCache['intelMarkers'] = overlayMarkers;
-            this.setOverlayData('intelMarkers', overlayMarkers);
+        // AI-NOTE: Fetch intel markers from Solana blockchain via IntelReportService
+        // COMPLETED: Replace mock with live Solana backend integration
+        import('../services/IntelReportService').then(({ IntelReportService }) => {
+          import('@solana/web3.js').then(({ Connection }) => {
+            const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
+            const intelService = new IntelReportService(connection);
+            intelService.fetchIntelReports().then((reports) => {
+              // Map IntelReportData to IntelReportOverlayMarker
+              const overlayMarkers = reports.map((r) => ({
+                pubkey: r.pubkey || '',
+                title: r.title || '',
+                content: r.content || '',
+                tags: r.tags || [],
+                latitude: r.latitude || 0,
+                longitude: r.longitude || 0,
+                timestamp: r.timestamp || Date.now(),
+                author: r.author || 'Anonymous',
+              }));
+              this.overlayDataCache['intelMarkers'] = overlayMarkers;
+              this.setOverlayData('intelMarkers', overlayMarkers);
+            }).catch((error) => {
+              console.error('Failed to load intel reports from Solana:', error);
+              // Fall back to empty array
+              this.overlayDataCache['intelMarkers'] = [];
+              this.setOverlayData('intelMarkers', []);
+            });
           });
         });
       }
@@ -454,6 +463,35 @@ export class GlobeEngine {
 // See artifacts/intel-report-overlays.artifact for overlay types, data sources, and migration plan.
 
 export const intelMarkersOverlay = {
-  // TODO: Replace mock data with live Solana/secure backend integration.
+  // COMPLETED: Live Solana backend integration via IntelReportService
   markers: [] as IntelReportOverlayMarker[],
+  
+  // Utility method to refresh markers from Solana
+  async refreshMarkers(): Promise<IntelReportOverlayMarker[]> {
+    try {
+      const { IntelReportService } = await import('../services/IntelReportService');
+      const { Connection } = await import('@solana/web3.js');
+      
+      // Create service instance directly (not using React hook)
+      const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
+      const intelService = new IntelReportService(connection);
+      const reports = await intelService.fetchIntelReports();
+      
+      this.markers = reports.map((r) => ({
+        pubkey: r.pubkey || '',
+        title: r.title || '',
+        content: r.content || '',
+        tags: r.tags || [],
+        latitude: r.latitude || 0,
+        longitude: r.longitude || 0,
+        timestamp: r.timestamp || Date.now(),
+        author: r.author || 'Anonymous',
+      }));
+      
+      return this.markers;
+    } catch (error) {
+      console.error('Failed to refresh intel markers from Solana:', error);
+      return [];
+    }
+  }
 };

@@ -10,6 +10,8 @@ interface TeamCardProps {
     activeInvestigations: number;
     status: 'active' | 'paused' | 'archived';
     lastActivity: Date;
+    onChainAddress?: string;
+    blockchainEnabled?: boolean;
   };
   onClick: () => void;
 }
@@ -45,10 +47,27 @@ const TeamCard: React.FC<TeamCardProps> = ({ team, onClick }) => {
       {/* Team Info */}
       <div className={styles.teamHeader}>
         <h3 className={styles.teamName}>{team.name}</h3>
-        <span className={styles.teamStatus}>{team.status.toUpperCase()}</span>
+        <div className={styles.headerBadges}>
+          <span className={styles.teamStatus}>{team.status.toUpperCase()}</span>
+          {team.blockchainEnabled && (
+            <span className={styles.blockchainBadge} title="Solana Blockchain Enabled">
+              ⛓️
+            </span>
+          )}
+        </div>
       </div>
       
       <p className={styles.teamDescription}>{team.description}</p>
+      
+      {/* Blockchain Info */}
+      {team.blockchainEnabled && team.onChainAddress && (
+        <div className={styles.blockchainInfo}>
+          <span className={styles.blockchainLabel}>On-Chain Address:</span>
+          <span className={styles.blockchainAddress} title={team.onChainAddress}>
+            {team.onChainAddress.slice(0, 8)}...{team.onChainAddress.slice(-4)}
+          </span>
+        </div>
+      )}
       
       {/* Team Stats */}
       <div className={styles.teamStats}>
