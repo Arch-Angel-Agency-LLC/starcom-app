@@ -7,7 +7,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { IntelReportOverlayMarker } from '../interfaces/IntelReportOverlay';
 
 // Import GLB as embedded base64 data URL - completely bypasses routing issues
-import { INTEL_REPORT_MODEL_DATA_URL } from '../assets/models/intel_report-01d-base64';
+import { INTEL_REPORT_MODEL_DATA_URL } from '../assets/models/intel_report-01d-base64.ts';
 const INTEL_REPORT_MODEL_URL = INTEL_REPORT_MODEL_DATA_URL;
 
 // Default scale constant for Intel Report models

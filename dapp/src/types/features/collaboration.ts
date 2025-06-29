@@ -32,6 +32,20 @@ export interface Operator {
   avatarUrl?: string;
   status: 'ONLINE' | 'AWAY' | 'BUSY' | 'OFFLINE';
   lastActivity: Date;
+  walletAddress?: string; // Solana wallet address for blockchain operations
+  permissions?: string[]; // Additional permissions for team operations
+}
+
+export interface Team {
+  id: string;
+  name: string;
+  description: string;
+  agency?: AgencyType;
+  classification: ClearanceLevel;
+  members: Operator[];
+  createdAt: Date;
+  updatedAt: Date;
+  status: 'ACTIVE' | 'SUSPENDED' | 'ARCHIVED';
 }
 
 // ============================================================================

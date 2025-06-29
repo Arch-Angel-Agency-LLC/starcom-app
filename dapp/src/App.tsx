@@ -10,6 +10,7 @@ import { MarketplaceProvider } from "./context/MarketplaceContext";
 import { SpaceWeatherProvider } from "./context/SpaceWeatherContext";
 import { UnifiedGlobalCommandProvider } from "./context/UnifiedGlobalCommandContext";
 import { InvestigationProvider } from "./context/InvestigationContext";
+import { GlobalGlobeContextMenuProvider } from "./context/GlobalGlobeContextMenuProvider";
 import SettingsInitializer from "./components/SettingsInitializer";
 import SettingsStatusIndicator from "./components/SettingsStatusIndicator";
 import PreloaderManager from "./components/Preloader/PreloaderManager";
@@ -55,7 +56,9 @@ const App: React.FC = () => (
                     <MarketplaceProvider>
                       <UnifiedGlobalCommandProvider>
                         <InvestigationProvider>
-                          <AppContent />
+                          <GlobalGlobeContextMenuProvider>
+                            <AppContent />
+                          </GlobalGlobeContextMenuProvider>
                         </InvestigationProvider>
                       </UnifiedGlobalCommandProvider>
                     </MarketplaceProvider>

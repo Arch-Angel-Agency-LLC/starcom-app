@@ -1,0 +1,470 @@
+/**
+ * IntelStatusIndicator CSS Module
+ * Styles for the Intel Status Indicator component
+ */
+
+/* Container */
+.container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: var(--surface-color, #1a1a1a);
+  border: 1px solid var(--border-color, #333);
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.container.animated {
+  animation: statusSlide 0.3s ease-out;
+}
+
+@keyframes statusSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.container.hidden {
+  opacity: 0;
+  transform: scale(0.8);
+  pointer-events: none;
+}
+
+.container.clickable {
+  cursor: pointer;
+}
+
+.container.clickable:hover {
+  background: var(--surface-highlight, #252525);
+  border-color: var(--accent-color, #00ff88);
+  transform: translateY(-1px);
+}
+
+/* Size Variants */
+.container.sizeSmall {
+  padding: 4px 8px;
+  gap: 4px;
+}
+
+.container.sizeMedium {
+  padding: 6px 12px;
+  gap: 8px;
+}
+
+.container.sizeLarge {
+  padding: 8px 16px;
+  gap: 12px;
+}
+
+/* Status Variants */
+.container.statusHealthy {
+  border-color: var(--success-color, #10b981);
+  background: rgba(16, 185, 129, 0.05);
+}
+
+.container.statusWorking {
+  border-color: var(--info-color, #3b82f6);
+  background: rgba(59, 130, 246, 0.05);
+}
+
+.container.statusWarning {
+  border-color: var(--warning-color, #f59e0b);
+  background: rgba(245, 158, 11, 0.05);
+}
+
+.container.statusError {
+  border-color: var(--error-color, #ef4444);
+  background: rgba(239, 68, 68, 0.05);
+}
+
+/* Position Variants */
+.container.positionTopLeft {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 1000;
+}
+
+.container.positionTopRight {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 1000;
+}
+
+.container.positionBottomLeft {
+  position: fixed;
+  bottom: 16px;
+  left: 16px;
+  z-index: 1000;
+}
+
+.container.positionBottomRight {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  z-index: 1000;
+}
+
+/* Main Status */
+.mainStatus {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.statusIcon {
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.sizeSmall .statusIcon {
+  font-size: 14px;
+}
+
+.sizeLarge .statusIcon {
+  font-size: 20px;
+}
+
+.statusIcon.pulse {
+  animation: statusPulse 2s ease-in-out infinite;
+}
+
+@keyframes statusPulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+}
+
+/* Pending Badge */
+.pendingBadge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: var(--warning-color, #f59e0b);
+  color: white;
+  font-size: 9px;
+  font-weight: bold;
+  padding: 1px 4px;
+  border-radius: 8px;
+  min-width: 14px;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.sizeSmall .pendingBadge {
+  font-size: 8px;
+  padding: 1px 3px;
+  min-width: 12px;
+}
+
+.sizeLarge .pendingBadge {
+  font-size: 10px;
+  padding: 2px 5px;
+  min-width: 16px;
+}
+
+/* Status Details */
+.statusDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.sizeSmall .statusDetails {
+  font-size: 10px;
+  gap: 2px;
+}
+
+.sizeLarge .statusDetails {
+  font-size: 13px;
+  gap: 6px;
+}
+
+.statusRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  min-width: 120px;
+}
+
+.sizeSmall .statusRow {
+  min-width: 100px;
+  gap: 6px;
+}
+
+.sizeLarge .statusRow {
+  min-width: 140px;
+  gap: 10px;
+}
+
+.statusLabel {
+  color: var(--text-muted, #9ca3af);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.statusValue {
+  color: var(--text-color, #fff);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.statusValue.pulse {
+  animation: textPulse 2s ease-in-out infinite;
+}
+
+@keyframes textPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Error Message */
+.errorMessage {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid var(--error-color, #ef4444);
+  border-radius: 4px;
+  font-size: 11px;
+  color: var(--error-color, #ef4444);
+  margin-top: 4px;
+}
+
+.errorIcon {
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.errorText {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Compact Status */
+.compactStatus {
+  display: flex;
+  align-items: center;
+}
+
+.compactText {
+  font-size: 11px;
+  color: var(--text-muted, #9ca3af);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
+}
+
+.sizeSmall .compactText {
+  font-size: 10px;
+  max-width: 100px;
+}
+
+.sizeLarge .compactText {
+  font-size: 12px;
+  max-width: 200px;
+}
+
+/* Hidden Indicator */
+.hiddenIndicator {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  background: var(--surface-color, #1a1a1a);
+  border: 1px solid var(--border-color, #333);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 999;
+  opacity: 0.7;
+}
+
+.hiddenIndicator:hover {
+  opacity: 1;
+  background: var(--surface-highlight, #252525);
+  border-color: var(--accent-color, #00ff88);
+  transform: scale(1.1);
+}
+
+.hiddenIcon {
+  font-size: 14px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container.positionTopLeft,
+  .container.positionTopRight {
+    top: 8px;
+  }
+  
+  .container.positionTopLeft,
+  .container.positionBottomLeft {
+    left: 8px;
+  }
+  
+  .container.positionTopRight,
+  .container.positionBottomRight {
+    right: 8px;
+  }
+  
+  .container.positionBottomLeft,
+  .container.positionBottomRight {
+    bottom: 8px;
+  }
+  
+  .statusRow {
+    min-width: 80px;
+  }
+  
+  .compactText {
+    max-width: 80px;
+  }
+  
+  .hiddenIndicator {
+    bottom: 8px;
+    right: 8px;
+  }
+}
+
+/* Accessibility */
+.container:focus {
+  outline: 2px solid var(--accent-color, #00ff88);
+  outline-offset: 2px;
+}
+
+.hiddenIndicator:focus {
+  outline: 2px solid var(--accent-color, #00ff88);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .container,
+  .statusIcon,
+  .hiddenIndicator {
+    animation: none;
+    transition: none;
+  }
+  
+  .statusIcon.pulse,
+  .statusValue.pulse {
+    animation: none;
+  }
+  
+  .container.clickable:hover,
+  .hiddenIndicator:hover {
+    transform: none;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .container {
+    border-width: 2px;
+  }
+  
+  .errorMessage {
+    border-width: 2px;
+  }
+  
+  .hiddenIndicator {
+    border-width: 2px;
+  }
+}
+
+/* Dark mode enhancements */
+@media (prefers-color-scheme: dark) {
+  .container.statusHealthy {
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.1);
+  }
+  
+  .container.statusError {
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.1);
+  }
+  
+  .container.statusWarning {
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.1);
+  }
+  
+  .container.statusWorking {
+    box-shadow: 0 0 8px rgba(59, 130, 246, 0.1);
+  }
+}
+
+/* Performance optimization */
+.container {
+  contain: layout style paint;
+  will-change: transform, opacity;
+}
+
+.statusIcon {
+  contain: layout style paint;
+}
+
+/* Tooltip enhancement */
+.container[aria-label]:hover::before {
+  content: attr(aria-label);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--surface-color, #1a1a1a);
+  color: var(--text-color, #fff);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  white-space: nowrap;
+  z-index: 1001;
+  border: 1px solid var(--border-color, #333);
+  margin-bottom: 4px;
+}
+
+/* Loading states */
+.container.statusWorking::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+  animation: shimmer 2s infinite;
+  border-radius: inherit;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}

@@ -157,6 +157,14 @@
   overflow-y: auto;
 }
 
+.collaborationHub {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  border: 1px solid rgba(0, 255, 65, 0.2);
+  border-radius: 0.5rem;
+  background: rgba(0, 0, 0, 0.1);
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
   .header {

@@ -1,0 +1,1 @@
+console.log('GLB URL:', INTEL_REPORT_MODEL_URL);

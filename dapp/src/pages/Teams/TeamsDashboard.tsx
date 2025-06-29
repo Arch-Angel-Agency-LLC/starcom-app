@@ -1,12 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useWallet } from '@solana/wallet-adapter-react';
+import { Connection } from '@solana/web3.js';
+import { EnhancedTeamCollaborationService } from '../../services/collaboration/EnhancedTeamCollaborationService';
+import { Team, ClearanceLevel, AgencyType } from '../../types/features/collaboration';
 import realTimeTeamService from '../../services/RealTimeTeamService';
 import TeamCard from '../../components/Teams/TeamCard';
 import TeamCreationForm from '../../components/Teams/TeamCreationForm';
+import { TeamCollaborationHub } from '../../components/Teams/TeamCollaborationHub';
 import styles from './TeamsDashboard.module.css';
 
-interface Team {
+interface TeamDisplay {
   id: string;
   name: string;
   description: string;
@@ -14,50 +18,78 @@ interface Team {
   activeInvestigations: number;
   status: 'active' | 'paused' | 'archived';
   lastActivity: Date;
+  onChainAddress?: string;
+  blockchainEnabled?: boolean;
 }
 
 const TeamsDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const { publicKey } = useWallet();
-  const [teams, setTeams] = useState<Team[]>([]);
+  const { publicKey, signTransaction } = useWallet();
+  const [teams, setTeams] = useState<TeamDisplay[]>([]);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [collaborationService, setCollaborationService] = useState<EnhancedTeamCollaborationService | null>(null);
 
+  // Initialize Enhanced Team Collaboration Service
   useEffect(() => {
-    loadTeams();
-    
-    // Set up real-time listeners
-    const unsubscribe = realTimeTeamService.on('team-created', () => {
-      loadTeams(); // Refresh teams when new team is created
+    const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
+    const service = new EnhancedTeamCollaborationService(connection, undefined, {
+      enableRealTimeSync: true,
+      autoConfirmTransactions: true,
+      defaultNetwork: 'devnet'
     });
-
-    return () => {
-      unsubscribe();
-    };
+    setCollaborationService(service);
   }, []);
 
-  const loadTeams = async () => {
+  const loadTeams = useCallback(async () => {
     setLoading(true);
     try {
-      // Load teams from real-time service
+      let displayTeams: TeamDisplay[] = [];
+
+      // Load blockchain teams if service is available
+      if (collaborationService && publicKey) {
+        try {
+          const userBlockchainTeams = await collaborationService.getUserTeams(publicKey.toString());
+          
+          // Transform blockchain teams to display format
+          const blockchainDisplayTeams: TeamDisplay[] = userBlockchainTeams.map(team => ({
+            id: team.id,
+            name: team.name,
+            description: team.description,
+            members: team.members.length,
+            activeInvestigations: 0, // TODO: Get from team packages
+            status: team.status === 'ACTIVE' ? 'active' : team.status === 'SUSPENDED' ? 'paused' : 'archived',
+            lastActivity: team.updatedAt,
+            onChainAddress: team.onChainAddress.toBase58(),
+            blockchainEnabled: true
+          }));
+          
+          displayTeams.push(...blockchainDisplayTeams);
+        } catch (error) {
+          console.warn('Failed to load blockchain teams:', error);
+        }
+      }
+
+      // Load teams from real-time service (legacy)
       const realTeams = realTimeTeamService.getTeams();
       
-      // Transform CyberTeam to Team format for display
-      const transformedTeams: Team[] = realTeams.map(cyberTeam => ({
+      // Transform CyberTeam to TeamDisplay format for display
+      const legacyDisplayTeams: TeamDisplay[] = realTeams.map(cyberTeam => ({
         id: cyberTeam.id,
         name: cyberTeam.name,
         description: `${cyberTeam.type} team for ${cyberTeam.agency}`,
         members: cyberTeam.members.length,
         activeInvestigations: cyberTeam.currentInvestigations.length,
         status: cyberTeam.status === 'ACTIVE' ? 'active' : 'paused',
-        lastActivity: cyberTeam.updatedAt
+        lastActivity: cyberTeam.updatedAt,
+        blockchainEnabled: false
       }));
 
-      if (transformedTeams.length > 0) {
-        setTeams(transformedTeams);
-      } else {
+      displayTeams.push(...legacyDisplayTeams);
+
+      if (displayTeams.length === 0) {
         // Set mock data for development if no real teams exist
-        setTeams([
+        displayTeams = [
           {
             id: 'team-alpha',
             name: 'Team Alpha',
@@ -65,7 +97,8 @@ const TeamsDashboard: React.FC = () => {
             members: 5,
             activeInvestigations: 3,
             status: 'active',
-            lastActivity: new Date()
+            lastActivity: new Date(),
+            blockchainEnabled: false
           },
           {
             id: 'team-beta',
@@ -74,16 +107,36 @@ const TeamsDashboard: React.FC = () => {
             members: 8,
             activeInvestigations: 2,
             status: 'active',
-            lastActivity: new Date(Date.now() - 2 * 60 * 60 * 1000) // 2 hours ago
+            lastActivity: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+            blockchainEnabled: false
           }
-        ]);
+        ];
       }
+
+      setTeams(displayTeams);
     } catch (error) {
       console.error('Failed to load teams:', error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [collaborationService, publicKey]);
+
+  useEffect(() => {
+    if (collaborationService) {
+      loadTeams();
+    }
+    
+    // Set up real-time listeners
+    const unsubscribe = realTimeTeamService.on('team-created', () => {
+      if (collaborationService) {
+        loadTeams(); // Refresh teams when new team is created
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [collaborationService, loadTeams]);
 
   const handleCreateTeam = async (teamData: {
     name: string;
@@ -91,28 +144,72 @@ const TeamsDashboard: React.FC = () => {
     collaborationMode: string;
     maxMembers: number;
   }) => {
-    if (!publicKey) {
+    if (!publicKey || !signTransaction) {
       alert('Please connect your wallet to create a team');
       return;
     }
 
+    if (!collaborationService) {
+      alert('Team collaboration service is not available');
+      return;
+    }
+
     try {
-      // Create team via real-time service
-      const newTeam = await realTimeTeamService.createTeam({
+      // Create team via Enhanced Team Collaboration Service
+      const newTeamData: Omit<Team, 'id' | 'createdAt' | 'updatedAt'> = {
         name: teamData.name,
-        type: 'INCIDENT_RESPONSE',
-        agency: 'CYBER_COMMAND',
-        specializations: ['incident-response', 'threat-analysis']
-      }, publicKey.toString());
+        description: teamData.description,
+        agency: 'CYBER_COMMAND' as AgencyType,
+        classification: 'CONFIDENTIAL' as ClearanceLevel,
+        members: [],
+        status: 'ACTIVE'
+      };
+
+      const wallet = {
+        publicKey,
+        signTransaction
+      };
+
+      const { team: newBlockchainTeam, signature } = await collaborationService.createTeam(
+        newTeamData,
+        wallet,
+        {
+          enableMultiSig: teamData.collaborationMode === 'consensus',
+          initialStake: 0,
+          membershipNFT: true
+        }
+      );
+
+      console.log('Team created on blockchain:', {
+        teamId: newBlockchainTeam.id,
+        signature,
+        onChainAddress: newBlockchainTeam.onChainAddress.toBase58()
+      });
+      
+      // Also create in real-time service for compatibility
+      try {
+        await realTimeTeamService.createTeam({
+          name: teamData.name,
+          type: 'INCIDENT_RESPONSE',
+          agency: 'CYBER_COMMAND',
+          specializations: ['incident-response', 'threat-analysis']
+        }, publicKey.toString());
+      } catch (legacyError) {
+        console.warn('Failed to create legacy team, but blockchain team was created:', legacyError);
+      }
       
       // Refresh teams list
       await loadTeams();
       setShowCreateForm(false);
       
+      // Show success message
+      alert(`Team "${newBlockchainTeam.name}" created successfully on Solana blockchain!\nTransaction: ${signature}`);
+      
       // Navigate to new team workspace
-      navigate(`/teams/${newTeam.id}`);
+      navigate(`/teams/${newBlockchainTeam.id}`);
     } catch (error) {
       console.error('Failed to create team:', error);
+      alert(`Failed to create team: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
@@ -146,6 +243,23 @@ const TeamsDashboard: React.FC = () => {
         </div>
       </div>
 
+      {/* Enhanced Team Collaboration Hub */}
+      {publicKey && (
+        <div className={styles.collaborationHub}>
+          <TeamCollaborationHub 
+            onTeamSelect={(teamId) => {
+              console.log('Team selected:', teamId);
+              // Could implement team focus/filtering here
+            }}
+            onPackageCreate={(packageId) => {
+              console.log('Package created:', packageId);
+              loadTeams(); // Refresh teams data
+            }}
+            compact={true}
+          />
+        </div>
+      )}
+
       {/* Quick Stats */}
       <div className={styles.stats}>
         <div className={styles.statCard}>
@@ -163,6 +277,12 @@ const TeamsDashboard: React.FC = () => {
             {teams.reduce((sum, team) => sum + team.activeInvestigations, 0)}
           </div>
           <div className={styles.statLabel}>Active Investigations</div>
+        </div>
+        <div className={styles.statCard}>
+          <div className={styles.statValue}>
+            {teams.filter(team => team.blockchainEnabled).length}
+          </div>
+          <div className={styles.statLabel}>Blockchain Teams</div>
         </div>
       </div>
 
