@@ -7,11 +7,8 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { IntelReportOverlayMarker } from '../../../../interfaces/IntelReportOverlay';
 
-// Import GLB as embedded base64 data URL - completely bypasses routing issues
-import { INTEL_REPORT_MODEL_DATA_URL } from '../../../../assets/models/intel_report-01d-base64.js';
-
-// Use the embedded data URL
-const INTEL_REPORT_MODEL_URL = INTEL_REPORT_MODEL_DATA_URL;
+// Use relative path to public assets - works in both dev and production
+const INTEL_REPORT_MODEL_URL = '/models/intel_report-01d.glb';
 
 interface IntelReport3DMarkerProps {
   reports: IntelReportOverlayMarker[];
@@ -46,10 +43,6 @@ const IntelReport3DMarker: React.FC<IntelReport3DMarkerProps> = ({
   const animationFrameRef = useRef<number>();    // Load the GLB model once
     useEffect(() => {
       const loader = new GLTFLoader();
-      
-      // Add console log to show what URL we're trying to load
-      console.log('IntelReport3DMarker: Attempting to load model from:', INTEL_REPORT_MODEL_URL);
-      
       loader.load(
         INTEL_REPORT_MODEL_URL,
       (gltf) => {
@@ -62,13 +55,13 @@ const IntelReport3DMarker: React.FC<IntelReport3DMarkerProps> = ({
         model.rotation.set(0, 0, 0);
         
         setGltfModel(model);
-        console.log('✅ IntelReport3DMarker: Model loaded successfully from:', INTEL_REPORT_MODEL_URL);
+        console.log('Intel Report 3D model loaded successfully');
       },
       (progress) => {
-        console.log('IntelReport3DMarker: Loading progress:', Math.round((progress.loaded / progress.total) * 100) + '%');
+        console.log('Loading Intel Report model:', (progress.loaded / progress.total) * 100 + '%');
       },
       (error) => {
-        console.error('❌ IntelReport3DMarker: Error loading model from:', INTEL_REPORT_MODEL_URL, error);
+        console.error('Error loading Intel Report 3D model:', error);
         
         // Fallback: Create a simple geometric marker if GLB fails to load
         const fallbackGeometry = new THREE.ConeGeometry(1, 3, 8);
@@ -80,7 +73,6 @@ const IntelReport3DMarker: React.FC<IntelReport3DMarkerProps> = ({
         const fallbackModel = new THREE.Mesh(fallbackGeometry, fallbackMaterial);
         fallbackModel.scale.setScalar(scale);
         setGltfModel(fallbackModel);
-        console.log('🔶 IntelReport3DMarker: Using fallback cone geometry');
       }
     );
   }, [scale]);
