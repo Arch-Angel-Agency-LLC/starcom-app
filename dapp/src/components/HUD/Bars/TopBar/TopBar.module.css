@@ -68,6 +68,7 @@
     margin-right: 12px;
     overflow: hidden;
     height: 40px;
+    position: relative;
   }
 
   .walletSection {
@@ -79,7 +80,16 @@
     height: 40px;
     z-index: 25; /* Higher than TopBar to ensure visibility */
     position: relative;
+    padding: 0 16px;
   }
+
+  /* Control section for settings button */
+.controlSection {
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  gap: 8px;
+}
 
   .settingsButton {
     margin-right: 6px;
@@ -102,11 +112,35 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    background: rgba(8, 145, 178, 0.2);
+    border: 1px solid #0891b2;
+    border-radius: 6px;
+    padding: 6px 8px;
+    color: #e0f2fe;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s ease;
+    min-width: 32px;
+    height: 32px;
   }
   .settingsButton:hover, .settingsButton:focus {
     background: #0ea5e9;
     color: #0f172a;
     box-shadow: 0 0 0 3px #38bdf8;
+    background: rgba(8, 145, 178, 0.4);
+    border-color: #06b6d4;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .settingsButton:active {
+    transform: translateY(0);
+    background: rgba(8, 145, 178, 0.6);
+  }
+
+  .settingsButton:focus {
+    outline: 2px solid #06b6d4;
+    outline-offset: 2px;
   }
 
   .resourceSection {

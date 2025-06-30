@@ -1,116 +1,284 @@
 // Marquee.tsx
-// Artifact-driven: horizontally scrolling news/data ticker for TopBar
+// Production-ready infinite marquee with seamless drag-to-scroll
 import React, { useRef, useEffect, useState } from 'react';
+import { MarqueeDataPoint, MarqueeProps } from './interfaces';
 import styles from './Marquee.module.css';
-
-// Local fallback type for MarqueeProps (artifact-driven, matches TopBar usage)
-export interface MarqueeDataPoint {
-  id: string;
-  label: string;
-  icon: string;
-  value: string;
-}
-
-export interface MarqueeProps {
-  dataPoints: MarqueeDataPoint[];
-  loading?: boolean;
-  error?: string | null;
-}
 
 const SCROLL_SPEED = 1; // px per frame
 
-const Marquee: React.FC<MarqueeProps> = ({ dataPoints, loading = false, error = null }) => {
+// Seamless infinite marquee component
+const Marquee: React.FC<MarqueeProps> = ({ 
+  dataPoints, 
+  error = null,
+  loadingStates = {},
+  dataAvailability = {},
+  isDraggable = true,
+  onDataPointClick,
+  onDataPointHover,
+  customClassName,
+  onOpenSettings // Add this prop to open settings
+}) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const [paused, setPaused] = useState(false);
-  const [focused, setFocused] = useState(false);
+  
+  // Single continuous offset - no resets, no normalization
   const [offset, setOffset] = useState(0);
   const [contentWidth, setContentWidth] = useState(0);
+  
+  // Drag state
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0, offset: 0 });
+  const [hasActuallyDragged, setHasActuallyDragged] = useState(false);
+  
+  // Mouse hover state for pausing
+  const [isHovered, setIsHovered] = useState(false);
 
-  // Measure content width for seamless looping
+  // Drag threshold to distinguish between clicks and drags
+  const DRAG_THRESHOLD = 5; // pixels
+  
+  // Auto-scroll animation - continuous movement (pauses on hover or actual drag)
   useEffect(() => {
+    if (hasActuallyDragged || isHovered || contentWidth <= 0) return;
+
+    let animationId: number;
+    
+    const animate = () => {
+      setOffset(prev => prev - SCROLL_SPEED);
+      animationId = requestAnimationFrame(animate);
+    };
+
+    animationId = requestAnimationFrame(animate);
+    
+    return () => cancelAnimationFrame(animationId);
+  }, [hasActuallyDragged, isHovered, contentWidth]);
+
+  // Calculate single content width (width of one set of items)
+  useEffect(() => {
+    const updateWidth = () => {
+      if (contentRef.current) {
+        // We render 3 copies, so divide by 3 to get single set width
+        const singleSetWidth = contentRef.current.scrollWidth / 3;
+        setContentWidth(singleSetWidth);
+      }
+    };
+
+    updateWidth();
+    const resizeObserver = new ResizeObserver(updateWidth);
     if (contentRef.current) {
-      setContentWidth(contentRef.current.scrollWidth);
+      resizeObserver.observe(contentRef.current);
     }
-    setOffset(0); // Reset offset on data change
+
+    return () => resizeObserver.disconnect();
   }, [dataPoints]);
 
-  // Auto-animate marquee (continuous, seamless loop)
+  // Mouse drag handlers
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!isDraggable) return;
+    // Don't prevent default immediately - let clicks work
+    setIsDragging(true);
+    setHasActuallyDragged(false);
+    setDragStart({ x: e.clientX, y: e.clientY, offset });
+  };
+
+  // Touch drag handlers
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (!isDraggable || e.touches.length !== 1) return;
+    e.preventDefault();
+    setIsDragging(true);
+    setHasActuallyDragged(false);
+    setDragStart({ x: e.touches[0].clientX, y: e.touches[0].clientY, offset });
+  };
+
+  // Global drag handlers
   useEffect(() => {
-    if (paused || !contentWidth) return;
-    
-    let frame: number;
-    let lastTime = 0;
-    const FPS_LIMIT = 60; // Limit to 60 FPS
-    const frameInterval = 1000 / FPS_LIMIT;
-    
-    function step(currentTime: number) {
-      if (currentTime - lastTime >= frameInterval) {
-        setOffset(prev => {
-          // Loop seamlessly: when offset reaches contentWidth, reset to 0
-          const next = prev - SCROLL_SPEED;
-          return Math.abs(next) >= contentWidth ? 0 : next;
-        });
-        lastTime = currentTime;
+    if (!isDragging) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const deltaX = e.clientX - dragStart.x;
+      const deltaY = e.clientY - dragStart.y;
+      const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+      
+      // Only start actual dragging if we've moved beyond the threshold
+      if (distance > DRAG_THRESHOLD) {
+        if (!hasActuallyDragged) {
+          setHasActuallyDragged(true);
+          e.preventDefault(); // Now we can prevent default
+        }
+        setOffset(dragStart.offset + deltaX);
       }
-      frame = requestAnimationFrame(step);
-    }
-    frame = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(frame);
-  }, [paused, contentWidth]);
+    };
 
-  // Pause on hover/focus
-  const handlePause = () => setPaused(true);
-  const handleResume = () => setPaused(false);
-  const handleFocus = () => {
-    setPaused(true);
-    setFocused(true);
+    const handleMouseUp = (e: MouseEvent) => {
+      // Only prevent default if we actually dragged
+      if (hasActuallyDragged) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      setIsDragging(false);
+      setHasActuallyDragged(false);
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length === 1) {
+        const deltaX = e.touches[0].clientX - dragStart.x;
+        const deltaY = e.touches[0].clientY - dragStart.y;
+        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        
+        if (distance > DRAG_THRESHOLD) {
+          if (!hasActuallyDragged) {
+            setHasActuallyDragged(true);
+            e.preventDefault();
+          }
+          setOffset(dragStart.offset + deltaX);
+        }
+      }
+    };
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (hasActuallyDragged) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      setIsDragging(false);
+      setHasActuallyDragged(false);
+    };
+
+    // Add global listeners
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    document.addEventListener('touchend', handleTouchEnd);
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [isDragging, dragStart, hasActuallyDragged, DRAG_THRESHOLD]);
+
+  // Calculate the final transform with seamless looping
+  // The key insight: use modulo to create seamless infinite scrolling
+  const getTransform = () => {
+    if (contentWidth <= 0) return 'translateX(0px)';
+    
+    // Normalize offset to always be within one content width cycle
+    // This creates seamless infinite scrolling without visible resets
+    const normalizedOffset = ((offset % contentWidth) + contentWidth) % contentWidth;
+    
+    // Apply offset to the second copy (middle copy) so content appears continuous
+    return `translateX(${-contentWidth + normalizedOffset}px)`;
   };
-  const handleBlur = () => {
-    setPaused(false);
-    setFocused(false);
-  };
 
-  if (loading) {
-    return <div className={styles.marqueeEmpty} role="status" aria-live="polite">Loading data...</div>;
-  }
-  if (error) {
-    return <div className={styles.marqueeError} role="alert" aria-live="assertive">Error: {error}</div>;
-  }
-  if (!dataPoints.length) {
-    return <div className={styles.marqueeEmpty} role="region" aria-label="marquee-empty">No data selected.</div>;
-  }
+  // Render data point
+  const renderDataPoint = (dataPoint: MarqueeDataPoint, index: number, copyIndex: number) => {
+    const isLoading = loadingStates[dataPoint.id] || false;
+    const isAvailable = dataAvailability[dataPoint.id] !== false;
+    const uniqueKey = `${copyIndex}-${dataPoint.id}-${index}`;
 
-  // Render two copies for seamless looping
-  return (
-    <div
-      ref={containerRef}
-      className={`${styles.marquee} ${focused ? 'ring-2' : ''}`}
-      aria-live="polite"
-      role="region"
-      aria-label="marquee"
-      tabIndex={0}
-      onMouseEnter={handlePause}
-      onMouseLeave={handleResume}
-      onFocus={handleFocus}
-      onBlur={handleBlur}
-      aria-describedby="marquee-desc"
-    >
-      <span id="marquee-desc" className="sr-only">
-        Auto-animating news ticker. Press Tab to focus, hover to pause.
-      </span>
+    const handleDataPointClick = () => {
+      // Call the original click handler if provided
+      onDataPointClick?.(dataPoint);
+      
+      // Open settings popup and navigate to this data point's section
+      // This would integrate with your settings system
+      openDataPointSettings(dataPoint.id);
+    };
+
+    return (
       <div
+        key={uniqueKey}
+        className={`${styles.marqueeItem} ${styles.marqueeItemClickable}`}
+        onClick={handleDataPointClick}
+        onMouseEnter={() => onDataPointHover?.(dataPoint)}
+        onMouseLeave={() => onDataPointHover?.(null)}
+        style={{
+          opacity: isLoading ? 0.6 : 1,
+          color: !isAvailable ? '#ef4444' : undefined,
+          cursor: 'pointer',
+        }}
+        title={`Configure ${dataPoint.label} settings`}
+      >
+        <span className={styles.marqueeIcon}>
+          {isLoading ? '⏳' : !isAvailable ? '⚠️' : dataPoint.icon}
+        </span>
+        <span className={styles.marqueeLabel}>
+          {dataPoint.label}:
+        </span>
+        <span className={styles.marqueeValue}>
+          {!isAvailable ? 'Error' : 
+           isLoading ? 'Loading...' : 
+           dataPoint.value}
+        </span>
+      </div>
+    );
+  };
+
+  // Function to open settings for a specific data point
+  const openDataPointSettings = (dataPointId: string) => {
+    // Use the callback prop to open settings with the specific data point
+    if (onOpenSettings) {
+      onOpenSettings(dataPointId);
+    } else {
+      // Fallback for development/testing
+      console.log(`Opening settings for data point: ${dataPointId}`);
+      alert(`Opening settings for: ${dataPointId}`);
+    }
+  };
+
+  if (error) {
+    return (
+      <div className={`${styles.marquee} ${customClassName || ''}`}>
+        <div className={styles.marqueeContent}>
+          <div className={styles.marqueeItem} style={{ color: '#ef4444' }}>
+            <span className={styles.marqueeIcon}>⚠️</span>
+            <span className={styles.marqueeValue}>
+              Error loading data: {error}
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!dataPoints || dataPoints.length === 0) {
+    return (
+      <div className={`${styles.marquee} ${customClassName || ''}`}>
+        <div className={styles.marqueeContent}>
+          <div className={styles.marqueeItem}>
+            <span className={styles.marqueeValue}>
+              No data available
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div 
+      ref={containerRef}
+      className={`${styles.marquee} ${customClassName || ''} ${hasActuallyDragged ? styles.marqueeDragging : ''}`}
+      onMouseDown={handleMouseDown}
+      onTouchStart={handleTouchStart}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <div 
         ref={contentRef}
         className={styles.marqueeContent}
-        style={{ transform: `translateX(${offset}px)` }}
+        style={{ 
+          transform: getTransform(),
+          cursor: isDraggable ? (hasActuallyDragged ? 'grabbing' : 'grab') : 'default'
+        }}
       >
-        {dataPoints.concat(dataPoints).map((dp, i) => (
-          <span key={dp.id + '-' + i} className={styles.marqueeItem} aria-label={`${dp.label}: ${dp.value}`}
-            aria-hidden={i >= dataPoints.length ? 'true' : undefined}>
-            <span className={styles.marqueeIcon} aria-hidden="true">{dp.icon}</span>
-            <span>{dp.label}</span>
-            <span className={styles.marqueeValue}>{dp.value}</span>
-          </span>
+        {/* Render 3 copies of content for seamless infinite scrolling */}
+        {[0, 1, 2].map(copyIndex => (
+          <div key={copyIndex} className={styles.contentCopy}>
+            {dataPoints.map((dataPoint, index) => 
+              renderDataPoint(dataPoint, index, copyIndex)
+            )}
+          </div>
         ))}
       </div>
     </div>
@@ -118,4 +286,3 @@ const Marquee: React.FC<MarqueeProps> = ({ dataPoints, loading = false, error = 
 };
 
 export default Marquee;
-// AI-NOTE: Marquee is accessible, pauses on hover/focus, loops, and is responsive.

@@ -1,0 +1,885 @@
+# EIA Data Expansion Testing Strategy
+
+**Artifact Type:** Testing and QA Strategy  
+**Phase:** Enhanced TopBar Marquee Development  
+**Created:** June 29, 2025  
+
+## 🎯 **Testing Overview**
+
+### **Testing Philosophy**
+Comprehensive testing strategy ensuring reliability, performance, and user experience of enhanced EIA data integration. Focus on API integration stability, caching efficiency, and seamless user interactions.
+
+### **Testing Scope**
+- **API Integration**: EIA service reliability and data accuracy
+- **Performance**: Caching, batching, and marquee animation
+- **User Experience**: Category management and preferences
+- **Error Handling**: Graceful degradation and recovery
+- **Security**: Data classification and access control
+
+---
+
+## 🧪 **Unit Testing Strategy**
+
+### **EIA Service Testing**
+
+#### **File: `src/services/eia/__tests__/enhanced-eia-service.test.ts`**
+```typescript
+import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
+import { EIAService } from '../EIAService';
+import { EIADataProvider } from '../EIADataProvider';
+
+describe('Enhanced EIA Service', () => {
+  beforeEach(() => {
+    // Mock fetch for API calls
+    global.fetch = vi.fn();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  describe('Batch Data Fetching', () => {
+    test('should fetch energy security data successfully', async () => {
+      const mockResponse = {
+        'oil-price': 75.50,
+        'natural-gas-price': 3.25,
+        'electricity-generation': 4200
+      };
+
+      vi.spyOn(EIADataProvider.prototype, 'fetchMultipleData')
+        .mockResolvedValue(mockResponse);
+
+      const result = await EIAService.getEnergySecurityData();
+
+      expect(result).toEqual({
+        oilPrice: 75.50,
+        naturalGasPrice: 3.25,
+        electricityGeneration: 4200
+      });
+    });
+
+    test('should handle partial batch failures gracefully', async () => {
+      vi.spyOn(EIADataProvider.prototype, 'fetchMultipleData')
+        .mockResolvedValue({
+          'oil-price': 75.50,
+          // natural-gas-price missing due to API error
+          'electricity-generation': 4200
+        });
+
+      const result = await EIAService.getEnergySecurityData();
+
+      expect(result.oilPrice).toBe(75.50);
+      expect(result.naturalGasPrice).toBeNull();
+      expect(result.electricityGeneration).toBe(4200);
+    });
+
+    test('should respect API rate limits', async () => {
+      const rateLimitSpy = vi.spyOn(EIAService.instance.rateLimit, 'canMakeRequest')
+        .mockReturnValue(false);
+
+      await expect(EIAService.getEnergySecurityData())
+        .rejects.toThrow('Rate limit exceeded');
+
+      expect(rateLimitSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('Individual Data Methods', () => {
+    test('should fetch natural gas price', async () => {
+      const mockApiResponse = {
+        response: {
+          data: [{ period: '2025-06-29', value: 3.25 }]
+        }
+      };
+
+      (global.fetch as any).mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(mockApiResponse)
+      });
+
+      const price = await EIAService.getNaturalGasPrice();
+      expect(price).toBe(3.25);
+    });
+
+    test('should handle API errors gracefully', async () => {
+      (global.fetch as any).mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+        statusText: 'Internal Server Error'
+      });
+
+      await expect(EIAService.getNaturalGasPrice())
+        .rejects.toThrow('EIA API request failed');
+    });
+  });
+
+  describe('Caching Behavior', () => {
+    test('should use cached data when available', async () => {
+      const cacheSpy = vi.spyOn(EIAService.instance.cache, 'get')
+        .mockReturnValue(75.50);
+
+      const price = await EIAService.getLatestOilPrice();
+
+      expect(price).toBe(75.50);
+      expect(cacheSpy).toHaveBeenCalledWith('PET.RWTC.W');
+    });
+
+    test('should cache fresh data after API call', async () => {
+      const mockApiResponse = {
+        response: {
+          data: [{ period: '2025-06-29', value: 75.50 }]
+        }
+      };
+
+      const cacheSpy = vi.spyOn(EIAService.instance.cache, 'set');
+
+      (global.fetch as any).mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(mockApiResponse)
+      });
+
+      await EIAService.getLatestOilPrice();
+
+      expect(cacheSpy).toHaveBeenCalledWith('PET.RWTC.W', 75.50);
+    });
+  });
+});
+```
+
+### **Enhanced EIA Data Hook Testing**
+
+#### **File: `src/hooks/__tests__/useEnhancedEIAData.test.ts`**
+```typescript
+import { renderHook, waitFor } from '@testing-library/react';
+import { describe, test, expect, beforeEach, vi } from 'vitest';
+import { useEnhancedEIAData } from '../useEnhancedEIAData';
+import { EIAService } from '../../services/EIAService';
+
+vi.mock('../../services/EIAService');
+
+describe('useEnhancedEIAData Hook', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  test('should initialize with loading state', () => {
+    const { result } = renderHook(() => useEnhancedEIAData());
+
+    expect(result.current.loading).toBe(true);
+    expect(result.current.oilPrice).toBeNull();
+    expect(result.current.naturalGasPrice).toBeNull();
+  });
+
+  test('should fetch and combine batch data successfully', async () => {
+    const mockEnergyData = {
+      oilPrice: 75.50,
+      naturalGasPrice: 3.25,
+      electricityGeneration: 4200
+    };
+
+    const mockRenewableData = {
+      solarGeneration: 150,
+      windGeneration: 300,
+      hydroGeneration: 250
+    };
+
+    vi.mocked(EIAService.getEnergySecurityData).mockResolvedValue(mockEnergyData);
+    vi.mocked(EIAService.getRenewableData).mockResolvedValue(mockRenewableData);
+    vi.mocked(EIAService.getMarketIntelligenceData).mockResolvedValue({});
+    vi.mocked(EIAService.getStrategicMonitoringData).mockResolvedValue({});
+
+    const { result } = renderHook(() => useEnhancedEIAData());
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    expect(result.current.oilPrice).toBe(75.50);
+    expect(result.current.naturalGasPrice).toBe(3.25);
+    expect(result.current.solarGeneration).toBe(150);
+    expect(result.current.windGeneration).toBe(300);
+  });
+
+  test('should handle partial batch failures', async () => {
+    vi.mocked(EIAService.getEnergySecurityData).mockResolvedValue({
+      oilPrice: 75.50,
+      naturalGasPrice: 3.25
+    });
+    vi.mocked(EIAService.getRenewableData).mockRejectedValue(new Error('API Error'));
+    vi.mocked(EIAService.getMarketIntelligenceData).mockResolvedValue({});
+    vi.mocked(EIAService.getStrategicMonitoringData).mockResolvedValue({});
+
+    const { result } = renderHook(() => useEnhancedEIAData());
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    expect(result.current.oilPrice).toBe(75.50);
+    expect(result.current.solarGeneration).toBeNull(); // Failed batch
+    expect(result.current.error).toBeNull(); // Partial failures shouldn't set error
+  });
+
+  test('should refresh data on interval', async () => {
+    vi.useFakeTimers();
+
+    const fetchSpy = vi.mocked(EIAService.getEnergySecurityData)
+      .mockResolvedValue({ oilPrice: 75.50 });
+
+    renderHook(() => useEnhancedEIAData());
+
+    // Fast-forward 15 minutes
+    vi.advanceTimersByTime(15 * 60 * 1000);
+
+    await waitFor(() => {
+      expect(fetchSpy).toHaveBeenCalledTimes(2); // Initial + refresh
+    });
+
+    vi.useRealTimers();
+  });
+});
+```
+
+---
+
+## 🔄 **Integration Testing Strategy**
+
+### **TopBar Data Flow Testing**
+
+#### **File: `src/components/HUD/Bars/TopBar/__tests__/enhanced-topbar-integration.test.tsx`**
+```typescript
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { describe, test, expect, beforeEach, vi } from 'vitest';
+import TopBar from '../TopBar';
+import { useEnhancedEIAData } from '../../../../hooks/useEnhancedEIAData';
+
+vi.mock('../../../../hooks/useEnhancedEIAData');
+
+describe('Enhanced TopBar Integration', () => {
+  const mockEIAData = {
+    oilPrice: 75.50,
+    naturalGasPrice: 3.25,
+    electricityGeneration: 4200,
+    solarGeneration: 150,
+    windGeneration: 300,
+    loading: false,
+    error: null,
+    lastUpdated: Date.now()
+  };
+
+  beforeEach(() => {
+    vi.mocked(useEnhancedEIAData).mockReturnValue(mockEIAData);
+  });
+
+  test('should display enhanced energy data in marquee', async () => {
+    render(<TopBar />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Oil \$75\.50/)).toBeInTheDocument();
+      expect(screen.getByText(/Gas \$3\.25/)).toBeInTheDocument();
+      expect(screen.getByText(/Grid 4200TWh/)).toBeInTheDocument();
+    });
+  });
+
+  test('should show loading state during data fetch', () => {
+    vi.mocked(useEnhancedEIAData).mockReturnValue({
+      ...mockEIAData,
+      loading: true
+    });
+
+    render(<TopBar />);
+
+    expect(screen.getByText(/Loading data/)).toBeInTheDocument();
+  });
+
+  test('should handle API errors gracefully', () => {
+    vi.mocked(useEnhancedEIAData).mockReturnValue({
+      ...mockEIAData,
+      loading: false,
+      error: 'Failed to fetch energy data'
+    });
+
+    render(<TopBar />);
+
+    expect(screen.getByText(/Error: Failed to fetch energy data/)).toBeInTheDocument();
+  });
+
+  test('should filter data based on user preferences', async () => {
+    const user = userEvent.setup();
+
+    render(<TopBar />);
+
+    // Open settings
+    const settingsButton = screen.getByRole('button', { name: /settings/i });
+    await user.click(settingsButton);
+
+    // Disable renewables category
+    const renewablesCheckbox = screen.getByRole('checkbox', { name: /renewables/i });
+    await user.click(renewablesCheckbox);
+
+    // Close settings
+    await user.click(screen.getByRole('button', { name: /close/i }));
+
+    // Verify renewable data is not shown in marquee
+    expect(screen.queryByText(/Solar/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Wind/)).not.toBeInTheDocument();
+  });
+
+  test('should respect category priorities in display order', async () => {
+    render(<TopBar />);
+
+    await waitFor(() => {
+      const marqueeItems = screen.getAllByRole('region', { name: /marquee/i });
+      const itemTexts = marqueeItems.map(item => item.textContent);
+
+      // Critical categories should appear before important ones
+      const oilIndex = itemTexts.findIndex(text => text?.includes('Oil'));
+      const renewableIndex = itemTexts.findIndex(text => text?.includes('Solar'));
+
+      expect(oilIndex).toBeLessThan(renewableIndex);
+    });
+  });
+});
+```
+
+### **Settings Panel Testing**
+
+#### **File: `src/components/HUD/Bars/TopBar/__tests__/enhanced-settings.test.tsx`**
+```typescript
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { describe, test, expect } from 'vitest';
+import EnhancedSettingsPopup from '../EnhancedSettingsPopup';
+import { TOPBAR_CATEGORIES, CATEGORY_GROUPS } from '../topbarCategories';
+
+describe('Enhanced Settings Popup', () => {
+  const defaultProps = {
+    open: true,
+    enabledCategories: {
+      'energy-security': true,
+      'power-grid': true,
+      'renewables': false,
+      'oil-markets': false
+    },
+    onCategoryToggle: vi.fn(),
+    onClose: vi.fn(),
+    categories: TOPBAR_CATEGORIES
+  };
+
+  test('should display category groups correctly', () => {
+    render(<EnhancedSettingsPopup {...defaultProps} />);
+
+    CATEGORY_GROUPS.forEach(group => {
+      expect(screen.getByText(group.title)).toBeInTheDocument();
+      expect(screen.getByText(group.description)).toBeInTheDocument();
+    });
+  });
+
+  test('should expand/collapse category groups', async () => {
+    const user = userEvent.setup();
+    render(<EnhancedSettingsPopup {...defaultProps} />);
+
+    const marketIntelGroup = screen.getByText('Market Intelligence');
+    await user.click(marketIntelGroup);
+
+    // Group should expand and show categories
+    await waitFor(() => {
+      expect(screen.getByText('Oil Markets')).toBeVisible();
+      expect(screen.getByText('Strategic Fuels')).toBeVisible();
+    });
+  });
+
+  test('should toggle category preferences', async () => {
+    const user = userEvent.setup();
+    const onCategoryToggle = vi.fn();
+
+    render(
+      <EnhancedSettingsPopup 
+        {...defaultProps} 
+        onCategoryToggle={onCategoryToggle}
+      />
+    );
+
+    const renewablesCheckbox = screen.getByRole('checkbox', { name: /renewables/i });
+    await user.click(renewablesCheckbox);
+
+    expect(onCategoryToggle).toHaveBeenCalledWith('renewables', true);
+  });
+
+  test('should display Earth Alliance context for categories', () => {
+    render(<EnhancedSettingsPopup {...defaultProps} />);
+
+    // Expand critical infrastructure group
+    const criticalGroup = screen.getByText('Critical Infrastructure');
+    userEvent.click(criticalGroup);
+
+    waitFor(() => {
+      expect(screen.getByText(/Monitor energy infrastructure for threats/))
+        .toBeInTheDocument();
+    });
+  });
+
+  test('should show category priorities', async () => {
+    render(<EnhancedSettingsPopup {...defaultProps} />);
+
+    await waitFor(() => {
+      const criticalBadges = screen.getAllByText('critical');
+      const importantBadges = screen.getAllByText('important');
+
+      expect(criticalBadges.length).toBeGreaterThan(0);
+      expect(importantBadges.length).toBeGreaterThan(0);
+    });
+  });
+});
+```
+
+---
+
+## ⚡ **Performance Testing Strategy**
+
+### **Caching Performance Tests**
+
+#### **File: `src/services/eia/__tests__/cache-performance.test.ts`**
+```typescript
+import { describe, test, expect, beforeEach, vi } from 'vitest';
+import { EIADataCacheService } from '../EIADataCacheService';
+
+describe('EIA Cache Performance', () => {
+  let cache: EIADataCacheService;
+
+  beforeEach(() => {
+    cache = new EIADataCacheService();
+  });
+
+  test('should handle high-volume cache operations efficiently', () => {
+    const startTime = performance.now();
+
+    // Simulate 1000 cache operations
+    for (let i = 0; i < 1000; i++) {
+      cache.set(`key-${i}`, Math.random() * 100);
+    }
+
+    for (let i = 0; i < 1000; i++) {
+      cache.get(`key-${i}`);
+    }
+
+    const endTime = performance.now();
+    const duration = endTime - startTime;
+
+    // Should complete 2000 operations in under 100ms
+    expect(duration).toBeLessThan(100);
+  });
+
+  test('should respect cache size limits', () => {
+    const maxSize = 100;
+    cache = new EIADataCacheService({ maxSize });
+
+    // Add more items than max size
+    for (let i = 0; i < 150; i++) {
+      cache.set(`key-${i}`, i);
+    }
+
+    // Cache should not exceed max size
+    expect(cache.size()).toBeLessThanOrEqual(maxSize);
+  });
+
+  test('should evict expired items efficiently', () => {
+    const shortTTL = 100; // 100ms
+
+    cache.set('short-lived', 123, shortTTL);
+    expect(cache.get('short-lived')).toBe(123);
+
+    // Wait for expiration
+    return new Promise(resolve => {
+      setTimeout(() => {
+        expect(cache.get('short-lived')).toBeNull();
+        resolve(undefined);
+      }, 150);
+    });
+  });
+});
+```
+
+### **API Rate Limiting Tests**
+
+#### **File: `src/services/eia/__tests__/rate-limiting.test.ts`**
+```typescript
+import { describe, test, expect, beforeEach, vi } from 'vitest';
+import { EIAApiRateLimit } from '../EIAApiRateLimit';
+
+describe('EIA API Rate Limiting', () => {
+  let rateLimit: EIAApiRateLimit;
+
+  beforeEach(() => {
+    rateLimit = new EIAApiRateLimit({
+      maxRequests: 10,
+      timeWindow: 1000 // 1 second for testing
+    });
+  });
+
+  test('should allow requests under limit', () => {
+    for (let i = 0; i < 10; i++) {
+      expect(rateLimit.canMakeRequest()).toBe(true);
+      rateLimit.recordRequest();
+    }
+  });
+
+  test('should block requests over limit', () => {
+    // Use up the limit
+    for (let i = 0; i < 10; i++) {
+      rateLimit.recordRequest();
+    }
+
+    expect(rateLimit.canMakeRequest()).toBe(false);
+  });
+
+  test('should reset limit after time window', async () => {
+    vi.useFakeTimers();
+
+    // Use up the limit
+    for (let i = 0; i < 10; i++) {
+      rateLimit.recordRequest();
+    }
+
+    expect(rateLimit.canMakeRequest()).toBe(false);
+
+    // Fast-forward past time window
+    vi.advanceTimersByTime(1100);
+
+    expect(rateLimit.canMakeRequest()).toBe(true);
+
+    vi.useRealTimers();
+  });
+});
+```
+
+### **Marquee Performance Tests**
+
+#### **File: `src/components/HUD/Bars/TopBar/__tests__/marquee-performance.test.tsx`**
+```typescript
+import { render, act } from '@testing-library/react';
+import { describe, test, expect, vi } from 'vitest';
+import Marquee from '../Marquee';
+
+describe('Marquee Performance', () => {
+  const mockDataPoints = Array.from({ length: 20 }, (_, i) => ({
+    id: `data-${i}`,
+    label: `Category ${i}`,
+    icon: '📊',
+    value: `Value ${i}`
+  }));
+
+  test('should maintain smooth animation with many data points', () => {
+    const animationFrameSpy = vi.spyOn(window, 'requestAnimationFrame');
+
+    render(<Marquee dataPoints={mockDataPoints} />);
+
+    // Simulate multiple animation frames
+    act(() => {
+      for (let i = 0; i < 100; i++) {
+        const callback = animationFrameSpy.mock.calls[animationFrameSpy.mock.calls.length - 1]?.[0];
+        if (callback) {
+          callback(performance.now() + i * 16.67); // 60 FPS
+        }
+      }
+    });
+
+    // Should complete without errors
+    expect(animationFrameSpy).toHaveBeenCalled();
+  });
+
+  test('should handle rapid data updates efficiently', () => {
+    const { rerender } = render(<Marquee dataPoints={mockDataPoints} />);
+
+    const startTime = performance.now();
+
+    // Simulate 100 rapid data updates
+    for (let i = 0; i < 100; i++) {
+      const updatedData = mockDataPoints.map(point => ({
+        ...point,
+        value: `Updated ${i}-${point.value}`
+      }));
+
+      rerender(<Marquee dataPoints={updatedData} />);
+    }
+
+    const endTime = performance.now();
+    const duration = endTime - startTime;
+
+    // Should handle updates efficiently (under 500ms)
+    expect(duration).toBeLessThan(500);
+  });
+});
+```
+
+---
+
+## 🌐 **End-to-End Testing Strategy**
+
+### **Cypress E2E Tests**
+
+#### **File: `cypress/e2e/enhanced-marquee.cy.ts`**
+```typescript
+describe('Enhanced TopBar Marquee', () => {
+  beforeEach(() => {
+    cy.visit('/');
+    cy.intercept('GET', '**/api.eia.gov/**', { fixture: 'eia-data.json' }).as('eiaApi');
+  });
+
+  it('should display enhanced energy data in marquee', () => {
+    cy.wait('@eiaApi');
+
+    cy.get('[data-testid="topbar-root"]').should('be.visible');
+    cy.get('[role="region"][aria-label="marquee"]').should('be.visible');
+
+    // Verify energy data is displayed
+    cy.contains('Oil $').should('be.visible');
+    cy.contains('Gas $').should('be.visible');
+    cy.contains('Grid').should('be.visible');
+  });
+
+  it('should allow category management through settings', () => {
+    cy.get('[data-testid="topbar-settings-btn"]').click();
+
+    // Settings modal should open
+    cy.contains('TopBar Data Categories').should('be.visible');
+
+    // Toggle renewable energy category
+    cy.contains('Clean Energy').click();
+    cy.get('input[type="checkbox"]').contains('Renewables').click();
+
+    // Close settings
+    cy.contains('Close').click();
+
+    // Verify renewable data appears in marquee
+    cy.contains('Solar').should('be.visible');
+    cy.contains('Wind').should('be.visible');
+  });
+
+  it('should maintain smooth marquee animation', () => {
+    let previousPosition = 0;
+
+    cy.get('[role="region"][aria-label="marquee"]')
+      .find('.marqueeContent')
+      .then($content => {
+        const initialTransform = $content.css('transform');
+        const initialX = parseFloat(initialTransform.split(',')[4] || '0');
+        previousPosition = initialX;
+      });
+
+    // Wait for animation
+    cy.wait(1000);
+
+    cy.get('[role="region"][aria-label="marquee"]')
+      .find('.marqueeContent')
+      .then($content => {
+        const currentTransform = $content.css('transform');
+        const currentX = parseFloat(currentTransform.split(',')[4] || '0');
+
+        // Position should have changed (animation working)
+        expect(currentX).to.not.equal(previousPosition);
+      });
+  });
+
+  it('should handle API errors gracefully', () => {
+    cy.intercept('GET', '**/api.eia.gov/**', { 
+      statusCode: 500, 
+      body: 'Server Error' 
+    }).as('eiaApiError');
+
+    cy.reload();
+    cy.wait('@eiaApiError');
+
+    // Should show error message instead of crashing
+    cy.contains('Error:').should('be.visible');
+    cy.get('[role="region"][aria-label="marquee"]').should('be.visible');
+  });
+
+  it('should pause marquee on hover', () => {
+    cy.get('[role="region"][aria-label="marquee"]').trigger('mouseenter');
+
+    // Get initial position
+    cy.get('[role="region"][aria-label="marquee"]')
+      .find('.marqueeContent')
+      .then($content => {
+        const pausedTransform = $content.css('transform');
+        const pausedX = parseFloat(pausedTransform.split(',')[4] || '0');
+
+        // Wait and check position hasn't changed
+        cy.wait(500);
+
+        cy.get('[role="region"][aria-label="marquee"]')
+          .find('.marqueeContent')
+          .then($contentAfter => {
+            const afterTransform = $contentAfter.css('transform');
+            const afterX = parseFloat(afterTransform.split(',')[4] || '0');
+
+            expect(afterX).to.equal(pausedX);
+          });
+      });
+  });
+});
+```
+
+---
+
+## 📊 **Performance Monitoring**
+
+### **Metrics Collection**
+
+#### **File: `src/utils/performance-monitor.ts`**
+```typescript
+interface PerformanceMetrics {
+  apiResponseTimes: Record<string, number[]>;
+  cacheHitRates: Record<string, number>;
+  marqueeFrameRates: number[];
+  memoryUsage: number[];
+  errorRates: Record<string, number>;
+}
+
+export class PerformanceMonitor {
+  private metrics: PerformanceMetrics = {
+    apiResponseTimes: {},
+    cacheHitRates: {},
+    marqueeFrameRates: [],
+    memoryUsage: [],
+    errorRates: {}
+  };
+
+  recordApiResponse(endpoint: string, responseTime: number) {
+    if (!this.metrics.apiResponseTimes[endpoint]) {
+      this.metrics.apiResponseTimes[endpoint] = [];
+    }
+    this.metrics.apiResponseTimes[endpoint].push(responseTime);
+  }
+
+  recordCacheHit(cacheKey: string, hit: boolean) {
+    if (!this.metrics.cacheHitRates[cacheKey]) {
+      this.metrics.cacheHitRates[cacheKey] = 0;
+    }
+    this.metrics.cacheHitRates[cacheKey] += hit ? 1 : 0;
+  }
+
+  recordFrameRate(fps: number) {
+    this.metrics.marqueeFrameRates.push(fps);
+    
+    // Keep only last 100 measurements
+    if (this.metrics.marqueeFrameRates.length > 100) {
+      this.metrics.marqueeFrameRates.shift();
+    }
+  }
+
+  getAverageResponseTime(endpoint: string): number {
+    const times = this.metrics.apiResponseTimes[endpoint] || [];
+    return times.reduce((sum, time) => sum + time, 0) / times.length;
+  }
+
+  getAverageFrameRate(): number {
+    const rates = this.metrics.marqueeFrameRates;
+    return rates.reduce((sum, rate) => sum + rate, 0) / rates.length;
+  }
+
+  generateReport(): string {
+    return JSON.stringify({
+      averageApiResponseTime: Object.entries(this.metrics.apiResponseTimes)
+        .map(([endpoint, times]) => ({
+          endpoint,
+          average: times.reduce((sum, time) => sum + time, 0) / times.length
+        })),
+      averageFrameRate: this.getAverageFrameRate(),
+      totalApiCalls: Object.values(this.metrics.apiResponseTimes)
+        .flat().length,
+      timestamp: new Date().toISOString()
+    }, null, 2);
+  }
+}
+
+export const performanceMonitor = new PerformanceMonitor();
+```
+
+---
+
+## 📋 **Testing Execution Plan**
+
+### **Phase 1: Unit Testing (Days 1-3)**
+- [ ] EIA Service enhanced methods testing
+- [ ] Data provider batch fetching tests
+- [ ] Cache service performance tests
+- [ ] Rate limiting functionality tests
+- [ ] Hook data integration tests
+
+### **Phase 2: Integration Testing (Days 4-6)**
+- [ ] TopBar component data flow tests
+- [ ] Settings panel functionality tests
+- [ ] Marquee animation performance tests
+- [ ] Error handling integration tests
+- [ ] User preference persistence tests
+
+### **Phase 3: E2E Testing (Days 7-9)**
+- [ ] Complete user workflow tests
+- [ ] Cross-browser compatibility tests
+- [ ] Mobile responsiveness tests
+- [ ] Performance regression tests
+- [ ] Accessibility compliance tests
+
+### **Phase 4: Performance Testing (Days 10-12)**
+- [ ] Load testing with multiple data streams
+- [ ] Memory usage profiling
+- [ ] API rate limit compliance testing
+- [ ] Animation performance benchmarking
+- [ ] Cache efficiency validation
+
+### **Phase 5: Security Testing (Days 13-15)**
+- [ ] Data classification access control
+- [ ] API key security validation
+- [ ] User preference security tests
+- [ ] XSS and injection prevention tests
+- [ ] Audit trail functionality tests
+
+---
+
+## 🎯 **Success Criteria**
+
+### **Unit Test Coverage**
+- **Minimum Coverage**: 90% for all EIA service code
+- **Critical Path Coverage**: 100% for data fetching and caching
+- **Error Handling Coverage**: 100% for all error scenarios
+
+### **Integration Test Success**
+- **Data Flow**: Complete TopBar → EIA → Marquee pipeline
+- **User Interactions**: All settings and preferences functionality
+- **Error Recovery**: Graceful degradation in all failure modes
+
+### **Performance Benchmarks**
+- **API Response**: < 500ms for cached data, < 2s for fresh data
+- **Cache Hit Rate**: > 80% for frequently accessed data
+- **Marquee FPS**: Maintain 60 FPS with up to 20 data points
+- **Memory Usage**: < 10MB increase from baseline
+
+### **E2E Test Success**
+- **Browser Support**: Chrome, Firefox, Safari, Edge
+- **Mobile Support**: iOS Safari, Android Chrome
+- **Accessibility**: WCAG 2.1 AA compliance
+- **Performance**: Lighthouse score > 90
+
+---
+
+## 🌍 **Earth Alliance Quality Assurance**
+
+### **Operational Readiness Testing**
+- **Critical Infrastructure**: Energy security data accuracy
+- **Market Intelligence**: Economic warfare detection capability
+- **Strategic Monitoring**: Supply chain vulnerability assessment
+- **Real-time Response**: Alert generation for anomalous data
+
+### **Security Validation**
+- **Data Classification**: Proper handling of sensitive energy data
+- **Access Control**: Authentication requirements for classified metrics
+- **Audit Compliance**: Complete logging of all data access
+- **Threat Detection**: Monitoring for unusual data patterns
+
+### **AI-NOTE:**
+This comprehensive testing strategy ensures the enhanced EIA data integration meets Earth Alliance operational requirements for reliability, performance, and security. Testing prioritizes critical infrastructure monitoring capabilities essential for planetary reclamation operations while maintaining the highest quality standards for cyber command interface systems.
+
+**Testing Philosophy**: Fail fast, recover gracefully, monitor continuously.

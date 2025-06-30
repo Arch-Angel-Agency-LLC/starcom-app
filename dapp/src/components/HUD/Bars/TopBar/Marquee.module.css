@@ -31,6 +31,12 @@
   transition: none;
 }
 
+.contentCopy {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
 .marqueeItem {
   display: inline-flex;
   align-items: center;
@@ -77,3 +83,139 @@
   background: rgba(15,23,42,0.7);
   border-radius: 8px;
 }
+
+/* Enhanced marquee states for progressive data loading */
+
+/* Drag functionality styles */
+.marqueeDragging {
+  cursor: grabbing !important;
+  user-select: none;
+}
+
+.marqueeDragging .marqueeContent {
+  pointer-events: none; /* Prevent text selection during drag */
+}
+
+.dragIndicator {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(8,145,178,0.9);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  z-index: 1000;
+  animation: dragIndicatorFade 0.3s ease-in-out;
+}
+
+@keyframes dragIndicatorFade {
+  from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* Clickable data point styling */
+.marqueeItemClickable {
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.marqueeItemClickable:hover {
+  background: rgba(8,145,178,0.2);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(14,165,233,0.3);
+}
+
+.marqueeItemClickable:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(14,165,233,0.2);
+}
+
+/* Loading state animations */
+.marqueeItemLoading {
+  opacity: 0.7;
+  background: rgba(8,145,178,0.12);
+}
+
+.loadingDots {
+  animation: loadingPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes loadingPulse {
+  0%, 50%, 100% {
+    opacity: 1;
+  }
+  25%, 75% {
+    opacity: 0.3;
+  }
+}
+
+/* Error state styling */
+.marqueeItemError {
+  background: rgba(239,68,68,0.15);
+  color: #fca5a5;
+  border: 1px solid rgba(239,68,68,0.3);
+}
+
+.errorText {
+  color: #f87171;
+  font-weight: bold;
+}
+
+/* Critical data priority styling */
+.marqueeItemCritical {
+  background: rgba(251,191,36,0.15);
+  color: #fde047;
+  border: 1px solid rgba(251,191,36,0.3);
+}
+
+/* Enhanced label styling */
+.marqueeLabel {
+  margin-right: 0.25rem;
+  font-weight: 400;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .marqueeItem {
+    font-size: 0.9rem;
+    margin-right: 2rem;
+    padding: 0 0.5rem;
+    height: 28px;
+    line-height: 28px;
+  }
+  
+  .marquee {
+    height: 36px;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .marqueeItemLoading {
+    border: 2px solid #0891b2;
+  }
+  
+  .marqueeItemError {
+    border: 2px solid #ef4444;
+  }
+  
+  .marqueeItemCritical {
+    border: 2px solid #f59e0b;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .loadingDots {
+    animation: none;
+  }
+  
+  .marqueeContent {
+    animation: none;
+  }
+}
+
+/*# sourceMappingURL=Marquee.module.css.map */

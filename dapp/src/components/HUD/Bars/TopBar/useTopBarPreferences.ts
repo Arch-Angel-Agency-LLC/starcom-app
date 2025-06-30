@@ -7,7 +7,7 @@ export interface TopBarPreferences {
   version: number;
 }
 
-const PREFERENCES_VERSION = 1;
+const PREFERENCES_VERSION = 3; // Bumped to force complete migration to energy-only categories
 const STORAGE_KEY = 'topbar-preferences';
 
 function getDefaultPreferences(): TopBarPreferences {
@@ -18,13 +18,31 @@ function getDefaultPreferences(): TopBarPreferences {
   return { enabledCategories, version: PREFERENCES_VERSION };
 }
 
+// Force refresh preferences if categories have changed significantly
+function shouldResetPreferences(currentPrefs: TopBarPreferences): boolean {
+  const currentEnabled = Object.keys(currentPrefs.enabledCategories).filter(id => currentPrefs.enabledCategories[id]);
+  const newDefaultEnabled = TOPBAR_CATEGORIES.filter(cat => cat.defaultEnabled).map(cat => cat.id);
+  
+  // Reset if user has old financial-heavy preferences but no energy categories
+  const hasEnergyCategories = currentEnabled.some(id => ['commodities', 'energy-security', 'power-grid', 'market-intelligence'].includes(id));
+  const hasOldFinancialCategories = currentEnabled.some(id => ['indices', 'crypto', 'economic', 'news', 'sentiment'].includes(id));
+  
+  return !hasEnergyCategories && hasOldFinancialCategories;
+}
+
 export function loadPreferences(): TopBarPreferences {
   const raw = localStorage.getItem(STORAGE_KEY);
   if (!raw) return getDefaultPreferences();
   try {
     const parsed = JSON.parse(raw);
     if (parsed.version !== PREFERENCES_VERSION) {
-      // TODO: handle migration/versioning
+      // Force reset to new energy-focused categories
+      console.log('TopBar preferences version mismatch - resetting to energy categories');
+      return getDefaultPreferences();
+    }
+    // Also reset if old financial categories are enabled
+    if (shouldResetPreferences(parsed)) {
+      console.log('TopBar preferences contain old financial categories - resetting to energy categories');
       return getDefaultPreferences();
     }
     return parsed;
