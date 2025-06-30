@@ -1,0 +1,556 @@
+# Energy Intelligence Categories Configuration
+
+**Artifact Type:** Configuration Specification  
+**Component:** TopBar Marquee Categories  
+**Created:** June 29, 2025  
+
+## 🎯 **Enhanced TopBar Categories for Energy Intelligence**
+
+### **Category Architecture**
+Each category represents a strategic intelligence domain for Earth Alliance cyber operations monitoring.
+
+```typescript
+interface EnhancedTopBarCategory {
+  id: string;
+  label: string;
+  icon: string;
+  description: string;
+  defaultEnabled: boolean;
+  priority: 'critical' | 'important' | 'standard' | 'background';
+  securityLevel: 'public' | 'internal' | 'classified';
+  dataSource: 'eia' | 'mock' | 'api' | 'hybrid';
+  refreshInterval: number; // minutes
+  earthAllianceContext: string;
+}
+```
+
+---
+
+## 📊 **Category Definitions**
+
+### **🔒 Energy Security (Critical Infrastructure)**
+```typescript
+{
+  id: 'energy-security',
+  label: 'Energy Security',
+  icon: '🔒',
+  description: 'Critical infrastructure monitoring and resilience',
+  defaultEnabled: true,
+  priority: 'critical',
+  securityLevel: 'internal',
+  dataSource: 'eia',
+  refreshInterval: 15,
+  earthAllianceContext: 'Monitor energy infrastructure for globalist sabotage attempts and ensure planetary energy independence during reclamation operations',
+  dataPoints: [
+    {
+      id: 'strategic-petroleum-reserve',
+      series: 'PET.WCRSTUS1.W',
+      label: 'SPR Level',
+      format: 'XXXmm bbl',
+      criticality: 'high'
+    },
+    {
+      id: 'natural-gas-price',
+      series: 'NG.RNGWHHD.D', 
+      label: 'Nat Gas',
+      format: '$X.XX',
+      criticality: 'high'
+    }
+  ]
+}
+```
+
+### **⚡ Power Grid (Electrical Infrastructure)**
+```typescript
+{
+  id: 'power-grid',
+  label: 'Power Grid',
+  icon: '⚡',
+  description: 'Electricity generation, consumption, and grid stability',
+  defaultEnabled: true,
+  priority: 'critical',
+  securityLevel: 'internal',
+  dataSource: 'eia',
+  refreshInterval: 60,
+  earthAllianceContext: 'Track electrical grid stability and detect potential cyber attacks on power infrastructure by hostile cartels',
+  dataPoints: [
+    {
+      id: 'total-generation',
+      series: 'ELEC.GEN.ALL-US-99.M',
+      label: 'Grid Gen',
+      format: 'X,XXX TWh',
+      criticality: 'high'
+    },
+    {
+      id: 'electricity-price',
+      series: 'ELEC.PRICE.US-US.M',
+      label: 'Power Price',
+      format: 'XX.X¢/kWh',
+      criticality: 'medium'
+    }
+  ]
+}
+```
+
+### **🌱 Renewables (Clean Energy Transition)**
+```typescript
+{
+  id: 'renewables',
+  label: 'Renewables',
+  icon: '🌱',
+  description: 'Solar, wind, and clean energy generation tracking',
+  defaultEnabled: false,
+  priority: 'important',
+  securityLevel: 'public',
+  dataSource: 'eia',
+  refreshInterval: 240,
+  earthAllianceContext: 'Monitor clean energy adoption rates and resistance from fossil fuel cartels attempting to maintain energy control',
+  dataPoints: [
+    {
+      id: 'solar-generation',
+      series: 'ELEC.GEN.SUN-US-99.M',
+      label: 'Solar',
+      format: 'XXX TWh',
+      criticality: 'medium'
+    },
+    {
+      id: 'wind-generation', 
+      series: 'ELEC.GEN.WND-US-99.M',
+      label: 'Wind',
+      format: 'XXX TWh',
+      criticality: 'medium'
+    },
+    {
+      id: 'hydro-generation',
+      series: 'ELEC.GEN.HYC-US-99.M',
+      label: 'Hydro',
+      format: 'XXX TWh',
+      criticality: 'low'
+    }
+  ]
+}
+```
+
+### **📈 Oil Markets (Global Energy Warfare)**
+```typescript
+{
+  id: 'oil-markets',
+  label: 'Oil Markets',
+  icon: '📈',
+  description: 'Global crude oil pricing and market dynamics',
+  defaultEnabled: false,
+  priority: 'important',
+  securityLevel: 'internal',
+  dataSource: 'eia',
+  refreshInterval: 60,
+  earthAllianceContext: 'Track oil market manipulation by international banking cartels and detect economic warfare operations',
+  dataPoints: [
+    {
+      id: 'wti-crude',
+      series: 'PET.RWTC.W',
+      label: 'WTI',
+      format: '$XX.XX',
+      criticality: 'high'
+    },
+    {
+      id: 'brent-crude',
+      series: 'PET.RBRTE.W',
+      label: 'Brent',
+      format: '$XX.XX',
+      criticality: 'high'
+    },
+    {
+      id: 'gasoline-price',
+      series: 'PET.EMM_EPM0_PTE_NUS_DPG.W',
+      label: 'Gasoline',
+      format: '$X.XX',
+      criticality: 'medium'
+    }
+  ]
+}
+```
+
+### **✈️ Strategic Fuels (Military & Aviation)**
+```typescript
+{
+  id: 'strategic-fuels',
+  label: 'Strategic Fuels',
+  icon: '✈️',
+  description: 'Jet fuel, military supplies, and critical transportation fuels',
+  defaultEnabled: false,
+  priority: 'important',
+  securityLevel: 'classified',
+  dataSource: 'eia',
+  refreshInterval: 120,
+  earthAllianceContext: 'Monitor aviation fuel supplies for resistance operations and detect attempts to ground civilian/military aircraft',
+  dataPoints: [
+    {
+      id: 'jet-fuel-supply',
+      series: 'PET.WCJRPUS2.W',
+      label: 'Jet Fuel',
+      format: 'X,XXX kbd',
+      criticality: 'high'
+    },
+    {
+      id: 'distillate-supply',
+      series: 'PET.WDIUPUS2.W',
+      label: 'Distillate',
+      format: 'X,XXX kbd',
+      criticality: 'medium'
+    },
+    {
+      id: 'propane-supply',
+      series: 'PET.WRPUPUS2.W',
+      label: 'Propane',
+      format: 'X,XXX kbd',
+      criticality: 'low'
+    }
+  ]
+}
+```
+
+### **🏭 Supply Chain (Production Capacity)**
+```typescript
+{
+  id: 'supply-chain',
+  label: 'Supply Chain',
+  icon: '🏭',
+  description: 'Refinery capacity, production rates, and supply resilience',
+  defaultEnabled: false,
+  priority: 'standard',
+  securityLevel: 'internal',
+  dataSource: 'eia',
+  refreshInterval: 180,
+  earthAllianceContext: 'Track refinery operations and detect supply chain disruptions orchestrated by globalist economic warfare',
+  dataPoints: [
+    {
+      id: 'refinery-utilization',
+      series: 'PET.WCRRRUS2.W',
+      label: 'Refinery',
+      format: 'XX.X%',
+      criticality: 'high'
+    },
+    {
+      id: 'crude-inputs',
+      series: 'PET.WCRFPUS2.W',
+      label: 'Crude Input',
+      format: 'X,XXX kbd',
+      criticality: 'medium'
+    },
+    {
+      id: 'gasoline-production',
+      series: 'PET.WGFRPUS2.W',
+      label: 'Gas Prod',
+      format: 'X,XXX kbd',
+      criticality: 'medium'
+    }
+  ]
+}
+```
+
+### **🚢 Import Security (Energy Independence)**
+```typescript
+{
+  id: 'import-security',
+  label: 'Import Security',
+  icon: '🚢',
+  description: 'Energy import dependence and supply vulnerabilities',
+  defaultEnabled: false,
+  priority: 'standard',
+  securityLevel: 'classified',
+  dataSource: 'eia',
+  refreshInterval: 240,
+  earthAllianceContext: 'Monitor energy import dependence and identify supply vulnerabilities exploitable by hostile foreign cartels',
+  dataPoints: [
+    {
+      id: 'crude-imports',
+      series: 'PET.WCRRIUS2.W',
+      label: 'Oil Imports',
+      format: 'X,XXX kbd',
+      criticality: 'high'
+    },
+    {
+      id: 'gasoline-imports',
+      series: 'PET.MGFIMUS2.W',
+      label: 'Gas Imports',
+      format: 'XXX kbd',
+      criticality: 'medium'
+    },
+    {
+      id: 'natural-gas-imports',
+      series: 'NG.N9020US2.M',
+      label: 'NG Imports',
+      format: 'X.X Tcf',
+      criticality: 'medium'
+    }
+  ]
+}
+```
+
+### **🚛 Export Power (Economic Leverage)**
+```typescript
+{
+  id: 'export-power',
+  label: 'Export Power',
+  icon: '🚛',
+  description: 'US energy export capacity and global influence',
+  defaultEnabled: false,
+  priority: 'standard',
+  securityLevel: 'internal',
+  dataSource: 'eia',
+  refreshInterval: 240,
+  earthAllianceContext: 'Track US energy export capacity as leverage against hostile nations and cartels during reclamation operations',
+  dataPoints: [
+    {
+      id: 'lng-exports',
+      series: 'NG.N9040US2.M',
+      label: 'LNG Exports',
+      format: 'X.X Tcf',
+      criticality: 'high'
+    },
+    {
+      id: 'crude-exports',
+      series: 'PET.WCREXUS2.W',
+      label: 'Oil Exports',
+      format: 'X,XXX kbd',
+      criticality: 'medium'
+    },
+    {
+      id: 'petroleum-exports',
+      series: 'PET.WTTEXUS2.W',
+      label: 'Pet Exports',
+      format: 'X,XXX kbd',
+      criticality: 'medium'
+    }
+  ]
+}
+```
+
+### **⚛️ Baseload Power (Grid Stability)**
+```typescript
+{
+  id: 'baseload-power',
+  label: 'Baseload Power',
+  icon: '⚛️',
+  description: 'Nuclear, coal, and reliable baseline electricity generation',
+  defaultEnabled: false,
+  priority: 'background',
+  securityLevel: 'internal',
+  dataSource: 'eia',
+  refreshInterval: 480,
+  earthAllianceContext: 'Monitor baseload power sources critical for grid stability during potential cyber attacks on energy infrastructure',
+  dataPoints: [
+    {
+      id: 'nuclear-generation',
+      series: 'ELEC.GEN.NUC-US-99.M',
+      label: 'Nuclear',
+      format: 'XXX TWh',
+      criticality: 'high'
+    },
+    {
+      id: 'coal-generation',
+      series: 'ELEC.GEN.COW-US-99.M',
+      label: 'Coal',
+      format: 'XXX TWh',
+      criticality: 'medium'
+    },
+    {
+      id: 'natural-gas-generation',
+      series: 'ELEC.GEN.NG-US-99.M',
+      label: 'NG Power',
+      format: 'XXX TWh',
+      criticality: 'high'
+    }
+  ]
+}
+```
+
+---
+
+## 🎛️ **Category Priority System**
+
+### **Display Priority Logic**
+```typescript
+const categoryPriority = {
+  critical: { 
+    weight: 100, 
+    alwaysVisible: true,
+    colorScheme: 'red',
+    updateFrequency: 'realtime'
+  },
+  important: { 
+    weight: 75, 
+    defaultVisible: true,
+    colorScheme: 'orange',
+    updateFrequency: 'frequent'
+  },
+  standard: { 
+    weight: 50, 
+    defaultVisible: false,
+    colorScheme: 'blue',
+    updateFrequency: 'regular'
+  },
+  background: { 
+    weight: 25, 
+    defaultVisible: false,
+    colorScheme: 'gray',
+    updateFrequency: 'periodic'
+  }
+};
+```
+
+### **Earth Alliance Security Classifications**
+```typescript
+const securityClassifications = {
+  public: {
+    description: 'Open source intelligence available to all operators',
+    accessLevel: 'all',
+    displayRestrictions: 'none'
+  },
+  internal: {
+    description: 'Earth Alliance operational intelligence',
+    accessLevel: 'authenticated',
+    displayRestrictions: 'logged-in-users'
+  },
+  classified: {
+    description: 'Sensitive strategic intelligence',
+    accessLevel: 'clearance-required',
+    displayRestrictions: 'authorized-personnel'
+  }
+};
+```
+
+---
+
+## 🔄 **Data Refresh Strategy**
+
+### **Refresh Intervals by Priority**
+```typescript
+const refreshIntervals = {
+  critical: 15,     // 15 minutes - energy security data
+  important: 60,    // 1 hour - market intelligence
+  standard: 180,    // 3 hours - supply chain data
+  background: 480   // 8 hours - baseline metrics
+};
+```
+
+### **Batch Loading Optimization**
+```typescript
+const batchGroups = {
+  energySecurity: ['energy-security', 'power-grid'],
+  marketIntel: ['oil-markets', 'strategic-fuels'],
+  supplyChain: ['supply-chain', 'import-security'],
+  strategic: ['export-power', 'baseload-power'],
+  renewables: ['renewables']
+};
+```
+
+---
+
+## 📱 **User Interface Integration**
+
+### **Settings Panel Categories**
+```typescript
+const settingsPanelGroups = [
+  {
+    title: 'Critical Infrastructure',
+    categories: ['energy-security', 'power-grid'],
+    description: 'Essential energy monitoring for planetary operations',
+    defaultExpanded: true
+  },
+  {
+    title: 'Market Intelligence',
+    categories: ['oil-markets', 'strategic-fuels'],
+    description: 'Economic warfare detection and analysis',
+    defaultExpanded: false
+  },
+  {
+    title: 'Supply Chain Resilience',
+    categories: ['supply-chain', 'import-security', 'export-power'],
+    description: 'Production capacity and trade security',
+    defaultExpanded: false
+  },
+  {
+    title: 'Clean Energy Transition',
+    categories: ['renewables', 'baseload-power'],
+    description: 'Renewable energy adoption and grid stability',
+    defaultExpanded: false
+  }
+];
+```
+
+### **Marquee Display Formatting**
+```typescript
+const displayFormats = {
+  currency: { prefix: '$', decimals: 2, suffix: '' },
+  percentage: { prefix: '', decimals: 1, suffix: '%' },
+  volume: { prefix: '', decimals: 0, suffix: 'K', multiplier: 1000 },
+  energy: { prefix: '', decimals: 0, suffix: 'TWh', multiplier: 1 },
+  price: { prefix: '$', decimals: 2, suffix: '/unit' }
+};
+```
+
+---
+
+## 🎯 **Earth Alliance Operational Context**
+
+### **Intelligence Value Matrix**
+```typescript
+const intelligenceValue = {
+  economicWarfare: {
+    categories: ['oil-markets', 'import-security'],
+    indicators: ['unusual-price-spikes', 'supply-disruptions'],
+    threatLevel: 'high'
+  },
+  infrastructureAttacks: {
+    categories: ['power-grid', 'energy-security'],
+    indicators: ['generation-anomalies', 'grid-instability'],
+    threatLevel: 'critical'
+  },
+  supplyChainDisruption: {
+    categories: ['supply-chain', 'strategic-fuels'],
+    indicators: ['refinery-shutdowns', 'fuel-shortages'],
+    threatLevel: 'high'
+  },
+  energyWeaponization: {
+    categories: ['export-power', 'import-security'],
+    indicators: ['export-restrictions', 'import-dependencies'],
+    threatLevel: 'medium'
+  }
+};
+```
+
+---
+
+## 📋 **Implementation Checklist**
+
+### **Configuration Updates**
+- [ ] Update `topbarCategories.ts` with enhanced categories
+- [ ] Add security classification system
+- [ ] Implement priority-based display logic
+- [ ] Create batch loading groups
+
+### **Data Integration**
+- [ ] Map EIA series IDs to category data points
+- [ ] Implement refresh interval logic
+- [ ] Add data transformation functions
+- [ ] Create batch API optimization
+
+### **User Interface**
+- [ ] Enhanced settings panel with category groups
+- [ ] Priority-based default visibility
+- [ ] Security-aware display restrictions
+- [ ] Earth Alliance contextual descriptions
+
+### **Performance Optimization**
+- [ ] Implement tiered caching strategy
+- [ ] Add batch loading for related categories
+- [ ] Optimize refresh cycles by priority
+- [ ] Monitor memory usage and performance
+
+---
+
+## 🌍 **AI-NOTE:**
+This configuration provides comprehensive energy intelligence categories designed specifically for Earth Alliance cyber operations. Each category includes strategic context for planetary reclamation operations and enables real-time monitoring of critical infrastructure, economic warfare indicators, and energy security threats posed by transnational crime syndicates.
+
+**Implementation Focus:** Prioritize critical infrastructure monitoring categories first, then expand to strategic intelligence and economic warfare detection capabilities.

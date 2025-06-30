@@ -23,19 +23,27 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [oilPrice, gasolinePrice, oilInventory, naturalGasStorage] = await Promise.all([
+                const results = await Promise.allSettled([
                     EIAService.getLatestOilPrice(),
                     EIAService.getLatestGasolinePrice(),
                     EIAService.getLatestOilInventory(),
                     EIAService.getLatestNaturalGasStorage(),
                 ]);
-                setOilPrice(oilPrice);
-                setGasolinePrice(gasolinePrice);
-                setOilInventory(oilInventory);
-                setNaturalGasStorage(naturalGasStorage);
+                
+                // Handle results with fallbacks for rejected promises
+                setOilPrice(results[0].status === 'fulfilled' ? results[0].value : null);
+                setGasolinePrice(results[1].status === 'fulfilled' ? results[1].value : null);
+                setOilInventory(results[2].status === 'fulfilled' ? results[2].value : null);
+                setNaturalGasStorage(results[3].status === 'fulfilled' ? results[3].value : null);
+                
             } catch (err) {
                 console.error('Dashboard data fetch error:', err);
                 setError('Failed to fetch data');
+                // Set fallback values
+                setOilPrice(null);
+                setGasolinePrice(null);
+                setOilInventory(null);
+                setNaturalGasStorage(null);
             } finally {
                 setLoading(false);
             }

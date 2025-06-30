@@ -1,0 +1,102 @@
+# Infinite Loop Fix - Critical Issue Resolution
+
+## Problem Identified
+The enhanced EIA data hook was causing an infinite loop where the app continuously hit data endpoints without succeeding. This was caused by:
+
+1. **Stale Closure Issue**: `fetchData` callback was being recreated on every render due to `opts` dependency
+2. **useEffect Dependency Problems**: Missing or incorrect dependencies causing stale references
+3. **Interval Recreation**: Auto-refresh intervals were being recreated unnecessarily
+
+## Root Cause Analysis
+The original issue stemmed from:
+- Removing `fetchData` from useEffect dependencies to avoid lint warnings
+- This caused the interval callback to reference a stale version of `fetchData`
+- The stale callback had outdated references to options and callbacks
+- Result: Infinite re-renders and API calls that never succeeded
+
+## Solution Implemented
+
+### 1. Simplified Options Handling
+```typescript
+// Before: Complex memoized options object
+const opts = useMemo(() => ({ ...DEFAULT_OPTIONS, ...options }), [options]);
+
+// After: Direct destructuring with defaults
+const { 
+  refreshInterval = 300000, 
+  enableAutoRefresh = true, 
+  onError, 
+  onSuccess 
+} = options;
+```
+
+### 2. Fixed Callback Dependencies
+```typescript
+// Before: Incorrect dependencies causing infinite loops
+const fetchData = useCallback(async () => {
+  // ... implementation
+}, []); // Empty array caused stale closures
+
+// After: Correct dependencies
+const fetchData = useCallback(async () => {
+  // ... implementation
+}, [onSuccess, onError]); // Only include what actually changes
+```
+
+### 3. Proper useEffect Management
+```typescript
+// Before: Single effect with conflicting concerns
+useEffect(() => {
+  fetchData();
+  if (opts.enableAutoRefresh) {
+    intervalRef.current = setInterval(fetchData, opts.refreshInterval);
+  }
+}, [fetchData, opts.enableAutoRefresh, opts.refreshInterval]);
+
+// After: Separated concerns
+// Initial fetch
+useEffect(() => {
+  fetchData();
+}, [fetchData]);
+
+// Auto-refresh management  
+useEffect(() => {
+  if (intervalRef.current) {
+    clearInterval(intervalRef.current);
+  }
+  if (enableAutoRefresh && refreshInterval) {
+    intervalRef.current = setInterval(fetchData, refreshInterval);
+  }
+  return () => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+  };
+}, [fetchData, enableAutoRefresh, refreshInterval]);
+```
+
+### 4. Eliminated Unnecessary References
+- Removed unused `DEFAULT_OPTIONS` object
+- Removed unused `optsRef`, `isMountedRef`, and other refs
+- Simplified option handling to prevent stale references
+
+## Testing Results
+- ✅ Dev server starts successfully without infinite loops
+- ✅ TypeScript compilation passes with no errors
+- ✅ Hook dependencies are correctly managed
+- ✅ API calls are properly throttled and controlled
+- ✅ Enhanced marquee functionality preserved
+
+## Key Lessons
+1. **useCallback Dependencies**: Always include all external dependencies in useCallback
+2. **useEffect Separation**: Separate different concerns into different effects
+3. **Stale Closures**: Be careful with refs and callbacks in intervals
+4. **Option Handling**: Simple destructuring is often better than complex memoization
+
+## Impact
+The fix resolves the critical infinite loop issue while maintaining all enhanced marquee functionality:
+- Progressive data loading still works
+- Per-data-point state management intact
+- Error handling and fallbacks preserved
+- No performance degradation
+- Stable, predictable API call patterns
+
+This fix ensures the app is production-ready with proper data fetching behavior and no resource exhaustion from infinite loops.

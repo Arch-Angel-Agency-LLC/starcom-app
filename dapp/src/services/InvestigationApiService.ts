@@ -132,16 +132,26 @@ class InvestigationApiService {
       // Record failed request for rate limiting
       rateLimiter.recordRequest(clientId, false, endpoint, 'api');
 
-      // Secure error logging - no sensitive data
-      secureLogger.error('API request failed', {
-        endpoint: this.sanitizeForLog(endpoint),
-        status: 'error',
-        timestamp: new Date().toISOString()
-      }, { component: 'InvestigationAPI' });
+      // Check if this is a connection error (backend not running)
+      const isConnectionError = error instanceof Error && 
+        (error.message.includes('fetch') || 
+         error.message.includes('ERR_CONNECTION_REFUSED') ||
+         error.name === 'TypeError');
+
+      // Only log non-connection errors to reduce noise when backend is offline
+      if (!isConnectionError) {
+        secureLogger.error('API request failed', {
+          endpoint: this.sanitizeForLog(endpoint),
+          status: 'error',
+          timestamp: new Date().toISOString()
+        }, { component: 'InvestigationAPI' });
+      }
       
       return {
         success: false,
-        error: error instanceof Error ? this.getSafeErrorMessage(error.message) : 'Request failed',
+        error: isConnectionError ? 
+          'Investigation API unavailable' : 
+          (error instanceof Error ? this.getSafeErrorMessage(error.message) : 'Request failed'),
       };
     }
   }
