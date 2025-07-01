@@ -42,7 +42,8 @@
 
 .headerActions {
   display: flex;
-  gap: 1rem;
+  align-items: center;
+  gap: 10px;
 }
 
 .saveButton {
@@ -59,6 +60,11 @@
 .saveButton:hover {
   background: rgba(74, 200, 74, 0.5);
   border-color: #6ad46a;
+}
+
+.saveButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .content {
@@ -318,6 +324,12 @@
 
 .actionButton:active {
   transform: translateY(1px);
+}
+
+.lastSavedText {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  margin-left: 10px;
 }
 
 /* Responsive adjustments */

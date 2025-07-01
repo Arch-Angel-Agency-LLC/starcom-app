@@ -119,8 +119,9 @@ export class GeoEventsDataProvider implements DataProvider<GeoEventsDataTypes> {
 
   private observer?: DataServiceObserver;
 
-  async fetchData(key: string, _options: FetchOptions = {}): Promise<GeoEventsDataTypes> {
+  async fetchData(key: string, options: FetchOptions = {}): Promise<GeoEventsDataTypes> {
     this.observer?.onFetchStart?.(key, this.id);
+    console.debug('Fetching geo events data with options:', options);
 
     const endpoint = this.endpoints.find(e => e.id === key);
     if (!endpoint) {

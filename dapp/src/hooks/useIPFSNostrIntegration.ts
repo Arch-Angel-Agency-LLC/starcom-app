@@ -14,9 +14,10 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { IPFSNostrIntegrationManager } from '../services/IPFSNostrIntegrationManager';
-import PublicInfrastructureService from '../services/PublicInfrastructureService';
-import { UnifiedIPFSNostrService } from '../services/UnifiedIPFSNostrService';
-import { InfrastructureStatus } from '../config/publicInfrastructure';
+// Note: These imports are kept for future use when implementing infrastructure features
+// import PublicInfrastructureService from '../services/PublicInfrastructureService';
+// import { UnifiedIPFSNostrService } from '../services/UnifiedIPFSNostrService';
+// import { InfrastructureStatus } from '../config/publicInfrastructure';
 
 // Hook state interface
 interface UseIPFSNostrIntegrationState {

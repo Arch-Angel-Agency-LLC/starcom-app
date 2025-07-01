@@ -94,16 +94,90 @@ const Globe3DView: React.FC<Globe3DViewProps> = ({ className, fullscreen }) => {
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
     
-    // TODO: Convert screen coordinates to globe coordinates
-    console.log('Globe clicked at:', { x, y });
+    // Convert screen coordinates to approximate globe coordinates
+    const lat = ((y / canvas.height) - 0.5) * -180; // Invert Y for latitude
+    const lng = ((x / canvas.width) - 0.5) * 360;
     
-    // Example: Add investigation point (TODO: implement in context)
-    console.log('Adding investigation point...');
+    // Create a simulated investigation point
+    const investigationPoint = {
+      id: `point-${Date.now()}`,
+      lat: Math.max(-90, Math.min(90, lat)),
+      lng: Math.max(-180, Math.min(180, lng)),
+      timestamp: new Date(),
+      type: 'investigation' as const
+    };
+    
+    // TODO: Integrate with global context or investigation system
+    console.log('Investigation point created:', investigationPoint);
+    
+    // For now, show a visual indicator that the click was registered
+    const indicator = document.createElement('div');
+    indicator.style.position = 'absolute';
+    indicator.style.left = `${x}px`;
+    indicator.style.top = `${y}px`;
+    indicator.style.width = '8px';
+    indicator.style.height = '8px';
+    indicator.style.backgroundColor = '#00ff41';
+    indicator.style.borderRadius = '50%';
+    indicator.style.pointerEvents = 'none';
+    indicator.style.zIndex = '100';
+    indicator.style.animation = 'pulse 1s ease-out';
+    
+    const container = canvas.parentElement;
+    if (container) {
+      container.style.position = 'relative';
+      container.appendChild(indicator);
+      setTimeout(() => {
+        if (container.contains(indicator)) {
+          container.removeChild(indicator);
+        }
+      }, 1000);
+    }
   };
 
   const handleViewChange = (viewType: string) => {
-    // TODO: Implement globe view changes
-    console.log('Changing globe view to:', viewType);
+    // Implement globe view changes
+    switch (viewType) {
+      case 'satellite':
+        console.log('Switching to satellite view');
+        // TODO: Update globe texture/overlay to satellite imagery
+        break;
+      case 'political':
+        console.log('Switching to political boundaries view');
+        // TODO: Update globe overlay to show political boundaries
+        break;
+      case 'weather':
+        console.log('Switching to weather data view');
+        // TODO: Update globe overlay to show weather patterns
+        break;
+      case 'cyber':
+        console.log('Switching to cyber threat view');
+        // TODO: Update globe overlay to show cyber activity
+        break;
+      default:
+        console.log('Switching to default globe view');
+    }
+    
+    // Trigger a canvas redraw with the new view
+    const canvas = canvasRef.current;
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        // Add a subtle visual indicator of the view change
+        ctx.save();
+        ctx.globalAlpha = 0.3;
+        ctx.fillStyle = viewType === 'cyber' ? '#ff0040' : 
+                       viewType === 'weather' ? '#0080ff' :
+                       viewType === 'political' ? '#ffaa00' : '#00ff41';
+        ctx.fillRect(0, 0, canvas.width, 4);
+        ctx.restore();
+        
+        // Fade out the indicator
+        setTimeout(() => {
+          updateGlobeData();
+        }, 500);
+      }
+    }
   };
 
   return (

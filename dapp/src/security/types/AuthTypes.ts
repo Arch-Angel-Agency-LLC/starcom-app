@@ -7,6 +7,8 @@
 
 // Re-export from SecurityHardening for compatibility
 export type { SecurityClearance, ThreatLevel } from './SecurityHardening';
+// Import for use within namespace
+import type { SecurityClearance as SC } from './SecurityHardening';
 
 // Core Authentication Types Namespace
 export namespace AuthTypes {
@@ -14,7 +16,7 @@ export namespace AuthTypes {
     id: string;
     address: string;
     did?: string;
-    securityClearance: SecurityClearance;
+    securityClearance: SC;
     lastLogin: Date;
     authMethod: string;
   }
@@ -77,10 +79,10 @@ export interface DIDAuthState {
 
 export interface AuthState {
   isAuthenticated: boolean;
-  user: User | null;
+  user: AuthTypes.User | null;
   walletConnected: boolean;
   connectionType: WalletConnectionType | null;
-  securityClearance: SecurityClearance;
+  securityClearance: SC;
   sessionExpiry: Date | null;
   isLoading: boolean;
   error: string | null;
@@ -102,7 +104,7 @@ export interface AuthContextType {
   clearSession: () => void;
   
   // Security Operations
-  updateSecurityClearance: (clearance: SecurityClearance) => void;
+  updateSecurityClearance: (clearance: SC) => void;
   validateSecurityContext: () => Promise<boolean>;
 }
 
@@ -144,11 +146,11 @@ export interface PermissionCondition {
 }
 
 // Session Management
-export interface SessionData {
+export interface AuthSessionData {
   sessionId: string;
   userId: string;
   walletAddress: string;
-  securityClearance: SecurityClearance;
+  securityClearance: SC;
   createdAt: Date;
   expiresAt: Date;
   lastActivity: Date;
@@ -169,7 +171,7 @@ export interface AuthEvent {
   timestamp: Date;
   userId?: string;
   details: Record<string, any>;
-  securityLevel: SecurityClearance;
+  securityLevel: SC;
 }
 
 export type AuthEventType =
@@ -265,7 +267,7 @@ export interface HardwareSecurityModule {
 // Earth Alliance Integration
 export interface EarthAllianceIdentity {
   did: string;
-  clearanceLevel: SecurityClearance;
+  clearanceLevel: SC;
   organizationUnit: string;
   verificationStatus: 'pending' | 'verified' | 'rejected';
   verificationDate: Date | null;
@@ -282,7 +284,7 @@ export interface AuthConfig {
   // Security Settings
   requireMFA: boolean;
   allowedWalletTypes: WalletConnectionType[];
-  minimumSecurityClearance: SecurityClearance;
+  minimumSecurityClearance: SC;
   
   // Progressive Auth Settings
   enableProgressiveAuth: boolean;

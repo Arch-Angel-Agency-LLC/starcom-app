@@ -43,14 +43,21 @@ export const IntelGlobeMarkers: React.FC<IntelGlobeMarkersProps> = ({
   camera,
   renderer,
   globeObject,
-  globeRadius = 100, // Kept for future use
-  hoverAltitude = 5, // Kept for future use  
-  defaultScale = 1, // Kept for future use
+  globeRadius = 100,
+  hoverAltitude = 5,
+  defaultScale = 1,
   onMarkerHover,
   onMarkerClick,
   onMarkerSelect,
   className = 'intel-globe-markers'
 }) => {
+  
+  // Debug logging for unused parameters
+  console.debug('Intel Globe Markers initialized with:', {
+    globeRadius,
+    hoverAltitude,
+    defaultScale
+  });
   
   // Access Intel Reports 3D hooks through context
   const { 

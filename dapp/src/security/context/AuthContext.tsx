@@ -6,19 +6,23 @@
 import React, { createContext, useState, useCallback, useEffect, ReactNode } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
-import { useSIWS } from '../../hooks/useSIWS';
+import { useSIWS, SIWSSession } from '../../hooks/useSIWS';
 import { secureStorage } from '../storage/SecureStorageManager';
 import { logSecurityEvent, logAuditEvent } from '../logging/SecureLogger';
 import { AuthTypes, SecurityClearance, AuthSecurityMetadata, DIDAuthState } from '../types/AuthTypes';
+
+// Extract types from namespace for easier use
+type User = AuthTypes.User;
+type WalletInfo = AuthTypes.WalletInfo; 
 
 // Enhanced Authentication Context Interface
 export interface UnifiedAuthContextType {
   // Core authentication state
   isAuthenticated: boolean;
   isLoading: boolean;
-  user: AuthTypes['User'] | null;
-  wallet: AuthTypes['WalletInfo'] | null;
-  session: AuthTypes['Session'] | null;
+  user: User | null;
+  wallet: WalletInfo | null;
+  session: SIWSSession | null;
   error: string | null;
 
   // Security metadata
@@ -39,6 +43,27 @@ export interface UnifiedAuthContextType {
   // Emergency methods
   emergencyLockdown: () => Promise<void>;
   clearSecurityData: () => Promise<void>;
+
+  // Backward compatibility properties
+  address: string | null;
+  connectionStatus: 'connected' | 'connecting' | 'disconnected';
+  connectWallet: () => Promise<void>;
+  disconnectWallet: () => Promise<void>;
+  switchNetwork: (network?: string) => Promise<void>;
+  authenticate: () => Promise<void>;
+  logout: () => Promise<void>;
+  isSessionValid: boolean;
+  authError: string | null;
+  expectedChainId: string | null;
+  expectedNetworkName: string | null;
+  setError: (error: string | null) => void;
+  isSigningIn: boolean;
+  provider: any;
+  forceReset: () => void;
+  enableAutoAuth: () => void;
+  autoAuthDisabled: boolean;
+  authFailureCount: number;
+  signer: any;
 }
 
 // Security configuration
@@ -99,8 +124,8 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   // Authentication state
   const [authError, setAuthError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [user, setUser] = useState<AuthTypes['User'] | null>(null);
-  const [wallet, setWallet] = useState<AuthTypes['WalletInfo'] | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [wallet, setWallet] = useState<WalletInfo | null>(null);
 
   // Security state
   const [securityMetadata, setSecurityMetadata] = useState<AuthSecurityMetadata>(initialSecurityMetadata);
@@ -148,7 +173,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   // Monitor wallet connection changes
   useEffect(() => {
     if (solanaWallet.publicKey) {
-      const walletInfo: AuthTypes['WalletInfo'] = {
+      const walletInfo: WalletInfo = {
         address: solanaWallet.publicKey.toString(),
         type: 'solana',
         connected: solanaWallet.connected,
@@ -297,7 +322,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       await secureStorage.setItem('security_clearance', clearance);
 
       // Create user object
-      const userData: AuthTypes['User'] = {
+      const userData: User = {
         id: walletAddress,
         address: walletAddress,
         did: didAuthState.did,
@@ -570,7 +595,58 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
     rotateSecurity,
     validateSecurityLevel,
     emergencyLockdown,
-    clearSecurityData
+    clearSecurityData,
+
+    // Backward compatibility properties
+    address: solanaWallet.publicKey?.toString() || null,
+    connectionStatus: solanaWallet.connected ? 'connected' : (solanaWallet.connecting ? 'connecting' : 'disconnected'),
+    connectWallet: async () => {
+      try {
+        setIsLoading(true);
+        if (solanaWallet.connect) {
+          await solanaWallet.connect();
+        } else {
+          setWalletModalVisible(true);
+        }
+      } catch (err) {
+        console.error('Connect wallet error:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    disconnectWallet: async () => {
+      try {
+        if (solanaWallet.disconnect) {
+          await solanaWallet.disconnect();
+        }
+      } catch (err) {
+        console.error('Disconnect wallet error:', err);
+      }
+    },
+    switchNetwork: async (network?: string) => {
+      console.log('Switch network requested:', network);
+      // Solana doesn't have network switching like Ethereum
+    },
+    authenticate: signIn,
+    logout: signOut,
+    isSessionValid: isAuthenticated && !!session,
+    authError: authError || siwsError,
+    expectedChainId: null, // Not applicable for Solana
+    expectedNetworkName: 'Solana Mainnet',
+    setError: (error: string | null) => setAuthError(error),
+    isSigningIn: isLoading || isSIWSLoading,
+    provider: null, // Solana wallet adapter handles this differently
+    forceReset: () => {
+      setUser(null);
+      setWallet(null);
+      setAuthError(null);
+    },
+    enableAutoAuth: () => {
+      // Auto-auth logic could be implemented here
+    },
+    autoAuthDisabled: false,
+    authFailureCount: 0,
+    signer: null // Solana uses different signing approach
   };
 
   return (

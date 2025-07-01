@@ -19,6 +19,8 @@ const InvestigationBoard: React.FC<InvestigationBoardProps> = ({ onClose, teamId
   const { anchorContent } = useBlockchainAnchor();
   const [investigations, setInvestigations] = useState<CyberInvestigation[]>([]);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [selectedInvestigation, setSelectedInvestigation] = useState<CyberInvestigation | null>(null);
+  const [showInvestigationDetail, setShowInvestigationDetail] = useState(false);
   const [loading, setLoading] = useState(false);
 
   // Upload status tracking
@@ -59,7 +61,7 @@ const InvestigationBoard: React.FC<InvestigationBoardProps> = ({ onClose, teamId
       setLoading(true);
       try {
         // Load from local storage first
-        const storedInvestigations = CyberInvestigationStorage.loadInvestigations();
+        const storedInvestigations = await CyberInvestigationStorage.loadInvestigations();
         
         if (storedInvestigations.length > 0) {
           setInvestigations(storedInvestigations);
@@ -264,7 +266,10 @@ const InvestigationBoard: React.FC<InvestigationBoardProps> = ({ onClose, teamId
       <div
         key={investigation.id}
         className={styles.investigationCard}
-        onClick={() => console.log('Selected investigation:', investigation.id)}
+        onClick={() => {
+          setSelectedInvestigation(investigation);
+          setShowInvestigationDetail(true);
+        }}
         draggable
         onDragStart={(e) => {
           e.dataTransfer.setData('text/plain', investigation.id);
@@ -510,6 +515,21 @@ const InvestigationBoard: React.FC<InvestigationBoardProps> = ({ onClose, teamId
         </div>
       ) : (
         renderBoard()
+      )}
+
+      {/* Investigation Detail Modal */}
+      {showInvestigationDetail && selectedInvestigation && (
+        <div className={styles.modal}>
+          <div className={styles.modalContent}>
+            <h3>Investigation Details</h3>
+            <p><strong>Title:</strong> {selectedInvestigation.title}</p>
+            <p><strong>Status:</strong> {selectedInvestigation.status}</p>
+            <p><strong>Type:</strong> {selectedInvestigation.type}</p>
+            <p><strong>Priority:</strong> {selectedInvestigation.priority}</p>
+            <p><strong>Description:</strong> {selectedInvestigation.description}</p>
+            <button onClick={() => setShowInvestigationDetail(false)}>Close</button>
+          </div>
+        </div>
       )}
     </div>
   );

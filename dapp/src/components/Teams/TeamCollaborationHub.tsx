@@ -10,7 +10,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { Connection } from '@solana/web3.js';
 import { EnhancedTeamCollaborationService, BlockchainTeam, TeamIntelPackage } from '../../services/collaboration/EnhancedTeamCollaborationService';
-import { Team, Operator, ClearanceLevel, AgencyType } from '../../types/features/collaboration';
+import { Team, ClearanceLevel, AgencyType } from '../../types/features/collaboration';
 import type { IntelReportData } from '../../models/IntelReportData';
 import './TeamCollaborationHub.css';
 
@@ -168,7 +168,8 @@ export const TeamCollaborationHub: React.FC<TeamCollaborationHubProps> = ({
     }
   }, [collaborationService, publicKey, signTransaction, selectedTeam, loadTeamData, onPackageCreate]);
 
-  // Add team member
+  // Add team member (TODO: Add UI component to call this function)
+  /*
   const addTeamMember = useCallback(async (memberData: Operator) => {
     if (!collaborationService || !publicKey || !signTransaction || !selectedTeam) {
       setError('Please select a team and connect your wallet');
@@ -196,6 +197,7 @@ export const TeamCollaborationHub: React.FC<TeamCollaborationHubProps> = ({
       setLoading(false);
     }
   }, [collaborationService, publicKey, signTransaction, selectedTeam, loadTeamData]);
+  */
 
   if (!publicKey) {
     return (

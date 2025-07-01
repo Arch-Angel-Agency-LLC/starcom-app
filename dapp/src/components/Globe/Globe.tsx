@@ -334,6 +334,29 @@ const GlobeView: React.FC = () => {
     
   }, [globeEngine, visualizationVectors, visualizationMode.mode, visualizationMode.subMode]);
 
+  // Handle intel report creation from context menu
+  const handleCreateIntelReport = (geoLocation: { lat: number; lng: number }) => {
+    const { lat, lng } = geoLocation;
+    
+    // Create a new intel report
+    const newReport: IntelReportOverlayMarker = {
+      pubkey: `report-${Date.now()}`,
+      title: `Intel Report - ${lat.toFixed(4)}, ${lng.toFixed(4)}`,
+      author: 'Current User',
+      content: `Intelligence report created at coordinates ${lat.toFixed(6)}, ${lng.toFixed(6)}`,
+      timestamp: Date.now(),
+      latitude: lat,
+      longitude: lng,
+      tags: ['user-created', 'context-menu']
+    };
+    
+    // Add to existing reports
+    setIntelReports(prev => [...prev, newReport]);
+    
+    console.log('📝 Intel report created from context menu:', newReport);
+    alert(`Intel report created at: ${lat.toFixed(4)}, ${lng.toFixed(4)}`);
+  };
+
   return (
     <div ref={containerRef} style={{ 
       position: 'relative',
@@ -398,6 +421,7 @@ const GlobeView: React.FC = () => {
           models={intelModels}
           onHoverChange={setHoveredReportId}
           containerRef={containerRef}
+          onCreateIntelReport={handleCreateIntelReport}
         />
         
         {/* Borders and territories overlays would be attached to the Three.js scene here in a custom renderer or with react-three-fiber */}

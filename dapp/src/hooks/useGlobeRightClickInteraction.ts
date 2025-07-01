@@ -73,9 +73,18 @@ export function useGlobeRightClickInteraction({
     // Find intersections with all objects in the scene
     const intersects = raycasterRef.current.intersectObjects(scene.children, true);
     
+    console.log(`🔍 Raycasting found ${intersects.length} intersections`);
+    
     // Look for the first intersection that represents the globe surface
     // This typically would be a sphere mesh representing the Earth
     for (const intersect of intersects) {
+      console.log('🎯 Checking intersection:', {
+        type: intersect.object.type,
+        name: intersect.object.name,
+        geometry: intersect.object instanceof THREE.Mesh ? intersect.object.geometry?.type : 'N/A',
+        distance: intersect.distance
+      });
+      
       // Skip if it's not a mesh or if it's too small (likely UI element)
       if (!intersect.object || intersect.object.type !== 'Mesh') continue;
       
@@ -83,7 +92,11 @@ export function useGlobeRightClickInteraction({
       const mesh = intersect.object as THREE.Mesh;
       if (mesh.geometry && 
           (mesh.geometry.type === 'SphereGeometry' || 
-           mesh.geometry.type === 'SphereBufferGeometry')) {
+           mesh.geometry.type === 'SphereBufferGeometry' ||
+           mesh.name?.toLowerCase().includes('globe') ||
+           mesh.name?.toLowerCase().includes('earth'))) {
+        
+        console.log('🌍 Found globe mesh:', mesh.name || 'unnamed');
         
         const worldPoint = intersect.point;
         const geoCoordinates = worldToGeo(worldPoint);
@@ -103,29 +116,57 @@ export function useGlobeRightClickInteraction({
     action: GlobeContextAction, 
     data?: GlobeContextActionData
   ) => {
-    console.log('🎯 Context menu action:', {
+    console.log('🎯 Context menu action (hook fallback):', {
       action: action.id,
       label: action.label,
       data
     });
 
-    // TODO: Implement specific action handlers
+    if (!data?.geoLocation) {
+      console.warn('No geo location provided for action:', action.id);
+      return;
+    }
+
+    const { lat, lng } = data.geoLocation;
+
+    // Provide basic fallback implementations for when parent doesn't handle actions
     switch (action.id) {
       case 'create-intel-report':
-        console.log('📝 Creating intel report at:', data?.geoLocation);
-        // This will be handled by the parent component
+        console.log('📝 Creating intel report at:', { lat, lng });
+        alert(`Intel Report creation requested at: ${lat.toFixed(4)}, ${lng.toFixed(4)}\n\nThis action needs to be handled by the parent component.`);
         break;
       
       case 'add-marker':
-        console.log('📍 Adding marker at:', data?.geoLocation);
+        console.log('📍 Adding marker at:', { lat, lng });
+        alert(`Marker placement requested at: ${lat.toFixed(4)}, ${lng.toFixed(4)}\n\nMarker functionality coming soon.`);
         break;
         
-      case 'location-details':
-        console.log('🌍 Showing location details for:', data?.geoLocation);
+      case 'location-details': {
+        console.log('🌍 Showing location details for:', { lat, lng });
+        const hemisphere = lat > 0 ? 'Northern' : 'Southern';
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        alert(`Location Details:\nCoordinates: ${lat.toFixed(6)}, ${lng.toFixed(6)}\nHemisphere: ${hemisphere}\nLocal Timezone: ${timezone}`);
         break;
+      }
+        
+      case 'share-location': {
+        console.log('👥 Sharing location:', { lat, lng });
+        const coordsText = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(coordsText).then(() => {
+            alert(`Coordinates copied to clipboard:\n${coordsText}`);
+          }).catch(() => {
+            alert(`Coordinates:\n${coordsText}\n(Copy manually)`);
+          });
+        } else {
+          alert(`Coordinates:\n${coordsText}\n(Clipboard not available)`);
+        }
+        break;
+      }
         
       default:
-        console.log('🔧 Unhandled action:', action.id);
+        console.log('🔧 Unhandled action (using fallback):', action.id);
+        alert(`Feature "${action.label}" is not yet implemented.\n\nLocation: ${lat.toFixed(4)}, ${lng.toFixed(4)}`);
     }
   }, []);
 

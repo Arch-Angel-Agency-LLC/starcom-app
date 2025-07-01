@@ -5,6 +5,163 @@ import styles from './SettingsPage.module.css';
 const SettingsPage: React.FC = () => {
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('sync');
+  const [isSaving, setIsSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+
+  // Settings state
+  const [settings, setSettings] = useState({
+    autoSync: true,
+    syncInterval: 60,
+    enabledDataSources: {
+      noaa: true,
+      geomagnetic: true,
+      financial: true,
+      threatIntel: false
+    },
+    theme: 'dark',
+    highContrast: true,
+    uiScale: 100,
+    showTopMarquee: true,
+    showLeftSidebar: true,
+    autoHidePanels: false,
+    frameRateLimit: 60,
+    enableVSync: true,
+    textureQuality: 'high',
+    workerThreads: 4,
+    cacheSize: 100,
+    requireAuth: true,
+    sessionTimeout: 60,
+    shareAnalytics: false,
+    encryptData: true,
+    debugMode: false,
+    showMetrics: false,
+    experimentalFeatures: false
+  });
+
+  // Button handlers
+  const handleSaveAll = async () => {
+    setIsSaving(true);
+    try {
+      // Simulate saving to backend/localStorage
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      localStorage.setItem('starcom-settings', JSON.stringify(settings));
+      setLastSaved(new Date());
+      console.log('Settings saved successfully:', settings);
+    } catch (error) {
+      console.error('Failed to save settings:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleClearCache = async () => {
+    if (confirm('Are you sure you want to clear all cached data? This will reload data from sources.')) {
+      try {
+        // Clear various caches
+        localStorage.removeItem('starcom-cache');
+        localStorage.removeItem('noaa-cache');
+        localStorage.removeItem('threat-intel-cache');
+        
+        // Clear browser cache if available
+        if ('caches' in window) {
+          const cacheNames = await caches.keys();
+          await Promise.all(
+            cacheNames.map(cacheName => caches.delete(cacheName))
+          );
+        }
+        
+        console.log('Cache cleared successfully');
+        alert('Cache cleared successfully. The application will reload.');
+        window.location.reload();
+      } catch (error) {
+        console.error('Failed to clear cache:', error);
+        alert('Failed to clear cache. Please try again.');
+      }
+    }
+  };
+
+  const handleResetSettings = () => {
+    if (confirm('Are you sure you want to reset all settings to defaults? This cannot be undone.')) {
+      const defaultSettings = {
+        autoSync: true,
+        syncInterval: 60,
+        enabledDataSources: {
+          noaa: true,
+          geomagnetic: true,
+          financial: true,
+          threatIntel: false
+        },
+        theme: 'dark',
+        highContrast: false,
+        uiScale: 100,
+        showTopMarquee: true,
+        showLeftSidebar: true,
+        autoHidePanels: false,
+        frameRateLimit: 60,
+        enableVSync: true,
+        textureQuality: 'high',
+        workerThreads: 4,
+        cacheSize: 100,
+        requireAuth: true,
+        sessionTimeout: 60,
+        shareAnalytics: false,
+        encryptData: true,
+        debugMode: false,
+        showMetrics: false,
+        experimentalFeatures: false
+      };
+      
+      setSettings(defaultSettings);
+      localStorage.removeItem('starcom-settings');
+      console.log('Settings reset to defaults');
+      alert('Settings have been reset to defaults.');
+    }
+  };
+
+  const handleExportConfiguration = () => {
+    try {
+      const configData = {
+        version: '1.0',
+        timestamp: new Date().toISOString(),
+        settings: settings,
+        metadata: {
+          userAgent: navigator.userAgent,
+          platform: navigator.platform,
+          language: navigator.language
+        }
+      };
+      
+      const dataStr = JSON.stringify(configData, null, 2);
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(dataBlob);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `starcom-config-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      console.log('Configuration exported successfully');
+    } catch (error) {
+      console.error('Failed to export configuration:', error);
+      alert('Failed to export configuration. Please try again.');
+    }
+  };
+
+  // Load settings on component mount
+  React.useEffect(() => {
+    try {
+      const savedSettings = localStorage.getItem('starcom-settings');
+      if (savedSettings) {
+        const parsed = JSON.parse(savedSettings);
+        setSettings(prev => ({ ...prev, ...parsed }));
+      }
+    } catch (error) {
+      console.error('Failed to load saved settings:', error);
+    }
+  }, []);
 
   const sections = [
     { id: 'sync', label: '🔄 Data Sync', icon: '🔄' },
@@ -22,15 +179,22 @@ const SettingsPage: React.FC = () => {
         <h4>Auto-Sync Settings</h4>
         <div className={styles.setting}>
           <label>
-            <input type="checkbox" defaultChecked />
+            <input 
+              type="checkbox" 
+              checked={settings.autoSync}
+              onChange={(e) => setSettings(prev => ({ ...prev, autoSync: e.target.checked }))}
+            />
             Enable automatic data synchronization
           </label>
         </div>
         <div className={styles.setting}>
           <label>Sync Interval:</label>
-          <select>
+          <select 
+            value={settings.syncInterval}
+            onChange={(e) => setSettings(prev => ({ ...prev, syncInterval: parseInt(e.target.value) }))}
+          >
             <option value="30">30 seconds</option>
-            <option value="60" selected>1 minute</option>
+            <option value="60">1 minute</option>
             <option value="300">5 minutes</option>
             <option value="600">10 minutes</option>
           </select>
@@ -41,25 +205,53 @@ const SettingsPage: React.FC = () => {
         <h4>Data Sources</h4>
         <div className={styles.setting}>
           <label>
-            <input type="checkbox" defaultChecked />
+            <input 
+              type="checkbox" 
+              checked={settings.enabledDataSources.noaa}
+              onChange={(e) => setSettings(prev => ({ 
+                ...prev, 
+                enabledDataSources: { ...prev.enabledDataSources, noaa: e.target.checked }
+              }))}
+            />
             NOAA Space Weather Data
           </label>
         </div>
         <div className={styles.setting}>
           <label>
-            <input type="checkbox" defaultChecked />
+            <input 
+              type="checkbox" 
+              checked={settings.enabledDataSources.geomagnetic}
+              onChange={(e) => setSettings(prev => ({ 
+                ...prev, 
+                enabledDataSources: { ...prev.enabledDataSources, geomagnetic: e.target.checked }
+              }))}
+            />
             Geomagnetic Field Data
           </label>
         </div>
         <div className={styles.setting}>
           <label>
-            <input type="checkbox" defaultChecked />
+            <input 
+              type="checkbox" 
+              checked={settings.enabledDataSources.financial}
+              onChange={(e) => setSettings(prev => ({ 
+                ...prev, 
+                enabledDataSources: { ...prev.enabledDataSources, financial: e.target.checked }
+              }))}
+            />
             Financial Market Data
           </label>
         </div>
         <div className={styles.setting}>
           <label>
-            <input type="checkbox" />
+            <input 
+              type="checkbox" 
+              checked={settings.enabledDataSources.threatIntel}
+              onChange={(e) => setSettings(prev => ({ 
+                ...prev, 
+                enabledDataSources: { ...prev.enabledDataSources, threatIntel: e.target.checked }
+              }))}
+            />
             Cyber Threat Intelligence
           </label>
         </div>
@@ -68,18 +260,18 @@ const SettingsPage: React.FC = () => {
       <div className={styles.settingGroup}>
         <h4>Sync Status</h4>
         <div className={styles.statusItem}>
-          <span className={styles.statusIndicator} data-status="online"></span>
-          <span>NOAA API: Connected</span>
+          <span className={styles.statusIndicator} data-status={settings.enabledDataSources.noaa ? "online" : "offline"}></span>
+          <span>NOAA API: {settings.enabledDataSources.noaa ? "Connected" : "Disabled"}</span>
           <span className={styles.lastSync}>Last sync: 2 minutes ago</span>
         </div>
         <div className={styles.statusItem}>
-          <span className={styles.statusIndicator} data-status="online"></span>
-          <span>Financial Data: Connected</span>
+          <span className={styles.statusIndicator} data-status={settings.enabledDataSources.financial ? "online" : "offline"}></span>
+          <span>Financial Data: {settings.enabledDataSources.financial ? "Connected" : "Disabled"}</span>
           <span className={styles.lastSync}>Last sync: 1 minute ago</span>
         </div>
         <div className={styles.statusItem}>
-          <span className={styles.statusIndicator} data-status="offline"></span>
-          <span>Threat Intel: Disconnected</span>
+          <span className={styles.statusIndicator} data-status={settings.enabledDataSources.threatIntel ? "online" : "offline"}></span>
+          <span>Threat Intel: {settings.enabledDataSources.threatIntel ? "Connected" : "Disabled"}</span>
           <span className={styles.lastSync}>Last attempt: 10 minutes ago</span>
         </div>
       </div>
@@ -298,19 +490,31 @@ const SettingsPage: React.FC = () => {
         <h4>Developer Options</h4>
         <div className={styles.setting}>
           <label>
-            <input type="checkbox" />
+            <input 
+              type="checkbox" 
+              checked={settings.debugMode}
+              onChange={(e) => setSettings(prev => ({ ...prev, debugMode: e.target.checked }))}
+            />
             Enable debug mode
           </label>
         </div>
         <div className={styles.setting}>
           <label>
-            <input type="checkbox" />
+            <input 
+              type="checkbox" 
+              checked={settings.showMetrics}
+              onChange={(e) => setSettings(prev => ({ ...prev, showMetrics: e.target.checked }))}
+            />
             Show performance metrics
           </label>
         </div>
         <div className={styles.setting}>
           <label>
-            <input type="checkbox" />
+            <input 
+              type="checkbox" 
+              checked={settings.experimentalFeatures}
+              onChange={(e) => setSettings(prev => ({ ...prev, experimentalFeatures: e.target.checked }))}
+            />
             Enable experimental features
           </label>
         </div>
@@ -319,15 +523,21 @@ const SettingsPage: React.FC = () => {
       <div className={styles.settingGroup}>
         <h4>System</h4>
         <div className={styles.setting}>
-          <button className={styles.actionButton}>Clear Cache</button>
+          <button className={styles.actionButton} onClick={handleClearCache}>
+            Clear Cache
+          </button>
           <span className={styles.settingDescription}>Clear all cached data</span>
         </div>
         <div className={styles.setting}>
-          <button className={styles.actionButton}>Reset Settings</button>
+          <button className={styles.actionButton} onClick={handleResetSettings}>
+            Reset Settings
+          </button>
           <span className={styles.settingDescription}>Reset all settings to defaults</span>
         </div>
         <div className={styles.setting}>
-          <button className={styles.actionButton}>Export Configuration</button>
+          <button className={styles.actionButton} onClick={handleExportConfiguration}>
+            Export Configuration
+          </button>
           <span className={styles.settingDescription}>Download current settings</span>
         </div>
       </div>
@@ -357,7 +567,18 @@ const SettingsPage: React.FC = () => {
         </button>
         <h1>⚙️ Settings</h1>
         <div className={styles.headerActions}>
-          <button className={styles.saveButton}>💾 Save All</button>
+          <button 
+            className={styles.saveButton}
+            onClick={handleSaveAll}
+            disabled={isSaving}
+          >
+            {isSaving ? '💾 Saving...' : '💾 Save All'}
+          </button>
+          {lastSaved && (
+            <span className={styles.lastSavedText}>
+              Last saved: {lastSaved.toLocaleTimeString()}
+            </span>
+          )}
         </div>
       </div>
 

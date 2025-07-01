@@ -135,8 +135,9 @@ const BUILTIN_RECOVERY_STRATEGIES: RecoveryStrategy[] = [
     automatic: true,
     priority: 1,
     maxRetries: 3,
-    execute: async (_error: AuthError): Promise<RecoveryResult> => {
+    execute: async (error: AuthError): Promise<RecoveryResult> => {
       // Simulate network retry logic
+      console.debug('Network retry for error:', error.code);
       await new Promise(resolve => setTimeout(resolve, 1000));
       return {
         success: Math.random() > 0.3, // 70% success rate
@@ -154,8 +155,9 @@ const BUILTIN_RECOVERY_STRATEGIES: RecoveryStrategy[] = [
     automatic: true,
     priority: 2,
     maxRetries: 2,
-    execute: async (_error: AuthError): Promise<RecoveryResult> => {
+    execute: async (error: AuthError): Promise<RecoveryResult> => {
       // Simulate session refresh logic
+      console.debug('Session refresh for error:', error.code);
       await new Promise(resolve => setTimeout(resolve, 500));
       return {
         success: Math.random() > 0.2, // 80% success rate
@@ -173,8 +175,9 @@ const BUILTIN_RECOVERY_STRATEGIES: RecoveryStrategy[] = [
     automatic: true,
     priority: 3,
     maxRetries: 1,
-    execute: async (_error: AuthError): Promise<RecoveryResult> => {
+    execute: async (error: AuthError): Promise<RecoveryResult> => {
       // Simulate biometric fallback
+      console.debug('Biometric fallback for error:', error.code);
       await new Promise(resolve => setTimeout(resolve, 300));
       return {
         success: true,

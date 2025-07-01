@@ -149,8 +149,9 @@ class CollaborationService {
       // Initialize security framework silently for production
       // Security components initialized: PQC, DID, OTK, TSS, dMPC
       // Framework is SOCOM/NIST compliant
-    } catch (_error) {
+    } catch (error) {
       // Security framework initialization failed - logged to audit trail
+      console.error('Security framework initialization failed:', error);
     }
   }
 

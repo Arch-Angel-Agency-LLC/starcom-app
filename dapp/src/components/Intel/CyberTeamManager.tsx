@@ -497,7 +497,7 @@ const CyberTeamManager: React.FC<CyberTeamManagerProps> = ({ onClose, onTeamSele
       setLoading(true);
       try {
         // Load from local storage first
-        const storedTeams = CyberInvestigationStorage.loadTeams();
+        const storedTeams = await CyberInvestigationStorage.loadTeams();
         
         if (storedTeams.length > 0) {
           setTeams(storedTeams);

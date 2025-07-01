@@ -195,7 +195,7 @@ const IntelPackageManager: React.FC<IntelPackageManagerProps> = ({
         }
 
         // Load from local storage first
-        const storedPackages = CyberInvestigationStorage.loadPackages();
+        const storedPackages = await CyberInvestigationStorage.loadPackages();
         
         if (storedPackages.length > 0) {
           return storedPackages;

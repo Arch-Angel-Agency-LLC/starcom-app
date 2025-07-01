@@ -362,7 +362,7 @@ const WalletStatusMini: React.FC = () => {
   useEffect(() => {
     // This effect will trigger when the wallet selection modal state changes
     // If we have a wallet selected but not connected, user just made a selection
-    if (provider?.wallet && !provider?.connected && !provider?.connecting && connectionStatus === 'idle') {
+    if (provider?.wallet && !provider?.connected && !provider?.connecting && connectionStatus === 'disconnected') {
       setWalletSelectionVisible(true);
       // Show immediate feedback that wallet was selected
       setSnackbarMessage('Wallet selected! Connecting...');
@@ -441,7 +441,7 @@ const WalletStatusMini: React.FC = () => {
 
   // Clear manual connecting state when connection status changes
   useEffect(() => {
-    if (connectionStatus !== 'idle') {
+    if (connectionStatus !== 'disconnected') {
       setIsManuallyConnecting(false);
     }
   }, [connectionStatus]);
@@ -887,7 +887,7 @@ const WalletStatusMini: React.FC = () => {
   // Enhanced connection detection with better edge case handling
   const isWalletConnected = (
     connectionStatus === 'connected' || 
-    (!!address && connectionStatus !== 'error' && !error)
+    (!!address && connectionStatus !== 'disconnected' && !error)
   );
 
   // Get consistent status indicator for all button states
@@ -916,7 +916,7 @@ const WalletStatusMini: React.FC = () => {
   // Comprehensive button state management for all scenarios
   const getConnectButtonState = () => {
     // Override states with manual connecting if user just clicked
-    if (isManuallyConnecting && connectionStatus === 'idle') {
+    if (isManuallyConnecting && connectionStatus === 'disconnected') {
       return { 
         label: 'Opening Wallet...', 
         disabled: true, 
@@ -927,7 +927,7 @@ const WalletStatusMini: React.FC = () => {
     }
     
     // Show "Wallet Selected" state when user selected wallet but hasn't connected yet
-    if (walletSelectionVisible && connectionStatus === 'idle' && !address) {
+    if (walletSelectionVisible && connectionStatus === 'disconnected' && !address) {
       return { 
         label: 'Wallet Selected...', 
         disabled: true, 
@@ -963,7 +963,7 @@ const WalletStatusMini: React.FC = () => {
     }
     
     // Error states
-    if (connectionStatus === 'error' || (error && !address)) {
+    if (connectionStatus === 'disconnected' || (error && !address)) {
       return { 
         label: 'Retry', 
         disabled: false, 

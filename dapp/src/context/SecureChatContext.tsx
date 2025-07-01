@@ -1,6 +1,5 @@
 import React, { createContext, useReducer, useEffect, ReactNode, useCallback, useMemo } from 'react';
-import { EarthAllianceContact, SecureChatWindow, ThreatLevel, SecurityClearance, PQCAlgorith  // Get optimized security service instance 
-  const securityService = useMemo(() => getSecurityService(), []);tyLevel } from '../types/SecureChat';
+import { EarthAllianceContact, SecureChatWindow, ThreatLevel, SecurityClearance } from '../types/SecureChat';
 import { secureChatIntegration } from '../services/SecureChatIntegrationService';
 import { AdvancedSecurityService } from '../security/core/AdvancedSecurityService';
 import { useMemoryAware } from '../hooks/useMemoryAware';
@@ -166,7 +165,7 @@ function secureChatReducer(state: SecureChatState, action: SecureChatAction): Se
 const SecureChatContext = createContext<SecureChatContextType | null>(null);
 
 // Initialize advanced security service once outside component to prevent re-creation
-let securityServiceInstance: any = null;
+let securityServiceInstance: AdvancedSecurityService | null = null;
 const getSecurityService = () => {
   if (!securityServiceInstance) {
     securityServiceInstance = AdvancedSecurityService.getInstance({
@@ -482,6 +481,7 @@ async function securelyDeleteChatData(chatId: string): Promise<void> {
     console.log(`🗑️ Initiating secure deletion for chat: ${chatId}`);
     
     // Secure memory wiping using the security service
+    const securityService = getSecurityService();
     const memoryRegion = securityService.allocateSecure(1024); // Allocate temporary secure memory
     securityService.wipePage(memoryRegion.address); // Wipe the memory page
     securityService.deallocateSecure(memoryRegion); // Deallocate securely
@@ -505,7 +505,19 @@ async function securelyDeleteChatData(chatId: string): Promise<void> {
 // Enhanced security validation using AdvancedSecurityService
 async function verifyEarthAllianceIdentity(contact: EarthAllianceContact): Promise<boolean> {
   try {
-    const validationResult = await securityService.validateContact(contact);
+    const securityService = getSecurityService();
+    // Convert EarthAllianceContact to SecureContact for validation
+    const secureContact = {
+      id: contact.pubkey, // Use pubkey as id for compatibility
+      pubkey: contact.pubkey,
+      displayName: contact.displayName,
+      lastActivity: contact.lastActivity,
+      isOnline: contact.isOnline,
+      trustScore: contact.trustScore,
+      securityClearance: contact.securityClearance || 'alpha'
+    };
+    
+    const validationResult = await securityService.validateContact(secureContact);
     
     // Log the validation attempt
     console.log(`🔍 Contact validation for ${contact.displayName}:`, {
@@ -530,6 +542,7 @@ async function triggerEmergencyProtocols(): Promise<void> {
     console.log('🚨 EMERGENCY PROTOCOLS ACTIVATED');
     
     // Secure all active memory regions and wipe sensitive data
+    const securityService = getSecurityService();
     const memoryStatus = securityService.checkIntegrity();
     console.log('🔍 Memory security check during emergency:', {
       isSecure: memoryStatus.isSecure,
@@ -553,6 +566,7 @@ async function activateStealthProtocols(): Promise<void> {
     console.log('🔍 STEALTH MODE ACTIVATED');
     
     // Enable side-channel protection for stealth
+    const securityService = getSecurityService();
     const stealthEncryption = securityService.createSecureEncryptionContext('ML-KEM-768-stealth');
     
     // Enhanced behavioral analysis to detect surveillance
@@ -580,6 +594,7 @@ async function activateStealthProtocols(): Promise<void> {
 async function getNetworkHealthStatus() {
   try {
     // Use security service to validate network integrity
+    const securityService = getSecurityService();
     const networkValidation = await securityService.validateNetwork('primary-network');
     const deviceValidation = await securityService.validateDevice('current-device');
     
@@ -616,6 +631,7 @@ async function rotateAllSecurityKeys(): Promise<void> {
     console.log('🔄 Initiating security key rotation...');
     
     // Create new secure encryption contexts for key rotation
+    const securityService = getSecurityService();
     const primaryContext = securityService.createSecureEncryptionContext('ML-KEM-768');
     const backupContext = securityService.createSecureEncryptionContext('ML-DSA-65');
     
@@ -640,6 +656,7 @@ async function rotateAllSecurityKeys(): Promise<void> {
 async function assessGlobalThreatLevel(): Promise<ThreatLevel> {
   try {
     // Get recent security events for threat assessment
+    const securityService = getSecurityService();
     const recentEvents = securityService.getSecurityEvents(50);
     const currentThreatLevel = await securityService.assessThreatLevel(recentEvents);
     

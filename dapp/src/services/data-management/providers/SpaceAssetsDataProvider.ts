@@ -120,8 +120,9 @@ export class SpaceAssetsDataProvider implements DataProvider<SpaceAssetsDataType
 
   private observer?: DataServiceObserver;
 
-  async fetchData(key: string, _options: FetchOptions = {}): Promise<SpaceAssetsDataTypes> {
+  async fetchData(key: string, options: FetchOptions = {}): Promise<SpaceAssetsDataTypes> {
     this.observer?.onFetchStart?.(key, this.id);
+    console.debug('Fetching space assets data with options:', options);
 
     const endpoint = this.endpoints.find(e => e.id === key);
     if (!endpoint) {
