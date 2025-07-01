@@ -28,6 +28,7 @@ const ProgressiveDisclosure: React.FC<ProgressiveDisclosureProps> = ({
   const [selectedSkill, setSelectedSkill] = useState<string | null>(null);
   const [showUnlockedFeatures, setShowUnlockedFeatures] = useState(false);
 
+  // TODO: Implement authentication state persistence across browser sessions - PRIORITY: MEDIUM
   const handleSkillLevelUp = useCallback((skill: SkillProgress) => {
     const updatedSkill: SkillProgress = {
       ...skill,

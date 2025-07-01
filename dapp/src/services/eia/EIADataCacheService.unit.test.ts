@@ -2,6 +2,8 @@
 import { describe, it, expect, vi } from 'vitest';
 import { EIADataCacheService } from './EIADataCacheService';
 
+// TODO: Implement Nostr event validation and spam protection - PRIORITY: MEDIUM
+// TODO: Add support for Nostr relay whitelisting and blacklisting - PRIORITY: MEDIUM
 describe('EIADataCacheService', () => {
   it('returns cached value on hit', () => {
     const cache = new EIADataCacheService();

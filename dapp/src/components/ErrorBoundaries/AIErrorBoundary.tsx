@@ -4,6 +4,7 @@
  */
 
 import { Component, ErrorInfo, ReactNode } from 'react';
+import { errorLogger } from '../../utils/errorLogger';
 
 interface Props {
   children: ReactNode;
@@ -17,6 +18,7 @@ interface State {
   errorId: string | null;
 }
 
+// TODO: Implement HUD component lazy loading for improved startup performance - PRIORITY: MEDIUM
 export class AIErrorBoundary extends Component<Props, State> {
   private retryCount = 0;
   private readonly maxRetries = 3;
@@ -45,6 +47,15 @@ export class AIErrorBoundary extends Component<Props, State> {
       componentStack: errorInfo.componentStack,
       errorId: this.state.errorId,
       retryCount: this.retryCount
+    });
+
+    // Enhanced error logging for AI components
+    errorLogger.logError(error, {
+      componentStack: errorInfo.componentStack,
+      errorBoundary: 'AIErrorBoundary',
+      errorId: this.state.errorId,
+      retryCount: this.retryCount,
+      aiComponent: true
     });
 
     // Call custom error handler if provided

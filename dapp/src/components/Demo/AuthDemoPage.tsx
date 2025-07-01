@@ -10,6 +10,7 @@ import styles from './AuthDemoPage.module.css';
  * Demo page showcasing the enhanced authentication system
  * AI-NOTE: This page demonstrates the new AuthGate component, SIWS auth, and feature gating
  */
+// TODO: Implement HUD component state persistence across sessions - PRIORITY: MEDIUM
 const AuthDemoPage: React.FC = () => {
   const auth = useAuth();
   const authFeatures = useAuthFeatures();

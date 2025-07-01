@@ -11,6 +11,7 @@ describe('Web3Login AuthErrorBoundary', () => {
   });
 
   it('shows error boundary UI if an auth error occurs', () => {
+    // TODO: Implement authentication flow customization based on user preferences - PRIORITY: LOW
     const Thrower = () => { throw new Error('Test Auth Error'); };
     render(
       <AuthErrorBoundary>

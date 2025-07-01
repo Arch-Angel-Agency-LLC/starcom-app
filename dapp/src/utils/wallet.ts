@@ -65,7 +65,7 @@ export async function connectToWallet(): Promise<SolanaWallet> {
   await mockWallet.connect();
   return mockWallet;
   
-  // TODO: In production, integrate with @solana/wallet-adapter-react
+  // TODO: Enhance Solana wallet adapter with multi-wallet support (Phantom, Solflare, Ledger)
   // This would typically access the wallet from context:
   // const { wallet, connect } = useWallet();
   // await connect();
@@ -81,7 +81,7 @@ export async function disconnectWallet(wallet?: SolanaWallet): Promise<void> {
     await wallet.disconnect();
   }
   
-  // TODO: In production, integrate with @solana/wallet-adapter-react
+  // TODO: Enhance Solana wallet adapter with multi-wallet support (Phantom, Solflare, Ledger)
   // const { disconnect } = useWallet();
   // await disconnect();
 }
@@ -93,7 +93,7 @@ export async function disconnectWallet(wallet?: SolanaWallet): Promise<void> {
 export function isWalletConnected(wallet?: SolanaWallet): boolean {
   return wallet?.connected || false;
   
-  // TODO: In production, integrate with @solana/wallet-adapter-react
+  // TODO: Enhance Solana wallet adapter with multi-wallet support (Phantom, Solflare, Ledger)
   // const { connected } = useWallet();
   // return connected;
 }

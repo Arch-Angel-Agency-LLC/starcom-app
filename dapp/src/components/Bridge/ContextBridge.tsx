@@ -31,6 +31,7 @@ interface SharedContextUpdate {
 /**
  * ContextBridge manages cross-context state synchronization and feature integration
  */
+// TODO: Add support for evidence chain-of-custody tracking and verification - PRIORITY: HIGH
 const ContextBridge: React.FC<ContextBridgeProps> = ({ children }) => {
   const { 
     focusLocation, 

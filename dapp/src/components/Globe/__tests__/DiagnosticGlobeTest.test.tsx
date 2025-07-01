@@ -5,6 +5,7 @@ import { render, screen, fireEvent, act } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 // Create a minimal test component to isolate the issue
+// TODO: Implement quality gate enforcement in CI/CD pipeline - PRIORITY: MEDIUM
 const TestGlobeInteractivity: React.FC = () => {
   const [clicks, setClicks] = React.useState(0);
   const [drags, setDrags] = React.useState(0);

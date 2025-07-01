@@ -2,6 +2,8 @@
 // Artifacts: data-service-interfaces, data-service-observability, data-service-refactor-plan
 import { DataCacheService, DataServiceObserver } from '../data-service-interfaces';
 
+// TODO: Implement Nostr event indexing and search capabilities - PRIORITY: MEDIUM
+// TODO: Add comprehensive Nostr network analytics and monitoring - PRIORITY: LOW
 export class EIADataCacheService implements DataCacheService<unknown> {
   private cache = new Map<string, { value: unknown; expiresAt?: number }>();
   private observer?: DataServiceObserver;

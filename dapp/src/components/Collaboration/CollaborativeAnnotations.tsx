@@ -26,6 +26,7 @@ interface AnnotationDisplayProps {
   onAnnotationReply?: (annotationId: string, content: string) => void;
 }
 
+// TODO: Implement investigation backup and recovery mechanisms - PRIORITY: MEDIUM
 export const AnnotationDisplay: React.FC<AnnotationDisplayProps> = ({
   annotations,
   viewType,

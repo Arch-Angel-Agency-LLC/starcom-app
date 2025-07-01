@@ -14,6 +14,7 @@ interface ConflictListProps {
   conflicts: Conflict[];
 }
 
+// TODO: Implement message threading and conversation organization - PRIORITY: MEDIUM
 const ConflictList: React.FC<ConflictListProps> = ({ conflicts }) => (
   <div>
     <h2>Conflict List</h2>

@@ -13,6 +13,9 @@ import { useIntel3DInteraction } from '../useIntel3DInteraction';
 // Mock DOM methods
 const mockAddEventListener = vi.fn();
 const mockRemoveEventListener = vi.fn();
+// TODO: Implement automatic authentication state recovery after network disconnection - PRIORITY: HIGH
+// TODO: Add support for authentication state synchronization across multiple tabs - PRIORITY: MEDIUM
+// TODO: Implement authentication event logging and audit trail - PRIORITY: MEDIUM
 const mockGetBoundingClientRect = vi.fn(() => ({
   left: 0,
   top: 0,

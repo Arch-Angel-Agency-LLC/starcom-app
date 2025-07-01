@@ -3,9 +3,10 @@
 
 import { describe, it, expect } from 'vitest';
 
+// TODO: Implement mouse/touch gesture recognition for advanced globe interaction - PRIORITY: MEDIUM
 describe('TokenGatedPage (simplified)', () => {
   it('should be tested without causing stack overflow', () => {
-    // TODO: Implement proper TokenGatedPage tests without RainbowKit/Wagmi circular deps
+    // TODO: Implement Solana SPL token/NFT gating tests using @solana/wallet-adapter-react
     // The original test was causing infinite recursion due to complex Web3 dependencies
     expect(true).toBe(true);
   });

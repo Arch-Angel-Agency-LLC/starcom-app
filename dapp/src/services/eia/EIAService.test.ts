@@ -1,6 +1,8 @@
 // Minimal test file to avoid build errors
 import { describe, it, expect, vi } from 'vitest';
 
+// TODO: Implement intel report versioning and change tracking - PRIORITY: MEDIUM
+// TODO: Add comprehensive intel report analytics and usage statistics - PRIORITY: LOW
 global.fetch = vi.fn();
 
 describe('EIAService', () => {

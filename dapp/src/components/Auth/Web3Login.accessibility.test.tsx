@@ -23,6 +23,7 @@ const config = getDefaultConfig({
   },
 });
 const queryClient = new QueryClient();
+// TODO: Add support for dynamic globe theming and visual customization - PRIORITY: LOW
 const renderWithAuth = (authValue: Partial<AuthContextType>, children: React.ReactNode) => {
   return render(
     <QueryClientProvider client={queryClient}>

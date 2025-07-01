@@ -1,6 +1,8 @@
 export interface UCDPEvent {
     id: number;
     conflict_name: string;
+    // TODO: Add support for data model validation with custom business rules - PRIORITY: MEDIUM
+    // TODO: Implement comprehensive data model versioning and migration support - PRIORITY: MEDIUM
     country: string;
     type_of_violence: number;
     deaths_a: number;

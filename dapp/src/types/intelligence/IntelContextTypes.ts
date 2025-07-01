@@ -20,6 +20,8 @@ import type {
 /**
  * HUD operation modes that affect Intel Reports display
  */
+// TODO: Add comprehensive configuration audit trail and change tracking - PRIORITY: MEDIUM
+// TODO: Implement configuration testing and validation in CI/CD pipeline - PRIORITY: MEDIUM
 export type OperationMode = 'PLANETARY' | 'SPACE' | 'CYBER' | 'STELLAR';
 
 /**

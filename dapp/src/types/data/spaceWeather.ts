@@ -1,6 +1,8 @@
 // Electric Field Data Interfaces for NOAA Space Weather API Integration
 // AI-NOTE: Based on analysis of NOAA SWPC electric field datasets
 
+// TODO: Implement type-safe state management with strong typing guarantees - PRIORITY: MEDIUM
+// TODO: Add support for type-safe database queries and ORM integration - PRIORITY: MEDIUM
 export interface NOAAElectricFieldData {
   time_tag: string;          // ISO date string "2025-02-23"
   cadence: number;           // Update interval in seconds (typically 60)

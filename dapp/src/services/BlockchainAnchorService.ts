@@ -62,7 +62,7 @@ export class BlockchainAnchorService {
   private lastFailureTime: number = 0;
   private networkCache: { status: NetworkStatus | null; timestamp: number } = { status: null, timestamp: 0 };
   
-  // TODO: Replace with actual deployed program ID when ready
+  // TODO: Deploy intelligence marketplace program to Solana devnet and update program ID
   // private readonly ANCHOR_PROGRAM_ID = 'CyberInvestigationAnchor11111111111111111'; // Placeholder
 
   constructor(rpcEndpoint: string = 'https://api.mainnet-beta.solana.com') {
@@ -398,7 +398,7 @@ export class BlockchainAnchorService {
       return {
         verified: true,
         blockTime: transaction.blockTime || undefined,
-        integrity: true // TODO: Implement actual integrity check
+        integrity: true // TODO: Implement Solana transaction signature verification for intel report integrity
       };
     }, 'Anchor Verification').catch(error => {
       return {

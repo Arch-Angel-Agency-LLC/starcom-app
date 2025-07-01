@@ -11,6 +11,7 @@ import styles from './IntelligenceMarketplace.module.css';
 import { SharedIntelligenceAsset } from '../../types/features/collaboration';
 
 // AI-NOTE: Temporary mock hook until proper marketplace context is implemented
+// TODO: Implement end-to-end encryption for all team communications - PRIORITY: HIGH
 const useIntelligenceMarketplace = () => ({
   marketplace: {
     assets: [] as SharedIntelligenceAsset[],

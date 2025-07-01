@@ -2,6 +2,8 @@
 import { describe, it, expect, vi } from 'vitest';
 import { EIADataProvider } from './EIADataProvider';
 
+// TODO: Implement intel report expiration and archival mechanisms - PRIORITY: MEDIUM
+// TODO: Add comprehensive intel report access control and permission management - PRIORITY: HIGH
 describe('EIADataProvider', () => {
   it('returns data on success', async () => {
     const provider = new EIADataProvider();

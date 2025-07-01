@@ -20,6 +20,7 @@ import {
 /**
  * Context service configuration options
  */
+// TODO: Implement security backup and disaster recovery mechanisms - PRIORITY: MEDIUM
 export interface IntelContextServiceOptions {
   enableAutoSync?: boolean;
   operationModeTransitionDelay?: number;

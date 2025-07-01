@@ -21,6 +21,9 @@ import { IntelGlobeService, type IntelGlobeMarker } from '../../services/intelli
 // HOOK INTERFACE
 // =============================================================================
 
+// TODO: Add support for data state subscription and real-time updates - PRIORITY: MEDIUM
+// TODO: Implement data state backup and recovery mechanisms - PRIORITY: MEDIUM
+// TODO: Add comprehensive data state analytics and usage tracking - PRIORITY: LOW
 export interface IntelGlobeSyncOptions {
   // Globe configuration
   globeRadius?: number;

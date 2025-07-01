@@ -23,6 +23,8 @@ import {
  * Legacy IntelReportOverlayMarker interface
  * Maps to new IntelReport3DData structure
  */
+// TODO: Add support for dynamic configuration updates without application restart - PRIORITY: LOW
+// TODO: Implement configuration backup and version control integration - PRIORITY: MEDIUM
 export interface LegacyIntelReportOverlay {
   pubkey: string; // Solana account pubkey (base58)
   title: string;

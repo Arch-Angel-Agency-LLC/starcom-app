@@ -2,6 +2,8 @@
 import { describe, it, expect, vi } from 'vitest';
 import { EIADataCacheService } from './EIADataCacheService';
 
+// TODO: Implement Nostr relay discovery and network topology mapping - PRIORITY: MEDIUM
+// TODO: Add support for Nostr event encryption and privacy protection - PRIORITY: HIGH
 describe('EIADataCacheService observability', () => {
   it('calls observer hooks on cache hit/miss/evict', () => {
     const cache = new EIADataCacheService();

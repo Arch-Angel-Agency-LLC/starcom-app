@@ -121,6 +121,8 @@ interface IntelReportData {
  * Anchor service for interacting with the Intel Market smart contract
  * Provides type-safe interaction with the deployed Anchor program
  */
+// TODO: Implement automatic IPFS node health monitoring and peer discovery - PRIORITY: HIGH
+// TODO: Add support for IPFS content pinning strategies based on usage patterns - PRIORITY: MEDIUM
 export class AnchorService {
   private connection: Connection;
   private programId: PublicKey;

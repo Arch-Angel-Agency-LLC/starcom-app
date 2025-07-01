@@ -15,6 +15,8 @@ import {
 } from './interfaces';
 import { EIA_SERIES_CONFIG, formatValue } from './seriesConfig';
 
+// TODO: Implement comprehensive intel report metadata extraction and indexing - PRIORITY: MEDIUM
+// TODO: Add support for intel report collaborative verification workflows - PRIORITY: HIGH
 export class EnhancedEIAProvider implements DataProvider<number> {
   private observer?: DataServiceObserver;
   private requestQueue: Map<string, Promise<EIADataPoint>> = new Map();

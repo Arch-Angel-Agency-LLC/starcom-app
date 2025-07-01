@@ -10,6 +10,8 @@
 // CORE COLLABORATION TYPES
 // ============================================================================
 
+// TODO: Implement data model backup and recovery mechanisms - PRIORITY: MEDIUM
+// TODO: Implement environment-specific configuration validation and deployment - PRIORITY: MEDIUM
 export type AgencyType = 'SOCOM' | 'SPACE_FORCE' | 'CYBER_COMMAND' | 'NSA' | 'DIA' | 'CIA';
 
 export type ClearanceLevel = 'UNCLASSIFIED' | 'CONFIDENTIAL' | 'SECRET' | 'TOP_SECRET' | 'SCI';

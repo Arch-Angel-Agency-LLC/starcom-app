@@ -2,6 +2,8 @@
  * Program IDL for Intel Market
  * Generated from: target/idl/intel_market.json
  */
+// TODO: Implement type-safe API client generation from OpenAPI specifications - PRIORITY: MEDIUM
+// TODO: Add comprehensive type checking for external data sources and APIs - PRIORITY: MEDIUM
 export const IDL = {
   version: "0.1.0",
   name: "intel_market",

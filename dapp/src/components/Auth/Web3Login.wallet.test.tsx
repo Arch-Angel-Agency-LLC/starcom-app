@@ -23,6 +23,7 @@ const config = getDefaultConfig({
 });
 const queryClient = new QueryClient();
 // Remove TestApp and App usage. Use a helper to render WalletStatus with a test AuthProvider value.
+// TODO: Implement real-time collaborative editing for investigation documents - PRIORITY: HIGH
 const renderWithAuth = (authValue: Partial<AuthContextType>) => {
   return render(
     <QueryClientProvider client={queryClient}>

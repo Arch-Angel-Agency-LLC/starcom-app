@@ -14,6 +14,7 @@ interface ChatMessage {
   type: 'global' | 'group' | 'dm';
 }
 
+// TODO: Add support for investigation branching and alternative hypothesis tracking - PRIORITY: MEDIUM
 const ChatOverlay: React.FC<ChatOverlayProps> = ({ isOpen, onClose }) => {
   const [activeTab, setActiveTab] = useState<'global' | 'group' | 'dm'>('global');
   const [message, setMessage] = useState('');

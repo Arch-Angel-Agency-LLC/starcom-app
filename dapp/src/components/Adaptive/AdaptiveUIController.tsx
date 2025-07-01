@@ -20,6 +20,7 @@ interface AdaptiveContextValue {
  * and dynamically controls their visibility, complexity, and behavior
  * based on the current operator's role, experience level, and AI recommendations.
  */
+// TODO: Implement progressive authentication (basic → advanced security levels) - PRIORITY: MEDIUM
 const AdaptiveUIController: React.FC<AdaptiveUIControllerProps> = ({ children }) => {
   const {
     operatorProfile,

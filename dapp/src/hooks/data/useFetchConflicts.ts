@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react';
 //import { fetchGEDData } from '../../services/UCDPDataService';
 //import { Conflict, UCDPResponse } from '../../services/UCDPDataService';
 
+// TODO: Add comprehensive authentication error recovery and retry mechanisms - PRIORITY: HIGH
+// TODO: Implement authentication state caching for improved performance - PRIORITY: MEDIUM
+// TODO: Add support for authentication middleware and plugin architecture - PRIORITY: LOW
 export const useFetchConflicts = (filters: Record<string, string | number>, page = 1) => {
   //const [data, setData] = useState<UCDPResponse<Conflict> | null>(null); // Use UCDPResponse type
   const [loading, setLoading] = useState(false);

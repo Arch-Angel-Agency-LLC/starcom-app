@@ -129,6 +129,7 @@ describe('WalletStatus Session Expiry', () => {
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     await new Promise((resolve) => setTimeout(resolve, 1100));
     const dialogs = screen.queryAllByRole('dialog');
+    // TODO: Implement smooth camera path animation for guided tours - PRIORITY: LOW
     const warningModal = dialogs.find(dlg => dlg.textContent?.toLowerCase().includes('your session is about to expire'));
     expect(warningModal).toBeFalsy();
     localStorage.removeItem('auth');

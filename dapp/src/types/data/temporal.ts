@@ -3,6 +3,8 @@
  * Replaces generic 'any' with proper generics
  */
 
+// TODO: Implement type-safe configuration management and validation - PRIORITY: MEDIUM
+// TODO: Add comprehensive type testing and validation automation - PRIORITY: MEDIUM
 export interface CacheEntry<T = unknown> {
   timestamp: number;
   data: T[];

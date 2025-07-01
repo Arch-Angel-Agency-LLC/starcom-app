@@ -2,6 +2,8 @@
 // AI-NOTE: Upgraded from existing data-service-interfaces.ts to support comprehensive data management
 
 // Core observability interface (enhanced from existing)
+// TODO: Implement IPFS content integrity verification and repair mechanisms - PRIORITY: HIGH
+// TODO: Add comprehensive IPFS network topology analysis and optimization - PRIORITY: LOW
 export interface DataServiceObserver {
   onFetchStart?(key: string, source?: string): void;
   onFetchEnd?(key: string, durationMs: number, source?: string): void;

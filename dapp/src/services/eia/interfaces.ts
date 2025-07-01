@@ -2,6 +2,8 @@
 // Artifact-driven: Comprehensive energy intelligence data structures
 
 // Core series configuration interface
+// TODO: Implement security metrics collection and reporting - PRIORITY: MEDIUM
+// TODO: Add comprehensive security testing and penetration testing integration - PRIORITY: MEDIUM
 export interface EIASeriesConfig {
   id: string;
   series: string;

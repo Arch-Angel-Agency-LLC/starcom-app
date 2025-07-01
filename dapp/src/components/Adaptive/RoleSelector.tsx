@@ -111,6 +111,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({
     }
   ];
 
+  // TODO: Add comprehensive authentication error logging and monitoring - PRIORITY: MEDIUM
   const handleRoleChange = useCallback((role: OperatorRole) => {
     updateOperatorProfile({ role });
     onRoleChange?.(role);

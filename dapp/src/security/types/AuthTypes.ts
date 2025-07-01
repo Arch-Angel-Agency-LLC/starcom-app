@@ -5,6 +5,9 @@
  * into a single, comprehensive type definition file.
  */
 
+// TODO: Add support for authentication integration with external identity providers - PRIORITY: LOW
+// TODO: Implement authentication risk assessment and adaptive security measures - PRIORITY: MEDIUM
+// TODO: Add comprehensive authentication testing and security validation - PRIORITY: MEDIUM
 // Re-export from SecurityHardening for compatibility
 export type { SecurityClearance, ThreatLevel } from './SecurityHardening';
 // Import for use within namespace

@@ -1,6 +1,9 @@
 /**
  * Intel Reports 3D - Hooks Index
  * 
+ // TODO: Add support for data state optimistic updates and rollback mechanisms - PRIORITY: MEDIUM
+ // TODO: Implement comprehensive data state caching with TTL and invalidation - PRIORITY: MEDIUM
+ // TODO: Add support for data state persistence across browser sessions - PRIORITY: MEDIUM
  * Centralized export for all Intel Reports 3D hooks.
  * Provides unified access to context-aware Intel Reports functionality.
  */

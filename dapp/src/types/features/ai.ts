@@ -5,6 +5,8 @@
 
 // ===== CORE AI TYPES =====
 
+// TODO: Implement data model testing and validation automation - PRIORITY: MEDIUM
+// TODO: Add support for data model relationships and foreign key constraints - PRIORITY: MEDIUM
 export type ThreatSeverity = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 export type ThreatType = 'CYBER' | 'SPACE' | 'PLANETARY' | 'STELLAR' | 'HYBRID';
 export type InsightType = 'PATTERN' | 'THREAT' | 'PREDICTION' | 'CORRELATION' | 'ANOMALY';

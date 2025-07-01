@@ -35,6 +35,8 @@ interface RequestMetrics {
   cacheHit: boolean;
 }
 
+// TODO: Implement IPFS content backup and redundancy across multiple nodes - PRIORITY: HIGH
+// TODO: Add support for IPFS content compression and optimization - PRIORITY: MEDIUM
 export class StarcomDataManager implements CentralizedDataManager {
   private dataSources = new Map<string, DataSource>();
   private correlationRules = new Map<string, CorrelationRule>();

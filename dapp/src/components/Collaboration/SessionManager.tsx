@@ -14,6 +14,7 @@ import type {
 import styles from './SessionManager.module.css';
 
 // AI-NOTE: Mock hooks until proper implementations are available
+// TODO: Implement message search and archival across all conversations - PRIORITY: MEDIUM
 const useCollaboration = () => ({
   currentSession: null as CollaborationSession | null,
   createSession: (sessionData: unknown) => {

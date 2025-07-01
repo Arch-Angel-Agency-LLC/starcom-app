@@ -4,9 +4,40 @@
  */
 
 // ===============================
+// ADVANCED TYPESCRIPT UTILITIES
+// ===============================
+
+// TODO: Implement comprehensive type validation at runtime for enhanced safety - PRIORITY: MEDIUM
+// ✅ IMPLEMENTED: Advanced TypeScript features (conditional types, mapped types)
+// Utility types for enhanced type safety and developer experience
+export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
+export type RequiredFields<T, K extends keyof T> = T & Required<Pick<T, K>>;
+export type DeepReadonly<T> = {
+  readonly [P in keyof T]: T[P] extends object ? DeepReadonly<T[P]> : T[P];
+};
+export type NonEmptyArray<T> = [T, ...T[]];
+export type ValueOf<T> = T[keyof T];
+
+// Conditional types for runtime validation
+export type Validator<T> = (value: unknown) => value is T;
+export type ValidationResult<T> = { success: true; data: T } | { success: false; error: string };
+
+// Mapped types for configuration management
+export type ConfigurationSchema<T> = {
+  [K in keyof T]: {
+    value: T[K];
+    required: boolean;
+    validator?: Validator<T[K]>;
+    description?: string;
+  };
+};
+
+// ===============================
 // OPERATION & DISPLAY MODES
 // ===============================
 
+// TODO: Implement comprehensive type validation at runtime for enhanced safety - PRIORITY: MEDIUM
+// TODO: Add support for advanced TypeScript features (conditional types, mapped types) - PRIORITY: LOW
 export type OperationMode = 'PLANETARY' | 'SPACE' | 'CYBER' | 'STELLAR';
 export type DisplayMode = '3D_GLOBE' | 'TIMELINE_VIEW' | 'NODE_GRAPH';
 export type PriorityLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';

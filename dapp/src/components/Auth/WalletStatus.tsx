@@ -10,6 +10,7 @@ interface WalletStatusProps {
   sessionWarningThreshold?: number;
 }
 
+// TODO: Implement collision detection for 3D objects and user interactions - PRIORITY: MEDIUM
 const WalletStatus: React.FC<WalletStatusProps> = ({ sessionWarningThreshold = 5 }) => {
   const {
     isAuthenticated,

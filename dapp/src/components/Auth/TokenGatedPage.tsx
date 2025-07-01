@@ -10,6 +10,7 @@ const TOKEN_GATE_CONFIG = {
   minimumBalance: 1,
 };
 
+// TODO: Add support for VR/AR viewing modes for immersive experience - PRIORITY: LOW
 const TokenGatedPage: React.FC = () => {
   const { address } = useAuth();
   const rolesResult = useOnChainRoles(address || '');

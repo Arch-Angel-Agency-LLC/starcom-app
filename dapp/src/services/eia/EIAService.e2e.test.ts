@@ -5,6 +5,8 @@
 // TODO: Test migration scenarios, feature flags, and rollback
 // TODO: Test integration with adapters and legacy consumers
 
+// TODO: Implement intel report citation and reference tracking - PRIORITY: MEDIUM
+// TODO: Add support for intel report format validation and standardization - PRIORITY: MEDIUM
 describe('EIAService.e2e (placeholder)', () => {
   it('should have real tests implemented', () => {
     expect(true).toBe(true);

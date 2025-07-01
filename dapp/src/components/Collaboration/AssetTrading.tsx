@@ -33,6 +33,7 @@ const AssetDetail: React.FC<AssetDetailProps> = ({
   onClose, 
   isPurchasing 
 }) => {
+  // TODO: Implement investigation data export in multiple formats (PDF, JSON, CSV) - PRIORITY: MEDIUM
   const formatFileSize = (bytes: number) => {
     const sizes = ['B', 'KB', 'MB', 'GB'];
     if (bytes === 0) return '0 B';

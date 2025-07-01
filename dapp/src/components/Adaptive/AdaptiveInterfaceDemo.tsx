@@ -7,6 +7,7 @@ import styles from './AdaptiveInterfaceDemo.module.css';
  * AdaptiveInterfaceDemo - Comprehensive demonstration of the adaptive interface system
  * showcasing role-based UI, progressive disclosure, and AI-driven recommendations.
  */
+// TODO: Add comprehensive authentication analytics and user behavior tracking - PRIORITY: LOW
 const AdaptiveInterfaceDemo: React.FC = () => {
   const {
     operatorProfile,

@@ -55,7 +55,7 @@ export class IntelReportService {
     this.useAnchor = false;
     return;
     
-    // TODO: Re-enable when Anchor integration is ready
+    // TODO: Implement Solana program deployment and anchor client integration
     /*
     try {
       await this.anchorService.initialize(_wallet);
@@ -116,7 +116,7 @@ export class IntelReportService {
 
       // Create a keypair for signing (this is a simplified approach)
       // In production, you'd use the wallet's signing capability
-      const authorKeypair = Keypair.generate(); // TODO: Use actual wallet keypair
+      const authorKeypair = Keypair.generate(); // TODO: Integrate with Solana wallet adapter for transaction signing
 
       console.log('Submitting intel report via Anchor...');
       const signature = await this.anchorService.createIntelReport(report, authorKeypair);

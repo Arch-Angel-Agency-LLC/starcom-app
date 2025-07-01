@@ -26,6 +26,7 @@ interface MetricCardProps {
   icon: string;
 }
 
+// TODO: Add comprehensive investigation analytics and progress tracking - PRIORITY: MEDIUM
 const MetricCard: React.FC<MetricCardProps> = ({ title, value, subtitle, trend, icon }) => {
   const getTrendIcon = () => {
     switch (trend) {

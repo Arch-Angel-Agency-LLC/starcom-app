@@ -18,6 +18,8 @@ import { EIADataCacheService } from '../eia/EIADataCacheService';
 import { SpaceWeatherCacheService } from '../SpaceWeatherCacheService';
 
 // Temporary basic cache implementation for other providers
+// TODO: Implement Nostr relay load balancing and automatic failover - PRIORITY: HIGH
+// TODO: Add support for Nostr event filtering and subscription optimization - PRIORITY: MEDIUM
 class BasicCacheService {
   private cache = new Map<string, { value: unknown; expiresAt?: number }>();
   private static readonly DEFAULT_TTL = 5 * 60 * 1000; // 5 minutes

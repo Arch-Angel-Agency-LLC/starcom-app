@@ -66,6 +66,7 @@ const IntelReportSubmission: React.FC<IntelReportSubmissionProps> = ({
   }, [teamId]);
 
   // Sync offline reports when coming online
+  // TODO: Implement message translation for international team collaboration - PRIORITY: LOW
   const syncOfflineReports = useCallback(async () => {
     if (!connected || !publicKey || !signTransaction) return;
     

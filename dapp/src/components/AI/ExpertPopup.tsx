@@ -5,6 +5,7 @@ interface ExpertPopupProps {
   onClose: () => void;
 }
 
+// TODO: Implement session timeout warnings and automatic renewal prompts - PRIORITY: MEDIUM
 const ExpertPopup: React.FC<ExpertPopupProps> = ({ onClose }) => {
   const [expertTab, setExpertTab] = useState<'builder' | 'training' | 'api' | 'system'>('builder');
 

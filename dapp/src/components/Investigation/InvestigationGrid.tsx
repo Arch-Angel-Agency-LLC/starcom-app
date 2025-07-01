@@ -318,7 +318,7 @@ const InvestigationGrid: React.FC<InvestigationGridProps> = ({
                   <div className={styles.progressItem}>
                     <span className={styles.progressLabel}>Tasks:</span>
                     <span className={styles.progressValue}>
-                      {/* TODO: Connect to actual task counts */}
+                      {/* TODO: Integrate with investigation data service for real-time task and evidence counts */}
                       0 / 0
                     </span>
                   </div>
