@@ -3,6 +3,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { Evidence, EvidenceType, EvidenceFilters } from '../../interfaces/Investigation';
+import { useMemoryAwarePagination } from '../../hooks/useMemoryAware';
 import styles from './EvidenceTimeline.module.css';
 
 interface EvidenceTimelineProps {
@@ -25,6 +26,10 @@ const EvidenceTimeline: React.FC<EvidenceTimelineProps> = ({
   onCreateEvidence,
   readOnly = false,
 }) => {
+  // Memory-aware pagination for large evidence sets
+  const { currentPage, pageSize, canProceed, goToPage, nextPage, previousPage } = 
+    useMemoryAwarePagination(15, 50); // Smaller default for evidence items
+
   const [filters, setFilters] = useState<EvidenceFilters>({
     investigation_id: investigationId,
   });
@@ -105,6 +110,53 @@ const EvidenceTimeline: React.FC<EvidenceTimelineProps> = ({
 
     return groups;
   }, [evidence, filters, searchTerm, grouping, sorting]);
+
+  // Create paginated evidence list for memory management
+  const paginatedEvidence = useMemo(() => {
+    // Flatten all evidence items from groups
+    const allEvidence = Object.values(processedEvidence).flat();
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    
+    // Apply pagination
+    const paginatedItems = allEvidence.slice(startIndex, endIndex);
+    
+    // Re-group the paginated items
+    const paginatedGroups: { [key: string]: Evidence[] } = {};
+    
+    paginatedItems.forEach(item => {
+      const date = new Date(item.collected_at);
+      let groupKey: string;
+
+      switch (grouping) {
+        case 'day':
+          groupKey = date.toDateString();
+          break;
+        case 'week': {
+          const weekStart = new Date(date);
+          weekStart.setDate(date.getDate() - date.getDay());
+          groupKey = `Week of ${weekStart.toDateString()}`;
+          break;
+        }
+        case 'month':
+          groupKey = `${date.toLocaleString('default', { month: 'long' })} ${date.getFullYear()}`;
+          break;
+        default:
+          groupKey = date.toDateString();
+      }
+
+      if (!paginatedGroups[groupKey]) {
+        paginatedGroups[groupKey] = [];
+      }
+      paginatedGroups[groupKey].push(item);
+    });
+
+    return {
+      groups: paginatedGroups,
+      totalItems: allEvidence.length,
+      currentItems: paginatedItems.length
+    };
+  }, [processedEvidence, currentPage, pageSize, grouping]);
 
   const getEvidenceIcon = (type: EvidenceType): string => {
     const icons = {
@@ -240,7 +292,7 @@ const EvidenceTimeline: React.FC<EvidenceTimelineProps> = ({
             </p>
           </div>
         ) : (
-          Object.entries(processedEvidence).map(([groupKey, items]) => (
+          Object.entries(paginatedEvidence.groups).map(([groupKey, items]) => (
             <div key={groupKey} className={styles.timelineGroup}>
               <div className={styles.groupHeader}>
                 <h3>{groupKey}</h3>
@@ -308,6 +360,53 @@ const EvidenceTimeline: React.FC<EvidenceTimelineProps> = ({
           ))
         )}
       </div>
+
+      {/* Memory-aware pagination controls for evidence */}
+      {paginatedEvidence.totalItems > pageSize && (
+        <div className={styles.paginationControls}>
+          <div className={styles.paginationInfo}>
+            <span>
+              Showing {paginatedEvidence.currentItems} of {paginatedEvidence.totalItems} evidence items
+              (Page {currentPage} of {Math.ceil(paginatedEvidence.totalItems / pageSize)})
+            </span>
+            {!canProceed && (
+              <span className={styles.memoryWarning}>
+                ⚠️ Memory usage high - pagination optimized
+              </span>
+            )}
+          </div>
+          <div className={styles.paginationButtons}>
+            <button
+              className={styles.paginationButton}
+              onClick={() => goToPage(1)}
+              disabled={currentPage === 1 || !canProceed}
+            >
+              ⏮️ First
+            </button>
+            <button
+              className={styles.paginationButton}
+              onClick={previousPage}
+              disabled={currentPage === 1 || !canProceed}
+            >
+              ⬅️ Previous
+            </button>
+            <button
+              className={styles.paginationButton}
+              onClick={nextPage}
+              disabled={currentPage === Math.ceil(paginatedEvidence.totalItems / pageSize) || !canProceed}
+            >
+              Next ➡️
+            </button>
+            <button
+              className={styles.paginationButton}
+              onClick={() => goToPage(Math.ceil(paginatedEvidence.totalItems / pageSize))}
+              disabled={currentPage === Math.ceil(paginatedEvidence.totalItems / pageSize) || !canProceed}
+            >
+              Last ⏭️
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

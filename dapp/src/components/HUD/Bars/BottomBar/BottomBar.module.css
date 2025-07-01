@@ -13,23 +13,26 @@
     bottom: 0;
     left: 110px; /* Start after LeftSideBar */
     pointer-events: auto; /* Enable clicks on HUD components */
-    z-index: 10; /* Lower than LeftSideBar to respect dominance */
+    z-index: 1002; /* Higher than other elements to ensure interaction */
     border-top: 1px solid rgba(0, 255, 65, 0.3);
 }
 
 .leftSection {
     display: flex;
     align-items: center;
+    pointer-events: auto;
 }
 
 .rightSection {
     display: flex;
     align-items: center;
+    pointer-events: auto;
 }
 
 .quickNav {
     display: flex;
     gap: 10px;
+    pointer-events: auto;
 }
 
 .navButton {
@@ -42,12 +45,14 @@
     cursor: pointer;
     transition: all 0.2s;
     white-space: nowrap;
+    pointer-events: auto;
+    position: relative;
 }
 
 .navButton:hover {
-    background: rgba(0, 255, 65, 0.2);
-    border-color: #00ff41;
-    transform: translateY(-1px);
+    background: rgba(0, 255, 65, 0.2) !important;
+    border-color: #00ff41 !important;
+    transform: translateY(-1px) !important;
 }
 
 .navButton.highlighted {
@@ -133,10 +138,89 @@
     box-shadow: 0 0 10px rgba(0, 255, 65, 0.4);
 }
 
+/* Connection status indicators */
+.navButton.connected {
+    background: rgba(0, 255, 65, 0.2);
+    border-color: #00ff41;
+    position: relative;
+}
+
+.connectionDot {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 6px;
+    height: 6px;
+    background: #00ff41;
+    border-radius: 50%;
+    box-shadow: 0 0 6px rgba(0, 255, 65, 0.8);
+    animation: connectedPulse 2s infinite;
+}
+
+@keyframes connectedPulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.6;
+        transform: scale(1.3);
+    }
+}
+
+/* Enhanced hover effects for connected buttons */
+.navButton.connected:hover {
+    background: rgba(0, 255, 65, 0.3);
+    box-shadow: 0 0 15px rgba(0, 255, 65, 0.6);
+    transform: translateY(-2px);
+}
+
+/* AI Agent active status indicators */
+.navButton.aiActive {
+    background: rgba(0, 204, 255, 0.2);
+    border-color: #00ccff;
+    position: relative;
+}
+
+.aiActiveDot {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 6px;
+    height: 6px;
+    background: #00ccff;
+    border-radius: 50%;
+    box-shadow: 0 0 6px rgba(0, 204, 255, 0.8);
+    animation: aiPulse 2s infinite;
+}
+
+@keyframes aiPulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.6;
+        transform: scale(1.3);
+    }
+}
+
+/* Enhanced hover effects for AI active buttons */
+.navButton.aiActive:hover {
+    background: rgba(0, 204, 255, 0.3);
+    box-shadow: 0 0 15px rgba(0, 204, 255, 0.6);
+    transform: translateY(-2px);
+}
+
 /* Responsive design for BottomBar */
 @media (max-width: 768px) {
   .bottomBar {
     left: 80px; /* Match mobile LeftSideBar width */
     width: calc(100% - 80px); /* Adjust width for mobile LeftSideBar */
   }
+}
+
+/* Debug styles to ensure visibility and interaction */
+.bottomBar * {
+    pointer-events: auto !important;
 }

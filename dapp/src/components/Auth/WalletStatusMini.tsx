@@ -247,6 +247,9 @@ const WalletStatusMini: React.FC = () => {
     signIn,
     provider,
     forceReset,
+    enableAutoAuth,
+    autoAuthDisabled,
+    authFailureCount,
   } = useAuth();
   
   const [showModal, setShowModal] = useState(false);
@@ -263,6 +266,17 @@ const WalletStatusMini: React.FC = () => {
   const [showForceReset, setShowForceReset] = useState(false);
   // Track when we last performed a force reset to prevent spam
   const lastForceResetTime = useRef(0);
+  // Track if auto-reset countdown is active
+  const [autoResetCountdown, setAutoResetCountdown] = useState(false);
+  // Track persistent error states to detect quagmires
+  const persistentErrorStartTime = useRef<number | null>(null);
+  const consecutiveErrorCount = useRef(0);
+  // Track if we're in a quagmire state requiring emergency reset
+  const [inQuagmire, setInQuagmire] = useState(false);
+  // Track manual signing state to prevent button state flashing
+  const [isManualSigning, setIsManualSigning] = useState(false);
+  // Track last sign-in attempt to prevent rapid state changes
+  const lastSignInAttempt = useRef(0);
   
   /* Enhanced Retry Logic:
    * 1. First failure: Normal "Retry Sign In" 
@@ -288,6 +302,61 @@ const WalletStatusMini: React.FC = () => {
       setShowForceReset(false);
     }
   }, [connectionStatus, address, isAuthenticated, error, authError]);
+
+  // Monitor persistent error states and timeouts
+  useEffect(() => {
+    const currentTime = Date.now();
+    const hasAuthError = !!(error || authError);
+    const isInProblemState = connectionStatus === 'connected' && address && !isAuthenticated && hasAuthError;
+    
+    // Auto-reset manual signing state if it's been too long (30 seconds timeout)
+    if (isManualSigning && lastSignInAttempt.current > 0) {
+      const timeSinceLastAttempt = currentTime - lastSignInAttempt.current;
+      if (timeSinceLastAttempt > 30000) { // 30 seconds
+        console.warn('Manual signing state timeout - resetting');
+        setIsManualSigning(false);
+        lastSignInAttempt.current = 0;
+      }
+    }
+    
+    if (isInProblemState) {
+      // Track start of persistent error state
+      if (persistentErrorStartTime.current === null) {
+        persistentErrorStartTime.current = currentTime;
+        consecutiveErrorCount.current = 1;
+      } else {
+        consecutiveErrorCount.current += 1;
+      }
+      
+      // Check for quagmire conditions:
+      // 1. Same error state for more than 30 seconds
+      // 2. More than 5 consecutive error cycles
+      // 3. Specific JSON-RPC error patterns that indicate wallet state corruption
+      const persistentDuration = currentTime - persistentErrorStartTime.current;
+      const isLongStuck = persistentDuration > 30000; // 30 seconds
+      const isTooManyErrors = consecutiveErrorCount.current > 5;
+      const hasJSONRPCError = (error || authError || '').includes('JSON-RPC') || 
+                             (error || authError || '').includes('Internal error') ||
+                             (error || authError || '').includes('WalletSignMessageError');
+      
+      if ((isLongStuck || isTooManyErrors || hasJSONRPCError) && !inQuagmire) {
+        console.warn('🚨 QUAGMIRE DETECTED: User stuck in persistent auth error state', {
+          duration: persistentDuration,
+          errorCount: consecutiveErrorCount.current,
+          error: error || authError,
+          retryCount: signingFailureCount.current
+        });
+        setInQuagmire(true);
+      }
+    } else {
+      // Reset tracking when not in problem state
+      if (persistentErrorStartTime.current !== null) {
+        persistentErrorStartTime.current = null;
+        consecutiveErrorCount.current = 0;
+        setInQuagmire(false);
+      }
+    }
+  }, [connectionStatus, address, isAuthenticated, error, authError, inQuagmire, isManualSigning]);
 
   // Monitor when wallet modal visibility changes
   useEffect(() => {
@@ -323,8 +392,52 @@ const WalletStatusMini: React.FC = () => {
   useEffect(() => {
     if (!address) {
       signingFailureCount.current = 0; // Reset failure count on disconnect
+      // Also reset quagmire tracking
+      persistentErrorStartTime.current = null;
+      consecutiveErrorCount.current = 0;
+      setInQuagmire(false);
+      setIsManualSigning(false); // Reset manual signing state
+      lastSignInAttempt.current = 0;
     }
   }, [address]);
+
+  // Check for stale localStorage data that might cause auth issues
+  useEffect(() => {
+    // Only run this check once on component mount
+    const checkForStaleData = () => {
+      try {
+        const potentiallyStaleKeys = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && (key.includes('walletName') || key.includes('session') || key.includes('auth'))) {
+            const value = localStorage.getItem(key);
+            // Check if the stored data looks corrupted or very old
+            if (value) {
+              try {
+                const parsed = JSON.parse(value);
+                // If it's a session/auth object with timestamp, check if it's old (> 24 hours)
+                if (parsed.timestamp && Date.now() - parsed.timestamp > 86400000) {
+                  potentiallyStaleKeys.push(key);
+                }
+              } catch {
+                // If JSON parsing fails, data might be corrupted
+                potentiallyStaleKeys.push(key);
+              }
+            }
+          }
+        }
+        
+        if (potentiallyStaleKeys.length > 0) {
+          console.warn('🧹 Detected potentially stale localStorage data:', potentiallyStaleKeys);
+          // Don't auto-remove here, but flag for emergency reset if user gets stuck
+        }
+      } catch (error) {
+        console.warn('Error checking localStorage for stale data:', error);
+      }
+    };
+    
+    checkForStaleData();
+  }, []); // Only run once on mount
 
   // Clear manual connecting state when connection status changes
   useEffect(() => {
@@ -354,15 +467,47 @@ const WalletStatusMini: React.FC = () => {
       const errorMsg = error || authError;
       // Don't show "wallet not connected" errors during normal flow
       if (errorMsg && !errorMsg.toLowerCase().includes('wallet not connected') && !errorMsg.toLowerCase().includes('not connected')) {
+        
+        // EMERGENCY QUAGMIRE HANDLING: If user is stuck, offer immediate escape
+        if (inQuagmire) {
+          setSnackbarMessage('🚨 STUCK STATE DETECTED! Emergency reset available. This will completely clear wallet connection and start fresh.');
+          setSnackbarType('error');
+          setSnackbarOpen(true);
+          return; // Skip normal error handling when in quagmire
+        }
+        
         // Special handling for keyring/signing errors
-        if (errorMsg.includes('keyring request') || errorMsg.includes('unknown error') || errorMsg.includes('signing error')) {
+        if (errorMsg.includes('keyring request') || errorMsg.includes('unknown error') || errorMsg.includes('signing error') || errorMsg.includes('Internal JSON-RPC error') || errorMsg.includes('WalletSignMessageError')) {
           signingFailureCount.current += 1;
           if (signingFailureCount.current >= 3) {
-            setSnackbarMessage('Multiple signing failures detected. Fresh Start option available to reset authentication state.');
+            setSnackbarMessage('3 retry attempts failed. Auto-reset will occur in 5 seconds, or click the button to reset now.');
+            setSnackbarType('error');
+            setSnackbarOpen(true);
+            // Set countdown state to prevent button state changes
+            setAutoResetCountdown(true);
+            // Delay auto-reset to give user time to see the button state
+            setTimeout(async () => {
+              // Only auto-reset if user hasn't manually clicked the button
+              if (signingFailureCount.current >= 3 && autoResetCountdown) {
+                try {
+                  await disconnectWallet();
+                  await forceReset();
+                  signingFailureCount.current = 0;
+                  setShowForceReset(false);
+                  setAutoResetCountdown(false);
+                  setSnackbarMessage('Authentication automatically reset. You can now connect your wallet again.');
+                  setSnackbarType('success');
+                  setSnackbarOpen(true);
+                } catch (resetError) {
+                  console.error('Auto-reset after 3 failures failed:', resetError);
+                  setAutoResetCountdown(false);
+                }
+              }
+            }, 5000); // Increased from 2000ms to 5000ms
           } else if (signingFailureCount.current >= 2) {
-            setSnackbarMessage('Persistent signing error detected. Click "Force Reset & Retry" to disconnect and reset authentication state.');
+            setSnackbarMessage('Persistent signing error detected. Click "Reset & Retry" to disconnect and reset authentication state.');
           } else {
-            setSnackbarMessage('Wallet signing error detected. This may be due to wallet compatibility. Click "Retry Sign In" to try again.');
+            setSnackbarMessage('Wallet signing error detected. This may be due to wallet compatibility. Click "Retry" to try again.');
           }
           setSnackbarType('error');
           setSnackbarOpen(true);
@@ -373,7 +518,7 @@ const WalletStatusMini: React.FC = () => {
         }
       }
     }
-  }, [error, authError, connectionStatus, isSigningIn]);
+  }, [error, authError, connectionStatus, isSigningIn, disconnectWallet, forceReset, autoResetCountdown, inQuagmire]);
 
   const handleConnect = async () => {
     try {
@@ -392,13 +537,108 @@ const WalletStatusMini: React.FC = () => {
           // Already in progress, do nothing
           return;
           
+        case 'emergencyReset':
+          // EMERGENCY QUAGMIRE ESCAPE: Nuclear option for completely stuck users
+          setSnackbarMessage('🚨 EMERGENCY RESET: Performing complete wallet state cleanup...');
+          setSnackbarType('error');
+          setSnackbarOpen(true);
+          
+          try {
+            // Step 1: Force disconnect wallet
+            await disconnectWallet();
+            
+            // Step 2: Clear all local storage related to wallet/auth
+            const keysToRemove = [];
+            for (let i = 0; i < localStorage.length; i++) {
+              const key = localStorage.key(i);
+              if (key && (key.includes('wallet') || key.includes('auth') || key.includes('session') || key.includes('solana'))) {
+                keysToRemove.push(key);
+              }
+            }
+            keysToRemove.forEach(key => localStorage.removeItem(key));
+            
+            // Step 3: Force reset auth system
+            await forceReset();
+            
+            // Step 4: Reset all local state variables
+            signingFailureCount.current = 0;
+            consecutiveErrorCount.current = 0;
+            persistentErrorStartTime.current = null;
+            setShowForceReset(false);
+            setAutoResetCountdown(false);
+            setInQuagmire(false);
+            
+            // Step 5: Clear any residual connection state
+            setIsManuallyConnecting(false);
+            setWalletSelectionVisible(false);
+            
+            // Give user feedback about what happened
+            setTimeout(() => {
+              setSnackbarMessage('🟢 EMERGENCY RESET COMPLETE! All wallet state cleared. Page will refresh in 3 seconds to ensure clean start.');
+              setSnackbarType('success');
+              setSnackbarOpen(true);
+              
+              // Force page refresh after emergency reset to ensure completely clean state
+              setTimeout(() => {
+                window.location.reload();
+              }, 3000);
+            }, 1000);
+            
+          } catch (emergencyError) {
+            console.error('Emergency reset failed:', emergencyError);
+            setSnackbarMessage('🚨 Emergency reset failed. Please manually refresh the page (F5) to clear all state.');
+            setSnackbarType('error');
+            setSnackbarOpen(true);
+          }
+          return;
+          
         case 'restoreSession':
         case 'signIn':
-          // Normal authentication attempts
-          setSnackbarMessage('Initiating authentication...');
+          // Enhanced authentication attempts with stable state management
+          setIsManualSigning(true);
+          lastSignInAttempt.current = Date.now();
+          
+          // Re-enable auto-auth if it was disabled (user is manually trying again)
+          if (autoAuthDisabled) {
+            enableAutoAuth();
+            setSnackbarMessage('Re-enabling auto-authentication and attempting manual sign-in...');
+          } else {
+            setSnackbarMessage('Initiating authentication...');
+          }
           setSnackbarType('info');
           setSnackbarOpen(true);
-          await signIn();
+          
+          try {
+            await signIn();
+          } catch (signInError) {
+            // Enhanced error handling for different types of JSON-RPC errors
+            const errorMessage = signInError instanceof Error ? signInError.message : 'Unknown error';
+            signingFailureCount.current += 1;
+            
+            // Categorize the error type for better handling
+            if (errorMessage.includes('JSON-RPC') || errorMessage.includes('Internal error')) {
+              console.warn('🚨 JSON-RPC Error detected:', errorMessage);
+              setSnackbarMessage('Wallet communication error. This usually resolves on retry.');
+              setSnackbarType('error');
+              setSnackbarOpen(true);
+            } else if (errorMessage.includes('User rejected') || errorMessage.includes('User denied')) {
+              console.log('User cancelled authentication');
+              setSnackbarMessage('Authentication cancelled by user.');
+              setSnackbarType('info');
+              setSnackbarOpen(true);
+              // Don't count user cancellation as a failure
+              signingFailureCount.current = Math.max(0, signingFailureCount.current - 1);
+            } else {
+              console.error('Authentication failed:', errorMessage);
+              setSnackbarMessage(`Authentication failed: ${errorMessage}`);
+              setSnackbarType('error');
+              setSnackbarOpen(true);
+            }
+            
+            throw signInError; // Re-throw to be handled by outer catch
+          } finally {
+            setIsManualSigning(false);
+          }
           return;
           
         case 'authError':
@@ -415,8 +655,8 @@ const WalletStatusMini: React.FC = () => {
               return;
             }
             
-            // After 2 failed attempts, escalate to force disconnect and reset
-            setSnackbarMessage('Multiple authentication failures detected. Force disconnecting and resetting...');
+            // After 2+ failed attempts, force disconnect and reset
+            setSnackbarMessage('Force disconnecting and resetting authentication state...');
             setSnackbarType('info');
             setSnackbarOpen(true);
             
@@ -439,7 +679,7 @@ const WalletStatusMini: React.FC = () => {
               
               // Show success message and guide user to reconnect
               setTimeout(() => {
-                setSnackbarMessage('Authentication reset complete! Please connect your wallet again.');
+                setSnackbarMessage('Authentication reset complete! Click Connect to try again.');
                 setSnackbarType('success');
                 setSnackbarOpen(true);
               }, 1000);
@@ -452,29 +692,77 @@ const WalletStatusMini: React.FC = () => {
             }
             return;
           } else {
-            // Normal retry for first failure
+            // Enhanced retry logic for first 1-2 failures with JSON-RPC awareness
+            setIsManualSigning(true);
+            lastSignInAttempt.current = Date.now();
+            
             setSnackbarMessage('Retrying authentication...');
             setSnackbarType('info');
             setSnackbarOpen(true);
-            await signIn();
+            
+            try {
+              await signIn();
+            } catch (retryError) {
+              // Handle retry failure
+              const errorMessage = retryError instanceof Error ? retryError.message : 'Unknown error';
+              signingFailureCount.current += 1;
+              
+              if (errorMessage.includes('JSON-RPC') || errorMessage.includes('Internal error')) {
+                console.warn('🚨 JSON-RPC Error on retry:', errorMessage);
+                setSnackbarMessage('Persistent wallet communication error. Try "Reset & Retry" next.');
+                setSnackbarType('error');
+                setSnackbarOpen(true);
+              } else if (errorMessage.includes('User rejected') || errorMessage.includes('User denied')) {
+                console.log('User cancelled authentication on retry');
+                setSnackbarMessage('Authentication cancelled by user.');
+                setSnackbarType('info');
+                setSnackbarOpen(true);
+                // Don't count user cancellation as a failure
+                signingFailureCount.current = Math.max(0, signingFailureCount.current - 1);
+              } else {
+                console.error('Retry authentication failed:', errorMessage);
+                setSnackbarMessage(`Retry failed: ${errorMessage}`);
+                setSnackbarType('error');
+                setSnackbarOpen(true);
+              }
+              
+              throw retryError;
+            } finally {
+              setIsManualSigning(false);
+            }
             return;
           }
           
         case 'forceReset':
-          // Force reset everything due to stuck state
-          setSnackbarMessage('Resetting authentication state...');
+          // Handle 3rd strike - manual reset or auto-reset after delay
+          setSnackbarMessage('Performing final reset after 3 authentication failures...');
           setSnackbarType('info');
           setSnackbarOpen(true);
-          await forceReset();
-          // Reset our local state too
-          signingFailureCount.current = 0;
-          setShowForceReset(false);
-          // Show success message
-          setTimeout(() => {
-            setSnackbarMessage('Authentication state reset! You can now connect a wallet.');
-            setSnackbarType('success');
+          // Clear countdown state since user manually clicked
+          setAutoResetCountdown(false);
+          
+          try {
+            // Force complete disconnect and reset
+            await disconnectWallet();
+            await forceReset();
+            
+            // Reset all local state
+            signingFailureCount.current = 0;
+            setShowForceReset(false);
+            
+            // Show completion message
+            setTimeout(() => {
+              setSnackbarMessage('All authentication state cleared. Click Connect to start fresh.');
+              setSnackbarType('success');
+              setSnackbarOpen(true);
+            }, 1000);
+            
+          } catch (resetError) {
+            console.error('Final reset failed:', resetError);
+            setSnackbarMessage('Reset failed. Please refresh the page to clear all state.');
+            setSnackbarType('error');
             setSnackbarOpen(true);
-          }, 1000);
+          }
           return;
           
         case 'error':
@@ -491,6 +779,41 @@ const WalletStatusMini: React.FC = () => {
           
         case 'default':
         default:
+          // Special handling for 3-strike reset scenario
+          if (signingFailureCount.current >= 3 && (address || connectionStatus === 'connected')) {
+            // We're in a 3-strike reset scenario but still have connection remnants
+            setSnackbarMessage('Performing final cleanup after 3 retry attempts...');
+            setSnackbarType('info');
+            setSnackbarOpen(true);
+            
+            try {
+              // Force complete disconnect and reset
+              await disconnectWallet();
+              await forceReset();
+              
+              // Reset all local state
+              signingFailureCount.current = 0;
+              setShowForceReset(false);
+              
+              // Clear any manual connecting state
+              setIsManuallyConnecting(false);
+              
+              // Wait a moment then show ready message
+              setTimeout(() => {
+                setSnackbarMessage('All authentication state cleared. Ready for fresh connection.');
+                setSnackbarType('success');
+                setSnackbarOpen(true);
+              }, 1000);
+              
+            } catch (error) {
+              console.error('Final cleanup after 3-strike reset failed:', error);
+              setSnackbarMessage('Cleanup failed. Please refresh the page.');
+              setSnackbarType('error');
+              setSnackbarOpen(true);
+            }
+            return;
+          }
+          
           // No wallet connected - start connection flow immediately
           setSnackbarMessage('Opening wallet selection...');
           setSnackbarType('info');
@@ -579,6 +902,8 @@ const WalletStatusMini: React.FC = () => {
       case 'authError':
       case 'forceReset':
         return '🔴';
+      case 'emergencyReset':
+        return '🚨';
       case 'signIn':
       case 'restoreSession':
         return '🟡';
@@ -623,9 +948,13 @@ const WalletStatusMini: React.FC = () => {
       };
     }
     
-    if (isSigningIn) {
+    if (isSigningIn || isManualSigning) {
+      // Prevent state flashing by maintaining signing state
+      const timeSinceLastAttempt = Date.now() - lastSignInAttempt.current;
+      const isRecentSignAttempt = timeSinceLastAttempt < 10000; // 10 seconds
+      
       return { 
-        label: 'Signing In...', 
+        label: isRecentSignAttempt ? 'Signing In...' : 'Processing...',
         disabled: true, 
         showSpinner: true, 
         className: 'signing',
@@ -645,19 +974,27 @@ const WalletStatusMini: React.FC = () => {
     }
     
     if (authError && address && !isAuthenticated) {
-      // If we're in a stuck state, offer force reset option
-      if (showForceReset) {
+      // EMERGENCY QUAGMIRE STATE: User is completely stuck
+      if (inQuagmire) {
         return { 
-          label: 'Reset', 
+          label: 'Emergency Reset', 
+          disabled: false, 
+          showError: true, 
+          className: 'emergencyReset',
+          icon: '🚨'
+        };
+      }
+      
+      // Show different retry messages based on failure count
+      if (signingFailureCount.current >= 3) {
+        return { 
+          label: 'Auto-Reset', 
           disabled: false, 
           showError: true, 
           className: 'forceReset',
           icon: '🔄'
         };
-      }
-      
-      // Show different retry messages based on failure count
-      if (signingFailureCount.current >= 2) {
+      } else if (signingFailureCount.current >= 2) {
         return { 
           label: 'Reset & Retry', 
           disabled: false, 
@@ -686,6 +1023,17 @@ const WalletStatusMini: React.FC = () => {
     
     // Connected but not authenticated states
     if (address && !isAuthenticated && !isSigningIn) {
+      // Special handling when auto-auth is disabled due to JSON-RPC errors
+      if (autoAuthDisabled) {
+        return { 
+          label: 'Manual Sign In Required', 
+          disabled: false, 
+          showError: true, 
+          className: 'authError',
+          icon: '🔐'
+        };
+      }
+      
       // If we have a session but aren't authenticated, offer to restore
       if (session) {
         return { 
@@ -732,6 +1080,8 @@ const WalletStatusMini: React.FC = () => {
   
   // Generate contextual tooltip for button state
   const getButtonTooltip = () => {
+    const retryCount = signingFailureCount.current;
+    
     switch (buttonState.className) {
       case 'connecting':
         return 'Establishing connection to wallet...';
@@ -740,7 +1090,24 @@ const WalletStatusMini: React.FC = () => {
       case 'error':
         return `Connection failed: ${error || 'Unknown error'}. Click to retry.`;
       case 'authError':
-        return `Authentication failed: ${authError || 'Unknown error'}. Click to retry.`;
+        if (autoAuthDisabled) {
+          return `Auto-authentication disabled due to ${authFailureCount} JSON-RPC failures. Click to sign in manually and reset auto-auth.`;
+        } else if (retryCount >= 3) {
+          return `3+ authentication failures detected. Click to manually reset now (auto-reset in progress).`;
+        } else if (retryCount >= 2) {
+          return `Authentication failed ${retryCount} times. Click to force reset and try again. JSON-RPC errors usually resolve after reset.`;
+        } else {
+          const errorMsg = authError || 'Unknown error';
+          if (errorMsg.includes('JSON-RPC') || errorMsg.includes('Internal error')) {
+            return `JSON-RPC communication error detected. This is usually temporary - click to retry. If it persists, try "Reset & Retry".`;
+          } else {
+            return `Authentication failed: ${errorMsg}. Click to retry.`;
+          }
+        }
+      case 'emergencyReset':
+        return '🚨 EMERGENCY RESET: Complete wallet state reset. JSON-RPC errors usually resolve after this.';
+      case 'forceReset':
+        return 'Click to perform final reset after 3+ failures and return to Connect state.';
       case 'restoreSession':
         return 'Previous session found. Click to restore authentication.';
       case 'signIn':
@@ -749,7 +1116,11 @@ const WalletStatusMini: React.FC = () => {
         return 'Wallet connected and authenticated successfully.';
       case 'default':
       default:
-        return 'Connect your wallet to get started.';
+        if (retryCount >= 3) {
+          return 'After 3+ retry attempts, returned to fresh state. Click to connect wallet.';
+        } else {
+          return 'Connect your wallet to get started.';
+        }
     }
   };
 
@@ -765,9 +1136,20 @@ const WalletStatusMini: React.FC = () => {
       isWalletConnected,
       buttonState: buttonState.className,
       buttonLabel: buttonState.label,
-      isSigningIn
+      isSigningIn,
+      isManualSigning,
+      retryCount: signingFailureCount.current, // Added retry count tracking
+      showForceReset,
+      autoResetCountdown,
+      inQuagmire,
+      consecutiveErrors: consecutiveErrorCount.current,
+      persistentErrorDuration: persistentErrorStartTime.current ? Date.now() - persistentErrorStartTime.current : 0,
+      timeSinceLastSignAttempt: lastSignInAttempt.current ? Date.now() - lastSignInAttempt.current : 0,
+      // Auto-auth state
+      autoAuthDisabled,
+      authFailureCount
     });
-  }, [connectionStatus, address, isAuthenticated, error, authError, session, isWalletConnected, buttonState, isSigningIn]);
+  }, [connectionStatus, address, isAuthenticated, error, authError, session, isWalletConnected, buttonState, isSigningIn, isManualSigning, showForceReset, autoResetCountdown, inQuagmire, autoAuthDisabled, authFailureCount]);
   const wrongNetwork = false; // TODO: Implement actual network validation
 
   // Show enhanced connect button for all non-authenticated states

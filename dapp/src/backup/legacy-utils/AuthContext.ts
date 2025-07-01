@@ -68,6 +68,10 @@ export interface AuthContextType {
   signIn: () => Promise<void>;
   // Recovery functions
   forceReset: () => Promise<void>;
+  enableAutoAuth: () => void;
+  // Auto-authentication state
+  autoAuthDisabled: boolean;
+  authFailureCount: number;
   // Advanced Cybersecurity Properties
   securityMetadata: AuthSecurityMetadata;
   didAuthState: DIDAuthState;

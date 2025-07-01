@@ -18,7 +18,7 @@ import {
   EvidenceFilters,
   EvidenceType,
 } from '../interfaces/Investigation';
-import { secureLogger } from '../utils/secureLogging';
+import { secureLogger } from '../security/logging/SecureLogger';
 import { inputValidator } from '../utils/inputValidation';
 import { rateLimiter, resourceMonitor } from '../utils/rateLimiting';
 
@@ -44,10 +44,22 @@ interface BackendEvidence {
 class InvestigationApiService {
   private baseUrl: string;
   private readonly REQUEST_TIMEOUT = 30000; // 30 seconds
+  
+  // Memory management constants
+  private readonly MAX_RECORDS_PER_REQUEST = 100; // Prevent memory exhaustion
+  private readonly DEFAULT_PAGE_SIZE = 20;
+  private readonly MAX_CACHE_SIZE = 50; // Maximum cached responses
+  private readonly MEMORY_THRESHOLD_MB = 100; // Alert if memory exceeds 100MB
+  
+  // Simple LRU cache for API responses
+  private responseCache = new Map<string, { data: unknown; timestamp: number }>();
 
   constructor() {
     // Use the AI Security RelayNode backend URL
     this.baseUrl = 'http://127.0.0.1:8081/api/v1';
+    
+    // Start memory monitoring
+    this.startMemoryMonitoring();
   }
 
   // Get client identifier for rate limiting
@@ -71,11 +83,19 @@ class InvestigationApiService {
     const rateLimitResult = rateLimiter.checkRateLimit(clientId, 'api');
     
     if (!rateLimitResult.allowed) {
-      secureLogger.audit('InvestigationApiService', 'rateLimitExceeded', 'FAILURE', {
-        endpoint: this.sanitizeForLog(endpoint),
-        clientId: clientId.substring(0, 8) + '...',
-        remaining: rateLimitResult.remaining
-      }, 'CONFIDENTIAL');
+      secureLogger.logAuditEvent(
+        'rateLimitExceeded',
+        clientId.substring(0, 8) + '...',
+        'FAILURE',
+        { 
+          component: 'InvestigationApiService',
+          classification: 'CONFIDENTIAL'
+        },
+        {
+          endpoint: this.sanitizeForLog(endpoint),
+          remaining: rateLimitResult.remaining
+        }
+      );
       
       return {
         success: false,
@@ -140,7 +160,7 @@ class InvestigationApiService {
 
       // Only log non-connection errors to reduce noise when backend is offline
       if (!isConnectionError) {
-        secureLogger.error('API request failed', {
+        secureLogger.log('error', 'API request failed', {
           endpoint: this.sanitizeForLog(endpoint),
           status: 'error',
           timestamp: new Date().toISOString()
@@ -259,8 +279,16 @@ class InvestigationApiService {
     );
     
     if (!validationResult.isValid) {
-      secureLogger.audit('InvestigationApiService', 'createInvestigation', 'FAILURE',
-        { errors: validationResult.errors }, 'CONFIDENTIAL');
+      secureLogger.logAuditEvent(
+        'createInvestigation', 
+        'system',
+        'FAILURE',
+        { 
+          component: 'InvestigationApiService',
+          classification: 'CONFIDENTIAL'
+        },
+        { errors: validationResult.errors }
+      );
       
       return {
         success: false,
@@ -291,28 +319,46 @@ class InvestigationApiService {
   async listInvestigations(
     filters: InvestigationFilters = {},
     page: number = 1,
-    perPage: number = 20
+    perPage: number = this.DEFAULT_PAGE_SIZE
   ): Promise<PaginatedResponse<Investigation>> {
+    // Validate and enforce pagination limits to prevent memory exhaustion
+    const validatedParams = this.validatePaginationParams(page, perPage);
+    
     const params = new URLSearchParams({
-      page: page.toString(),
-      per_page: perPage.toString(),
+      page: validatedParams.page.toString(),
+      per_page: validatedParams.perPage.toString(),
       ...this.buildFilterParams(filters),
     });
+
+    // Check cache first
+    const cacheKey = this.getCacheKey(`/investigations?${params}`);
+    const cachedResult = this.getFromCache<PaginatedResponse<Investigation>>(cacheKey);
+    if (cachedResult) {
+      return cachedResult;
+    }
 
     try {
       const response = await fetch(`${this.baseUrl}/investigations?${params}`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      return await response.json();
+      
+      const result = await response.json();
+      
+      // Cache successful responses
+      if (result.success) {
+        this.setCache(cacheKey, result);
+      }
+      
+      return result;
     } catch (error) {
       console.error('API Error (list investigations):', error);
       return {
         success: false,
         data: [],
         total: 0,
-        page,
-        per_page: perPage,
+        page: validatedParams.page,
+        per_page: validatedParams.perPage,
         total_pages: 0,
       };
     }
@@ -351,8 +397,16 @@ class InvestigationApiService {
     );
     
     if (!validationResult.isValid) {
-      secureLogger.audit('InvestigationApiService', 'createTask', 'FAILURE',
-        { errors: validationResult.errors, investigationId }, 'CONFIDENTIAL');
+      secureLogger.logAuditEvent(
+        'createTask',
+        'system',
+        'FAILURE',
+        { 
+          component: 'InvestigationApiService',
+          classification: 'CONFIDENTIAL'
+        },
+        { errors: validationResult.errors, investigationId }
+      );
       
       return {
         success: false,
@@ -376,28 +430,46 @@ class InvestigationApiService {
     investigationId: string,
     filters: TaskFilters = {},
     page: number = 1,
-    perPage: number = 50
+    perPage: number = this.DEFAULT_PAGE_SIZE
   ): Promise<PaginatedResponse<Task>> {
+    // Validate and enforce pagination limits
+    const validatedParams = this.validatePaginationParams(page, perPage);
+    
     const params = new URLSearchParams({
-      page: page.toString(),
-      per_page: perPage.toString(),
+      page: validatedParams.page.toString(),
+      per_page: validatedParams.perPage.toString(),
       ...this.buildFilterParams(filters),
     });
+
+    // Check cache first
+    const cacheKey = this.getCacheKey(`/investigations/${investigationId}/tasks?${params}`);
+    const cachedResult = this.getFromCache<PaginatedResponse<Task>>(cacheKey);
+    if (cachedResult) {
+      return cachedResult;
+    }
 
     try {
       const response = await fetch(`${this.baseUrl}/investigations/${investigationId}/tasks?${params}`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      return await response.json();
+      
+      const result = await response.json();
+      
+      // Cache successful responses
+      if (result.success) {
+        this.setCache(cacheKey, result);
+      }
+      
+      return result;
     } catch (error) {
       console.error('API Error (list tasks):', error);
       return {
         success: false,
         data: [],
         total: 0,
-        page,
-        per_page: perPage,
+        page: validatedParams.page,
+        per_page: validatedParams.perPage,
         total_pages: 0,
       };
     }
@@ -437,8 +509,16 @@ class InvestigationApiService {
     );
     
     if (!validationResult.isValid) {
-      secureLogger.audit('InvestigationApiService', 'createEvidence', 'FAILURE',
-        { errors: validationResult.errors, investigationId }, 'CONFIDENTIAL');
+      secureLogger.logAuditEvent(
+        'createEvidence',
+        'system',
+        'FAILURE',
+        { 
+          component: 'InvestigationApiService',
+          classification: 'CONFIDENTIAL'
+        },
+        { errors: validationResult.errors, investigationId }
+      );
       
       return {
         success: false,
@@ -485,13 +565,23 @@ class InvestigationApiService {
     investigationId: string,
     filters: EvidenceFilters = {},
     page: number = 1,
-    perPage: number = 50
+    perPage: number = this.DEFAULT_PAGE_SIZE
   ): Promise<PaginatedResponse<Evidence>> {
+    // Validate and enforce pagination limits
+    const validatedParams = this.validatePaginationParams(page, perPage);
+    
     const params = new URLSearchParams({
-      page: page.toString(),
-      per_page: perPage.toString(),
+      page: validatedParams.page.toString(),
+      per_page: validatedParams.perPage.toString(),
       ...this.buildFilterParams(filters),
     });
+
+    // Check cache first
+    const cacheKey = this.getCacheKey(`/investigations/${investigationId}/evidence?${params}`);
+    const cachedResult = this.getFromCache<PaginatedResponse<Evidence>>(cacheKey);
+    if (cachedResult) {
+      return cachedResult;
+    }
 
     try {
       const response = await fetch(`${this.baseUrl}/investigations/${investigationId}/evidence?${params}`);
@@ -505,6 +595,11 @@ class InvestigationApiService {
         result.data = result.data.map((item: BackendEvidence) => this.mapBackendEvidenceToFrontend(item));
       }
       
+      // Cache successful responses
+      if (result.success) {
+        this.setCache(cacheKey, result);
+      }
+      
       return result;
     } catch (error) {
       console.error('API Error (list evidence):', error);
@@ -512,8 +607,8 @@ class InvestigationApiService {
         success: false,
         data: [],
         total: 0,
-        page,
-        per_page: perPage,
+        page: validatedParams.page,
+        per_page: validatedParams.perPage,
         total_pages: 0,
       };
     }
@@ -564,7 +659,7 @@ class InvestigationApiService {
     try {
       // Validate investigation ID
       if (!this.validateId(investigationId)) {
-        secureLogger.error('Invalid investigation ID for WebSocket connection', null, { 
+        secureLogger.log('error', 'Invalid investigation ID for WebSocket connection', null, { 
           component: 'InvestigationAPI' 
         });
         return null;
@@ -578,7 +673,7 @@ class InvestigationApiService {
       const connectionTimeout = setTimeout(() => {
         if (ws.readyState === WebSocket.CONNECTING) {
           ws.close();
-          secureLogger.warn('WebSocket connection timeout', null, { 
+          secureLogger.log('warn', 'WebSocket connection timeout', null, { 
             component: 'InvestigationAPI' 
           });
         }
@@ -586,7 +681,7 @@ class InvestigationApiService {
 
       ws.onopen = () => {
         clearTimeout(connectionTimeout);
-        secureLogger.info('WebSocket connected', { 
+        secureLogger.log('info', 'WebSocket connected', { 
           investigationId: this.sanitizeForLog(investigationId)
         }, { component: 'InvestigationAPI' });
         
@@ -596,14 +691,14 @@ class InvestigationApiService {
 
       ws.onerror = () => {
         clearTimeout(connectionTimeout);
-        secureLogger.error('WebSocket error', {
+        secureLogger.log('error', 'WebSocket error', {
           investigationId: this.sanitizeForLog(investigationId)
         }, { component: 'InvestigationAPI' });
       };
 
       ws.onclose = (event) => {
         clearTimeout(connectionTimeout);
-        secureLogger.info('WebSocket disconnected', {
+        secureLogger.log('info', 'WebSocket disconnected', {
           investigationId: this.sanitizeForLog(investigationId),
           code: event.code
         }, { component: 'InvestigationAPI' });
@@ -617,12 +712,12 @@ class InvestigationApiService {
             // Message is valid, can be processed
             // TODO: Add message handling logic
           } else {
-            secureLogger.warn('Invalid WebSocket message received', null, { 
+            secureLogger.log('warn', 'Invalid WebSocket message received', null, { 
               component: 'InvestigationAPI' 
             });
           }
         } catch {
-          secureLogger.error('WebSocket message parsing failed', null, { 
+          secureLogger.log('error', 'WebSocket message parsing failed', null, { 
             component: 'InvestigationAPI' 
           });
         }
@@ -630,7 +725,7 @@ class InvestigationApiService {
 
       return ws;
     } catch {
-      secureLogger.error('Failed to create WebSocket connection', null, { 
+      secureLogger.log('error', 'Failed to create WebSocket connection', null, { 
         component: 'InvestigationAPI' 
       });
       return null;
@@ -649,7 +744,7 @@ class InvestigationApiService {
         }));
       }
     } catch {
-      secureLogger.error('WebSocket authentication failed', null, { 
+      secureLogger.log('error', 'WebSocket authentication failed', null, { 
         component: 'InvestigationAPI' 
       });
     }
@@ -669,6 +764,116 @@ class InvestigationApiService {
     if (!allowedTypes.includes(message.type)) return false;
     
     return true;
+  }
+
+  // Memory management and monitoring methods
+  private startMemoryMonitoring(): void {
+    // Check memory usage every 30 seconds
+    setInterval(() => {
+      this.checkMemoryUsage();
+      this.cleanupCache();
+    }, 30000);
+  }
+
+  private checkMemoryUsage(): void {
+    if ('memory' in performance) {
+      const memInfo = (performance as { memory?: { usedJSHeapSize: number; totalJSHeapSize: number } }).memory;
+      if (memInfo) {
+        const usedMB = memInfo.usedJSHeapSize / 1024 / 1024;
+        
+        if (usedMB > this.MEMORY_THRESHOLD_MB) {
+          secureLogger.log('warn', 'High memory usage detected', {
+            usedMB: Math.round(usedMB),
+            totalMB: Math.round(memInfo.totalJSHeapSize / 1024 / 1024),
+            threshold: this.MEMORY_THRESHOLD_MB
+          }, { component: 'InvestigationAPI' });
+          
+          // Force cache cleanup when memory is high
+          this.clearCache();
+        }
+      }
+    }
+  }
+
+  private cleanupCache(): void {
+    const now = Date.now();
+    const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+    
+    // Remove expired entries
+    for (const [key, value] of this.responseCache.entries()) {
+      if (now - value.timestamp > CACHE_TTL) {
+        this.responseCache.delete(key);
+      }
+    }
+    
+    // If cache is still too large, remove oldest entries
+    if (this.responseCache.size > this.MAX_CACHE_SIZE) {
+      const entries = Array.from(this.responseCache.entries());
+      entries.sort((a, b) => a[1].timestamp - b[1].timestamp);
+      
+      const toRemove = entries.slice(0, entries.length - this.MAX_CACHE_SIZE);
+      toRemove.forEach(([key]) => this.responseCache.delete(key));
+    }
+  }
+
+  private clearCache(): void {
+    this.responseCache.clear();
+    secureLogger.log('info', 'API response cache cleared', {
+      reason: 'memory_management'
+    }, { component: 'InvestigationAPI' });
+  }
+
+  private getCacheKey(endpoint: string, options: RequestInit = {}): string {
+    const method = options.method || 'GET';
+    const body = options.body ? JSON.stringify(options.body) : '';
+    return `${method}:${endpoint}:${body}`;
+  }
+
+  private getFromCache<T>(key: string): T | null {
+    const cached = this.responseCache.get(key);
+    if (cached) {
+      const now = Date.now();
+      const CACHE_TTL = 2 * 60 * 1000; // 2 minutes for API responses
+      
+      if (now - cached.timestamp < CACHE_TTL) {
+        return cached.data as T;
+      } else {
+        this.responseCache.delete(key);
+      }
+    }
+    return null;
+  }
+
+  private setCache<T>(key: string, data: T): void {
+    // Only cache successful responses and limit cache size
+    if (this.responseCache.size >= this.MAX_CACHE_SIZE) {
+      // Remove oldest entry
+      const firstKey = this.responseCache.keys().next().value;
+      if (firstKey) {
+        this.responseCache.delete(firstKey);
+      }
+    }
+    
+    this.responseCache.set(key, {
+      data,
+      timestamp: Date.now()
+    });
+  }
+
+  private validatePaginationParams(page: number, perPage: number): { page: number; perPage: number } {
+    // Enforce strict limits to prevent memory exhaustion
+    const validatedPage = Math.max(1, Math.floor(page));
+    const validatedPerPage = Math.max(1, Math.min(perPage, this.MAX_RECORDS_PER_REQUEST));
+    
+    if (perPage > this.MAX_RECORDS_PER_REQUEST) {
+      secureLogger.log('warn', 'Pagination limit exceeded', {
+        requested: perPage,
+        enforced: this.MAX_RECORDS_PER_REQUEST,
+        page: validatedPage
+      }, { component: 'InvestigationAPI' });
+    }
+    
+    return { page: validatedPage, perPage: validatedPerPage };
   }
 }
 

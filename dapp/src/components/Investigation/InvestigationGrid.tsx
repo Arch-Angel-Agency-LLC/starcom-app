@@ -2,6 +2,7 @@
 import React, { useState, useMemo } from 'react';
 import { Investigation, InvestigationStatus, InvestigationPriority } from '../../interfaces/Investigation';
 import { useInvestigation } from '../../hooks/useInvestigation';
+import { useMemoryAwarePagination } from '../../hooks/useMemoryAware';
 import styles from './InvestigationGrid.module.css';
 
 interface InvestigationGridProps {
@@ -28,6 +29,10 @@ const InvestigationGrid: React.FC<InvestigationGridProps> = ({
   
   // Use investigations from props or context
   const investigations = propInvestigations || state.investigations;
+  
+  // Memory-aware pagination
+  const { currentPage, pageSize, canProceed, goToPage, nextPage, previousPage } = 
+    useMemoryAwarePagination(20, 100); // Default 20, max 100 per page
   
   const [sortField, setSortField] = useState<SortField>('updated_at');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
@@ -95,6 +100,15 @@ const InvestigationGrid: React.FC<InvestigationGridProps> = ({
 
     return filtered;
   }, [investigations, filters, sortField, sortDirection]);
+
+  // Apply pagination to filtered results
+  const paginatedInvestigations = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    return filteredInvestigations.slice(startIndex, endIndex);
+  }, [filteredInvestigations, currentPage, pageSize]);
+
+  const totalPages = Math.ceil(filteredInvestigations.length / pageSize);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -252,7 +266,7 @@ const InvestigationGrid: React.FC<InvestigationGridProps> = ({
             </button>
           </div>
         ) : (
-          filteredInvestigations.map((investigation) => (
+          paginatedInvestigations.map((investigation) => (
             <div
               key={investigation.id}
               className={`${styles.investigationCard} ${
@@ -337,6 +351,56 @@ const InvestigationGrid: React.FC<InvestigationGridProps> = ({
           ))
         )}
       </div>
+
+      {/* Memory-aware pagination controls */}
+      {totalPages > 1 && (
+        <div className={styles.paginationControls}>
+          <div className={styles.paginationInfo}>
+            <span>
+              Page {currentPage} of {totalPages} 
+              ({filteredInvestigations.length} total investigations)
+            </span>
+            <span className={styles.pageSize}>
+              Showing {pageSize} per page
+              {!canProceed && (
+                <span className={styles.memoryWarning}>
+                  ⚠️ Memory usage high - pagination optimized
+                </span>
+              )}
+            </span>
+          </div>
+          <div className={styles.paginationButtons}>
+            <button
+              className={styles.paginationButton}
+              onClick={() => goToPage(1)}
+              disabled={currentPage === 1 || !canProceed}
+            >
+              ⏮️ First
+            </button>
+            <button
+              className={styles.paginationButton}
+              onClick={previousPage}
+              disabled={currentPage === 1 || !canProceed}
+            >
+              ⬅️ Previous
+            </button>
+            <button
+              className={styles.paginationButton}
+              onClick={nextPage}
+              disabled={currentPage === totalPages || !canProceed}
+            >
+              Next ➡️
+            </button>
+            <button
+              className={styles.paginationButton}
+              onClick={() => goToPage(totalPages)}
+              disabled={currentPage === totalPages || !canProceed}
+            >
+              Last ⏭️
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Create Investigation Modal - Simple placeholder */}
       {showCreateModal && (

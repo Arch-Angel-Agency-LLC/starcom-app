@@ -8,8 +8,13 @@ import styles from './CenterViewManager.module.css';
 // Import the real Globe component - not lazy loaded to keep it mounted
 import Globe from '../../Globe/Globe';
 
+// Import collaboration view - not lazy loaded to maintain real-time connections
+import TeamCollaborationView from '../../Views/TeamCollaborationView';
+
+// Import AI Agent view - not lazy loaded for better performance
+import AIAgentView from '../../Views/AIAgentView';
+
 // Import view components
-const TeamsDashboard = lazy(() => import('../../../pages/Teams/TeamsDashboard'));
 const InvestigationsDashboard = lazy(() => import('../../../pages/Investigations/InvestigationsDashboard'));
 const IntelDashboard = lazy(() => import('../../../pages/Intel/IntelDashboard'));
 
@@ -34,11 +39,9 @@ const CenterViewManager: React.FC<CenterViewManagerProps> = ({ className = '' })
         // Globe is always mounted, just show/hide the container
         return null; // The globe is rendered separately below
       case 'teams':
-        return (
-          <Suspense fallback={<div className={styles.loadingView}>Loading Teams...</div>}>
-            <TeamsDashboard />
-          </Suspense>
-        );
+        return <TeamCollaborationView />;
+      case 'ai-agent':
+        return <AIAgentView />;
       case 'investigations':
         return (
           <Suspense fallback={<div className={styles.loadingView}>Loading Investigations...</div>}>

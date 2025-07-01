@@ -5,7 +5,7 @@ import { WASMProvider, useWASM } from "./context/WASMContext";
 import { DashboardProvider } from "./context/DashboardContext";
 import { GlobeProvider } from "./context/GlobeContext.tsx";
 import { VisualizationModeProvider } from "./context/VisualizationModeContext";
-import { AuthProvider } from "./context/AuthContext.tsx";
+import { UnifiedAuthProvider as AuthProvider } from "./security/context/AuthContext";
 import { MarketplaceProvider } from "./context/MarketplaceContext";
 import { SpaceWeatherProvider } from "./context/SpaceWeatherContext";
 import { UnifiedGlobalCommandProvider } from "./context/UnifiedGlobalCommandContext";

@@ -378,7 +378,6 @@ class CollaborationService {
   }
 
   // Helper Methods for Advanced Security
-  // @ts-expect-error - Reserved for future security framework integration
   private async _performCollaborationSecurityProcessing(
     sessionId: string,
     creatorDID: string,
@@ -435,7 +434,7 @@ class CollaborationService {
     return true;
   }
 
-  // @ts-expect-error - Reserved for future quantum channel implementation  
+  // Reserved for future quantum channel implementation  
   private async _createQuantumSafeChannels(sessionId: string): Promise<Map<string, QuantumSafeChannel>> {
     const channels = new Map<string, QuantumSafeChannel>();
     
@@ -455,7 +454,7 @@ class CollaborationService {
     return channels;
   }
 
-  // @ts-expect-error - Reserved for future DID integration
+  // Reserved for future DID integration
   private async _createDIDCollaborator(did: string, clearanceLevel: ClearanceLevel): Promise<DIDCollaborator> {
     return {
       did,
@@ -468,7 +467,7 @@ class CollaborationService {
     };
   }
 
-  // @ts-expect-error - Reserved for future clearance validation
+  // Reserved for future clearance validation
   private _validateClearanceLevel(userLevel: ClearanceLevel, requiredLevel: ClearanceLevel): boolean {
     const levels = ['UNCLASSIFIED', 'CONFIDENTIAL', 'SECRET', 'TOP_SECRET', 'SCI'];
     const userIndex = levels.indexOf(userLevel);
@@ -476,7 +475,7 @@ class CollaborationService {
     return userIndex >= requiredIndex;
   }
 
-  // @ts-expect-error - Reserved for future quantum channel access control
+  // Reserved for future quantum channel access control
   private async _grantQuantumChannelAccess(sessionId: string, participantDID: string): Promise<void> {
     const session = this.secureSessionRegistry.get(sessionId);
     if (session) {

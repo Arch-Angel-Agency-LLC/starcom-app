@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { secureLogger } from '../utils/secureLogging';
+import { secureLogger } from '../security/logging/SecureLogger';
 import { useEcoNaturalSettings } from '../hooks/useEcoNaturalSettings';
 import { useCyberCommandSettings } from '../hooks/useCyberCommandSettings';
 import { useGeoPoliticalSettings } from '../hooks/useGeoPoliticalSettings';
@@ -18,16 +18,19 @@ export const SettingsInitializer: React.FC = () => {
   useEffect(() => {
     // Log initialization of all settings to ensure they're loaded (only once and in dev mode)
     if (import.meta.env.DEV) {
-      secureLogger.debug('Settings Initializer: All settings hooks loaded', {
+      secureLogger.log('debug', 'Settings Initializer: All settings hooks loaded', {
         visualizationMode,
         ecoNaturalLoaded: !!ecoNaturalSettings.config,
         cyberCommandLoaded: !!cyberCommandSettings.config,
         geoPoliticalLoaded: !!geoPoliticalSettings.config
-      }, { component: 'SettingsInitializer' });
+      }, { 
+        component: 'SettingsInitializer',
+        classification: 'PUBLIC'
+      });
       
       // Report storage stats
       const stats = settingsStorage.getStorageStats();
-      secureLogger.debug('Storage stats', stats, { component: 'SettingsInitializer' });
+      secureLogger.log('debug', 'Storage stats', stats, { component: 'SettingsInitializer' });
     }
   }, [visualizationMode, ecoNaturalSettings.config, cyberCommandSettings.config, geoPoliticalSettings.config]);
 

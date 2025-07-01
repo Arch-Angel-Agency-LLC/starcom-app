@@ -1,15 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useCollaboration } from '../../../../hooks/useUnifiedGlobalCommand';
 import { useOverlayData } from '../../../../hooks/useOverlayData';
 import styles from './RightSideBar.module.css';
 import GlobeStatus from './GlobeStatus';
-import AIActionsPanelLayered from '../../../AI/AIActionsPanelLayered';
-import { AIErrorBoundary } from '../../../ErrorBoundaries/AIErrorBoundary';
-import { useFeatureFlag } from '../../../../utils/featureFlags';
-import CollaborationPanel from '../../../Collaboration/CollaborationPanel';
-import EarthAllianceCommunicationPanel from '../../../Collaboration/EarthAllianceCommunicationPanel';
 import DeveloperToolbar from '../../DeveloperToolbar/DeveloperToolbar';
 import CyberInvestigationHub from './CyberInvestigationHub';
+import ChatOverlay from '../../../Chat/ChatOverlay';
 
 // Import assets from public directory (served directly by Vite)
 const cryptoSentinelIcon = '/assets/images/icons/x128/starcom_icon-cryptosentinel-01a.jpg';
@@ -91,40 +86,17 @@ const externalApps = [
 
 const RightSideBar: React.FC = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [activeSection, setActiveSection] = useState<'mission' | 'intel' | 'ai' | 'collaboration' | 'earth-alliance' | 'apps' | 'developer'>('mission');
-  const { currentSession, isConnected, collaborationState } = useCollaboration();
-  const aiSuggestionsEnabled = useFeatureFlag('aiSuggestionsEnabled');
-  const collaborationEnabled = useFeatureFlag('collaborationEnabled');
+  const [activeSection, setActiveSection] = useState<'mission' | 'intel' | 'chat' | 'apps' | 'developer'>('mission');
+  const [isChatOverlayOpen, setIsChatOverlayOpen] = useState(false);
   const overlayData = useOverlayData();
 
-  // Determine current phase for status display
-  const getCurrentPhase = () => {
-    if (!collaborationEnabled) {
-      return { icon: '🌍', label: 'Standard Mode', status: 'operational' };
-    }
-    
-    if (currentSession && isConnected) {
-      return { icon: '👥', label: 'Multi-Agency Active', status: 'collaborative' };
-    }
-    
-    if (collaborationState.enabled && (collaborationState.sessions.length > 0 || collaborationState.participants.length > 0)) {
-      return { icon: '🔄', label: 'Collaboration Ready', status: 'transitioning' };
-    }
-    
-    return { icon: '🌍', label: 'Standard Mode', status: 'operational' };
-  };
-
-  // Get operational status based on current phase
-  const getOperationalStatus = () => {
-    const phase = getCurrentPhase();
-    switch (phase.status) {
-      case 'collaborative':
-        return { text: 'CONNECTED', class: 'connected' };
-      case 'transitioning':
-        return { text: 'SYNCING', class: 'syncing' };
-      default:
-        return { text: 'OPERATIONAL', class: 'operational' };
-    }
+  // Mock chat statistics
+  const chatStats = {
+    globalMessages: 47,
+    groupMessages: 23,
+    directMessages: 8,
+    activeUsers: 156,
+    onlineUsers: 89
   };
 
   // Mock real-time data updates
@@ -145,6 +117,45 @@ const RightSideBar: React.FC = () => {
   const renderIntelHub = () => (
     <div className={styles.sectionContent}>
       <CyberInvestigationHub isCollapsed={isCollapsed} />
+    </div>
+  );
+
+  const renderChatHub = () => (
+    <div className={styles.sectionContent}>
+      <div className={styles.chatHub}>
+        <div className={styles.chatHeader}>
+          <h3>💬 Global Chat & Communications</h3>
+          <div className={styles.chatHint}>
+            🔒 Quantum-encrypted communications hub
+          </div>
+        </div>
+        
+        <div className={styles.chatStats}>
+          <div className={styles.statItem}>
+            <span className={styles.statLabel}>Global Messages</span>
+            <span className={styles.statValue}>{chatStats.globalMessages}</span>
+          </div>
+          <div className={styles.statItem}>
+            <span className={styles.statLabel}>Group Messages</span>
+            <span className={styles.statValue}>{chatStats.groupMessages}</span>
+          </div>
+          <div className={styles.statItem}>
+            <span className={styles.statLabel}>Direct Messages</span>
+            <span className={styles.statValue}>{chatStats.directMessages}</span>
+          </div>
+          <div className={styles.statItem}>
+            <span className={styles.statLabel}>Online Users</span>
+            <span className={styles.statValue}>{chatStats.onlineUsers}/{chatStats.activeUsers}</span>
+          </div>
+        </div>
+        
+        <button 
+          className={styles.openChatBtn}
+          onClick={() => setIsChatOverlayOpen(true)}
+        >
+          🚀 Open Chat Interface
+        </button>
+      </div>
     </div>
   );
 
@@ -214,28 +225,12 @@ const RightSideBar: React.FC = () => {
           🎯
         </button>
         <button 
-          className={`${styles.navBtn} ${activeSection === 'ai' ? styles.active : ''}`}
-          onClick={() => setActiveSection('ai')}
-          title="AI Assistant"
-          aria-label="AI Assistant"
+          className={`${styles.navBtn} ${activeSection === 'chat' ? styles.active : ''}`}
+          onClick={() => setActiveSection('chat')}
+          title="Global Chat & Communications"
+          aria-label="Global Chat & Communications"
         >
-          🤖
-        </button>
-        <button 
-          className={`${styles.navBtn} ${activeSection === 'collaboration' ? styles.active : ''}`}
-          onClick={() => setActiveSection('collaboration')}
-          title="Multi-Agency Collaboration"
-          aria-label="Multi-Agency Collaboration"
-        >
-          👥
-        </button>
-        <button 
-          className={`${styles.navBtn} ${activeSection === 'earth-alliance' ? styles.active : ''}`}
-          onClick={() => setActiveSection('earth-alliance')}
-          title="Earth Alliance Operations"
-          aria-label="Earth Alliance Operations"
-        >
-          🌍
+          💬
         </button>
         <button 
           className={`${styles.navBtn} ${activeSection === 'apps' ? styles.active : ''}`}
@@ -262,25 +257,7 @@ const RightSideBar: React.FC = () => {
       <div className={styles.contentArea}>
         {activeSection === 'mission' && renderGlobeStatus()}
         {activeSection === 'intel' && renderIntelHub()}
-        {activeSection === 'ai' && aiSuggestionsEnabled && (
-          <AIErrorBoundary fallback={
-            <div className={styles.errorFallback}>
-              <span>⚠️ AI Actions Unavailable</span>
-            </div>
-          }>
-            <AIActionsPanelLayered className={styles.aiSection} />
-          </AIErrorBoundary>
-        )}
-        {activeSection === 'collaboration' && (
-          <div className={styles.collaborationSection}>
-            <CollaborationPanel />
-          </div>
-        )}
-        {activeSection === 'earth-alliance' && (
-          <div className={styles.earthAllianceSection}>
-            <EarthAllianceCommunicationPanel />
-          </div>
-        )}
+        {activeSection === 'chat' && renderChatHub()}
         {activeSection === 'apps' && renderExternalApps()}
         {activeSection === 'developer' && process.env.NODE_ENV === 'development' && (
           <div className={styles.developerSection}>
@@ -289,21 +266,27 @@ const RightSideBar: React.FC = () => {
         )}
       </div>
 
-      {/* Enhanced Status Footer with Phase Indicator */}
+      {/* Chat Overlay */}
+      <ChatOverlay 
+        isOpen={isChatOverlayOpen}
+        onClose={() => setIsChatOverlayOpen(false)}
+      />
+
+      {/* Enhanced Status Footer with Mission Control Status */}
       <div className={styles.statusFooter}>
-        <div className={`${styles.statusDot} ${styles[getOperationalStatus().class + 'Dot']}`}></div>
+        <div className={`${styles.statusDot} ${styles.operationalDot}`}></div>
         {!isCollapsed ? (
           <div className={styles.statusContainer}>
-            <div className={`${styles.operationalStatus} ${styles[getOperationalStatus().class]}`}>
-              <span>{getOperationalStatus().text}</span>
+            <div className={`${styles.operationalStatus} ${styles.operational}`}>
+              <span>OPERATIONAL</span>
             </div>
             <div className={styles.phaseStatus}>
-              <span className={styles.phaseIcon}>{getCurrentPhase().icon}</span>
-              <span className={styles.phaseLabel}>{getCurrentPhase().label}</span>
+              <span className={styles.phaseIcon}>🌍</span>
+              <span className={styles.phaseLabel}>Mission Control</span>
             </div>
           </div>
         ) : (
-          <span className={styles.phaseIcon}>{getCurrentPhase().icon}</span>
+          <span className={styles.phaseIcon}>🌍</span>
         )}
       </div>
     </div>
