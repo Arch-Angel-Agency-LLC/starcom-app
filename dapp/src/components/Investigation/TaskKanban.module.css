@@ -467,6 +467,51 @@
   box-shadow: none;
 }
 
+/* Memory warning styles for TaskKanban */
+.memoryWarning {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.memoryWarning.warning {
+  background: rgba(255, 179, 71, 0.2);
+  color: #ffb347;
+  border: 1px solid rgba(255, 179, 71, 0.3);
+}
+
+.memoryWarning.critical {
+  background: rgba(255, 71, 87, 0.2);
+  color: #ff4757;
+  border: 1px solid rgba(255, 71, 87, 0.3);
+  animation: pulse 1.5s infinite;
+}
+
+/* Disabled states for memory-constrained operations */
+.addTaskButton:disabled,
+.emptyAddButton:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.addTaskButton:disabled:hover,
+.emptyAddButton:disabled:hover {
+  transform: none;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.3);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
 /* Responsive Design */
 @media (max-width: 1200px) {
   .kanbanBoard {

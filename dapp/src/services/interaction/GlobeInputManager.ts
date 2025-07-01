@@ -1,7 +1,7 @@
 // GlobeInputManager.ts
 // Central input management system for 3D globe interactions
 
-import { InteractionMode, getModeConfig } from './InteractionMode';
+import { InteractionMode, getModeConfig } from '../../types/interaction/InteractionMode';
 import { 
   InputHandler, 
   InputEvent, 
@@ -11,7 +11,7 @@ import {
   IntelPlacementInputHandler,
   IntelInspectionInputHandler,
   MeasurementInputHandler
-} from './InputHandler';
+} from '../../types/interaction/InputHandler';
 import * as THREE from 'three';
 
 export interface GlobeInputManagerConfig {

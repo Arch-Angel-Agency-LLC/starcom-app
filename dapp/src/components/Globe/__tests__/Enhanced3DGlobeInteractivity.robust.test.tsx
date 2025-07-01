@@ -7,7 +7,7 @@
  */
 
 import React from 'react';
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act , act } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import '@testing-library/jest-dom';
 import userEvent from '@testing-library/user-event';
@@ -15,31 +15,28 @@ import { Enhanced3DGlobeInteractivity } from '../Enhanced3DGlobeInteractivity';
 import { IntelReportOverlayMarker } from '../../../interfaces/IntelReportOverlay';
 
 // Mock THREE.js properly for testing
-vi.mock('three', async () => {
-  const actual = await vi.importActual('three');
-  return {
-    ...actual,
-    SphereGeometry: vi.fn(() => ({})),
-    MeshBasicMaterial: vi.fn(() => ({})),
-    LineBasicMaterial: vi.fn(() => ({})),
-    Mesh: vi.fn(() => ({
-      visible: false,
-      position: { x: 0, y: 0, z: 0 }
-    })),
-    Line: vi.fn(() => ({})),
-    BufferGeometry: vi.fn(() => ({
-      setFromPoints: vi.fn(() => ({}))
-    })),
-    Group: vi.fn(() => ({
-      add: vi.fn(),
-      remove: vi.fn(),
-      clear: vi.fn(),
-      traverse: vi.fn()
-    })),
-    Vector3: vi.fn((x = 0, y = 0, z = 0) => ({ x, y, z })),
-    Vector2: vi.fn((x = 0, y = 0) => ({ x, y }))
-  };
-});
+// Mock THREE.js completely to avoid 3D context issues
+vi.mock('three', () => ({
+  SphereGeometry: vi.fn(() => ({})),
+  MeshBasicMaterial: vi.fn(() => ({})),
+  LineBasicMaterial: vi.fn(() => ({})),
+  Mesh: vi.fn(() => ({ visible: false, position: { x: 0, y: 0, z: 0 } })),
+  Line: vi.fn(() => ({})),
+  BufferGeometry: vi.fn(() => ({ setFromPoints: vi.fn() })),
+  Group: vi.fn(() => ({ add: vi.fn(), remove: vi.fn(), clear: vi.fn() })),
+  Vector3: vi.fn((x = 0, y = 0, z = 0) => ({ x, y, z })),
+  Vector2: vi.fn((x = 0, y = 0) => ({ x, y })),
+  Raycaster: vi.fn(() => ({
+    setFromCamera: vi.fn(),
+    intersectObjects: vi.fn(() => [])
+  })),
+  Camera: vi.fn(() => ({})),
+  Scene: vi.fn(() => ({ children: [] })),
+  PerspectiveCamera: vi.fn(() => ({
+    position: { x: 0, y: 0, z: 0 },
+    rotation: { x: 0, y: 0, z: 0 }
+  }))
+}));
 
 // Track interactions for testing
 const mockInteractionHistory: Array<{

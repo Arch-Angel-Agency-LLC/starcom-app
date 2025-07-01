@@ -2,6 +2,7 @@
 import React, { useState, useMemo } from 'react';
 import { Task, TaskStatus, TaskPriority } from '../../interfaces/Investigation';
 import { useInvestigation } from '../../hooks/useInvestigation';
+import { useMemoryAware } from '../../hooks/useMemoryAware';
 import styles from './TaskKanban.module.css';
 
 interface TaskKanbanProps {
@@ -29,6 +30,9 @@ const TaskKanban: React.FC<TaskKanbanProps> = ({
 }) => {
   const { state, updateTask, createTask } = useInvestigation();
   
+  // Memory monitoring for task management
+  const { isMemoryHigh, isMemoryCritical, shouldProceedWithOperation, getRecommendedPageSize } = useMemoryAware();
+  
   // Use tasks from props or context
   const allTasks = propTasks || state.tasks;
   
@@ -51,7 +55,7 @@ const TaskKanban: React.FC<TaskKanbanProps> = ({
     due_date: '',
   });
 
-  // Group tasks by status
+  // Group tasks by status with memory-aware limiting
   const tasksByStatus = useMemo(() => {
     const grouped: Record<TaskStatus, Task[]> = {
       pending: [],
@@ -65,8 +69,21 @@ const TaskKanban: React.FC<TaskKanbanProps> = ({
       grouped[task.status].push(task);
     });
 
+    // Apply memory-aware limits to each column
+    const maxTasksPerColumn = getRecommendedPageSize(10, 50); // 10 default, max 50 per column
+    
+    Object.keys(grouped).forEach(status => {
+      const tasks = grouped[status as TaskStatus];
+      if (tasks.length > maxTasksPerColumn) {
+        // Keep most recent tasks when memory is constrained
+        grouped[status as TaskStatus] = tasks
+          .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
+          .slice(0, maxTasksPerColumn);
+      }
+    });
+
     return grouped;
-  }, [tasks]);
+  }, [tasks, getRecommendedPageSize]);
 
   const getTaskCount = (status: TaskStatus) => tasksByStatus[status].length;
 
@@ -136,6 +153,13 @@ const TaskKanban: React.FC<TaskKanbanProps> = ({
   const handleCreateTask = async () => {
     if (!investigationId || !taskFormData.title.trim()) return;
 
+    // Check memory before creating new task
+    if (!shouldProceedWithOperation) {
+      console.warn('Cannot create task: memory usage too high');
+      // TODO: Show memory warning notification
+      return;
+    }
+
     try {
       const newTask = {
         investigation_id: investigationId,
@@ -190,6 +214,12 @@ const TaskKanban: React.FC<TaskKanbanProps> = ({
             <span className={styles.stat}>
               Completed: <strong>{getTaskCount('completed')}</strong>
             </span>
+            {/* Memory status indicator */}
+            {(isMemoryHigh || isMemoryCritical) && (
+              <span className={`${styles.memoryWarning} ${isMemoryCritical ? styles.critical : styles.warning}`}>
+                {isMemoryCritical ? '🔴 Memory Critical' : '🟡 Memory High'}
+              </span>
+            )}
           </div>
         </div>
       </div>
@@ -221,8 +251,9 @@ const TaskKanban: React.FC<TaskKanbanProps> = ({
               {!readOnly && investigationId && (
                 <button
                   className={styles.addTaskButton}
-                  onClick={() => openCreateModal(column.id)}
-                  title="Add task"
+                  onClick={() => shouldProceedWithOperation ? openCreateModal(column.id) : null}
+                  disabled={!shouldProceedWithOperation}
+                  title={shouldProceedWithOperation ? "Add task" : "Memory usage too high - task creation disabled"}
                 >
                   ➕
                 </button>
@@ -237,7 +268,9 @@ const TaskKanban: React.FC<TaskKanbanProps> = ({
                   {!readOnly && investigationId && (
                     <button
                       className={styles.emptyAddButton}
-                      onClick={() => openCreateModal(column.id)}
+                      onClick={() => shouldProceedWithOperation ? openCreateModal(column.id) : null}
+                      disabled={!shouldProceedWithOperation}
+                      title={shouldProceedWithOperation ? "Add first task" : "Memory usage too high - task creation disabled"}
                     >
                       Add first task
                     </button>

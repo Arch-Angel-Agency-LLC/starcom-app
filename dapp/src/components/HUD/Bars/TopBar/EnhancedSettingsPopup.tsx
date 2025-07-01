@@ -2,7 +2,7 @@
 // Phase 3: Multi-tab interface with rich controls and drag-and-drop functionality
 import React, { useRef, useEffect, useState, useCallback, useImperativeHandle, forwardRef } from 'react';
 import FocusTrap from 'focus-trap-react';
-import { TopBarCategory } from './topbarCategories';
+import { TopBarCategory, CATEGORY_GROUPS } from './topbarCategories';
 import { MarqueeDataPoint } from './interfaces';
 import CategoriesTab from './SettingsTabs/CategoriesTab';
 import DisplayTab from './SettingsTabs/DisplayTab';

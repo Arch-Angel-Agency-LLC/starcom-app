@@ -7,6 +7,7 @@
  */
 
 import React, { useState, useCallback } from 'react';
+import { IntelReport3DData } from '../../../types/intelligence/IntelReportTypes';
 import {
   IntelReportList,
   IntelFilterControls,
@@ -55,7 +56,7 @@ export const IntegrationExample: React.FC<IntegrationExampleProps> = ({
   componentsToShow = ['search', 'filters', 'list', 'actions', 'status', 'metrics']
 }) => {
   // Mock state management
-  const [selectedReports, setSelectedReports] = useState<string[]>([]);
+  const [selectedReportIds, setSelectedReportIds] = useState<Set<string>>(new Set());
   const [filters, setFilters] = useState<MockFilters>({
     categories: [],
     tags: [],
@@ -67,7 +68,7 @@ export const IntegrationExample: React.FC<IntegrationExampleProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
 
   // Mock data
-  const reports: MockIntelReport[] = [
+  const mockReports: MockIntelReport[] = [
     {
       id: '1',
       title: 'Sample Intel Report 1',
@@ -94,18 +95,67 @@ export const IntegrationExample: React.FC<IntegrationExampleProps> = ({
     }
   ];
 
+  // Convert mock data to proper IntelReport3DData format
+  const reports: IntelReport3DData[] = mockReports.map(mock => ({
+    id: mock.id,
+    title: mock.title,
+    content: {
+      summary: mock.title,
+      details: mock.content,
+      keywords: mock.tags,
+      analysis: `Analysis for ${mock.title}`,
+      recommendations: ['Monitor closely', 'Update periodically']
+    },
+    classification: mock.classification as 'UNCLASSIFIED' | 'CONFIDENTIAL' | 'SECRET' | 'TOP_SECRET',
+    priority: mock.priority.toLowerCase() as 'low' | 'medium' | 'high' | 'critical',
+    timestamp: mock.timestamp,
+    confidence: mock.confidence,
+    source: mock.source,
+    location: {
+      lat: 40.7128,
+      lng: -74.0060,
+      region: 'North America'
+    },
+    visualization: {
+      markerType: 'standard',
+      color: '#FF6B6B',
+      size: 1.0,
+      opacity: 0.8,
+      priority: mock.priority.toLowerCase() as 'low' | 'medium' | 'high' | 'critical',
+      animation: {
+        enabled: true,
+        type: 'pulse',
+        duration: 2000,
+        loop: true,
+        easing: 'ease-in-out'
+      }
+    },
+    metadata: {
+      category: 'cyber_threat',
+      tags: mock.tags,
+      confidence: mock.confidence / 100,
+      reliability: 0.8,
+      freshness: 0.9,
+      threat_level: 'moderate',
+      analyst: 'System'
+    }
+  }));
+
   // Event handlers
-  const handleReportSelect = useCallback((reportIds: string[]) => {
-    setSelectedReports(reportIds);
+  const handleReportSelect = useCallback((selectedIds: Set<string>) => {
+    setSelectedReportIds(selectedIds);
   }, []);
 
-  const handleAction = useCallback(async (actionType: string, reportIds: string[]) => {
-    console.log(`Executing ${actionType} on reports:`, reportIds);
+  const handleAction = useCallback(async (actionType: string, reports: IntelReport3DData[]) => {
+    console.log(`Executing ${actionType} on reports:`, reports.map(r => r.id));
     // Simulate async operation
     await new Promise(resolve => setTimeout(resolve, 1000));
     // Clear selection after action
-    setSelectedReports([]);
+    setSelectedReportIds(new Set());
   }, []);
+
+  // Get selected reports objects
+  const selectedReports = reports.filter(report => selectedReportIds.has(report.id));
 
   const handleFilterChange = useCallback((newFilters: Partial<MockFilters>) => {
     setFilters(prev => ({ ...prev, ...newFilters }));
@@ -134,8 +184,8 @@ export const IntegrationExample: React.FC<IntegrationExampleProps> = ({
         
         {componentsToShow.includes('metrics') && (
           <IntelMetricsDisplay
-            refreshInterval={5000}
-            size="compact"
+            updateInterval={5000}
+            variant="compact"
           />
         )}
       </div>
@@ -156,7 +206,6 @@ export const IntegrationExample: React.FC<IntegrationExampleProps> = ({
           <IntelFilterControls
             filters={filters}
             onFiltersChange={handleFilterChange}
-            showPresets={true}
             showAdvanced={true}
           />
         )}
@@ -168,7 +217,7 @@ export const IntegrationExample: React.FC<IntegrationExampleProps> = ({
           <IntelActionButtons
             selectedReports={selectedReports}
             onAction={handleAction}
-            layout="horizontal"
+            variant="horizontal"
             disabled={false}
           />
         </div>
@@ -183,8 +232,7 @@ export const IntegrationExample: React.FC<IntegrationExampleProps> = ({
             error={null}
             onSelectionChange={handleReportSelect}
             virtualized={true}
-            selectable={true}
-            showMetadata={true}
+            multiSelect={true}
             itemHeight={120}
           />
         )}

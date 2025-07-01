@@ -53,6 +53,49 @@
   font-size: 0.9rem;
 }
 
+/* Memory Status Indicator */
+.memoryStatus {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+}
+
+.memoryDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.memoryDot.normal {
+  background: #00ff88;
+  box-shadow: 0 0 8px rgba(0, 255, 136, 0.3);
+}
+
+.memoryDot.warning {
+  background: #ffb347;
+  box-shadow: 0 0 8px rgba(255, 179, 71, 0.5);
+}
+
+.memoryDot.critical {
+  background: #ff4757;
+  box-shadow: 0 0 8px rgba(255, 71, 87, 0.7);
+  animation: pulse 1.5s infinite;
+}
+
+.memoryText {
+  font-weight: 500;
+  color: #e0e0e0;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
 .statusDot {
   width: 8px;
   height: 8px;

@@ -3,7 +3,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { PublicKey } from '@solana/web3.js';
 import bs58 from 'bs58';
 import nacl from 'tweetnacl';
-import { secureStorage } from '../utils/secureStorage';
+import { secureStorage } from '../security/storage/SecureStorageManager';
 
 /**
  * Sign-In with Solana (SIWS) Hook
@@ -86,32 +86,32 @@ export function useSIWS(): UseSIWSReturn {
       return true;
     };
 
-    const loadSession = () => {
+    const loadSession = async () => {
       try {
-        const parsed = secureStorage.getSecureSession<SIWSSession>();
+        const parsed = await secureStorage.getItem<SIWSSession>('siws_session');
         if (parsed && isSessionValidInternal(parsed)) {
           setSession(parsed);
           // Remove console.log for production security
         } else {
-          secureStorage.clearSecureSession();
+          secureStorage.removeItem('siws_session');
           setSession(null);
           setError(null);
         }
       } catch {
         // Remove console logging to prevent data exposure
-        secureStorage.clearSecureSession();
+        secureStorage.removeItem('siws_session');
         setSession(null);
         setError(null);
       }
     };
 
-    loadSession();
+    loadSession().catch(console.warn);
   }, [publicKey]);
 
   // Clear session when wallet changes
   useEffect(() => {
     if (session && publicKey && session.publicKey !== publicKey.toBase58()) {
-      secureStorage.clearSecureSession();
+      secureStorage.removeItem('siws_session');
       setSession(null);
       setError(null);
     }
@@ -239,46 +239,230 @@ export function useSIWS(): UseSIWSReturn {
 
   // Sign in with Solana
   const signIn = useCallback(async (): Promise<boolean> => {
-    if (!publicKey || !signMessage) {
-      setError('Wallet not connected or does not support message signing');
-      return false;
+    // Enhanced pre-flight validation with detailed error reporting
+    if (!publicKey) {
+      const error = new Error('SIWS_WALLET_NOT_CONNECTED: Wallet public key is not available. Please ensure your wallet is properly connected and unlocked.');
+      setError(error.message);
+      console.error('🚨 SIWS Sign-In Failed - No Public Key:', {
+        publicKey,
+        timestamp: new Date().toISOString(),
+        userAgent: navigator.userAgent
+      });
+      throw error;
+    }
+
+    if (!signMessage) {
+      const error = new Error('SIWS_SIGNING_NOT_SUPPORTED: Wallet does not support message signing. This wallet may not be compatible with Sign-In with Solana (SIWS) authentication.');
+      setError(error.message);
+      console.error('🚨 SIWS Sign-In Failed - No Signing Support:', {
+        publicKey: publicKey.toBase58(),
+        walletName: 'Unknown',
+        timestamp: new Date().toISOString(),
+        supportedFeatures: {
+          signMessage: !!signMessage,
+          signTransaction: typeof window !== 'undefined' && 'solana' in window
+        }
+      });
+      throw error;
     }
 
     setIsLoading(true);
     setError(null);
 
+    const address = publicKey.toBase58();
+    console.log('🔐 Starting SIWS Authentication Process:', {
+      address: address.substring(0, 8) + '...',
+      timestamp: new Date().toISOString(),
+      sessionDuration: SESSION_DURATION / 1000 / 60 + ' minutes'
+    });
+
     try {
-      const address = publicKey.toBase58();
-      const message = createMessage(address);
-      const messageText = formatMessage(message);
-      const messageBytes = new TextEncoder().encode(messageText);
+      // Step 1: Create authentication message
+      let message;
+      let messageText;
+      let messageBytes;
       
-      const signature = await signMessage(messageBytes);
-      
-      // Verify the signature
-      const isValid = verifySignature(messageText, signature, address);
-      
-      if (!isValid) {
-        throw new Error('Signature verification failed');
+      try {
+        message = createMessage(address);
+        messageText = formatMessage(message);
+        messageBytes = new TextEncoder().encode(messageText);
+        
+        console.log('✅ SIWS Message Created Successfully:', {
+          messageLength: messageText.length,
+          addressInMessage: message.address,
+          domain: message.domain,
+          nonce: message.nonce
+        });
+      } catch (err) {
+        const error = new Error(`SIWS_MESSAGE_CREATION_FAILED: Failed to create authentication message. ${err instanceof Error ? err.message : 'Unknown error during message creation.'}`);
+        setError(error.message);
+        console.error('🚨 SIWS Message Creation Failed:', {
+          originalError: err,
+          address,
+          timestamp: new Date().toISOString()
+        });
+        throw error;
       }
 
-      const newSession: SIWSSession = {
-        message,
-        signature: bs58.encode(signature),
-        publicKey: address,
-        issuedAt: Date.now(),
-        expiresAt: Date.now() + SESSION_DURATION,
-        verified: true,
-      };
+      // Step 2: Request wallet signature with enhanced error handling
+      let signature;
+      try {
+        console.log('📝 Requesting wallet signature...');
+        signature = await signMessage(messageBytes);
+        console.log('✅ Wallet signature obtained successfully:', {
+          signatureLength: signature.length,
+          timestamp: new Date().toISOString()
+        });
+      } catch (err) {
+        // Enhanced wallet-specific error handling
+        let enhancedError;
+        const originalMessage = err instanceof Error ? err.message : 'Unknown signing error';
+        
+        if (originalMessage.includes('User declined') || originalMessage.includes('rejected') || originalMessage.includes('denied')) {
+          enhancedError = new Error('SIWS_USER_REJECTED: User declined to sign the authentication message. Please try again and approve the signature request in your wallet.');
+        } else if (originalMessage.includes('JSON-RPC') || originalMessage.includes('Internal error')) {
+          enhancedError = new Error(`SIWS_WALLET_RPC_ERROR: Wallet communication error occurred during signing. This may be due to network issues, wallet server problems, or temporary connectivity issues. Original error: ${originalMessage}`);
+        } else if (originalMessage.includes('WalletSignMessageError')) {
+          enhancedError = new Error(`SIWS_WALLET_SIGNING_ERROR: Wallet failed to sign the message. This could be due to wallet lock state, insufficient permissions, or wallet malfunction. Original error: ${originalMessage}`);
+        } else if (originalMessage.includes('timeout') || originalMessage.includes('Timeout')) {
+          enhancedError = new Error('SIWS_SIGNING_TIMEOUT: Wallet signing request timed out. Please ensure your wallet is unlocked and responsive, then try again.');
+        } else if (originalMessage.includes('not supported') || originalMessage.includes('unsupported')) {
+          enhancedError = new Error('SIWS_FEATURE_UNSUPPORTED: Your wallet does not support the required signing features for SIWS authentication. Please try a different wallet or update your current wallet.');
+        } else {
+          enhancedError = new Error(`SIWS_SIGNING_UNKNOWN_ERROR: An unexpected error occurred during wallet signing. Original error: ${originalMessage}`);
+        }
 
-      // Store session securely
-      secureStorage.setSecureSession(newSession);
-      setSession(newSession);
+        setError(enhancedError.message);
+        console.error('🚨 SIWS Wallet Signing Failed:', {
+          originalError: err,
+          errorName: err instanceof Error ? err.name : 'Unknown',
+          errorMessage: originalMessage,
+          enhancedErrorCode: enhancedError.message.split(':')[0],
+          address,
+          timestamp: new Date().toISOString(),
+          walletState: {
+            connected: !!publicKey,
+            signingSupported: !!signMessage
+          }
+        });
+        
+        throw enhancedError;
+      }
+
+      // Step 3: Verify signature with enhanced validation
+      let isValid;
+      try {
+        isValid = verifySignature(messageText, signature, address);
+        console.log('🔍 Signature verification result:', {
+          isValid,
+          address: address.substring(0, 8) + '...',
+          timestamp: new Date().toISOString()
+        });
+      } catch (err) {
+        const error = new Error(`SIWS_SIGNATURE_VERIFICATION_ERROR: Failed to verify the wallet signature. This may indicate a cryptographic issue or corrupted signature data. ${err instanceof Error ? err.message : 'Unknown verification error.'}`);
+        setError(error.message);
+        console.error('🚨 SIWS Signature Verification Failed:', {
+          originalError: err,
+          address,
+          signatureLength: signature.length,
+          messageLength: messageText.length,
+          timestamp: new Date().toISOString()
+        });
+        throw error;
+      }
+      
+      if (!isValid) {
+        const error = new Error('SIWS_SIGNATURE_INVALID: Wallet signature verification failed. The signature does not match the expected cryptographic proof for this wallet address. This could indicate a wallet malfunction or security issue.');
+        setError(error.message);
+        console.error('🚨 SIWS Signature Invalid:', {
+          address,
+          signatureLength: signature.length,
+          messageText: messageText.substring(0, 100) + '...',
+          timestamp: new Date().toISOString(),
+          verificationAttempts: 1
+        });
+        throw error;
+      }
+
+      // Step 4: Create and store session with enhanced error handling
+      let newSession;
+      try {
+        newSession = {
+          message,
+          signature: bs58.encode(signature),
+          publicKey: address,
+          issuedAt: Date.now(),
+          expiresAt: Date.now() + SESSION_DURATION,
+          verified: true,
+        };
+
+        console.log('💾 Creating secure session:', {
+          address: address.substring(0, 8) + '...',
+          expiresIn: SESSION_DURATION / 1000 / 60 + ' minutes',
+          timestamp: new Date().toISOString()
+        });
+      } catch (err) {
+        const error = new Error(`SIWS_SESSION_CREATION_ERROR: Failed to create authentication session object. ${err instanceof Error ? err.message : 'Unknown session creation error.'}`);
+        setError(error.message);
+        console.error('🚨 SIWS Session Creation Failed:', {
+          originalError: err,
+          address,
+          timestamp: new Date().toISOString()
+        });
+        throw error;
+      }
+
+      // Step 5: Store session securely with enhanced error handling
+      try {
+        await secureStorage.setItem('siws_session', newSession, { 
+          encrypt: true, 
+          classification: 'SECRET',
+          ttl: SESSION_DURATION 
+        });
+        setSession(newSession);
+        
+        console.log('🎉 SIWS Authentication Completed Successfully:', {
+          address: address.substring(0, 8) + '...',
+          sessionDuration: SESSION_DURATION / 1000 / 60 + ' minutes',
+          timestamp: new Date().toISOString(),
+          securityLevel: 'SIWS_AUTHENTICATED'
+        });
+      } catch (err) {
+        const error = new Error(`SIWS_SESSION_STORAGE_ERROR: Failed to store authentication session securely. This may be due to browser storage limitations or security restrictions. ${err instanceof Error ? err.message : 'Unknown storage error.'}`);
+        setError(error.message);
+        console.error('🚨 SIWS Session Storage Failed:', {
+          originalError: err,
+          address,
+          timestamp: new Date().toISOString(),
+          storageAvailable: typeof localStorage !== 'undefined'
+        });
+        throw error;
+      }
       
       return true;
-    } catch {
-      setError('Authentication failed');
-      return false;
+      
+    } catch (err) {
+      // Final error handling with comprehensive logging
+      console.error('🚨 SIWS Sign-In Process Failed:', {
+        error: err,
+        errorMessage: err instanceof Error ? err.message : 'Unknown error',
+        errorName: err instanceof Error ? err.name : 'Unknown',
+        address,
+        timestamp: new Date().toISOString(),
+        userAgent: navigator.userAgent,
+        walletContext: {
+          publicKeyAvailable: !!publicKey,
+          signMessageAvailable: !!signMessage,
+          connected: !!publicKey
+        }
+      });
+      
+      // Ensure error is set for UI display
+      const finalErrorMessage = err instanceof Error ? err.message : 'SIWS_UNKNOWN_ERROR: An unexpected error occurred during Sign-In with Solana authentication.';
+      setError(finalErrorMessage);
+      
+      // Re-throw the original error to preserve error details for upstream handling
+      throw err;
     } finally {
       setIsLoading(false);
     }
@@ -286,7 +470,7 @@ export function useSIWS(): UseSIWSReturn {
 
   // Sign out
   const signOut = useCallback((): void => {
-    secureStorage.clearSecureSession();
+    secureStorage.removeItem('siws_session');
     setSession(null);
     setError(null);
   }, []);
@@ -312,27 +496,27 @@ export function useSIWS(): UseSIWSReturn {
 }
 
 // Utility function to get current session without hook
-export function getSIWSSession(): SIWSSession | null {
+export async function getSIWSSession(): Promise<SIWSSession | null> {
   try {
-    const session = secureStorage.getSecureSession<SIWSSession>();
+    const session = await secureStorage.getItem<SIWSSession>('siws_session');
     if (!session) return null;
     
     const now = Date.now();
     
     if (now > session.expiresAt || !session.verified) {
-      secureStorage.clearSecureSession();
+      secureStorage.removeItem('siws_session');
       return null;
     }
     
     return session;
   } catch {
-    secureStorage.clearSecureSession();
+    secureStorage.removeItem('siws_session');
     return null;
   }
 }
 
 // Utility to check if address is authenticated
-export function isAddressAuthenticated(address: string): boolean {
-  const session = getSIWSSession();
+export async function isAddressAuthenticated(address: string): Promise<boolean> {
+  const session = await getSIWSSession();
   return session ? session.publicKey === address : false;
 }

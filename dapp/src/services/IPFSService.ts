@@ -8,7 +8,7 @@
 // Enhanced with zero-trust validation, audit trails, and classification enforcement
 
 import { CyberTeam, IntelPackage, CyberInvestigation } from '../types/cyberInvestigation';
-import { secureStorage } from '../utils/secureStorage';
+import { secureStorage } from '../security/storage/SecureStorageManager';
 import { SOCOMPQCryptoService } from './crypto/SOCOMPQCryptoService';
 
 // Advanced Cybersecurity Interfaces
@@ -183,7 +183,7 @@ export class IPFSService {
     this.initializeSecurityFramework();
     
     // Load existing mock data from localStorage with error handling
-    this.loadMockStorage();
+    this.loadMockStorage().catch(console.warn);
     
     // Perform initial health check
     this.performHealthCheck();
@@ -268,7 +268,7 @@ export class IPFSService {
         this.mockStorage.delete(sorted[i][0]);
       }
       
-      this.saveMockStorage();
+      await this.saveMockStorage();
       console.log(`IPFS cleanup: removed ${toRemove} oldest items`);
     } catch (error) {
       console.error('IPFS cleanup failed:', error);
@@ -349,9 +349,9 @@ export class IPFSService {
     };
   }
 
-  private loadMockStorage(): void {
+  private async loadMockStorage(): Promise<void> {
     try {
-      const stored = secureStorage.getItem<string>('ipfs-mock-storage');
+      const stored = await secureStorage.getItem<string>('ipfs-mock-storage');
       if (stored) {
         const data = JSON.parse(stored);
         this.mockStorage = new Map(Object.entries(data));
@@ -361,10 +361,10 @@ export class IPFSService {
     }
   }
 
-  private saveMockStorage(): void {
+  private async saveMockStorage(): Promise<void> {
     try {
       const data = Object.fromEntries(this.mockStorage);
-      secureStorage.setItem('ipfs-mock-storage', JSON.stringify(data));
+      await secureStorage.setItem('ipfs-mock-storage', JSON.stringify(data));
     } catch (error) {
       console.warn('Failed to save mock IPFS storage:', error);
     }

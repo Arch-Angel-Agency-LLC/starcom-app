@@ -1,7 +1,7 @@
 // src/api/auth.ts
 // Hardened authentication API client with comprehensive security controls
 
-import { secureLogger } from '../utils/secureLogging';
+import { secureLogger } from '../security/logging/SecureLogger';
 
 export interface BackendSession {
   token: string;
@@ -155,25 +155,27 @@ class SecureAuthClient {
         this.csrfToken = data.csrfToken;
       }
     } catch (error) {
-      secureLogger.warn('Failed to initialize CSRF token', error, {
-        component: 'SecureAuthClient'
+      secureLogger.log('warn', 'Failed to initialize CSRF token', error, {
+        component: 'SecureAuthClient',
+        classification: 'CONFIDENTIAL'
       });
     }
   }
 
   async requestBackendNonce(address: string): Promise<string> {
     // Input validation
-    if (!this.validateAddress(address)) {
-      secureLogger.audit('SecureAuthClient', 'requestNonce', 'FAILURE', 
-        { error: 'Invalid address format' }, 'CONFIDENTIAL');
+    if (!this.validateAddress(address)) {      secureLogger.logAuditEvent('requestNonce', 'system', 'FAILURE', {
+        component: 'SecureAuthClient'
+      }, {error: 'Invalid address format' });
       throw new Error('Invalid address format');
     }
 
     // Rate limiting
     const rateLimitCheck = this.checkRateLimit(address);
     if (!rateLimitCheck.allowed) {
-      secureLogger.audit('SecureAuthClient', 'requestNonce', 'FAILURE',
-        { error: 'Rate limit exceeded', address: address.substring(0, 6) + '...' }, 'CONFIDENTIAL');
+      secureLogger.logAuditEvent('requestNonce', 'system', 'FAILURE', {
+        component: 'SecureAuthClient'
+      }, { error: 'Rate limit exceeded', address: address.substring(0, 6) + '...' });
       throw rateLimitCheck.error;
     }
 
@@ -205,15 +207,17 @@ class SecureAuthClient {
 
       this.recordAttempt(address, true);
       
-      secureLogger.audit('SecureAuthClient', 'requestNonce', 'SUCCESS',
-        { address: address.substring(0, 6) + '...' }, 'CONFIDENTIAL');
+      secureLogger.logAuditEvent('requestNonce', 'system', 'SUCCESS', {
+        component: 'SecureAuthClient'
+      }, { address: address.substring(0, 6) + '...' });
 
       return data.nonce;
     } catch (error) {
       this.recordAttempt(address, false);
       
-      secureLogger.error('Nonce request failed', error, {
-        component: 'SecureAuthClient'
+      secureLogger.log('error', 'Nonce request failed', error, {
+        component: 'SecureAuthClient',
+        classification: 'CONFIDENTIAL'
       });
       
       throw error;
@@ -276,15 +280,17 @@ class SecureAuthClient {
       this.currentSession = session;
       this.recordAttempt(address, true);
       
-      secureLogger.audit('SecureAuthClient', 'authenticate', 'SUCCESS',
-        { sessionId: session.sessionId, address: address.substring(0, 6) + '...' }, 'CONFIDENTIAL');
+      secureLogger.logAuditEvent('authenticate', 'system', 'SUCCESS', {
+        component: 'SecureAuthClient'
+      }, { sessionId: session.sessionId, address: address.substring(0, 6) + '...' });
 
       return session;
     } catch (error) {
       this.recordAttempt(address, false);
       
-      secureLogger.error('Authentication failed', error, {
-        component: 'SecureAuthClient'
+      secureLogger.log('error', 'Authentication failed', error, {
+        component: 'SecureAuthClient',
+        classification: 'CONFIDENTIAL'
       });
       
       throw error;
@@ -302,8 +308,9 @@ class SecureAuthClient {
 
   clearSession(): void {
     if (this.currentSession) {
-      secureLogger.audit('SecureAuthClient', 'logout', 'SUCCESS',
-        { sessionId: this.currentSession.sessionId }, 'CONFIDENTIAL');
+      secureLogger.logAuditEvent('logout', 'system', 'SUCCESS', {
+        component: 'SecureAuthClient'
+      }, { sessionId: this.currentSession.sessionId });
     }
     this.currentSession = null;
   }
@@ -333,8 +340,9 @@ class SecureAuthClient {
         return this.currentSession;
       }
     } catch (error) {
-      secureLogger.error('Session refresh failed', error, {
-        component: 'SecureAuthClient'
+      secureLogger.log('error', 'Session refresh failed', error, {
+        component: 'SecureAuthClient',
+        classification: 'CONFIDENTIAL'
       });
     }
 

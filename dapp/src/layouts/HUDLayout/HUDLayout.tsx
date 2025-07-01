@@ -30,6 +30,8 @@ import { useFeatureFlag } from '../../utils/featureFlags';
 import { PopupProvider } from '../../components/Popup/PopupManager';
 import { ViewProvider } from '../../context/ViewContext';
 import { GlobeLoadingProvider } from '../../context/GlobeLoadingContext';
+import { SecureChatProvider } from '../../communication/context/SecureChatContext';
+import { SecureChatManager } from '../../components/SecureChat';
 
 const HUDLayout: React.FC = () => {
   const [showQuickAccess, setShowQuickAccess] = useState(false);
@@ -64,80 +66,85 @@ const HUDLayout: React.FC = () => {
     <ViewProvider>
       <GlobeLoadingProvider>
         <PopupProvider>
-          <AdaptiveProvider>
-          <AdaptiveUIController>
-            <PhaseTransitionManager>
-              <ContextBridge>
-                <FloatingPanelManager>
-              <div className={styles.hudLayout}>
-                <div className={styles.topLeftCorner}><TopLeftCorner /></div>
-                <div className={styles.topRightCorner}><TopRightCorner /></div>
-                <div className={styles.bottomLeftCorner}><BottomLeftCorner /></div>
-                <div className={styles.bottomRightCorner}><BottomRightCorner /></div>
-                <div className={styles.topBar}><TopBar /></div>
-                <div className={styles.bottomBar}><BottomBar /></div>
-                <div className={styles.leftSideBar}><LeftSideBar /></div>
-                <div className={styles.rightSideBar}><RightSideBar /></div>
-                <div className={styles.center}>
-                  {enhancedCenterEnabled ? (
-                    <CenterViewManager />
-                  ) : (
-                    // Legacy center content - empty for now
-                    <div />
-                  )}
-                </div>
-                
-                {/* NOAA Floating Integration - Connects NOAA datasets to floating panels */}
-                <NOAAFloatingIntegration />
-                
-                {/* UI Testing Diagnostics - Only visible when diagnostics mode is enabled */}
-                {uiTestingDiagnosticsEnabled && (
-                  <>
-                    {/* Floating Panel Demo - Development/Testing only */}
-                    <FloatingPanelDemo />
-                    
-                    {/* Feature Flag Controls - Now integrated into RightSideBar Developer Tools */}
-                    {/* <FeatureFlagControls /> */}
-                  </>
-                )}
-                
-                {/* Real-Time Notification System */}
-                <NotificationSystem />
-                
-                {/* Phase 5: Performance Optimization Dashboard */}
-                {performanceOptimizerEnabled && (
-                  <PerformanceOptimizer />
-                )}
-                
-                {/* Phase 5: Security Hardening Dashboard */}
-                {securityHardeningEnabled && (
-                  <SecurityHardening />
-                )}
-                
-                {/* Development Diagnostics Toggle - Now integrated into RightSideBar */}
-                {/* <DiagnosticsToggle /> */}
-              </div>
-              
-              {/* Quick Access Panel - Triggered by Ctrl+K */}
-              {showQuickAccess && (
-                <div className={styles.overlay} onClick={() => setShowQuickAccess(false)}>
-                  <div onClick={(e) => e.stopPropagation()}>
-                    <QuickAccessPanel />
+          <SecureChatProvider>
+            <AdaptiveProvider>
+            <AdaptiveUIController>
+              <PhaseTransitionManager>
+                <ContextBridge>
+                  <FloatingPanelManager>
+                <div className={styles.hudLayout}>
+                  <div className={styles.topLeftCorner}><TopLeftCorner /></div>
+                  <div className={styles.topRightCorner}><TopRightCorner /></div>
+                  <div className={styles.bottomLeftCorner}><BottomLeftCorner /></div>
+                  <div className={styles.bottomRightCorner}><BottomRightCorner /></div>
+                  <div className={styles.topBar}><TopBar /></div>
+                  <div className={styles.bottomBar}><BottomBar /></div>
+                  <div className={styles.leftSideBar}><LeftSideBar /></div>
+                  <div className={styles.rightSideBar}><RightSideBar /></div>
+                  <div className={styles.center}>
+                    {enhancedCenterEnabled ? (
+                      <CenterViewManager />
+                    ) : (
+                      // Legacy center content - empty for now
+                      <div />
+                    )}
                   </div>
+                  
+                  {/* NOAA Floating Integration - Connects NOAA datasets to floating panels */}
+                  <NOAAFloatingIntegration />
+                  
+                  {/* UI Testing Diagnostics - Only visible when diagnostics mode is enabled */}
+                  {uiTestingDiagnosticsEnabled && (
+                    <>
+                      {/* Floating Panel Demo - Development/Testing only */}
+                      <FloatingPanelDemo />
+                      
+                      {/* Feature Flag Controls - Now integrated into RightSideBar Developer Tools */}
+                      {/* <FeatureFlagControls /> */}
+                    </>
+                  )}
+                  
+                  {/* Real-Time Notification System */}
+                  <NotificationSystem />
+                  
+                  {/* Phase 5: Performance Optimization Dashboard */}
+                  {performanceOptimizerEnabled && (
+                    <PerformanceOptimizer />
+                  )}
+                  
+                  {/* Phase 5: Security Hardening Dashboard */}
+                  {securityHardeningEnabled && (
+                    <SecurityHardening />
+                  )}
+                  
+                  {/* Development Diagnostics Toggle - Now integrated into RightSideBar */}
+                  {/* <DiagnosticsToggle /> */}
                 </div>
-              )}
-              
-            </FloatingPanelManager>
-          </ContextBridge>
-        </PhaseTransitionManager>
-        </AdaptiveUIController>
-      </AdaptiveProvider>
-      
-      {/* Subtle New User Hint - Non-blocking */}
-      <NewUserHint />
-      
-      </PopupProvider>
-      </GlobeLoadingProvider>
+                
+                {/* Earth Alliance Secure Chat System */}
+                <SecureChatManager />
+                
+                {/* Quick Access Panel - Triggered by Ctrl+K */}
+                {showQuickAccess && (
+                  <div className={styles.overlay} onClick={() => setShowQuickAccess(false)}>
+                    <div onClick={(e) => e.stopPropagation()}>
+                      <QuickAccessPanel />
+                    </div>
+                  </div>
+                )}
+                
+              </FloatingPanelManager>
+            </ContextBridge>
+          </PhaseTransitionManager>
+          </AdaptiveUIController>
+        </AdaptiveProvider>
+        
+        {/* Subtle New User Hint - Non-blocking */}
+        <NewUserHint />
+        
+        </SecureChatProvider>
+        </PopupProvider>
+        </GlobeLoadingProvider>
     </ViewProvider>
   );
 

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-export type ViewMode = 'globe' | 'teams' | 'bots' | 'node-web' | 'investigations' | 'intel';
+export type ViewMode = 'globe' | 'teams' | 'ai-agent' | 'bots' | 'node-web' | 'investigations' | 'intel';
 
 interface ViewContextType {
   currentView: ViewMode;

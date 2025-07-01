@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { TeamMember, CollaborationEvent } from '../../interfaces/Investigation';
-import { secureLogger } from '../../utils/secureLogging';
+import { secureLogger } from '../../security/logging/SecureLogger';
 import styles from './CollaborationSidebar.module.css';
 
 interface CollaborationSidebarProps {
@@ -54,7 +54,7 @@ const CollaborationSidebar: React.FC<CollaborationSidebarProps> = ({
     const interval = setInterval(() => {
       // In a real implementation, this would be connected to WebSocket
       // For now, we'll just update the last seen timestamps
-      secureLogger.debug('Updating presence for investigation', { investigationId }, {
+      secureLogger.log('debug', 'Updating presence for investigation', { investigationId }, {
         component: 'CollaborationSidebar'
       });
     }, 30000);

@@ -3,6 +3,7 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
 import { useInvestigation } from '../../hooks/useInvestigation';
+import { useMemoryAware } from '../../hooks/useMemoryAware';
 import {
   Investigation,
   CreateInvestigationRequest,
@@ -34,6 +35,9 @@ const InvestigationDashboard: React.FC<InvestigationDashboardProps> = ({
     connectToInvestigation,
     createInvestigation,
   } = useInvestigation();
+
+  // Memory monitoring
+  const { memoryStats, isMemoryHigh, isMemoryCritical, shouldProceedWithOperation } = useMemoryAware();
 
   const [activeView, setActiveView] = useState<DashboardView>('overview');
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -251,6 +255,19 @@ const InvestigationDashboard: React.FC<InvestigationDashboardProps> = ({
         <div className={styles.headerContent}>
           <h1>Investigation Operations Center</h1>
           <div className={styles.headerControls}>
+            {/* Memory Status Indicator */}
+            <div className={styles.memoryStatus}>
+              <div className={`${styles.memoryDot} ${
+                isMemoryCritical ? styles.critical : 
+                isMemoryHigh ? styles.warning : styles.normal
+              }`} />
+              <span className={styles.memoryText}>
+                {memoryStats.usedMB}MB
+                {isMemoryCritical && ' ⚠️'}
+                {isMemoryHigh && !isMemoryCritical && ' ⚡'}
+              </span>
+            </div>
+            
             <div className={styles.connectionStatus}>
               <div className={`${styles.statusDot} ${
                 state.isConnected ? styles.connected : styles.disconnected
@@ -259,7 +276,9 @@ const InvestigationDashboard: React.FC<InvestigationDashboardProps> = ({
             </div>
             <button
               className={styles.createButton}
-              onClick={() => setShowCreateModal(true)}
+              onClick={() => shouldProceedWithOperation ? setShowCreateModal(true) : null}
+              disabled={!shouldProceedWithOperation}
+              title={!shouldProceedWithOperation ? 'Memory usage too high - operation disabled' : ''}
             >
               ➕ New Investigation
             </button>
@@ -301,7 +320,7 @@ const InvestigationDashboard: React.FC<InvestigationDashboardProps> = ({
             <div className={styles.error}>
               <h3>⚠️ Error</h3>
               <p>{state.error}</p>
-              <button onClick={loadInvestigations}>Try Again</button>
+              <button onClick={() => loadInvestigations()}>Try Again</button>
             </div>
           ) : (
             renderContent()

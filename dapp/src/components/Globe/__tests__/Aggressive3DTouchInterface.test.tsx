@@ -14,6 +14,7 @@ import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import '@testing-library/jest-dom';
 import { Enhanced3DGlobeInteractivity } from '../Enhanced3DGlobeInteractivity';
 import { IntelReportOverlayMarker } from '../../../interfaces/IntelReportOverlay';
+import { GlobalGlobeContextMenuProvider } from '../../../context/GlobalGlobeContextMenuProvider';
 
 // Mock THREE.js completely to avoid 3D context issues
 vi.mock('three', () => ({
@@ -25,7 +26,13 @@ vi.mock('three', () => ({
   BufferGeometry: vi.fn(() => ({ setFromPoints: vi.fn() })),
   Group: vi.fn(() => ({ add: vi.fn(), remove: vi.fn(), clear: vi.fn() })),
   Vector3: vi.fn((x = 0, y = 0, z = 0) => ({ x, y, z })),
-  Vector2: vi.fn((x = 0, y = 0) => ({ x, y }))
+  Vector2: vi.fn((x = 0, y = 0) => ({ x, y })),
+  Raycaster: vi.fn(() => ({
+    setFromCamera: vi.fn(),
+    intersectObjects: vi.fn(() => [])
+  })),
+  Camera: vi.fn(() => ({})),
+  Scene: vi.fn(() => ({ children: [] }))
 }));
 
 // AGGRESSIVE EVENT TRACKING - Track every single interaction
@@ -400,13 +407,15 @@ describe('AGGRESSIVE 3D Touch Interface Tests', () => {
 
   const renderComponent = () => {
     return render(
-      <Enhanced3DGlobeInteractivity
-        globeRef={mockGlobeRef}
-        intelReports={mockIntelReports}
-        visualizationMode={{ mode: 'CyberCommand', subMode: 'IntelReports' }}
-        models={mockModels}
-        containerRef={mockContainerRef}
-      />
+      <GlobalGlobeContextMenuProvider>
+        <Enhanced3DGlobeInteractivity
+          globeRef={mockGlobeRef}
+          intelReports={mockIntelReports}
+          visualizationMode={{ mode: 'CyberCommand', subMode: 'IntelReports' }}
+          models={mockModels}
+          containerRef={mockContainerRef}
+        />
+      </GlobalGlobeContextMenuProvider>
     );
   };
 

@@ -322,6 +322,68 @@
   max-width: 400px;
 }
 
+/* Memory-aware pagination controls for evidence timeline */
+.paginationControls {
+  padding: 1rem 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.02);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.paginationInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.memoryWarning {
+  color: #ffb347;
+  font-weight: 500;
+  animation: pulse 2s infinite;
+}
+
+.paginationButtons {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.paginationButton {
+  padding: 0.5rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.9);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+}
+
+.paginationButton:hover:not(:disabled) {
+  background: rgba(0, 212, 255, 0.2);
+  border-color: #00d4ff;
+  color: #00d4ff;
+  transform: translateY(-1px);
+}
+
+.paginationButton:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .header {
@@ -354,6 +416,21 @@
   .evidenceMeta {
     flex-direction: column;
     gap: 0.5rem;
+  }
+
+  .paginationControls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  
+  .paginationButtons {
+    justify-content: center;
+  }
+  
+  .paginationButton {
+    flex: 1;
+    max-width: 100px;
   }
 }
 

@@ -32,6 +32,7 @@ let globalMockState = {
 };
 
 // Mock THREE.js properly
+// Mock THREE.js completely to avoid 3D context issues
 vi.mock('three', () => ({
   SphereGeometry: vi.fn(() => ({})),
   MeshBasicMaterial: vi.fn(() => ({})),
@@ -41,19 +42,18 @@ vi.mock('three', () => ({
   BufferGeometry: vi.fn(() => ({ setFromPoints: vi.fn() })),
   Group: vi.fn(() => ({ add: vi.fn(), remove: vi.fn(), clear: vi.fn() })),
   Vector3: vi.fn((x = 0, y = 0, z = 0) => ({ x, y, z })),
-  Vector2: vi.fn((x = 0, y = 0) => ({ x, y }))
+  Vector2: vi.fn((x = 0, y = 0) => ({ x, y })),
+  Raycaster: vi.fn(() => ({
+    setFromCamera: vi.fn(),
+    intersectObjects: vi.fn(() => [])
+  })),
+  Camera: vi.fn(() => ({})),
+  Scene: vi.fn(() => ({ children: [] })),
+  PerspectiveCamera: vi.fn(() => ({
+    position: { x: 0, y: 0, z: 0 },
+    rotation: { x: 0, y: 0, z: 0 }
+  }))
 }));
-
-// Enhanced mock hook with REAL interaction tracking
-vi.mock('../../../hooks/useIntel3DInteraction', () => ({
-  useIntel3DInteraction: () => {
-    React.useEffect(() => {
-      // This effect simulates the real hook's behavior
-      interactionLog.push({
-        type: 'HOOK_INITIALIZED',
-        timestamp: performance.now(),
-        details: { state: globalMockState }
-      });
     }, []);
 
     return {

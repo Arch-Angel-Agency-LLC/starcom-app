@@ -19,6 +19,7 @@ import {
   UpdateEvidenceRequest,
 } from '../interfaces/Investigation';
 import investigationApi from '../services/InvestigationApiService';
+import { memoryMonitor } from '../utils/memoryMonitor';
 
 // State interfaces
 interface InvestigationState {
@@ -269,7 +270,7 @@ interface InvestigationContextType {
   state: InvestigationState;
   
   // Investigation actions
-  loadInvestigations: () => Promise<void>;
+  loadInvestigations: (page?: number, perPage?: number) => Promise<void>;
   createInvestigation: (data: CreateInvestigationRequest) => Promise<Investigation | null>;
   updateInvestigation: (id: string, data: UpdateInvestigationRequest) => Promise<Investigation | null>;
   deleteInvestigation: (id: string) => Promise<boolean>;
@@ -305,14 +306,30 @@ export const InvestigationProvider: React.FC<{ children: React.ReactNode }> = ({
   const [state, dispatch] = useReducer(investigationReducer, initialState);
 
   // Investigation actions
-  const loadInvestigations = useCallback(async () => {
+  const loadInvestigations = useCallback(async (page: number = 1, perPage?: number) => {
     dispatch({ type: 'SET_LOADING', payload: true });
     dispatch({ type: 'SET_ERROR', payload: null });
     
     try {
-      const response = await investigationApi.listInvestigations();
+      // Use memory monitor to determine safe page size
+      const safePerPage = perPage || memoryMonitor.getRecommendedPageSize(20, 100);
+      
+      // Check if we should proceed with the operation
+      if (!memoryMonitor.shouldProceedWithLargeOperation()) {
+        dispatch({ type: 'SET_ERROR', payload: 'Memory usage too high. Please try again later.' });
+        return;
+      }
+      
+      const response = await investigationApi.listInvestigations({}, page, safePerPage);
       if (response.success && response.data) {
-        dispatch({ type: 'SET_INVESTIGATIONS', payload: response.data });
+        // For first page, replace all investigations; for subsequent pages, append
+        if (page === 1) {
+          dispatch({ type: 'SET_INVESTIGATIONS', payload: response.data });
+        } else {
+          // If implementing pagination with append, you'd need a different action type
+          // For now, just replace to prevent memory issues
+          dispatch({ type: 'SET_INVESTIGATIONS', payload: response.data });
+        }
         dispatch({ type: 'SET_CONNECTED', payload: true });
       } else {
         dispatch({ type: 'SET_ERROR', payload: 'Failed to load investigations' });

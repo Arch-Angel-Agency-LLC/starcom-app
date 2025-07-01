@@ -6,11 +6,13 @@
  */
 
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act , act } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import '@testing-library/jest-dom';
+import * as THREE from 'three';
 import { Enhanced3DGlobeInteractivity } from '../Enhanced3DGlobeInteractivity';
 import { IntelReportOverlayMarker } from '../../../interfaces/IntelReportOverlay';
+import { GlobalGlobeContextMenuProvider } from '../../../context/GlobalGlobeContextMenuProvider';
 
 // Mock the hook to control its behavior in tests
 const mockHookResult = {
@@ -110,7 +112,7 @@ describe('Enhanced3DGlobeInteractivity - Drag/Click Detection', () => {
     }));
 
     // Reset mock functions
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockHookResult.hoveredModel = null;
     mockHookResult.clickedModel = null;
     mockHookResult.clearClickedState.mockClear();
@@ -129,7 +131,11 @@ describe('Enhanced3DGlobeInteractivity - Drag/Click Detection', () => {
       ...props
     };
 
-    return render(<Enhanced3DGlobeInteractivity {...defaultProps} />);
+    return render(
+      <GlobalGlobeContextMenuProvider>
+        <Enhanced3DGlobeInteractivity {...defaultProps} />
+      </GlobalGlobeContextMenuProvider>
+    );
   };
 
   describe('Component Initialization', () => {
@@ -207,7 +213,7 @@ describe('Enhanced3DGlobeInteractivity - Drag/Click Detection', () => {
     });
 
     it('should call onHoverChange when hover state changes', () => {
-      const mockOnHoverChange = jest.fn();
+      const mockOnHoverChange = vi.fn();
       renderComponent({ onHoverChange: mockOnHoverChange });
 
       // Simulate hover change
