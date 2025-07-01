@@ -330,9 +330,37 @@ export class Intel3DInteractionManager {
       return Array.from(this.models.values());
     }
     
-    // TODO: Implement frustum culling for performance
-    // For now, return all models
-    return Array.from(this.models.values());
+    // Implement frustum culling for performance optimization
+    const frustum = new THREE.Frustum();
+    const matrix = new THREE.Matrix4().multiplyMatrices(
+      this.camera.projectionMatrix,
+      this.camera.matrixWorldInverse
+    );
+    frustum.setFromProjectionMatrix(matrix);
+
+    return Array.from(this.models.values()).filter(model => {
+      if (!model.mesh) return false;
+
+      // Update mesh world matrix if needed
+      if (!model.mesh.matrixWorldNeedsUpdate) {
+        model.mesh.updateMatrixWorld(false);
+      }
+
+      // Create bounding sphere for the model
+      const boundingSphere = new THREE.Sphere();
+      
+      // Calculate bounding sphere from mesh geometry
+      if (model.mesh instanceof THREE.Mesh && model.mesh.geometry && model.mesh.geometry.boundingSphere) {
+        boundingSphere.copy(model.mesh.geometry.boundingSphere);
+        boundingSphere.applyMatrix4(model.mesh.matrixWorld);
+      } else {
+        // Fallback: create sphere from mesh position with default radius
+        boundingSphere.set(model.mesh.position, 1.0);
+      }
+
+      // Test if bounding sphere intersects with frustum
+      return frustum.intersectsSphere(boundingSphere);
+    });
   }
 
   private findModelByMesh(mesh: THREE.Object3D): Intel3DModel | null {

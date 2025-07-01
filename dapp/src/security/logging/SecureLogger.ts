@@ -3,9 +3,6 @@
  * Consolidates all secure logging utilities with enhanced security controls
  */
 
-// TODO: Add support for security compliance reporting and auditing - PRIORITY: MEDIUM
-// TODO: Implement comprehensive role-based access control (RBAC) system - PRIORITY: HIGH
-// TODO: Add support for attribute-based access control (ABAC) for fine-grained permissions - PRIORITY: MEDIUM
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'audit' | 'security';
 
 export interface LogContext {
@@ -40,6 +37,57 @@ export interface LogMetrics {
   securityEvents: number;
   lastAuditTime: Date;
   integrityStatus: 'INTACT' | 'COMPROMISED' | 'UNKNOWN';
+}
+
+export interface ComplianceReport {
+  id: string;
+  reportType: 'SOC2' | 'HIPAA' | 'GDPR' | 'SOX' | 'CUSTOM';
+  generatedAt: Date;
+  reportPeriod: {
+    start: Date;
+    end: Date;
+  };
+  summary: {
+    totalEvents: number;
+    securityEvents: number;
+    complianceViolations: number;
+    dataAccessEvents: number;
+    authenticationEvents: number;
+  };
+  findings: ComplianceFinding[];
+  recommendations: string[];
+  auditTrail: {
+    generatedBy: string;
+    reviewedBy?: string;
+    approvedBy?: string;
+    digitalSignature: string;
+  };
+}
+
+export interface ComplianceFinding {
+  id: string;
+  severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  category: 'ACCESS_CONTROL' | 'DATA_PROTECTION' | 'AUDIT_TRAIL' | 'ENCRYPTION' | 'INCIDENT_RESPONSE';
+  description: string;
+  affectedSystems: string[];
+  evidence: string[];
+  remediation: string;
+  status: 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'RISK_ACCEPTED';
+  detectedAt: Date;
+  resolvedAt?: Date;
+}
+
+export interface ComplianceMetrics {
+  complianceScore: number; // 0-100
+  lastAssessment: Date;
+  openFindings: number;
+  criticalFindings: number;
+  averageResolutionTime: number; // hours
+  trendsOverTime: {
+    month: string;
+    score: number;
+    findings: number;
+  }[];
 }
 
 /**

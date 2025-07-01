@@ -86,6 +86,32 @@ export class SimplePerformanceMonitor {
   }
 
   /**
+   * Record a one-time measurement
+   */
+  measure(name: string, metadata?: Record<string, unknown>): void {
+    const metric: PerformanceMetric = {
+      name,
+      startTime: performance.now(),
+      endTime: performance.now(),
+      duration: 0,
+      metadata
+    };
+
+    this.completedMetrics.push(metric);
+
+    // Limit stored metrics to prevent memory issues
+    if (this.completedMetrics.length > this.maxStoredMetrics) {
+      this.completedMetrics.shift();
+    }
+  }
+      return result;
+    } catch (error) {
+      this.endTiming(id);
+      throw error;
+    }
+  }
+
+  /**
    * Get performance report
    */
   getReport(): PerformanceReport {
