@@ -1,8 +1,9 @@
 import React, { createContext, useReducer, useEffect, ReactNode } from 'react';
 import { EarthAllianceContact, SecureChatWindow, ThreatLevel, SecurityClearance, PQCAlgorithm, PQCSecurityLevel } from '../types/SecureChat';
+import { SecureContact } from '../../security/types/SecurityHardening';
 import { secureChatIntegration } from '../services/SecureChatIntegrationService';
 import { AdvancedSecurityService } from '../../security/core/AdvancedSecurityService';
-import { secureLogger, logSecurityEvent } from '../../security/logging/SecureLogger';
+import { logSecurityEvent } from '../../security/logging/SecureLogger';
 
 // Earth Alliance Secure Chat Context Types
 interface SecureChatState {
@@ -460,7 +461,16 @@ async function securelyDeleteChatData(chatId: string): Promise<void> {
 // Enhanced security validation using AdvancedSecurityService
 async function verifyEarthAllianceIdentity(contact: EarthAllianceContact): Promise<boolean> {
   try {
-    const validationResult = await securityService.validateContact(contact);
+    // Convert EarthAllianceContact to SecureContact for validation
+    const secureContact: SecureContact = {
+      id: contact.pubkey, // Use pubkey as id
+      pubkey: contact.pubkey,
+      displayName: contact.displayName,
+      trustScore: contact.trustScore,
+      securityClearance: 'unclassified' // Default clearance level
+    };
+    
+    const validationResult = await securityService.validateContact(secureContact);
     
     // Log the validation attempt
     console.log(`🔍 Contact validation for ${contact.displayName}:`, {

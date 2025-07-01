@@ -144,7 +144,7 @@ const TaskKanban: React.FC<TaskKanbanProps> = ({
       }
     } catch (error) {
       console.error('Failed to update task status:', error);
-      // TODO: Show error notification
+      alert('Failed to update task status. Please try again.');
     }
     
     setDraggedTask(null);
@@ -156,7 +156,7 @@ const TaskKanban: React.FC<TaskKanbanProps> = ({
     // Check memory before creating new task
     if (!shouldProceedWithOperation) {
       console.warn('Cannot create task: memory usage too high');
-      // TODO: Show memory warning notification
+      alert('Cannot create task: System memory usage is high. Please try again later.');
       return;
     }
 
@@ -189,7 +189,7 @@ const TaskKanban: React.FC<TaskKanbanProps> = ({
       setShowCreateModal(false);
     } catch (error) {
       console.error('Failed to create task:', error);
-      // TODO: Show error notification
+      alert('Failed to create task. Please try again.');
     }
   };
 

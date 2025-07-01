@@ -6,6 +6,7 @@ import GroupChatPanel from '../Collaboration/GroupChatPanel';
 import EarthAllianceCommunicationPanel from '../Collaboration/EarthAllianceCommunicationPanel';
 import { TeamCollaborationHub } from '../Teams/TeamCollaborationHub';
 import { useFeatureFlag } from '../../utils/featureFlags';
+import PointerEventsTest from '../Debug/PointerEventsTest';
 import styles from './TeamCollaborationView.module.css';
 
 interface TeamCollaborationViewProps {
@@ -104,6 +105,9 @@ const TeamCollaborationView: React.FC<TeamCollaborationViewProps> = ({ className
 
   return (
     <div className={`${styles.teamCollaborationView} ${className || ''}`}>
+      {/* Development: Pointer Events Test */}
+      {import.meta.env.DEV && <PointerEventsTest />}
+      
       {/* Header with status */}
       <div className={styles.header}>
         <div className={styles.titleSection}>

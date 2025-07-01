@@ -13,6 +13,9 @@ import { useGlobeRightClickInteraction } from '../../hooks/useGlobeRightClickInt
 import { IntelReportTooltip } from '../ui/IntelReportTooltip/IntelReportTooltip';
 import { IntelReportPopup } from '../ui/IntelReportPopup/IntelReportPopup';
 import { GlobeContextAction, GlobeContextActionData } from '../ui/GlobeContextMenu/GlobeContextMenu';
+import { OfflineIntelReportService } from '../../services/OfflineIntelReportService';
+import { OfflineIntelReportsManager } from '../Intel/OfflineIntelReportsManager';
+import { useWallet } from '@solana/wallet-adapter-react';
 
 interface Enhanced3DGlobeInteractivityProps {
   globeRef: React.RefObject<{ camera: () => THREE.Camera; scene: () => THREE.Scene }>;
@@ -50,6 +53,15 @@ export const Enhanced3DGlobeInteractivity: React.FC<Enhanced3DGlobeInteractivity
   const localContainerRef = useRef<HTMLDivElement>(null);
   const containerRef = parentContainerRef || localContainerRef;
   
+  // Wallet connection for online/offline Intel Report creation
+  const { connected, publicKey } = useWallet();
+  
+  // Offline Intel Report service
+  const offlineService = OfflineIntelReportService.getInstance();
+  
+  // UI state
+  const [showOfflineManager, setShowOfflineManager] = useState(false);
+  
   // State for UI components
   const [tooltipVisible, setTooltipVisible] = useState(false);
   const [popupVisible, setPopupVisible] = useState(false);
@@ -79,27 +91,178 @@ export const Enhanced3DGlobeInteractivity: React.FC<Enhanced3DGlobeInteractivity
     enabled: isIntelReportsMode
   });
 
-  // Handle context menu actions with custom logic
-  const handleCustomContextAction = useCallback((
+  // Handle context menu actions with enhanced offline Intel Report support
+  const handleCustomContextAction = useCallback(async (
     action: GlobeContextAction, 
     data?: GlobeContextActionData
   ) => {
-    console.log('🎯 Custom context action handler:', { action: action.id, data });
+    console.log('🎯 Context action triggered:', { action: action.id, data });
 
-    // Handle specific actions that require parent component integration
+    if (!data?.geoLocation) {
+      console.warn('No geo location provided for action:', action.id);
+      return;
+    }
+
+    const { lat, lng } = data.geoLocation;
+
+    // Handle specific actions with enhanced offline support
     switch (action.id) {
-      case 'create-intel-report':
-        if (data?.geoLocation && onCreateIntelReport) {
-          console.log('📝 Triggering intel report creation at:', data.geoLocation);
+      case 'create-intel-report': {
+        console.log('📝 Creating intel report at:', { lat, lng });
+        
+        // Enhanced Intel Report creation with comprehensive offline fallback
+        if (connected && publicKey && onCreateIntelReport) {
+          // User is connected - use standard Web3 flow
+          console.log('✅ Wallet connected - using Web3 Intel Report creation');
           onCreateIntelReport(data.geoLocation);
+        } else {
+          // User not connected - create offline report with comprehensive UX
+          console.log('🌐 Wallet not connected - creating offline Intel Report');
+          
+          try {
+            // Prompt user for basic report data
+            const title = prompt('Enter Intel Report title:') || 'Untitled Report';
+            if (!title || title === 'Untitled Report') {
+              const confirmed = confirm('Create report without title? You can edit it later.');
+              if (!confirmed) return;
+            }
+            
+            const content = prompt('Enter report content (optional):') || '';
+            
+            // Create offline report
+            const offlineReport = await offlineService.createOfflineReport({
+              title,
+              content,
+              subtitle: '',
+              tags: ['location', 'offline'],
+              categories: ['intelligence'],
+              lat: lat,
+              long: lng,
+              date: new Date().toISOString(),
+              author: 'offline-user',
+              metaDescription: `Intel report created offline at ${lat.toFixed(4)}, ${lng.toFixed(4)}`
+            }, { lat, lng });
+            
+            // Show success message with options
+            const message = `📝 Offline Intel Report Created!\n\n` +
+                          `Title: ${title}\n` +
+                          `Location: ${lat.toFixed(4)}, ${lng.toFixed(4)}\n` +
+                          `Status: Stored locally - will sync when you connect wallet\n\n` +
+                          `Choose an option:`;
+            
+            if (confirm(`${message}\n\n[OK] - View offline reports\n[Cancel] - Continue`)) {
+              setShowOfflineManager(true);
+            }
+            
+            console.log('✅ Offline Intel Report created:', offlineReport.offlineId);
+          } catch (error) {
+            console.error('❌ Failed to create offline Intel Report:', error);
+            alert(`Failed to create offline Intel Report: ${error instanceof Error ? error.message : 'Unknown error'}\n\nPlease try again or connect your wallet for full functionality.`);
+          }
         }
         break;
+      }
+      
+      case 'add-marker':
+        console.log('📍 Adding marker at:', { lat, lng });
+        alert(`Marker added at coordinates: ${lat.toFixed(4)}, ${lng.toFixed(4)}`);
+        // TODO: Integrate with marker system
+        break;
+      
+      case 'set-waypoint':
+        console.log('🎯 Setting waypoint at:', { lat, lng });
+        alert(`Waypoint set at: ${lat.toFixed(4)}, ${lng.toFixed(4)}`);
+        // TODO: Integrate with navigation system
+        break;
+      
+      case 'location-details': {
+        console.log('🌍 Showing location details for:', { lat, lng });
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        alert(`Location Details:\nCoordinates: ${lat.toFixed(6)}, ${lng.toFixed(6)}\nTimezone: ${timezone}\nRegion: ${lat > 0 ? 'Northern' : 'Southern'} Hemisphere`);
+        break;
+      }
+      
+      case 'area-statistics': {
+        console.log('📊 Fetching area statistics for:', { lat, lng });
+        const mockStats = {
+          population: Math.floor(Math.random() * 1000000),
+          strategicValue: ['Low', 'Medium', 'High'][Math.floor(Math.random() * 3)],
+          elevation: Math.floor(Math.random() * 3000)
+        };
+        alert(`Area Statistics:\nEstimated Population: ${mockStats.population.toLocaleString()}\nStrategic Value: ${mockStats.strategicValue}\nElevation: ${mockStats.elevation}m`);
+        break;
+      }
+      
+      case 'satellite-view':
+        console.log('🛰️ Switching to satellite view at:', { lat, lng });
+        alert('Satellite view activated. Enhanced imagery loading...');
+        // TODO: Integrate with globe view switching
+        break;
+      
+      case 'historical-data':
+        console.log('🗺️ Loading historical data for:', { lat, lng });
+        alert('Historical data:\n• Previous intel reports: 3\n• Last activity: 2 days ago\n• Threat level history: Low → Medium');
+        // TODO: Integrate with historical data service
+        break;
+      
+      case 'measure-distance':
+        console.log('📏 Starting distance measurement from:', { lat, lng });
+        alert(`Distance measurement started from: ${lat.toFixed(4)}, ${lng.toFixed(4)}\nClick another location to complete measurement.`);
+        // TODO: Integrate with measurement tools
+        break;
+      
+      case 'scan-area':
+        console.log('🔍 Scanning area around:', { lat, lng });
+        alert('Area scan initiated...\n• Communications: 5 signals detected\n• Movement: 2 contacts identified\n• Infrastructure: 3 facilities mapped');
+        // TODO: Integrate with intelligence scanning
+        break;
+      
+      case 'signal-analysis': {
+        console.log('📡 Analyzing signals at:', { lat, lng });
+        const signalStrength = Math.floor(Math.random() * 100);
+        alert(`Signal Analysis:\nSignal Strength: ${signalStrength}%\nEncryption: ${signalStrength > 70 ? 'Military Grade' : 'Standard'}\nInterference: ${signalStrength < 30 ? 'High' : 'Low'}`);
+        break;
+      }
+      
+      case 'threat-assessment': {
+        console.log('⚠️ Assessing threats at:', { lat, lng });
+        const threatLevels = ['Low', 'Medium', 'High', 'Critical'];
+        const threatLevel = threatLevels[Math.floor(Math.random() * threatLevels.length)];
+        alert(`Threat Assessment:\nCurrent Level: ${threatLevel}\nKey Risks: Environmental, Communications\nRecommendation: ${threatLevel === 'High' || threatLevel === 'Critical' ? 'Exercise Caution' : 'Proceed Normally'}`);
+        break;
+      }
+      
+      case 'share-location':
+        console.log('� Sharing location:', { lat, lng });
+        navigator.clipboard?.writeText(`${lat.toFixed(6)}, ${lng.toFixed(6)}`);
+        alert(`Location shared!\nCoordinates copied to clipboard: ${lat.toFixed(6)}, ${lng.toFixed(6)}`);
+        break;
+      
+      case 'leave-comment': {
+        console.log('💬 Leaving comment at:', { lat, lng });
+        const comment = prompt(`Leave a comment for this location (${lat.toFixed(4)}, ${lng.toFixed(4)}):`);
+        if (comment) {
+          alert(`Comment saved: "${comment}"\nLocation: ${lat.toFixed(4)}, ${lng.toFixed(4)}`);
+          // TODO: Integrate with comment system
+        }
+        break;
+      }
+      
+      case 'report-incident': {
+        console.log('🚨 Reporting incident at:', { lat, lng });
+        const incidentTypes = ['Security Breach', 'Equipment Failure', 'Suspicious Activity', 'Environmental Hazard'];
+        const selectedType = incidentTypes[Math.floor(Math.random() * incidentTypes.length)];
+        alert(`Incident Report Submitted\nType: ${selectedType}\nLocation: ${lat.toFixed(4)}, ${lng.toFixed(4)}\nStatus: Under Review\nIncident ID: INC-${Date.now().toString().slice(-6)}`);
+        // TODO: Integrate with incident reporting system
+        break;
+      }
       
       default:
-        console.log('🔧 Unhandled action:', action.id);
+        console.log('🔧 Action not yet implemented:', action.id);
+        alert(`Feature "${action.label}" is coming soon!`);
         break;
     }
-  }, [onCreateIntelReport]);
+  }, [onCreateIntelReport, connected, publicKey, offlineService, setShowOfflineManager]);
 
   // Use the right-click interaction hook (for globe surface interactions)
   useGlobeRightClickInteraction({
@@ -411,6 +574,19 @@ export const Enhanced3DGlobeInteractivity: React.FC<Enhanced3DGlobeInteractivity
           hasNext={currentIndex < intelReports.length - 1}
         />
       )}
+
+      {/* Offline Intel Reports Manager */}
+      <OfflineIntelReportsManager
+        wallet={connected ? { publicKey } : undefined}
+        isOpen={showOfflineManager}
+        onClose={() => setShowOfflineManager(false)}
+        onViewReport={(report) => {
+          console.log('Viewing offline report:', report);
+        }}
+        onEditReport={(report) => {
+          console.log('Editing offline report:', report);
+        }}
+      />
 
       {/* Screen reader announcements */}
       <div

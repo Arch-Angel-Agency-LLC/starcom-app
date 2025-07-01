@@ -23,10 +23,10 @@ const CyberInvestigationHub: React.FC<CyberInvestigationHubProps> = ({ isCollaps
 
   // Update stats periodically
   useEffect(() => {
-    const updateStats = () => {
-      const investigations = CyberInvestigationStorage.loadInvestigations();
-      const packages = CyberInvestigationStorage.loadPackages();
-      const teams = CyberInvestigationStorage.loadTeams();
+    const updateStats = async () => {
+      const investigations = await CyberInvestigationStorage.loadInvestigations();
+      const packages = await CyberInvestigationStorage.loadPackages();
+      const teams = await CyberInvestigationStorage.loadTeams();
       
       setStats({
         investigations: investigations.filter(inv => inv.status !== 'CLOSED').length,

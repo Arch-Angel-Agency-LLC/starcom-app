@@ -73,11 +73,14 @@ Start with `.onboarding` → `docs/EARTH-ALLIANCE-MISSION-ANALYSIS.md` → `.pri
 - **Evidence**: Immutable IPFS storage with cryptographic verification
 - **Identity**: Self-sovereign authentication (no government dependencies)
 
-### **Documentation**
-- **Mission Context**: [`docs/EARTH-ALLIANCE-MISSION-ANALYSIS.md`](./docs/EARTH-ALLIANCE-MISSION-ANALYSIS.md)
-- **Technical Status**: [`docs/BUILD-STATUS.md`](./docs/BUILD-STATUS.md)  
-- **Complete Guides**: [`docs/`](./docs/) directory
-- **Security Analysis**: [`docs/COMPREHENSIVE-SECURITY-GAP-ANALYSIS.md`](./docs/COMPREHENSIVE-SECURITY-GAP-ANALYSIS.md)
+### **Documentation Structure**
+- **Architecture**: [`docs/architecture/`](./docs/architecture/) - System design and structure
+- **Security**: [`docs/security/`](./docs/security/) - Security implementations and hardening
+- **Development**: [`docs/development/`](./docs/development/) - Developer guides and onboarding
+- **Testing**: [`docs/testing/`](./docs/testing/) - Test files and validation scripts
+- **Reports**: [`docs/reports/`](./docs/reports/) - Project reports and summaries
+- **Technical Status**: [`docs/BUILD-STATUS.md`](./docs/BUILD-STATUS.md)
+- **Complete Index**: [`docs/`](./docs/) directory
 
 ---
 

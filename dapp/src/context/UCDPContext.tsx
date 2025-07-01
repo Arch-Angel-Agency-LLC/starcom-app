@@ -1,8 +1,8 @@
 import React, { createContext, useState, useContext, ReactNode } from 'react';
 
 interface UCDPContextType {
-  data: any;
-  setData: React.Dispatch<React.SetStateAction<any>>;
+  data: unknown;
+  setData: React.Dispatch<React.SetStateAction<unknown>>;
 }
 
 const UCDPContext = createContext<UCDPContextType | undefined>(undefined);

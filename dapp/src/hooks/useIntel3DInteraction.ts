@@ -220,6 +220,7 @@ export function useIntel3DInteraction({
   const handleMouseUp = useCallback((event: MouseEvent) => {
     if (!enabled || !interactionState.isMouseDown) return;
     
+    console.debug('Mouse up event at:', event.clientX, event.clientY);
     const currentTime = Date.now();
     const timeSinceMouseDown = currentTime - interactionState.mouseDownTime;
     

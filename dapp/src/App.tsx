@@ -15,6 +15,9 @@ import SettingsInitializer from "./components/SettingsInitializer";
 import SettingsStatusIndicator from "./components/SettingsStatusIndicator";
 import PreloaderManager from "./components/Preloader/PreloaderManager";
 import WalletDiagnostic from "./components/Debug/WalletDiagnostic";
+import { initConsoleErrorMonitoring } from "./utils/consoleErrorFixer";
+import { initializeErrorHandling } from "./utils/consoleErrorResolver";
+import { initPointerEventsDebugging } from "./utils/pointerEventsDebugger";
 import "./styles/globals.css";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AuthErrorBoundary from './components/Auth/AuthErrorBoundary';
@@ -25,6 +28,13 @@ const AppContent: React.FC = () => {
   const { fetchFromMiniServer, wasmReady } = useWASM();
 
   useEffect(() => {
+    // Initialize console error monitoring in development
+    if (import.meta.env.DEV) {
+      initConsoleErrorMonitoring();
+      initializeErrorHandling();
+      initPointerEventsDebugging();
+    }
+    
     return () => {
       // No cleanup needed
     };

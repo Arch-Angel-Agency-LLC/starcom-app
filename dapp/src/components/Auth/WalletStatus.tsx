@@ -39,7 +39,7 @@ const WalletStatus: React.FC<WalletStatusProps> = ({ sessionWarningThreshold = 5
   const authButtonRef = React.useRef<HTMLButtonElement>(null);
 
   React.useEffect(() => {
-    if (connectionStatus === 'connected' && isAuthenticated && !isSessionValid()) {
+    if (connectionStatus === 'connected' && isAuthenticated && !isSessionValid) {
       authButtonRef.current?.focus();
     }
   }, [connectionStatus, isAuthenticated, isSessionValid]);
@@ -64,7 +64,7 @@ const WalletStatus: React.FC<WalletStatusProps> = ({ sessionWarningThreshold = 5
 
   // Show snackbar on disconnect
   React.useEffect(() => {
-    if (connectionStatus === 'idle' && !isAuthenticated) {
+    if (connectionStatus === 'disconnected' && !isAuthenticated) {
       setSnackbarMessage('Wallet disconnected.');
       setSnackbarType('info');
       setSnackbarOpen(true);
@@ -73,7 +73,7 @@ const WalletStatus: React.FC<WalletStatusProps> = ({ sessionWarningThreshold = 5
 
   // Show snackbar on successful authentication
   React.useEffect(() => {
-    if (isAuthenticated && isSessionValid()) {
+    if (isAuthenticated && isSessionValid) {
       setSnackbarMessage('Authenticated!');
       setSnackbarType('success');
       setSnackbarOpen(true);
@@ -221,7 +221,7 @@ const WalletStatus: React.FC<WalletStatusProps> = ({ sessionWarningThreshold = 5
 
           {/* Session Status */}
           <div className={styles.sessionSection}>
-            {isSessionValid() ? (
+            {isSessionValid ? (
               <div className={styles.sessionActive}>
                 <div className={styles.sessionHeader}>
                   <span className={styles.sessionIcon}>✅</span>
@@ -269,7 +269,7 @@ const WalletStatus: React.FC<WalletStatusProps> = ({ sessionWarningThreshold = 5
         </div>
       )}
 
-      {connectionStatus === 'idle' && !isAuthenticated && (
+      {connectionStatus === 'disconnected' && !isAuthenticated && (
         <div className={styles.idleSection}>
           <div className={styles.connectPrompt}>
             <div className={styles.promptIcon}>🚀</div>

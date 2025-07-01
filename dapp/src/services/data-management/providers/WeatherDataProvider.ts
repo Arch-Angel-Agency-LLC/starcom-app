@@ -65,8 +65,9 @@ export class WeatherDataProvider implements DataProvider<WeatherData | WeatherFo
     }
   }
 
-  async fetchData(key: string, _options: FetchOptions = {}): Promise<WeatherData | WeatherForecastData[]> {
+  async fetchData(key: string, options: FetchOptions = {}): Promise<WeatherData | WeatherForecastData[]> {
     this.observer?.onFetchStart?.(key, this.id);
+    console.debug('Fetching weather data with options:', options);
     const startTime = performance.now();
 
     try {

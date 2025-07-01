@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import CommunicationPanel from './CommunicationPanel';
+import SessionManager from './SessionManager';
 import NostrService, { NostrTeamChannel } from '../../services/nostrService';
-import { AgencyType, ClearanceLevel } from '../../types';
+import CollaborationService from '../../services/collaborationService';
+import { AgencyType, ClearanceLevel, CollaborationSession } from '../../types';
 import styles from './CollaborationPanel.module.css';
 
 interface CollaborationPanelProps {
@@ -19,7 +21,11 @@ export const CollaborationPanel: React.FC<CollaborationPanelProps> = ({
   const [clearanceLevel] = useState<ClearanceLevel>('CONFIDENTIAL');
   const [, setTeamChannels] = useState<NostrTeamChannel[]>([]);
   const [isNostrReady, setIsNostrReady] = useState(false);
+  const [showSessionManager, setShowSessionManager] = useState(false);
+  const [availableSessions, setAvailableSessions] = useState<CollaborationSession[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const nostrService = NostrService.getInstance();
+  const collaborationService = CollaborationService.getInstance();
 
   // Initialize user DID and Nostr service
   useEffect(() => {
@@ -39,7 +45,152 @@ export const CollaborationPanel: React.FC<CollaborationPanelProps> = ({
       };
       checkNostrReady();
     }
-  }, [connected, publicKey]);
+  }, [connected, publicKey, nostrService]);
+
+  // Load available collaboration sessions
+  useEffect(() => {
+    const loadSessions = async () => {
+      if (connected && isNostrReady) {
+        setIsLoading(true);
+        try {
+          const sessions = await collaborationService.getAvailableSessions();
+          setAvailableSessions(sessions);
+        } catch (error) {
+          console.error('Failed to load collaboration sessions:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    loadSessions();
+  }, [connected, isNostrReady, collaborationService]);
+
+  // Button handlers
+  const handleNewSession = () => {
+    setShowSessionManager(true);
+  };
+
+  const handleJoinSession = async (sessionId: string) => {
+    if (!userDID) return;
+    
+    setIsLoading(true);
+    try {
+      await collaborationService.joinSession(sessionId, userDID);
+      // Refresh sessions list
+      const sessions = await collaborationService.getAvailableSessions();
+      setAvailableSessions(sessions);
+    } catch (error) {
+      console.error('Failed to join session:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCreateTeam = async () => {
+    if (!connected || !publicKey) {
+      alert('Please connect your wallet to create a team');
+      return;
+    }
+
+    const teamName = prompt('Enter team name:');
+    if (!teamName) return;
+
+    const teamDescription = prompt('Enter team description:');
+    if (!teamDescription) return;
+
+    try {
+      setIsLoading(true);
+      
+      // Create operator object for current user
+      const currentOperator = {
+        id: userDID,
+        name: `Operator-${publicKey.toString().slice(0, 8)}`,
+        agency: userAgency,
+        role: 'COORDINATOR' as const,
+        clearanceLevel,
+        specializations: ['team-lead', 'coordination'],
+        status: 'ONLINE' as const,
+        lastActivity: new Date(),
+        walletAddress: publicKey.toString()
+      };
+      
+      // Create team using collaboration service
+      const newTeam = await collaborationService.createSession({
+        name: teamName,
+        description: teamDescription,
+        leadAgency: userAgency,
+        classification: clearanceLevel,
+        participants: [currentOperator],
+        status: 'ACTIVE'
+      });
+
+      console.log('Team created successfully:', newTeam);
+      
+      // Refresh sessions list to include the new team
+      const sessions = await collaborationService.getAvailableSessions();
+      setAvailableSessions(sessions);
+      
+      alert(`Team "${teamName}" created successfully!`);
+    } catch (error) {
+      console.error('Failed to create team:', error);
+      alert('Failed to create team. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleConnectToTeam = async (teamName: string) => {
+    if (!connected || !publicKey) {
+      alert('Please connect your wallet to join a team');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      
+      // Find the team session to connect to
+      const teamSession = availableSessions.find(session => 
+        session.name.toLowerCase().includes(teamName.toLowerCase())
+      );
+      
+      if (teamSession) {
+        await handleJoinSession(teamSession.id);
+        alert(`Successfully connected to ${teamName}`);
+      } else {
+        // Create a mock team session if not found
+        await collaborationService.createSession({
+          name: teamName,
+          description: `Auto-created team session for ${teamName}`,
+          leadAgency: userAgency,
+          classification: clearanceLevel,
+          participants: [{
+            id: userDID,
+            name: `Operator-${publicKey.toString().slice(0, 8)}`,
+            agency: userAgency,
+            role: 'SUPPORT_ANALYST' as const,
+            clearanceLevel,
+            specializations: ['team-member'],
+            status: 'ONLINE' as const,
+            lastActivity: new Date(),
+            walletAddress: publicKey.toString()
+          }],
+          status: 'ACTIVE'
+        });
+        
+        // Refresh sessions
+        const sessions = await collaborationService.getAvailableSessions();
+        setAvailableSessions(sessions);
+        
+        alert(`Connected to ${teamName} (session created)`);
+      }
+    } catch (error) {
+      console.error('Failed to connect to team:', error);
+      alert('Failed to connect to team. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Tab configuration
   const tabs = [
@@ -76,39 +227,47 @@ export const CollaborationPanel: React.FC<CollaborationPanelProps> = ({
           <div className={styles.tabContent}>
             <div className={styles.sectionHeader}>
               <h3>🏢 Collaboration Sessions</h3>
-              <button className={styles.actionBtn}>New Session</button>
+              <button className={styles.actionBtn} onClick={handleNewSession} disabled={isLoading}>
+                {isLoading ? 'Loading...' : 'New Session'}
+              </button>
             </div>
-            <div className={styles.sessionsList}>
-              <div className={styles.sessionCard}>
-                <div className={styles.sessionHeader}>
-                  <span className={styles.sessionName}>Global Threat Analysis</span>
-                  <span className={styles.sessionStatus}>Active</span>
-                </div>
-                <div className={styles.sessionMeta}>
-                  <span>🏢 Multi-Agency</span>
-                  <span>👥 4 participants</span>
-                  <span>🔒 SECRET</span>
-                </div>
-                <div className={styles.sessionActions}>
-                  <button className={styles.joinBtn}>Join Session</button>
-                </div>
+            {showSessionManager ? (
+              <SessionManager onSessionJoined={() => setShowSessionManager(false)} />
+            ) : (
+              <div className={styles.sessionsList}>
+                {availableSessions.length > 0 ? (
+                  availableSessions.slice(0, 5).map((session) => (
+                    <div key={session.id} className={styles.sessionCard}>
+                      <div className={styles.sessionHeader}>
+                        <span className={styles.sessionName}>{session.name}</span>
+                        <span className={styles.sessionStatus}>{session.status}</span>
+                      </div>
+                      <div className={styles.sessionMeta}>
+                        <span>🏢 {session.leadAgency.replace('_', ' ')}</span>
+                        <span>👥 {session.participants.length} participants</span>
+                        <span>🔒 {session.classification}</span>
+                      </div>
+                      <div className={styles.sessionActions}>
+                        <button 
+                          className={styles.joinBtn} 
+                          onClick={() => handleJoinSession(session.id)}
+                          disabled={isLoading}
+                        >
+                          {isLoading ? 'Joining...' : 'Join Session'}
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className={styles.emptyState}>
+                    <p>No collaboration sessions available</p>
+                    <button className={styles.actionBtn} onClick={handleNewSession}>
+                      Create First Session
+                    </button>
+                  </div>
+                )}
               </div>
-              
-              <div className={styles.sessionCard}>
-                <div className={styles.sessionHeader}>
-                  <span className={styles.sessionName}>Cyber Defense Coordination</span>
-                  <span className={styles.sessionStatus}>Standby</span>
-                </div>
-                <div className={styles.sessionMeta}>
-                  <span>🛡️ CYBER_COMMAND</span>
-                  <span>👥 7 participants</span>
-                  <span>🔒 TOP_SECRET</span>
-                </div>
-                <div className={styles.sessionActions}>
-                  <button className={styles.joinBtn} disabled>Insufficient Clearance</button>
-                </div>
-              </div>
-            </div>
+            )}
           </div>
         );
       
@@ -117,7 +276,7 @@ export const CollaborationPanel: React.FC<CollaborationPanelProps> = ({
           <div className={styles.tabContent}>
             <div className={styles.sectionHeader}>
               <h3>👥 Active Teams</h3>
-              <button className={styles.actionBtn}>Create Team</button>
+              <button className={styles.actionBtn} onClick={handleCreateTeam}>Create Team</button>
             </div>
             <div className={styles.teamsList}>
               <div className={styles.teamCard}>
@@ -131,7 +290,12 @@ export const CollaborationPanel: React.FC<CollaborationPanelProps> = ({
                   <span>📍 Sector 7</span>
                 </div>
                 <div className={styles.teamActions}>
-                  <button className={styles.connectBtn}>Connect</button>
+                  <button 
+                    className={styles.connectBtn}
+                    onClick={() => handleConnectToTeam('Alpha Response Team')}
+                  >
+                    Connect
+                  </button>
                 </div>
               </div>
 
@@ -146,7 +310,12 @@ export const CollaborationPanel: React.FC<CollaborationPanelProps> = ({
                   <span>📍 Remote</span>
                 </div>
                 <div className={styles.teamActions}>
-                  <button className={styles.connectBtn}>Connect</button>
+                  <button 
+                    className={styles.connectBtn}
+                    onClick={() => handleConnectToTeam('Bravo Intelligence Unit')}
+                  >
+                    Connect
+                  </button>
                 </div>
               </div>
             </div>

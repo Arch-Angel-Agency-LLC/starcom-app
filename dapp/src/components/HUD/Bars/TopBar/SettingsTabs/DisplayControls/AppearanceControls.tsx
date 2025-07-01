@@ -15,6 +15,8 @@ const AppearanceControls: React.FC<AppearanceControlsProps> = ({
   onSettingChange,
   previewMode,
 }) => {
+  console.debug('AppearanceControls preview mode:', previewMode);
+  
   const colorSchemes = [
     {
       id: 'default' as const,

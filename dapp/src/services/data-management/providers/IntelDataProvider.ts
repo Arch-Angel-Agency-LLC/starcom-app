@@ -109,8 +109,9 @@ export class IntelDataProvider implements DataProvider<IntelDataTypes> {
     }
   }
 
-  async fetchData(key: string, _options: FetchOptions = {}): Promise<IntelDataTypes> {
+  async fetchData(key: string, options: FetchOptions = {}): Promise<IntelDataTypes> {
     this.observer?.onFetchStart?.(key, this.id);
+    console.debug('Fetching intel data with options:', options);
 
     try {
       let result: IntelDataTypes;

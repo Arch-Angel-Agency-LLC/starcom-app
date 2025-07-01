@@ -41,6 +41,7 @@ export default defineConfig({
   },
   css: {
     postcss: './postcss.config.cjs',
+    devSourcemap: false, // Disable CSS source maps in development
   },
   optimizeDeps: {
     include: [

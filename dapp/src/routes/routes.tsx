@@ -2,6 +2,7 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import MainPage from '../pages/MainPage/MainPage';
 import SettingsPage from '../pages/SettingsPage/SettingsPage';
+import IntelReportsPage from '../pages/IntelReportsPage';
 import ProtectedRoute from './ProtectedRoute';
 import TokenGatedPage from '../components/Auth/TokenGatedPage';
 import AuthDemoPage from '../components/Demo/AuthDemoPage';
@@ -47,12 +48,26 @@ const AppRoutes: React.FC = () => (
         </BaseLayout>
       </ProtectedRoute>
     } />
+    <Route path="/investigations/:investigationId" element={
+      <ProtectedRoute>
+        <BaseLayout>
+          <CyberInvestigationMVP />
+        </BaseLayout>
+      </ProtectedRoute>
+    } />
     
     {/* Intel Management Routes */}
     <Route path="/intel" element={
       <ProtectedRoute>
         <BaseLayout>
           <IntelDashboard />
+        </BaseLayout>
+      </ProtectedRoute>
+    } />
+    <Route path="/intel/:reportId" element={
+      <ProtectedRoute>
+        <BaseLayout>
+          <IntelReportsPage />
         </BaseLayout>
       </ProtectedRoute>
     } />
@@ -65,7 +80,7 @@ const AppRoutes: React.FC = () => (
     } />
     <Route path="/intelreports" element={
       <ProtectedRoute>
-        <SettingsPage />
+        <IntelReportsPage />
       </ProtectedRoute>
     } />
     <Route path="/cyber-investigation" element={

@@ -336,16 +336,18 @@ export const CollaborationAnalytics: React.FC<CollaborationAnalyticsProps> = ({ 
   const [selectedTimeRange, setSelectedTimeRange] = useState<'24h' | '7d' | '30d'>('7d');
 
   const analyticsData = useMemo(() => {
+    // Use the actual structure from the useCollaboration hook
     const sessions = collaborationState.sessions || [];
-    const assets = [] as any[]; // collaborationState.intelligenceMarketplace?.availableAssets || [];
-    const messages = [] as any[]; // collaborationState.recentMessages || [];
+    const participants = collaborationState.participants || [];
+    
+    // Mock data for features not yet implemented in the hook
+    const assets: SharedIntelligenceAsset[] = [];
+    const messages: Array<{ id: string; content: string; timestamp: Date }> = [];
     
     return {
       totalSessions: sessions.length,
-      activeSessions: sessions.filter((s: any) => s.status === 'ACTIVE').length,
-      totalParticipants: new Set(
-        sessions.flatMap((s: any) => s.participants?.map((p: any) => p.id) || [])
-      ).size,
+      activeSessions: sessions.filter((s: { status?: string }) => s.status === 'ACTIVE').length,
+      totalParticipants: participants.length,
       avgSessionDuration: '2.5h', // Mock data
       totalMessages: messages.length,
       totalAssets: assets.length,
@@ -441,15 +443,11 @@ export const CollaborationAnalytics: React.FC<CollaborationAnalyticsProps> = ({ 
               <span className={styles.statLabel}>Total Messages</span>
             </div>
             <div className={styles.statItem}>
-              <span className={styles.statValue}>
-                {(collaborationState as any).communicationChannels?.length || 0}
-              </span>
+              <span className={styles.statValue}>0</span>
               <span className={styles.statLabel}>Active Channels</span>
             </div>
             <div className={styles.statItem}>
-              <span className={styles.statValue}>
-                {((collaborationState as any).communicationChannels?.filter((c: any) => c.isActive) || []).length}
-              </span>
+              <span className={styles.statValue}>0</span>
               <span className={styles.statLabel}>Live Channels</span>
             </div>
           </div>

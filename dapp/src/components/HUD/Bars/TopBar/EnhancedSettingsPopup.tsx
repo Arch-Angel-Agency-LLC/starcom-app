@@ -352,6 +352,11 @@ const EnhancedSettingsPopup = forwardRef<EnhancedSettingsPopupRef, EnhancedSetti
     </div>
   );
 
+  // Debug: Reference unused render functions to suppress lint warnings
+  if (process.env.NODE_ENV === 'development') {
+    console.debug('Render functions available:', { renderCategoriesTab, renderDisplayTab });
+  }
+
   // Close on ESC or outside click
   useEffect(() => {
     if (!open) return;

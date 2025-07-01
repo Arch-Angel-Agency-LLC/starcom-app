@@ -124,9 +124,9 @@ export class SecureChatIntegrationService {
   /**
    * Initialize the chat integration service
    */
-  public async initialize(_userDID?: string): Promise<void> {
+  public async initialize(userDID?: string): Promise<void> {
     try {
-      console.log('🔧 Initializing SecureChatIntegrationService...');
+      console.log('🔧 Initializing SecureChatIntegrationService...', userDID ? `for user: ${userDID}` : '');
       
       // Initialize PQC service
       await pqCryptoService.initialize();
@@ -173,7 +173,7 @@ export class SecureChatIntegrationService {
     const timestamp = Date.now();
 
     try {
-      console.log(`📤 Sending secure message ${messageId}...`);
+      console.log(`📤 Sending secure message ${messageId} at ${timestamp}...`);
 
       // Step 1: Encrypt message content with PQC if enabled
       let encryptedContent = message.content;

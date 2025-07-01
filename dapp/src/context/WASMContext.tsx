@@ -3,7 +3,7 @@ import { initializeWASM, fetchFromMiniServer as fetchFromWASM } from "../utils/w
 
 interface WASMContextType {
   wasmReady: boolean;
-  fetchFromMiniServer: (url: string) => Promise<any>;
+  fetchFromMiniServer: (url: string) => Promise<unknown>;
 }
 
 const WASMContext = createContext<WASMContextType | undefined>(undefined);

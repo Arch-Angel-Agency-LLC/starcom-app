@@ -23,6 +23,9 @@ function shouldResetPreferences(currentPrefs: TopBarPreferences): boolean {
   const currentEnabled = Object.keys(currentPrefs.enabledCategories).filter(id => currentPrefs.enabledCategories[id]);
   const newDefaultEnabled = TOPBAR_CATEGORIES.filter(cat => cat.defaultEnabled).map(cat => cat.id);
   
+  // Debug: Log preference comparison
+  console.debug('Preference comparison:', { currentEnabled, newDefaultEnabled });
+  
   // Reset if user has old financial-heavy preferences but no energy categories
   const hasEnergyCategories = currentEnabled.some(id => ['commodities', 'energy-security', 'power-grid', 'market-intelligence'].includes(id));
   const hasOldFinancialCategories = currentEnabled.some(id => ['indices', 'crypto', 'economic', 'news', 'sentiment'].includes(id));
