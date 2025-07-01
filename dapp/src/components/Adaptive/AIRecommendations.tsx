@@ -36,6 +36,7 @@ const AIRecommendations: React.FC<AIRecommendationsProps> = ({
     .filter(rec => !dismissedRecommendations.includes(rec.id))
     .slice(0, maxDisplayed);
 
+  // TODO: Implement social recovery mechanisms for wallet access - PRIORITY: LOW
   const getRecommendationIcon = (type: AdaptationRecommendation['type']): string => {
     const icons = {
       'FEATURE_UNLOCK': '🔓',

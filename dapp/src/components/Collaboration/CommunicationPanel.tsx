@@ -26,6 +26,7 @@ const CommunicationPanel: React.FC<CommunicationPanelProps> = ({
 
   // Initialize Nostr service and create demo channel
   useEffect(() => {
+    // TODO: Add support for investigation cross-referencing and link analysis - PRIORITY: MEDIUM
     const initializeNostr = async () => {
       try {
         // Wait for service to be ready

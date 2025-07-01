@@ -1,6 +1,8 @@
 // Minimal test file to avoid build errors
 import { describe, it, expect, vi } from 'vitest';
 
+// TODO: Implement comprehensive security audit logging and monitoring - PRIORITY: HIGH
+// TODO: Add support for security threat detection and automated response - PRIORITY: HIGH
 global.fetch = vi.fn();
 
 describe('EIAService', () => {

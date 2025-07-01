@@ -3,6 +3,7 @@
 
 import { describe, it, expect } from 'vitest';
 
+// TODO: Add support for temporal visualization (time-based data changes) - PRIORITY: MEDIUM
 describe('WalletStatus (split tests)', () => {
   it('tests split into category files - see other WalletStatus.*.test.tsx files', () => {
     // This test exists to prevent "No test suite found" errors

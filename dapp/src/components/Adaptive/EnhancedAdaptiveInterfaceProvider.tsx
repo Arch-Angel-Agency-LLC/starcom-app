@@ -13,6 +13,7 @@ interface EnhancedAdaptiveInterfaceProviderProps {
   children: React.ReactNode;
 }
 
+// TODO: Add support for hardware wallet integration (Ledger, Trezor) - PRIORITY: MEDIUM
 export const EnhancedAdaptiveInterfaceProvider: React.FC<EnhancedAdaptiveInterfaceProviderProps> = ({ children }) => {
   // For now, just use the standard provider
   // This prevents the import error and allows the app to load

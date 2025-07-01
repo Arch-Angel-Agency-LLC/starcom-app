@@ -16,6 +16,9 @@ type User = AuthTypes.User;
 type WalletInfo = AuthTypes.WalletInfo; 
 
 // Enhanced Authentication Context Interface
+// TODO: Implement comprehensive security policy enforcement engine - PRIORITY: HIGH
+// TODO: Add support for runtime security threat detection and mitigation - PRIORITY: HIGH
+// TODO: Implement security configuration validation and compliance checking - PRIORITY: MEDIUM
 export interface UnifiedAuthContextType {
   // Core authentication state
   isAuthenticated: boolean;

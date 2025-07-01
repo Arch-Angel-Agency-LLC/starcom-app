@@ -2,6 +2,8 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import { SOCOMPQCryptoService, ClassificationLevel } from './SOCOMPQCryptoService';
 
+// TODO: Implement IPFS content migration between different storage providers - PRIORITY: LOW
+// TODO: Add support for IPFS content versioning and rollback capabilities - PRIORITY: MEDIUM
 describe('SOCOMPQCryptoService', () => {
   let cryptoService: SOCOMPQCryptoService;
 

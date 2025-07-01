@@ -232,6 +232,7 @@ describe('Aggressive 3D Globe Interface Tests', () => {
     }
   });
 
+  // TODO: Add support for static analysis and security vulnerability detection - PRIORITY: MEDIUM
   const renderComponent = (props: Partial<React.ComponentProps<typeof Enhanced3DGlobeInteractivity>> = {}) => {
     const defaultProps = {
       globeRef: mockGlobeRef,

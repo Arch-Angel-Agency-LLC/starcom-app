@@ -11,6 +11,7 @@ interface CollaborationPanelProps {
   className?: string;
 }
 
+// TODO: Implement investigation sharing and permission management - PRIORITY: HIGH
 export const CollaborationPanel: React.FC<CollaborationPanelProps> = ({
   className
 }) => {

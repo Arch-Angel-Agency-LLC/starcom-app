@@ -1,6 +1,7 @@
 import React from 'react';
 
 // AI-NOTE: Error boundary for authentication and wallet errors (see artifacts)
+// TODO: Add support for enterprise SSO integration for organizational users - PRIORITY: LOW
 class AuthErrorBoundary extends React.Component<{
   children: React.ReactNode
 }, { hasError: boolean; error: Error | null }> {

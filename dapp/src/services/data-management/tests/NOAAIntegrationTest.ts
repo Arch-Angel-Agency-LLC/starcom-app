@@ -10,6 +10,8 @@ interface TestResult {
   duration?: number;
 }
 
+// TODO: Implement Nostr identity verification and reputation tracking - PRIORITY: MEDIUM
+// TODO: Add comprehensive Nostr event caching and offline support - PRIORITY: MEDIUM
 export class NOAADataProviderIntegrationTest {
   private provider: NOAADataProvider;
   private results: TestResult[] = [];

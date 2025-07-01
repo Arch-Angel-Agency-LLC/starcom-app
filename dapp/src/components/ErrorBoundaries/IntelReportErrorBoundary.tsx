@@ -13,6 +13,7 @@ import { IntelReportError } from '../../types/IntelReportErrorTypes';
 // INTERFACES
 // =============================================================================
 
+// TODO: Add comprehensive HUD analytics and usage tracking - PRIORITY: LOW
 export interface IntelReportErrorBoundaryProps {
   children: ReactNode;
   fallback?: React.ComponentType<IntelReportErrorFallbackProps>;

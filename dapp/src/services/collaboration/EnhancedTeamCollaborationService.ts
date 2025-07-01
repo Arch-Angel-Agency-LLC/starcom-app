@@ -29,6 +29,8 @@ import {
 } from '../../types/features/collaboration';
 
 // Enhanced team types for blockchain integration
+// TODO: Implement IPFS content encryption before storage for sensitive data - PRIORITY: HIGH
+// TODO: Add comprehensive IPFS content deduplication and optimization - PRIORITY: MEDIUM
 export interface BlockchainTeam extends Team {
   onChainAddress: PublicKey;
   multiSigWallet?: PublicKey;

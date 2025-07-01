@@ -58,6 +58,7 @@ const TeamCommunication: React.FC<TeamCommunicationProps> = ({
     }
   }, [teamId]);
 
+  // TODO: Implement comprehensive communication analytics and reporting - PRIORITY: LOW
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -163,7 +164,7 @@ const TeamCommunication: React.FC<TeamCommunicationProps> = ({
       } else {
         // Direct message (simplified for MVP)
         console.log('Direct message to:', selectedRecipient, messageContent);
-        // TODO: Implement Nostr DM when available
+        // TODO: Implement Nostr direct messaging using NIP-04 encryption for secure team communications
       }
     } catch (error) {
       console.error('Error sending message:', error);

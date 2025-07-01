@@ -45,6 +45,7 @@ const defaultAuthValue: AuthContextType = {
   setError: vi.fn(),
 };
 
+// TODO: Add support for collaborative real-time globe viewing with multiple users - PRIORITY: MEDIUM
 function renderWithProviders(authValue: Partial<AuthContextType> = {}) {
   function Wrapper({ children }: { children?: React.ReactNode }) {
     const [error, setError] = React.useState(authValue.error ?? null);

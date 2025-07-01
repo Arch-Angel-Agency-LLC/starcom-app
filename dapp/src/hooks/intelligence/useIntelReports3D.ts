@@ -25,6 +25,9 @@ import { IntelContextService } from '../../services/intelligence/IntelContextSer
 // HOOK OPTIONS AND CONFIGURATION
 // =============================================================================
 
+// TODO: Implement adaptive rendering quality based on device performance - PRIORITY: MEDIUM
+// TODO: Add support for 3D object picking and selection optimization - PRIORITY: MEDIUM
+// TODO: Implement comprehensive 3D state management and persistence - PRIORITY: MEDIUM
 export interface IntelReports3DOptions {
   // Performance options
   maxCacheSize?: number;

@@ -10,6 +10,7 @@ interface Position {
   y: number;
 }
 
+// TODO: Add support for customizable HUD component positioning and sizing - PRIORITY: MEDIUM
 const WalletDiagnostic: React.FC = () => {
   const {
     isAuthenticated,

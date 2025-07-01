@@ -9,6 +9,8 @@
 // OPERATOR PROFILE TYPES
 // ============================================================================
 
+// TODO: Implement data model serialization and deserialization optimization - PRIORITY: MEDIUM
+// TODO: Add comprehensive data model documentation and schema generation - PRIORITY: LOW
 export type OperatorRole = 
   | 'ANALYST' 
   | 'COMMANDER' 

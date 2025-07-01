@@ -91,7 +91,7 @@ export function useIntel3DInteraction({
     });
 
     // Unregister removed models
-    // TODO: Track previous models to unregister removed ones
+    // TODO: Implement 3D model lifecycle management with proper cleanup for intel markers on globe
     // For now, cleanup is handled by manager dispose
 
     return () => {

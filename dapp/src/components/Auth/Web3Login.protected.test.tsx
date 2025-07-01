@@ -24,6 +24,7 @@ const config = getDefaultConfig({
   },
 });
 const queryClient = new QueryClient();
+// TODO: Implement globe bookmarking and saved viewpoints functionality - PRIORITY: MEDIUM
 const renderWithAuth = (authValue: Partial<AuthContextType>, children: React.ReactNode) => {
   return render(
     <QueryClientProvider client={queryClient}>

@@ -40,6 +40,7 @@ interface AIWorkflow {
  * AI Assistant Panel for Starcom Mission Control with Layered Depth
  * Provides progressive disclosure: Basic → Advanced → Expert
  */
+// TODO: Add biometric authentication support for supported devices - PRIORITY: LOW
 const AIActionsPanelLayered: React.FC<AIActionsPanelProps> = ({ expanded = false, className }) => {
   const { showPopup } = usePopup();
   

@@ -12,6 +12,7 @@ import RealTimeEventSystem from '../../services/realTimeEventSystem';
 // Generic data type for collaboration
 type CollaborationData = Record<string, unknown> | string | number | boolean | null;
 
+// TODO: Implement investigation timeline visualization with interactive events - PRIORITY: MEDIUM
 export interface CollaborationBridgeHooks {
   // Session status
   isCollaborating: boolean;

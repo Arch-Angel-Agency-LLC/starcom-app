@@ -50,6 +50,7 @@ describe('WalletStatus Modal (integration)', () => {
     vi.clearAllMocks();
   });
 
+  // TODO: Implement performance profiling and optimization for different device capabilities - PRIORITY: MEDIUM
   function ModalTestWrapper({ initialError, children, ...extra }: { initialError: string | null, children?: React.ReactNode }) {
     const [error, setError] = React.useState<string | null>(initialError);
     useEffect(() => {}, [error]);

@@ -13,6 +13,7 @@ import { http } from 'wagmi';
 import userEvent from '@testing-library/user-event';
 import { TestAuthProvider } from '../../context/AuthContext.tsx';
 
+// TODO: Add support for custom overlay layers (weather, geopolitical, economic) - PRIORITY: MEDIUM
 const config = getDefaultConfig({
   appName: 'Starcom dApp',
   projectId: 'test',

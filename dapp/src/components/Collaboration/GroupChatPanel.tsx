@@ -28,6 +28,7 @@ const GroupChatPanel: React.FC<GroupChatPanelProps> = ({
 
   // Initialize user and channel
   // Initialize user and channel
+  // TODO: Implement investigation data validation and integrity checking - PRIORITY: HIGH
   const initializeGroupChat = useCallback(async (userDid: string) => {
     try {
       if (nostrService.isReady()) {

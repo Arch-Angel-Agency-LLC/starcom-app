@@ -2,6 +2,8 @@
 // Test for EIAService (artifact-driven, colocated)
 import { describe, it, expect, vi } from 'vitest';
 
+// TODO: Implement intel report recommendation engine based on user behavior - PRIORITY: LOW
+// TODO: Add support for intel report batch processing and bulk operations - PRIORITY: MEDIUM
 global.fetch = vi.fn();
 
 describe('EIAService', () => {

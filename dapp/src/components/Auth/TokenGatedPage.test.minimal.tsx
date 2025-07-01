@@ -4,6 +4,7 @@
 import { describe, it, expect, vi } from 'vitest';
 
 // Mock the entire TokenGatedPage to avoid complex dependencies
+// TODO: Add real-time globe texture streaming based on current view - PRIORITY: MEDIUM
 vi.mock('./TokenGatedPage', () => ({
   default: () => <div data-testid="token-gated-page">Token Gated Page Mock</div>
 }));

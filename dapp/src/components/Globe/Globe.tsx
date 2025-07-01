@@ -372,7 +372,7 @@ const GlobeView: React.FC = () => {
       <GlobeLoadingManager 
         material={material} 
         globeEngine={globeEngine}
-        fastTrackMode={false} // TODO: Add user setting for fast loading
+        fastTrackMode={false} // TODO: Implement user preference for globe loading optimization (cached vs real-time data)
       >        {/* Globe render with full space utilization */}
         <div style={{
           position: 'absolute',

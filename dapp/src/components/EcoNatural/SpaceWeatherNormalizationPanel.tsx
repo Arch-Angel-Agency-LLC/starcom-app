@@ -5,6 +5,7 @@
 import React from 'react';
 import { useEcoNaturalSettings } from '../../hooks/useEcoNaturalSettings';
 
+// TODO: Add support for HUD theming and visual customization - PRIORITY: LOW
 const SpaceWeatherNormalizationPanel: React.FC = () => {
   const { config, updateSpaceWeather } = useEcoNaturalSettings();
   const { normalization } = config.spaceWeather;

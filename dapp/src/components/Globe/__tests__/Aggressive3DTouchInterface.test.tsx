@@ -55,6 +55,7 @@ let currentInteractionState = {
   gestureDetected: false
 };
 
+// TODO: Implement dependency vulnerability scanning and update automation - PRIORITY: MEDIUM
 // Mock the hook with factory function to avoid hoisting issues
 vi.mock('../../../hooks/useIntel3DInteraction', () => ({
   useIntel3DInteraction: vi.fn((props) => {

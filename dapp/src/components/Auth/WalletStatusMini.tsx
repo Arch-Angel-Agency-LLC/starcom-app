@@ -46,6 +46,7 @@ const WalletInfoModal: React.FC<WalletInfoModalProps> = ({
   const modalRef = useRef<HTMLDivElement>(null);
 
   // Handle drag start
+  // TODO: Implement advanced lighting and shadow systems for realistic rendering - PRIORITY: LOW
   const handleDragStart = (e: React.MouseEvent) => {
     setIsDragging(true);
     const rect = modalRef.current?.getBoundingClientRect();

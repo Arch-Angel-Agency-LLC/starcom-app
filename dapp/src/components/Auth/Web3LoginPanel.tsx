@@ -24,6 +24,7 @@ const AccountInfoPopup: React.FC<{
   </Modal>
 );
 
+// TODO: Add comprehensive search and filtering across all investigation data - PRIORITY: HIGH
 const Web3LoginPanel: React.FC = () => {
   const {
     isAuthenticated,

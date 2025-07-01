@@ -10,6 +10,7 @@ interface PointerEventsTestProps {
  * 
  * AI-NOTE: This component helps verify that views can receive user interaction
  */
+// TODO: Implement adaptive HUD layout based on screen size and user preferences - PRIORITY: MEDIUM
 const PointerEventsTest: React.FC<PointerEventsTestProps> = ({ className }) => {
   const [clickCount, setClickCount] = useState(0);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });

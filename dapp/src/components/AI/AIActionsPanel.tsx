@@ -38,6 +38,7 @@ interface AIWorkflow {
  * AI Assistant Panel for Starcom Mission Control
  * Provides intelligent analysis, automation, and command capabilities with layered depth
  */
+// TODO: Implement comprehensive wallet connection error recovery and user guidance - PRIORITY: HIGH
 const AIActionsPanel: React.FC<AIActionsPanelProps> = ({ expanded = false, className }) => {
   // Core state
   const [activeCategory, setActiveCategory] = useState<'analysis' | 'automation' | 'communication' | 'prediction' | 'defense' | 'intelligence'>('analysis');

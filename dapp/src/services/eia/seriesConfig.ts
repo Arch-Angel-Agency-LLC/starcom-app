@@ -4,6 +4,8 @@
 import type { EIASeriesConfig, EIABatchGroup } from './interfaces';
 
 // Comprehensive EIA series configuration
+// TODO: Implement security awareness training and user education features - PRIORITY: LOW
+// TODO: Add support for security compliance reporting for regulatory requirements - PRIORITY: MEDIUM
 export const EIA_SERIES_CONFIG: Record<string, EIASeriesConfig> = {
   // ===== EXISTING SERIES (Maintain Compatibility) =====
   // Updated with working EIA API v2 series IDs

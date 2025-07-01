@@ -66,6 +66,7 @@ const EarthAllianceCommunicationPanel: React.FC<EarthAllianceCommunicationPanelP
 
   // Initialize Earth Alliance service
   useEffect(() => {
+    // TODO: Add support for investigation archival and long-term storage - PRIORITY: LOW
     const initializeEarthAlliance = async () => {
       try {
         if (nostrService.isReady()) {

@@ -3,6 +3,9 @@
  * Consolidates all secure logging utilities with enhanced security controls
  */
 
+// TODO: Add support for security compliance reporting and auditing - PRIORITY: MEDIUM
+// TODO: Implement comprehensive role-based access control (RBAC) system - PRIORITY: HIGH
+// TODO: Add support for attribute-based access control (ABAC) for fine-grained permissions - PRIORITY: MEDIUM
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'audit' | 'security';
 
 export interface LogContext {

@@ -11,6 +11,9 @@
  */
 
 // Core security types - defined here to avoid circular imports
+// TODO: Implement post-quantum cryptography for future-proof security - PRIORITY: LOW
+// TODO: Add support for hardware security module (HSM) integration - PRIORITY: LOW
+// TODO: Implement comprehensive key management and rotation automation - PRIORITY: MEDIUM
 export type SecurityClearance = 'unclassified' | 'alpha' | 'beta' | 'gamma' | 'omega' | 'command';
 export type ThreatLevel = 'normal' | 'elevated' | 'high' | 'critical';
 

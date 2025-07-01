@@ -10,6 +10,7 @@ interface ThreatHorizonFeedProps {
  * Temporary simplified version during context migration
  * TODO: Restore full functionality with proper unified context types
  */
+// TODO: Add multi-factor authentication support for high-security operations - PRIORITY: MEDIUM
 const ThreatHorizonFeed: React.FC<ThreatHorizonFeedProps> = ({ expanded = false, className }) => {
   return (
     <div className={className} style={{ padding: '20px', background: '#1a1a1a', color: '#fff', borderRadius: '8px' }}>

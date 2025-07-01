@@ -2,6 +2,8 @@
 import { describe, it, expect, vi } from 'vitest';
 import { EIADataProvider } from './EIADataProvider';
 
+// TODO: Implement intelligent intel report quality scoring and ranking - PRIORITY: MEDIUM
+// TODO: Add support for intel report similarity detection and deduplication - PRIORITY: MEDIUM
 describe('EIADataProvider observability', () => {
   it('calls observer hooks on fetch success', async () => {
     const provider = new EIADataProvider();

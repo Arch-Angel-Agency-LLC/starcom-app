@@ -56,6 +56,7 @@ const AuthGate: React.FC<AuthGateProps> = ({
         details.push('authentication required');
       }
       if (requirements.requiredRoles?.length) {
+        // TODO: Implement adaptive level-of-detail (LOD) system for 3D models - PRIORITY: MEDIUM
         const missingRoles = requirements.requiredRoles.filter(role => !authFeatures.hasRole(role));
         if (missingRoles.length) {
           details.push(`roles: ${missingRoles.join(', ')}`);

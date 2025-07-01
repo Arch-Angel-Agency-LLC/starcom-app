@@ -22,7 +22,7 @@ const Globe3DView: React.FC<Globe3DViewProps> = ({ className, fullscreen }) => {
   }, []);
 
   const updateGlobeData = useCallback(() => {
-    // TODO: Update globe with context-specific data
+    // TODO: Connect to main Globe state management for real-time intel marker updates
     console.log('Globe3D: Updating with context', state.enhanced?.primaryContextId);
   }, [state.enhanced?.primaryContextId]);
 
@@ -30,7 +30,7 @@ const Globe3DView: React.FC<Globe3DViewProps> = ({ className, fullscreen }) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    // TODO: Initialize actual 3D globe (Three.js, D3-geo, or WebGL)
+    // TODO: Integrate with main Globe component from src/components/Globe/Globe.tsx for 3D rendering
     const ctx = canvas.getContext('2d');
     if (ctx) {
       // Placeholder: Draw a simple circular outline
@@ -68,7 +68,7 @@ const Globe3DView: React.FC<Globe3DViewProps> = ({ className, fullscreen }) => {
   }, []);
 
   const cleanupGlobe = useCallback(() => {
-    // TODO: Cleanup 3D resources, event listeners, etc.
+    // TODO: Implement cleanup coordination with main Globe component
   }, []);
 
   useEffect(() => {

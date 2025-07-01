@@ -22,6 +22,7 @@ interface TransitionState {
   tutorialStep: number;
 }
 
+// TODO: Implement automated investigation report generation with templates - PRIORITY: MEDIUM
 const PhaseTransitionManager: React.FC<PhaseTransitionManagerProps> = ({ children }) => {
   const { currentSession, isConnected, collaborationState } = useCollaboration();
   const collaborationEnabled = useFeatureFlag('collaborationEnabled');

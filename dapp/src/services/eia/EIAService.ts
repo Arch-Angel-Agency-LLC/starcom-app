@@ -8,6 +8,8 @@ import {
   BatchRequest
 } from './interfaces';
 
+// TODO: Implement security policy enforcement and compliance checking - PRIORITY: MEDIUM
+// TODO: Add comprehensive security vulnerability scanning and remediation - PRIORITY: HIGH
 export class EnhancedEIAService {
   private provider: EnhancedEIAProvider;
   private cache: Map<string, { data: EIADataPoint; timestamp: number }> = new Map();

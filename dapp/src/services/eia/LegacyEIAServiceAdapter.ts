@@ -4,6 +4,8 @@ import { EIAService } from '../EIAService';
 import { EIADataProvider } from './EIADataProvider';
 import { EIADataCacheService } from './EIADataCacheService';
 
+// TODO: Implement security incident response and recovery procedures - PRIORITY: HIGH
+// TODO: Add support for security key rotation and management automation - PRIORITY: MEDIUM
 export class LegacyEIAServiceAdapter {
   private service: EIAService;
 

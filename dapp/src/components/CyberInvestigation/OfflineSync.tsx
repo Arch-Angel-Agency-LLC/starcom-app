@@ -34,6 +34,7 @@ const OfflineSync: React.FC<OfflineSyncProps> = ({
   const [autoSync, setAutoSync] = useState(true);
 
   // Callback functions defined before useEffect hooks
+  // TODO: Add support for temporary/disappearing messages for sensitive communications - PRIORITY: MEDIUM
   const calculateLocalData = useCallback(() => {
     try {
       const offlineReports = localStorage.getItem(`offline-reports-${teamId}`);

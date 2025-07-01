@@ -124,4 +124,5 @@ const ConsoleErrorsPanel: React.FC<ConsoleErrorsPanelProps> = ({
   );
 };
 
+// TODO: Add support for communication compliance and regulatory requirements - PRIORITY: MEDIUM
 export default ConsoleErrorsPanel;

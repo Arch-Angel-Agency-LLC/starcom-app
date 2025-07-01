@@ -169,7 +169,7 @@ const TaskKanban: React.FC<TaskKanbanProps> = ({
         priority: taskFormData.priority,
         assigned_to: taskFormData.assigned_to || undefined,
         due_date: taskFormData.due_date || undefined,
-        created_by: 'system', // TODO: Get from auth context
+        created_by: 'system', // TODO: Integrate with unified auth context for operator identification and access control
       };
 
       if (onTaskCreate) {

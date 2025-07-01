@@ -5,6 +5,7 @@ interface CollaborationPanelProps {
   className?: string;
 }
 
+// TODO: Add support for investigation templates and workflow automation - PRIORITY: MEDIUM
 export const CollaborationPanel: React.FC<CollaborationPanelProps> = ({
   className
 }) => {

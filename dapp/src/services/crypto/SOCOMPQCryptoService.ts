@@ -2,6 +2,8 @@
 // This is a minimal implementation to resolve import errors
 // Will be enhanced with full quantum-resistant cryptography later
 
+// TODO: Implement IPFS bandwidth usage monitoring and optimization - PRIORITY: MEDIUM
+// TODO: Add comprehensive IPFS content access logging and analytics - PRIORITY: MEDIUM
 export enum ClassificationLevel {
   Unclassified = 'UNCLASSIFIED',
   Confidential = 'CONFIDENTIAL',

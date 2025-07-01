@@ -1,5 +1,6 @@
 import React, { Component, ReactNode } from 'react';
 import styles from './ErrorBoundary.module.css';
+import { errorLogger } from '../../utils/errorLogger';
 
 interface Props {
   children: ReactNode;
@@ -28,11 +29,15 @@ class ErrorBoundary extends Component<Props, State> {
       errorInfo
     });
 
-    // Log error to monitoring service
+    // Enhanced error logging for decentralized accountability
     console.error('ErrorBoundary caught an error:', error, errorInfo);
     
-    // TODO: Send to error monitoring service (e.g., Sentry)
-    // errorMonitoringService.captureException(error, { extra: errorInfo });
+    // ✅ IMPLEMENTED: Client-side error logging for decentralized accountability
+    errorLogger.logError(error, {
+      componentStack: errorInfo.componentStack,
+      errorBoundary: true,
+      timestamp: new Date().toISOString()
+    });
   }
 
   render() {

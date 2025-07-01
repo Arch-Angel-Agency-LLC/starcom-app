@@ -12,6 +12,7 @@ import { useIPFSNostrIntegration } from '../../hooks/useIPFSNostrIntegration';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/Card';
 import styles from './IPFSNostrIntegrationDemo.module.css';
 
+// TODO: Add comprehensive keyboard navigation and accessibility features - PRIORITY: HIGH
 export const IPFSNostrIntegrationDemo: React.FC = () => {
   const [selectedScenario, setSelectedScenario] = useState<'investigation' | 'team-collaboration' | 'content-sharing' | 'network-analysis'>('investigation');
   const [demoData, setDemoData] = useState<Record<string, unknown>[]>([]);

@@ -395,7 +395,7 @@ class RealTimeTeamService {
 
   private async syncWithPublicInfrastructure(): Promise<void> {
     try {
-      // TODO: Implement actual sync with Nostr relays and IPFS
+      // TODO: Implement real-time team sync using Nostr events and IPFS content addressing for investigation data
       // 1. Publish team updates to Nostr relays
       // 2. Store investigation data to IPFS
       // 3. Sync member status updates

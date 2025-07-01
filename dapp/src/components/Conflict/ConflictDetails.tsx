@@ -15,6 +15,7 @@ interface ConflictDetailsProps {
   };
 }
 
+// TODO: Add support for voice and video calls within the application - PRIORITY: LOW
 const ConflictDetails: React.FC<ConflictDetailsProps> = ({ conflict }) => (
   <div>
     <h2>Conflict Details: {conflict.conflict_name}</h2>
