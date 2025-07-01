@@ -13,6 +13,16 @@
 import ipfsService, { IPFSUploadResult } from './IPFSService';
 import { IntelPackage, CyberTeam, CyberInvestigation, Evidence } from '../types/cyberInvestigation';
 
+// Event listener type for RelayNode events
+type EventListener = (data: RelayNodeEvent) => void;
+
+// Event emitter interface
+interface EventEmitter {
+  on(event: string, listener: EventListener): void;
+  off(event: string, listener: EventListener): void;
+  emit(event: string, data: RelayNodeEvent): void;
+}
+
 // RelayNode event types
 interface RelayNodeEvent {
   type: 'content-replicated' | 'team-member-joined' | 'content-updated' | 'security-alert';
@@ -99,7 +109,7 @@ interface TeamContentMetadata {
   }>;
 }
 
-export class RelayNodeIPFSService {
+export class RelayNodeIPFSService implements EventEmitter {
   private static instance: RelayNodeIPFSService;
   private fallbackIPFS: typeof ipfsService;
   private relayNodeEndpoint: string = 'http://localhost:8081';
@@ -109,6 +119,9 @@ export class RelayNodeIPFSService {
   private maxConnectionAttempts: number = 3;
   private retryInterval: number = 5000; // 5 seconds
   private teamContext: { teamId?: string; permissions?: string[] } = {};
+  
+  // Event emission capabilities
+  private eventListeners: Map<string, EventListener[]> = new Map();
 
   private constructor() {
     this.fallbackIPFS = ipfsService;
@@ -395,6 +408,24 @@ export class RelayNodeIPFSService {
       encrypted: result.encryptedWith
     });
 
+    // Emit content upload event
+    this.emit('content-updated', {
+      type: 'content-updated',
+      hash: result.hash,
+      peerCount: result.replicatedTo?.length || 0,
+      message: 'Content uploaded to RelayNode IPFS'
+    });
+
+    // Emit replication event if content was replicated
+    if (result.replicatedTo && result.replicatedTo.length > 0) {
+      this.emit('content-replicated', {
+        type: 'content-replicated',
+        hash: result.hash,
+        peerCount: result.replicatedTo.length,
+        message: `Content replicated to ${result.replicatedTo.length} peers`
+      });
+    }
+
     return {
       hash: result.hash!,
       size: result.size!,
@@ -634,25 +665,58 @@ export class RelayNodeIPFSService {
   }
 
   /**
-   * Event listener management (stub for future implementation)
+   * Event listener management - fully implemented event system
    */
-  public on(event: string, callback: (data: Record<string, unknown>) => void): () => void {
-    // Placeholder for event system
-    console.log(`Event listener registered for: ${event}`, callback.name);
-    
-    // Return unsubscribe function
-    return () => {
-      console.log(`Event listener unregistered for: ${event}`);
-    };
+  public on(event: string, listener: EventListener): void {
+    if (!this.eventListeners.has(event)) {
+      this.eventListeners.set(event, []);
+    }
+    this.eventListeners.get(event)!.push(listener);
   }
 
   /**
-   * Emit events (placeholder for future implementation)
+   * Remove event listener
    */
-  private emit(event: string, data: Record<string, unknown>): void {
-    // Future implementation will emit events to registered listeners
-    console.log(`Event emitted: ${event}`, Object.keys(data).length, 'properties');
-    // TODO: Implement actual event emission
+  public off(event: string, listener: EventListener): void {
+    const listeners = this.eventListeners.get(event);
+    if (listeners) {
+      const index = listeners.indexOf(listener);
+      if (index > -1) {
+        listeners.splice(index, 1);
+      }
+    }
+  }
+
+  /**
+   * Emit events to registered listeners
+   */
+  public emit(event: string, data: RelayNodeEvent): void {
+    const listeners = this.eventListeners.get(event);
+    if (listeners) {
+      listeners.forEach(listener => {
+        try {
+          listener(data);
+        } catch (error) {
+          console.error(`Error in event listener for ${event}:`, error);
+        }
+      });
+    }
+  }
+
+  /**
+   * Legacy method for backward compatibility
+   */
+  public onCompat(event: string, callback: (data: Record<string, unknown>) => void): () => void {
+    const listener: EventListener = (data: RelayNodeEvent) => {
+      callback(data as unknown as Record<string, unknown>);
+    };
+    
+    this.on(event, listener);
+    
+    // Return unsubscribe function
+    return () => {
+      this.off(event, listener);
+    };
   }
 }
 

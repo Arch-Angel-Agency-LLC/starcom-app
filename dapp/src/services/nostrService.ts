@@ -1047,7 +1047,28 @@ class NostrService {
       details
     };
     
-    // TODO: Send auditEvent to security audit service
+    // Send auditEvent to security audit service using errorLogger
+    try {
+      // Import errorLogger for security audit logging
+      import('../utils/errorLogger').then(({ errorLogger }) => {
+        errorLogger.logError(
+          new Error(`Security Audit: ${eventType}`),
+          {
+            context: 'NostrService Security Audit',
+            severity: 'info',
+            userDID: this.userDID,
+            publicKey: this.publicKey?.slice(0, 16) + '...',
+            details,
+            auditEvent: true
+          }
+        );
+      }).catch(err => {
+        console.warn('Failed to log security audit event:', err);
+      });
+    } catch (error) {
+      console.warn('Error accessing audit logger:', error);
+    }
+    
     console.debug('Security audit event:', auditEvent);
   }
 
