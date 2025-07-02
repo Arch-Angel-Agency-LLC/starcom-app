@@ -73,14 +73,36 @@ Start with `.onboarding` → `docs/EARTH-ALLIANCE-MISSION-ANALYSIS.md` → `.pri
 - **Evidence**: Immutable IPFS storage with cryptographic verification
 - **Identity**: Self-sovereign authentication (no government dependencies)
 
-### **Documentation Structure**
-- **Architecture**: [`docs/architecture/`](./docs/architecture/) - System design and structure
-- **Security**: [`docs/security/`](./docs/security/) - Security implementations and hardening
-- **Development**: [`docs/development/`](./docs/development/) - Developer guides and onboarding
-- **Testing**: [`docs/testing/`](./docs/testing/) - Test files and validation scripts
-- **Reports**: [`docs/reports/`](./docs/reports/) - Project reports and summaries
-- **Technical Status**: [`docs/BUILD-STATUS.md`](./docs/BUILD-STATUS.md)
-- **Complete Index**: [`docs/`](./docs/) directory
+### **Maintenance & Storage Management**
+- **Storage Monitoring**: Use `npm run storage-check` to monitor disk usage
+- **Cleanup Commands**:
+  - `npm run cleanup` - Clean NOAA data files
+  - `npm run cleanup:rust` - Clean Rust build cache (can save GBs)
+  - `npm run cleanup:all` - Full cleanup (recommended monthly)
+- **Warning Signs**: 
+  - Build cache >1GB (run rust cleanup)
+  - NOAA data >20MB (run data cleanup)
+  - Slow build times (cleanup recommended)
+
+### **Documentation Structure (Clean & Focused)**
+- **Current Status**: [`docs/CURRENT-STATE-OVERVIEW.md`](./docs/CURRENT-STATE-OVERVIEW.md) - Single source of truth for project status
+- **Storage Management**: [`docs/STORAGE-MANAGEMENT.md`](./docs/STORAGE-MANAGEMENT.md) - Disk usage monitoring and cleanup procedures
+- **Testing Strategy**: [`docs/TESTING-STRATEGY.md`](./docs/TESTING-STRATEGY.md) - Current testing approach and procedures
+- **Configuration**: [`docs/CONFIGURATION-GUIDE.md`](./docs/CONFIGURATION-GUIDE.md) - System configuration guidance
+- **Authentication Testing**: [`docs/AUTHENTICATION-TESTING-GUIDE.md`](./docs/AUTHENTICATION-TESTING-GUIDE.md) - Authentication testing procedures
+
+### **Specialized Guides**
+- **3D Assets**: [`docs/3D-ASSET-DEPLOYMENT-GUIDE.md`](./docs/3D-ASSET-DEPLOYMENT-GUIDE.md) - 3D asset deployment procedures
+- **Globe Integration**: [`docs/GLOBE-INTEGRATION-GUIDE.md`](./docs/GLOBE-INTEGRATION-GUIDE.md) - Interactive globe integration
+
+### **Archive & Historical Documentation**
+- **Archive Index**: [`docs/archived/README.md`](./docs/archived/README.md) - Complete index of archived documentation
+- **Historical Documents**: [`docs/archived/`](./docs/archived/) - 120+ archived implementation reports and analysis documents
+- **Cleanup Report**: [`docs/DOCUMENTATION-CLEANUP-COMPLETION-REPORT.md`](./docs/DOCUMENTATION-CLEANUP-COMPLETION-REPORT.md) - Documentation reorganization summary
+
+**✅ Clean Documentation**: Main docs directory reduced from 133+ files to 9 essential documents. All historical information preserved in organized archives.
+
+**⚠️ Important**: Historical analysis and implementation reports are archived. Refer to current documentation for accurate project status.
 
 ---
 

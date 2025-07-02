@@ -1,5 +1,5 @@
 [workspace]
-members = [ "ai-security-relaynode",
+members = [
     "programs/*",
     "rust/crypto-core"
 ]

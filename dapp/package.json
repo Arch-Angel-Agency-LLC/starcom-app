@@ -29,7 +29,11 @@
     "generate-test-reports": "tsx scripts/generate-test-reports.ts",
     "onboard": "tsx scripts/onboard.cjs",
     "storage-check": "node scripts/storage-monitor.mjs",
+    "code-quality-check": "node scripts/code-quality-check.mjs",
+    "maintenance": "node scripts/maintenance.mjs",
     "cleanup": "rm -f technical_reference_code_samples/NOAA_directory_scan/noaa_data/*.json && echo 'Cleaned up NOAA data files'",
+    "cleanup:rust": "cargo clean && echo 'Cleaned Rust build cache'",
+    "cleanup:all": "npm run cleanup && npm run cleanup:rust && echo 'Full cleanup complete'",
     "mock-api": "node scripts/mock-api-server.js",
     "test:mint": "tsx scripts/testMint.ts"
   },
