@@ -31,6 +31,19 @@ Welcome to the Earth Alliance Starcom platform documentation - designed for effi
 - **[Reality Check Analysis](./REALITY-CHECK-HIDDEN-ELEPHANTS.md)** - Technical constraints and solutions
 - **[Platform Integration](./NOSTR-PQC-IPFS-SERVERLESS-INTEGRATION-ANALYSIS.md)** - Complete architecture analysis
 
+### **Multi-Protocol Chat System**
+- **[Development Phases](./MULTI-PROTOCOL-CHAT-DEVELOPMENT-PHASES.md)** - Complete multi-phase development plan
+- **[Chat System Audit Report](./chat-system-audit-report.md)** - Detailed analysis of the current chat system
+- **[Project-Wide Technical Debt](./chat-system-phases/PROJECT-WIDE-TECHNICAL-DEBT.md)** - Analysis of fundamental architectural issues
+- **[Phase 0: Emergency Stabilization](./chat-system-phases/PHASE-0-EMERGENCY-STABILIZATION.md)** - Critical fixes and immediate stability improvements
+- **[Phase 1: Unified Adapter Architecture](./chat-system-phases/PHASE-1-UNIFIED-ADAPTER-ARCHITECTURE.md)** - Protocol-agnostic adapter implementation
+- **[Phase 2: Unified Message Store](./chat-system-phases/PHASE-2-UNIFIED-MESSAGE-STORE-CONTEXT.md)** - Cross-protocol data layer
+- **[Phase 3: Protocol Selection & Fallback](./chat-system-phases/PHASE-3-PROTOCOL-SELECTION-FALLBACK.md)** - Intelligent protocol switching
+- **[Phase 4: Settings & Identity](./chat-system-phases/PHASE-4-PROTOCOL-SELECTION-SETTINGS.md)** - Cross-protocol identity management
+- **[Phase 5: Enhanced Features](./chat-system-phases/PHASE-5-ENHANCED-FEATURES.md)** - Advanced functionality and optimizations
+- **[Phase 6: Advanced Extensions](./chat-system-phases/PHASE-6-ADVANCED-EXTENSIONS.md)** - Voice/video, AI features and external integrations
+- **[Floating Chat Button Positioning](./floating-chat-button-dynamic-positioning.md)** - Dynamic chat button positioning relative to RightSideBar
+
 ---
 
 ## 📚 **Documentation Structure**

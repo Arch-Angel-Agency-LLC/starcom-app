@@ -6,7 +6,7 @@ export default defineConfig({
     test: {
         environment: 'jsdom', // For React component testing
         globals: true,        // Enables global `describe`, `it`, etc.
-        setupFiles: './src/setupTests.ts', // Optional setup file
+        setupFiles: './src/setupVitest.ts', // Updated setup file for Vitest
         env: {
         VITE_EIA_API_KEY: 'ZJD7rrc41ozM4JikBBOM3Q4CAeEVYhdmxaHemuGo', // Mock env for tests
         },

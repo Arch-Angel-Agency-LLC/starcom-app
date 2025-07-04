@@ -9,12 +9,14 @@ import AuthDemoPage from '../components/Demo/AuthDemoPage';
 import UXFlowIntegrationTest from '../components/Testing/UXFlowIntegrationTest';
 import CyberInvestigationMVP from '../components/CyberInvestigation/CyberInvestigationMVP';
 import IPFSNostrIntegrationDemo from '../components/Demo/IPFSNostrIntegrationDemo';
+import ChatDemoPage from '../pages/Demo/ChatDemoPage';
 
 // New page imports
 import TeamsDashboard from '../pages/Teams/TeamsDashboard';
 import TeamWorkspace from '../pages/Teams/TeamWorkspace';
 import InvestigationsDashboard from '../pages/Investigations/InvestigationsDashboard';
 import IntelDashboard from '../pages/Intel/IntelDashboard';
+import NewReportPage from '../pages/Reports/NewReportPage'; // Import the new report page
 
 // Layout imports
 import BaseLayout from '../layouts/BaseLayout/BaseLayout';
@@ -72,6 +74,15 @@ const AppRoutes: React.FC = () => (
       </ProtectedRoute>
     } />
     
+    {/* Report creation for team intel */}
+    <Route path="/team/:teamId/new-report" element={
+      <ProtectedRoute>
+        <BaseLayout>
+          <NewReportPage />
+        </BaseLayout>
+      </ProtectedRoute>
+    } />
+    
     {/* Existing routes */}
     <Route path="/settings" element={
       <ProtectedRoute>
@@ -97,6 +108,7 @@ const AppRoutes: React.FC = () => (
     {/* Demo and test routes */}
     <Route path="/auth-demo" element={<AuthDemoPage />} />
     <Route path="/ipfs-nostr-demo" element={<IPFSNostrIntegrationDemo />} />
+    <Route path="/chat-demo" element={<ChatDemoPage />} />
     <Route path="/test-ui" element={<UXFlowIntegrationTest />} />
     <Route path="/ux-test" element={<UXFlowIntegrationTest />} />
   </Routes>

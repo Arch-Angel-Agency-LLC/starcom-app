@@ -11,6 +11,7 @@ import { SpaceWeatherProvider } from "./context/SpaceWeatherContext";
 import { UnifiedGlobalCommandProvider } from "./context/UnifiedGlobalCommandContext";
 import { InvestigationProvider } from "./context/InvestigationContext";
 import { GlobalGlobeContextMenuProvider } from "./context/GlobalGlobeContextMenuProvider";
+import { RightSideBarProvider } from "./context/RightSideBarContext";
 import SettingsInitializer from "./components/SettingsInitializer";
 import SettingsStatusIndicator from "./components/SettingsStatusIndicator";
 import PreloaderManager from "./components/Preloader/PreloaderManager";
@@ -67,7 +68,11 @@ const App: React.FC = () => (
                       <UnifiedGlobalCommandProvider>
                         <InvestigationProvider>
                           <GlobalGlobeContextMenuProvider>
-                            <AppContent />
+                            <RightSideBarProvider>
+                              <div data-testid="app-root">
+                                <AppContent />
+                              </div>
+                            </RightSideBarProvider>
                           </GlobalGlobeContextMenuProvider>
                         </InvestigationProvider>
                       </UnifiedGlobalCommandProvider>

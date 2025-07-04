@@ -19,9 +19,11 @@ export default defineConfig({
   // Fail the build on CI if you accidentally left test.only in the source code
   forbidOnly: !!process.env.CI,
   
-  // Retry on CI only
-  retries: process.env.CI ? 2 : 0,
-  
+  // Retry tests once to mitigate flakes
+  retries: 1,
+  // Report tests slower than threshold (ms) and limit count
+  reportSlowTests: { max: 5, threshold: 30000 },
+
   // Opt out of parallel tests on CI
   workers: process.env.CI ? 1 : undefined,
   
@@ -37,11 +39,24 @@ export default defineConfig({
   globalSetup: './src/testing/playwright/global-setup.ts',
   globalTeardown: './src/testing/playwright/global-teardown.ts',
   
-  // Shared settings for all tests
+  /* Run your local dev server before starting the tests */
+  webServer: {
+    command: 'npm run dev -- --port 5174',
+    url: 'http://localhost:5174',
+    reuseExistingServer: !process.env.CI,
+    timeout: 120 * 1000, // 2 minutes to start
+    stdout: 'pipe',
+    stderr: 'pipe',
+  },
+
+  /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    // Base URL for tests
-    baseURL: 'http://localhost:5173', // Vite dev server default
-    
+    /* Base URL to use in actions like `await page.goto('/')`. */
+    baseURL: 'http://localhost:5174', // Vite dev server default
+
+    /* Collect trace on failure. See https://playwright.dev/docs/trace-viewer */
+    trace: 'retain-on-failure',
+
     // Browser context options
     viewport: { width: 1920, height: 1080 },
     
@@ -185,24 +200,16 @@ export default defineConfig({
             '--force-color-profile=srgb'
           ]
         }
-      },
-      testMatch: '**/ai-agent.spec.ts'
+      }
     }
   ],
+
+  // Run all tests now that debugging is complete
+  // testMatch: '**/deep-react-debug.spec.ts',
 
   // Output directory for test results
   outputDir: 'test-results/playwright-output',
   
-  // Web server configuration (auto-start dev server)
-  webServer: {
-    command: 'npm run dev',
-    port: 5173,
-    timeout: 120000, // 2 minutes to start
-    reuseExistingServer: !process.env.CI,
-    stdout: 'ignore',
-    stderr: 'pipe'
-  },
-
   // Metadata for reports
   metadata: {
     testType: 'AI Agent UI Testing',

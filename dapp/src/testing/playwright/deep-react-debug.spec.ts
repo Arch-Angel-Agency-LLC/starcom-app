@@ -15,7 +15,7 @@ test.describe('Deep React Debug Analysis', () => {
     });
 
     // Navigate to the page
-    await page.goto('http://localhost:5173');
+    await page.goto('http://localhost:5174');
     
     console.log('=== INITIAL STATE ===');
     

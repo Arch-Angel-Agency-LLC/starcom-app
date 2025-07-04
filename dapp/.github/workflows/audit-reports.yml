@@ -1,0 +1,38 @@
+name: "Audit Intel Reports"
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  audit:
+    name: "Run Intel Report Schema Audit"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run schema audit
+        run: npm run audit:reports
+        env:
+          CI: true
+
+      - name: Run team tests
+        run: npm run test:team
+      - name: Run e2e tests
+        run: npm run test:e2e

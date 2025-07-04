@@ -2,8 +2,8 @@ import { test, expect } from '@playwright/test';
 
 test.describe('React App Debug Analysis', () => {
   test('analyze why React app root is empty', async ({ page }) => {
-    // Navigate to the actual running server
-    await page.goto('http://localhost:5175');
+    // Navigate to the base URL defined in playwright.config.ts
+    await page.goto('/');
     
     // Wait longer for React to potentially load
     await page.waitForTimeout(5000);

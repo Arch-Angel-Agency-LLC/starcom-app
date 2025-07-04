@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import CommunicationPanel from './CommunicationPanel';
+import CommunicationPanel from './CommunicationPanel-unified'; // Using the unified version
 import SessionManager from './SessionManager';
-import NostrService, { NostrTeamChannel } from '../../services/nostrService';
 import CollaborationService from '../../services/collaborationService';
 import { AgencyType, ClearanceLevel, CollaborationSession } from '../../types';
+import { useChat } from '../../context/ChatContext'; // Import the unified chat hook
 import styles from './CollaborationPanel.module.css';
 
 interface CollaborationPanelProps {
@@ -20,38 +20,45 @@ export const CollaborationPanel: React.FC<CollaborationPanelProps> = ({
   const [userDID, setUserDID] = useState<string>('');
   const [userAgency] = useState<AgencyType>('CYBER_COMMAND');
   const [clearanceLevel] = useState<ClearanceLevel>('CONFIDENTIAL');
-  const [, setTeamChannels] = useState<NostrTeamChannel[]>([]);
-  const [isNostrReady, setIsNostrReady] = useState(false);
   const [showSessionManager, setShowSessionManager] = useState(false);
   const [availableSessions, setAvailableSessions] = useState<CollaborationSession[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const nostrService = NostrService.getInstance();
+  
+  // Use the unified chat context instead of direct NostrService
+  const chat = useChat();
   const collaborationService = CollaborationService.getInstance();
 
-  // Initialize user DID and Nostr service
+  // Initialize user DID and chat service
   useEffect(() => {
     if (connected && publicKey) {
       const did = `did:socom:starcom:${publicKey.toString().slice(0, 16)}`;
       setUserDID(did);
-      nostrService.setUserDID(did);
       
-      // Check if Nostr service is ready
-      const checkNostrReady = () => {
-        if (nostrService.isReady()) {
-          setIsNostrReady(true);
-          setTeamChannels(nostrService.getTeamChannels());
-        } else {
-          setTimeout(checkNostrReady, 500);
-        }
-      };
-      checkNostrReady();
+      // Connect to chat service if not already connected
+      if (!chat.isConnected) {
+        chat.connect({
+          type: 'nostr', // Use Nostr for collaboration by default
+          options: {
+            userId: publicKey.toString(),
+            userName: `Operator-${publicKey.toString().slice(0, 8)}`,
+            encryption: true,
+            metadata: {
+              did,
+              agency: userAgency,
+              clearanceLevel
+            }
+          }
+        }).catch(err => {
+          console.error('Failed to connect to chat service:', err);
+        });
+      }
     }
-  }, [connected, publicKey, nostrService]);
+  }, [connected, publicKey, userAgency, clearanceLevel, chat]);
 
   // Load available collaboration sessions
   useEffect(() => {
     const loadSessions = async () => {
-      if (connected && isNostrReady) {
+      if (connected && chat.isConnected) {
         setIsLoading(true);
         try {
           const sessions = await collaborationService.getAvailableSessions();
@@ -65,7 +72,7 @@ export const CollaborationPanel: React.FC<CollaborationPanelProps> = ({
     };
 
     loadSessions();
-  }, [connected, isNostrReady, collaborationService]);
+  }, [connected, chat.isConnected, collaborationService]);
 
   // Button handlers
   const handleNewSession = () => {
@@ -78,6 +85,23 @@ export const CollaborationPanel: React.FC<CollaborationPanelProps> = ({
     setIsLoading(true);
     try {
       await collaborationService.joinSession(sessionId, userDID);
+      
+      // Join the corresponding chat channel using the unified API
+      const channelId = `session-${sessionId}`;
+      
+      // Create the channel if it doesn't exist
+      if (!chat.channels.some(c => c.id === channelId)) {
+        await chat.createChannel(
+          `Session ${sessionId}`,
+          'team',
+          [publicKey?.toString() || '']
+        );
+      }
+      
+      // Join and set as current channel
+      await chat.joinChannel(channelId);
+      chat.setCurrentChannel(channelId);
+      
       // Refresh sessions list
       const sessions = await collaborationService.getAvailableSessions();
       setAvailableSessions(sessions);
@@ -128,6 +152,21 @@ export const CollaborationPanel: React.FC<CollaborationPanelProps> = ({
 
       console.log('Team created successfully:', newTeam);
       
+      // Create a chat channel for the team using the unified API
+      try {
+        await chat.createChannel(
+          teamName,
+          'team',
+          [publicKey.toString()]
+        );
+        
+        // Set as current channel after creation
+        const teamChannelId = `team-${teamName.toLowerCase().replace(/\s+/g, '-')}`;
+        chat.setCurrentChannel(teamChannelId);
+      } catch (err) {
+        console.error('Failed to create team channel:', err);
+      }
+      
       // Refresh sessions list to include the new team
       const sessions = await collaborationService.getAvailableSessions();
       setAvailableSessions(sessions);
@@ -157,6 +196,12 @@ export const CollaborationPanel: React.FC<CollaborationPanelProps> = ({
       
       if (teamSession) {
         await handleJoinSession(teamSession.id);
+        
+        // Connect to team channel using unified API
+        const teamChannelId = `team-${teamName.toLowerCase().replace(/\s+/g, '-')}`;
+        await chat.joinChannel(teamChannelId);
+        chat.setCurrentChannel(teamChannelId);
+        
         alert(`Successfully connected to ${teamName}`);
       } else {
         // Create a mock team session if not found
@@ -178,6 +223,17 @@ export const CollaborationPanel: React.FC<CollaborationPanelProps> = ({
           }],
           status: 'ACTIVE'
         });
+        
+        // Create the chat channel
+        await chat.createChannel(
+          teamName,
+          'team',
+          [publicKey.toString()]
+        );
+        
+        // Set as current channel
+        const teamChannelId = `team-${teamName.toLowerCase().replace(/\s+/g, '-')}`;
+        chat.setCurrentChannel(teamChannelId);
         
         // Refresh sessions
         const sessions = await collaborationService.getAvailableSessions();
@@ -201,10 +257,10 @@ export const CollaborationPanel: React.FC<CollaborationPanelProps> = ({
     { id: 'security', label: '🔒 Security', icon: '🔒' }
   ] as const;
 
-  // Get security status
+  // Get security status - now includes chat connection status
   const getSecurityStatus = () => {
     if (!connected) return { level: 'Disconnected', color: '#ff4444' };
-    if (!isNostrReady) return { level: 'Initializing', color: '#ffaa00' };
+    if (!chat.isConnected) return { level: 'Initializing', color: '#ffaa00' };
     return { level: 'Quantum-Safe', color: '#00ff41' };
   };
 
@@ -339,7 +395,7 @@ export const CollaborationPanel: React.FC<CollaborationPanelProps> = ({
                   </div>
                   <div className={styles.securityItem}>
                     <span>End-to-End Encryption</span>
-                    <span className={styles.statusActive}>Active</span>
+                    <span className={styles.statusActive}>{chat.isEncryptionEnabled ? 'Active' : 'Inactive'}</span>
                   </div>
                   <div className={styles.securityItem}>
                     <span>Message Signing</span>
@@ -370,16 +426,20 @@ export const CollaborationPanel: React.FC<CollaborationPanelProps> = ({
                 <h4>📊 Network Status</h4>
                 <div className={styles.securityItems}>
                   <div className={styles.securityItem}>
-                    <span>Nostr Relays</span>
-                    <span className={styles.statusActive}>5 Connected</span>
+                    <span>Chat Provider</span>
+                    <span className={styles.statusActive}>{
+                      chat.providerType === 'nostr' ? 'Nostr Relays' :
+                      chat.providerType === 'gun' ? 'Gun.js P2P' :
+                      chat.providerType === 'secure' ? 'SecureChat' : 'Unknown'
+                    }</span>
                   </div>
                   <div className={styles.securityItem}>
-                    <span>Latency</span>
-                    <span className={styles.statusActive}>&lt; 100ms</span>
+                    <span>Connection Status</span>
+                    <span className={styles.statusActive}>{chat.isConnected ? 'Connected' : 'Disconnected'}</span>
                   </div>
                   <div className={styles.securityItem}>
-                    <span>Uptime</span>
-                    <span className={styles.statusActive}>99.9%</span>
+                    <span>Channels</span>
+                    <span className={styles.statusActive}>{chat.channels.length} Available</span>
                   </div>
                 </div>
               </div>

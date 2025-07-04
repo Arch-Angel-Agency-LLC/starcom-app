@@ -41,7 +41,7 @@ async function globalSetup(config: FullConfig) {
 
   try {
     // Check if the application is running
-    const baseURL = config.projects[0]?.use?.baseURL || 'http://localhost:5173';
+    const baseURL = config.projects[0]?.use?.baseURL || 'http://localhost:5174';
     console.log(`🔍 Checking application availability at ${baseURL}...`);
     
     await page.goto(baseURL, { timeout: 30000 });

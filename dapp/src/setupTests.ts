@@ -1,9 +1,8 @@
 // src/setupTests.ts
 import '@testing-library/jest-dom'; // Import the package directly
-import { vi } from 'vitest';
 
 // Mock fetch globally with proper Response interface
-global.fetch = vi.fn().mockResolvedValue({
+global.fetch = jest.fn().mockResolvedValue({
   ok: true,
   status: 200,
   json: async () => ({}),
@@ -42,16 +41,16 @@ if (window.HTMLCanvasElement && !window.HTMLCanvasElement.prototype.getContext) 
 }
 
 // Mock THREE.TextureLoader for artifact-driven globe tests (see globe-testing-plan.artifact)
-vi.mock('three', async (importOriginal) => {
-  const actual = (await importOriginal()) as Record<string, unknown>;
+jest.mock('three', () => {
+  const actual = jest.requireActual('three');
   return {
     ...actual,
     TextureLoader: class {
-      load(url: string, onLoad: (texture: unknown) => void) {
+      load(url, onLoad) {
         // Return a dummy texture object
-        const TextureCtor = actual.Texture as { new (): object };
-        const dummyTexture = Object.assign({}, { image: { src: url } }, new TextureCtor());
+        const dummyTexture = { image: { src: url } };
         onLoad(dummyTexture);
+        return dummyTexture;
       }
     }
   };

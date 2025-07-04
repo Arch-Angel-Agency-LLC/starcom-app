@@ -2,7 +2,7 @@
 // Integration layer connecting SecureChat UI with Nostr, IPFS, and PQC backend services
 // Earth Alliance secure communication protocol implementation
 
-import NostrService from '../../services/nostrService';
+import nostrService from '../../services/nostrService';
 import ipfsService from '../../services/IPFSService';
 import { UnifiedIPFSNostrService } from '../../services/UnifiedIPFSNostrService';
 import { pqCryptoService } from '../../services/crypto/SOCOMPQCryptoService';
@@ -96,7 +96,7 @@ export interface ContactSyncResult {
 export class SecureChatIntegrationService {
   private static instance: SecureChatIntegrationService;
   
-  private nostrService: NostrService;
+  private nostrService = nostrService;
   private ipfsService = ipfsService;
   private unifiedService: UnifiedIPFSNostrService;
   
@@ -110,8 +110,8 @@ export class SecureChatIntegrationService {
   };
 
   private constructor() {
-    this.nostrService = NostrService.getInstance();
-    this.unifiedService = UnifiedIPFSNostrService.getInstance();
+    // Enforce singleton
+    this.unifiedService = new UnifiedIPFSNostrService(this.nostrService, this.ipfsService, pqCryptoService);
   }
 
   public static getInstance(): SecureChatIntegrationService {

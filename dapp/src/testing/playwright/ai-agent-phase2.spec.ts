@@ -20,7 +20,7 @@ test.describe('AI Agent Phase 2 Advanced UI Testing', () => {
     const page = await context.newPage();
     
     await agentInterface.initialize(context, page);
-    await agentInterface.navigate('http://localhost:5173');
+    await agentInterface.navigate('http://localhost:5174');
     
     // Wait for React app to mount
     await page.waitForTimeout(2000);

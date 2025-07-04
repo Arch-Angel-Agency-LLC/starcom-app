@@ -28,7 +28,8 @@ test.describe('AI Agent Testing Infrastructure', () => {
     await expect(htmlElement).toBeVisible();
     
     // Check if there's a root div (common in React apps)
-    const rootDiv = page.locator('#root, .app, main');
+    // Use stable test id for root element
+    const rootDiv = page.locator('[data-testid="app-root"]');
     const rootExists = await rootDiv.count() > 0;
     
     if (rootExists) {
@@ -68,8 +69,8 @@ test.describe('AI Agent Testing Infrastructure', () => {
 
   test('should be accessible to screen readers', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
-    
+    await page.waitForLoadState('domcontentloaded');
+
     // Basic accessibility checks
     const imagesWithoutAlt = await page.locator('img:not([alt])').count();
     const inputsWithoutLabels = await page.evaluate(() => {
@@ -81,17 +82,13 @@ test.describe('AI Agent Testing Infrastructure', () => {
         return !hasLabel && !hasAriaLabel;
       }).length;
     });
-    
+
     console.log(`Found ${imagesWithoutAlt} images without alt text`);
     console.log(`Found ${inputsWithoutLabels} inputs without labels`);
     
-    // Log findings but don't fail tests yet - these are warnings
-    if (imagesWithoutAlt > 0) {
-      console.warn('⚠️ Some images are missing alt text');
-    }
-    if (inputsWithoutLabels > 0) {
-      console.warn('⚠️ Some inputs are missing labels');
-    }
+    // Assert no missing accessibility metadata
+    expect(imagesWithoutAlt, 'All images should have alt text').toBe(0);
+    expect(inputsWithoutLabels, 'All inputs should have labels or aria-labels').toBe(0);
   });
 
   test('should complete a basic interaction workflow', async ({ page }) => {
@@ -121,5 +118,18 @@ test.describe('AI Agent Testing Infrastructure', () => {
     
     // This test should always pass - it's just documenting the UI state
     expect(true).toBe(true);
+  });
+
+  test('should allow keyboard navigation to interactive elements', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('domcontentloaded');
+
+    // Press Tab to focus the first interactive element
+    await page.keyboard.press('Tab');
+    const activeTag = await page.evaluate(() => {
+      return (document.activeElement as HTMLElement)?.innerText || document.activeElement?.tagName;
+    });
+    // Expect the first focusable element to be 'Join Team'
+    expect(activeTag).toContain('Join Team');
   });
 });

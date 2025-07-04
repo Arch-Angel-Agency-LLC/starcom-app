@@ -115,3 +115,19 @@ Start with `.onboarding` → `docs/EARTH-ALLIANCE-MISSION-ANALYSIS.md` → `.pri
 ---
 
 *Built to reclaim planetary governance from transnational crime syndicates and restore humanity's natural timeline*
+
+---
+
+## 🌐 **Decentralized Collaboration System
+
+The Starcom platform now includes a fully decentralized, serverless collaboration system for secure team communication and intelligence sharing. Key features:
+
+- **P2P Communication**: Gun.js + WebRTC for truly serverless chat
+- **Decentralized Intel**: IPFS-powered intel reports with cryptographic signatures
+- **No Central Authority**: Zero reliance on servers or centralized infrastructure
+- **Wallet Authentication**: Solana wallet integration for secure identity
+- **Works Offline**: Designed for resilience in low-connectivity environments
+- **Team & Global Channels**: Both team-specific and global communication options
+- **Open Source**: 100% transparent implementation
+
+[Learn more about the decentralized collaboration system](./docs/DECENTRALIZED-COLLABORATION.md)

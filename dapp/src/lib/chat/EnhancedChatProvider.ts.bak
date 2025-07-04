@@ -1,0 +1,440 @@
+/**
+ * EnhancedChatProvider.ts
+ * 
+ * An enhanced version of BaseChatProvider that adds error handling, feature detection,
+ * and other improvements to the base chat provider implementation.
+ */
+
+import { ChatMessage, ChatProviderOptions, ChatChannel, ChatUser } from './ChatInterface';
+import { BaseChatProvider } from './BaseChatProvider';
+import { 
+  ChatErrorType, 
+  createChatError, 
+  ensureChatError,
+  retryWithBackoff,
+  CircuitBreaker,
+  ChatLogger,
+  FeatureDetector
+} from './utils/ChatErrorHandling';
+import { EventEmitter } from 'events';
+
+/**
+ * Enhanced base options for all chat providers.
+ */
+export interface EnhancedChatProviderOptions extends ChatProviderOptions {
+  maxRetries?: number;
+  retryBackoffMs?: number;
+  circuitBreakerMaxFailures?: number;
+  circuitBreakerResetTimeoutMs?: number;
+  features?: string[];
+  logLevel?: 'debug' | 'info' | 'warn' | 'error' | 'none';
+}
+
+/**
+ * Enhanced base provider with error handling, retries, circuit breaker, and more.
+ */
+export abstract class EnhancedChatProvider extends BaseChatProvider {
+  protected logger: ChatLogger;
+  protected featureDetector: FeatureDetector;
+  protected circuitBreaker: CircuitBreaker;
+  protected events: EventEmitter;
+  protected maxRetries: number;
+  protected retryBackoffMs: number;
+  protected readonly providerName: string;
+  protected connectionState: 'disconnected' | 'connecting' | 'connected' | 'reconnecting' | 'error' = 'disconnected';
+  
+  constructor(providerName: string, options?: EnhancedChatProviderOptions) {
+    super(options);
+    
+    this.providerName = providerName;
+    
+    // Create logger with appropriate options based on environment
+    const isVerboseLogging = 
+      options?.logLevel === 'debug' || 
+      (typeof process !== 'undefined' && (
+        process.env.VERBOSE_LOGGING === 'true' ||
+        process.env.DEBUG === 'true' ||
+        process.env.NODE_ENV === 'development'
+      ));
+    
+    // Determine the log level, ignoring 'none' for the logger
+    let logLevel: 'debug' | 'info' | 'warn' | 'error' = 'info';
+    if (options?.logLevel === 'none') {
+      logLevel = 'error'; // Set to error but don't output to console
+    } else if (options?.logLevel) {
+      // TypeScript will narrow the type here
+      if (options.logLevel === 'debug' || 
+          options.logLevel === 'info' || 
+          options.logLevel === 'warn' || 
+          options.logLevel === 'error') {
+        logLevel = options.logLevel;
+      }
+    }
+    
+    this.logger = new ChatLogger(providerName, {
+      level: logLevel,
+      enableVerboseMode: isVerboseLogging,
+      maxErrorRetention: 50,
+      outputToConsole: options?.logLevel !== 'none' // Don't output to console if logLevel is 'none'
+    });
+    
+    this.featureDetector = new FeatureDetector(providerName, options?.features || []);
+    this.events = new EventEmitter();
+    this.maxRetries = options?.maxRetries ?? 3;
+    this.retryBackoffMs = options?.retryBackoffMs ?? 300;
+    
+    this.circuitBreaker = new CircuitBreaker(
+      options?.circuitBreakerMaxFailures ?? 5,
+      options?.circuitBreakerResetTimeoutMs ?? 30000
+    );
+    
+    // Set up default supported features
+    this.setupFeatureDetection();
+    
+    // Log initialization
+    this.logger.info(`Enhanced chat provider '${providerName}' initialized`, {
+      features: this.featureDetector.getFeatureList(),
+      maxRetries: this.maxRetries,
+      retryBackoffMs: this.retryBackoffMs,
+      circuitBreakerMaxFailures: options?.circuitBreakerMaxFailures ?? 5,
+      circuitBreakerResetTimeoutMs: options?.circuitBreakerResetTimeoutMs ?? 30000,
+      logLevel: options?.logLevel || 'info',
+      verboseLogging: isVerboseLogging
+    });
+  }
+  
+  /**
+   * Determines if a feature is supported by this provider.
+   */
+  supportsFeature(feature: string): boolean {
+    return this.featureDetector.supportsFeature(feature);
+  }
+  
+  /**
+   * Gets the list of supported features.
+   */
+  getSupportedFeatures(): string[] {
+    return this.featureDetector.getFeatureList();
+  }
+  
+  /**
+   * Subscribe to provider events.
+   */
+  on(event: string, listener: (...args: unknown[]) => void): void {
+    this.events.on(event, listener);
+  }
+  
+  /**
+   * Unsubscribe from provider events.
+   */
+  off(event: string, listener: (...args: unknown[]) => void): void {
+    this.events.off(event, listener);
+  }
+  
+  /**
+   * Gets the current connection state.
+   */
+  getConnectionState(): string {
+    return this.connectionState;
+  }
+  
+  /**
+   * Sets up feature detection for this provider.
+   * This should be overridden by subclasses to add provider-specific features.
+   */
+  protected setupFeatureDetection(): void {
+    // Base features all providers should support
+    this.featureDetector.addFeature('connect');
+    this.featureDetector.addFeature('disconnect');
+    this.featureDetector.addFeature('sendMessage');
+    this.featureDetector.addFeature('getMessages');
+    this.featureDetector.addFeature('subscribeToMessages');
+  }
+  
+  /**
+   * Execute an operation with the circuit breaker and retry logic.
+   * Provides comprehensive error handling and detailed logging.
+   */
+  protected async executeWithRetry<T>(
+    operation: () => Promise<T>,
+    operationName: string,
+    options?: {
+      retryable?: boolean;
+      maxRetries?: number;
+      retryBackoffMs?: number;
+      retryableErrors?: ChatErrorType[];
+      context?: Record<string, unknown>; // Operation context for more detailed error reporting
+      skipLogging?: boolean;
+      timeoutMs?: number; // Optional timeout for the operation
+      captureStack?: boolean; // Whether to capture stack trace for debugging
+    }
+  ): Promise<T> {
+    const startTime = Date.now();
+    const retryable = options?.retryable ?? true;
+    const maxRetries = options?.maxRetries ?? this.maxRetries;
+    const retryBackoffMs = options?.retryBackoffMs ?? this.retryBackoffMs;
+    const skipLogging = options?.skipLogging ?? false;
+    const timeoutMs = options?.timeoutMs;
+    const captureStack = options?.captureStack ?? (typeof process !== 'undefined' && (
+        process.env.VERBOSE_LOGGING === 'true' ||
+        process.env.DEBUG === 'true' ||
+        process.env.NODE_ENV === 'development'
+      ));
+    let retryCount = 0;
+    let stackTrace: string[] | undefined;
+    
+    // Capture stack trace for debugging if requested
+    if (captureStack) {
+      try {
+        stackTrace = new Error().stack?.split('\n');
+      } catch {
+        // Ignore errors when capturing stack
+      }
+    }
+    
+    // Create a context object with operation details
+    const operationContext: Record<string, unknown> = {
+      ...options?.context,
+      operationName,
+      retryable,
+      maxRetries,
+      retryBackoffMs,
+      startTime: new Date(startTime).toISOString(),
+      providerName: this.providerName,
+      connectionState: this.connectionState
+    };
+    
+    if (stackTrace) {
+      operationContext.callerStack = stackTrace;
+    }
+    
+    if (!skipLogging) {
+      this.logger.debug(`Starting operation: ${operationName}`, operationContext);
+    }
+    
+    // Create a promise that rejects after timeout if specified
+    let timeoutId: NodeJS.Timeout | undefined;
+    const operationPromise = new Promise<T>((resolve, reject) => {
+      // Execute the operation
+      this.circuitBreaker.execute(async () => {
+        if (retryable) {
+          try {
+            return await retryWithBackoff(
+              async () => {
+                retryCount++;
+                if (retryCount > 1 && !skipLogging) {
+                  this.logger.info(`Retry attempt ${retryCount - 1} for ${operationName}`, {
+                    ...operationContext,
+                    retryCount: retryCount - 1,
+                    elapsedMs: Date.now() - startTime
+                  });
+                }
+                return await operation();
+              }, 
+              {
+                maxAttempts: maxRetries,
+                backoffMs: retryBackoffMs,
+                retryableErrors: options?.retryableErrors
+              }
+            );
+          } catch (error) {
+            // Convert the error to a ChatError with context
+            const chatError = ensureChatError(error);
+            if (!chatError.context) {
+              chatError.context = { ...operationContext, retryCount: retryCount - 1 };
+            }
+            throw chatError;
+          }
+        } else {
+          return await operation();
+        }
+      }).then(resolve).catch(reject);
+    });
+    
+    // Create a timeout promise if timeoutMs is specified
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      if (timeoutMs) {
+        timeoutId = setTimeout(() => {
+          reject(createChatError(
+            `Operation ${operationName} timed out after ${timeoutMs}ms`,
+            ChatErrorType.TIMEOUT,
+            'operation_timeout',
+            true,
+            { timeoutMs },
+            operationContext
+          ));
+        }, timeoutMs);
+      }
+    });
+    
+    try {
+      // Race the operation against the timeout
+      const result = timeoutMs 
+        ? await Promise.race([operationPromise, timeoutPromise])
+        : await operationPromise;
+      
+      // Clear timeout if set
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      
+      const duration = Date.now() - startTime;
+      if (!skipLogging) {
+        this.logger.logPerformance(operationName, duration, true, {
+          retryCount: retryCount - 1,
+          ...operationContext,
+          durationMs: duration
+        });
+      }
+      
+      // Emit success event
+      this.events.emit('operationSuccess', {
+        operationName,
+        durationMs: duration,
+        retryCount: retryCount - 1,
+        ...operationContext
+      });
+      
+      return result;
+    } catch (error) {
+      // Clear timeout if set
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      
+      const chatError = ensureChatError(error);
+      const duration = Date.now() - startTime;
+      
+      // Add operation context to the error if not already present
+      if (!chatError.context) {
+        chatError.context = { 
+          ...operationContext, 
+          retryCount: retryCount - 1,
+          durationMs: duration
+        };
+      }
+      
+      if (!skipLogging) {
+        this.logger.error(
+          `${operationName} failed after ${duration}ms (${retryCount} attempt(s))`, 
+          chatError, 
+          {
+            operationName,
+            durationMs: duration,
+            retryCount: retryCount - 1,
+            ...operationContext
+          }
+        );
+      }
+      
+      // Emit the error event with detailed context
+      this.events.emit('error', chatError, {
+        operationName,
+        durationMs: duration,
+        retryCount: retryCount - 1,
+        ...operationContext
+      });
+      
+      throw chatError;
+    }
+  }
+  
+  /**
+   * Handles graceful degradation for unsupported features.
+   * Logs detailed information and emits appropriate events.
+   */
+  protected handleUnsupportedFeature(
+    feature: string, 
+    details?: Record<string, unknown>,
+    suggestedAlternative?: string
+  ): void {
+    // Create context with provider info
+    const context = {
+      provider: this.providerName,
+      feature,
+      supportedFeatures: this.getSupportedFeatures(),
+      suggestedAlternative,
+      ...details
+    };
+    
+    // Log a detailed warning
+    this.logger.warn(
+      `Feature '${feature}' is not supported by ${this.providerName}${
+        suggestedAlternative ? `. Consider using '${suggestedAlternative}' instead` : ''
+      }`, 
+      context
+    );
+    
+    // Emit an event so application can respond accordingly
+    this.events.emit('unsupportedFeature', feature, context);
+    
+    // Create an error but don't throw it, just for tracking purposes
+    const error = createChatError(
+      `Unsupported feature: ${feature}`,
+      ChatErrorType.FEATURE_NOT_SUPPORTED,
+      'feature_not_supported',
+      true, // recoverable
+      details,
+      context
+    );
+    
+    // Add to the error log without throwing
+    this.logger.error(`Attempted to use unsupported feature: ${feature}`, error, context);
+  }
+      supportedFeatures: this.featureDetector.getFeatureList(),
+      ...details
+    });
+    
+    this.events.emit('featureUnsupported', { 
+      feature, 
+      provider: this.providerName,
+      supportedFeatures: this.featureDetector.getFeatureList(),
+      details 
+    });
+    
+    // For debugging in development, provide more helpful information
+    if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
+      this.logger.debug(`Developer info: To use feature '${feature}', implement it in the provider class and register it with this.featureDetector.addFeature('${feature}') in setupFeatureDetection().`);
+    }
+  }
+  
+  // Default implementations for methods that might not be supported by all providers
+  
+  async searchMessages(query: string, channelId?: string): Promise<ChatMessage[]> {
+    if (!this.supportsFeature('searchMessages')) {
+      this.handleUnsupportedFeature('searchMessages', { query, channelId });
+      return [];
+    }
+    
+    return this.doSearchMessages(query, channelId);
+  }
+  
+  protected abstract doSearchMessages(query: string, channelId?: string): Promise<ChatMessage[]>;
+  
+  async markMessagesAsRead(channelId: string, messageIds: string[]): Promise<void> {
+    if (!this.supportsFeature('markMessagesAsRead')) {
+      this.handleUnsupportedFeature('markMessagesAsRead', { channelId, messageIds });
+      return;
+    }
+    
+    return this.doMarkMessagesAsRead(channelId, messageIds);
+  }
+  
+  protected abstract doMarkMessagesAsRead(channelId: string, messageIds: string[]): Promise<void>;
+  
+  async uploadAttachment(file: File): Promise<{ id: string; url: string; }> {
+    if (!this.supportsFeature('uploadAttachment')) {
+      this.handleUnsupportedFeature('uploadAttachment', { fileName: file.name });
+      throw createChatError(
+        `File uploads not supported by ${this.providerName}`,
+        ChatErrorType.FEATURE_NOT_SUPPORTED,
+        'upload_not_supported',
+        false
+      );
+    }
+    
+    return this.doUploadAttachment(file);
+  }
+  
+  protected abstract doUploadAttachment(file: File): Promise<{ id: string; url: string; }>;
+}
