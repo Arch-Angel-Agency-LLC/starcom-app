@@ -3,27 +3,17 @@ import { useChat } from '../../context/ChatContext';
 import { format } from 'date-fns';
 import styles from './EarthAllianceCommunicationPanel.module.css';
 import { ClearanceLevel, AgencyType } from '../../types/features/collaboration';
-import { ChatMessage, ChatChannel, ChatUser } from '../../lib/chat/ChatInterface';
+import { ChatMessage, ChatChannel } from '../../lib/chat/ChatInterface';
 
 // Define message types
 type MessageType = 'text' | 'intelligence' | 'alert' | 'status' | 'evidence' | 'verification' | 'emergency';
 
-// Enhanced message with Earth Alliance specific fields
-interface EarthAllianceMessage extends ChatMessage {
+// Earth Alliance specific message metadata
+interface EarthAllianceMetadata {
   type: MessageType;
   senderAgency?: AgencyType;
   clearanceLevel?: ClearanceLevel;
   pqcEncrypted?: boolean;
-}
-
-// Enhanced channel with Earth Alliance specific fields
-interface EarthAllianceChannel extends ChatChannel {
-  resistanceCell?: string;
-  geographicRegion?: string;
-  clearanceLevel?: ClearanceLevel;
-  agency?: AgencyType;
-  isActive?: boolean;
-  channelType?: 'general' | 'evidence' | 'verification' | 'emergency';
 }
 
 // Evidence form interface
@@ -89,7 +79,7 @@ const EarthAllianceCommunicationPanel: React.FC<EarthAllianceCommunicationPanelP
   } = useChat();
 
   // Local state for Earth Alliance specific functionality
-  const [channelMessages, setChannelMessages] = useState<ChatMessage[]>([]);
+  const [localMessages, setLocalMessages] = useState<ChatMessage[]>([]);
   const [activeChannel, setActiveChannel] = useState<ChatChannel | null>(null);
   const [newMessage, setNewMessage] = useState('');
   const [messageType, setMessageType] = useState<MessageType>('text');
@@ -142,6 +132,7 @@ const EarthAllianceCommunicationPanel: React.FC<EarthAllianceCommunicationPanelP
 
   // Derived state to simplify usage
   const isServiceAvailable = isConnected && provider !== null;
+  const [serviceAvailable, setServiceAvailable] = useState<boolean>(isServiceAvailable);
 
   // Initialize Earth Alliance chat channel
   const initializeEarthAlliance = useCallback(async () => {
@@ -265,14 +256,14 @@ const EarthAllianceCommunicationPanel: React.FC<EarthAllianceCommunicationPanelP
   // Effect to update channel messages when current channel changes
   useEffect(() => {
     if (currentChannel && contextMessages[currentChannel]) {
-      setChannelMessages(contextMessages[currentChannel]);
+      setLocalMessages(contextMessages[currentChannel]);
     }
   }, [currentChannel, contextMessages]);
 
   // Effect to scroll to bottom when messages change
   useEffect(() => {
     scrollToBottom();
-  }, [channelMessages]);
+  }, [localMessages]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -322,18 +313,20 @@ const EarthAllianceCommunicationPanel: React.FC<EarthAllianceCommunicationPanelP
           content: `[${messageType.toUpperCase()}] ${newMessage}`,
           timestamp: Date.now(),
           status: 'failed',
-          type: messageType as any,
+          // Use the standard ChatMessage type field, storing our custom type in metadata
+          type: (messageType === 'intelligence' || messageType === 'alert') ? messageType : 'text',
           metadata: { 
             deliveryStatus: 'local-only',
             operativeLevel,
             reclamationCell: cellCode,
             region,
-            securityLevel
+            securityLevel,
+            earthAllianceMessageType: messageType // Store our full message type here
           }
         };
         
         // Add to local state
-        setChannelMessages(prev => [...prev, localMessage]);
+        setLocalMessages(prev => [...prev, localMessage]);
         setNewMessage('');
       }
     }
@@ -349,20 +342,6 @@ const EarthAllianceCommunicationPanel: React.FC<EarthAllianceCommunicationPanelP
     }
 
     try {
-      // Format evidence as a structured message
-      const evidenceContent = JSON.stringify({
-        type: 'evidence',
-        title: evidenceForm.title,
-        description: evidenceForm.description,
-        corruptionType: evidenceForm.corruptionType,
-        evidenceType: evidenceForm.evidenceType,
-        targetEntities: evidenceForm.targetEntities,
-        sourceProtection: evidenceForm.sourceProtection,
-        riskLevel: evidenceForm.riskLevel,
-        submittedBy: userDID,
-        timestamp: Date.now()
-      });
-      
       // Send via ChatContext
       await sendMessage(`[EVIDENCE] ${evidenceForm.title}\n${evidenceForm.description}`);
       
@@ -485,33 +464,17 @@ Resources Needed: ${emergencyForm.resourcesNeeded.join(', ')}`;
     return '🔴';
   };
 
-  // Get current user ID for message styling
-  const currentUserId = React.useMemo(() => {
-    // Try multiple approaches to get the current user ID
-    const providerWithUserId = provider as { userId?: string };
-    if (providerWithUserId?.userId) return providerWithUserId.userId;
-    
-    const providerWithOptions = provider as { options?: { userId?: string } };
-    if (providerWithOptions?.options?.userId) return providerWithOptions.options.userId;
-    
-    return userDID;
-  }, [provider, userDID]);
-
-  // Format timestamp
-  const formatTime = (timestamp: number) => {
-    try {
-      return format(new Date(timestamp), 'h:mm a');
-    } catch (err) {
-      console.error('Error formatting timestamp:', timestamp, err);
-      return 'Invalid time';
-    }
-  };
+  // Render error state
+  if (error || !isServiceAvailable) {
+    return (
+      <div className={styles.earthAlliancePanel}>
+        <div className={styles.errorContainer}>
           <p className={styles.errorMessage}>{error || 'Earth Alliance communication service is currently unavailable.'}</p>
           <p>Our systems are experiencing technical difficulties. Please try again later.</p>
           <button 
             className={styles.retryButton}
             onClick={() => {
-              setIsServiceAvailable(true);
+              setServiceAvailable(true);
               setRetryCount(0);
               setError(null);
             }}
@@ -621,26 +584,26 @@ Resources Needed: ${emergencyForm.resourcesNeeded.join(', ')}`;
         <>
           {/* Messages Display */}
           <div className={styles.messagesContainer}>
-            {messages.length === 0 ? (
+            {localMessages.length === 0 ? (
               <div className={styles.emptyState}>
                 <div className={styles.emptyIcon}>💬</div>
                 <div className={styles.emptyText}>No messages in this channel yet.</div>
               </div>
             ) : (
-              messages.map((message) => (
+              localMessages.map((message) => (
                 <div key={message.id} className={styles.message}>
                   <div className={styles.messageHeader}>
                     <span className={styles.messageType}>
-                      {getMessageTypeIcon(message.messageType)}
+                      {getMessageTypeIcon(message.type || 'text')}
                     </span>
                     <span className={styles.sender}>
-                      {message.senderDID.slice(0, 20)}...
+                      {message.senderId.slice(0, 20)}...
                     </span>
                     <span className={styles.timestamp}>
                       {new Date(message.timestamp).toLocaleTimeString()}
                     </span>
                     <span className={styles.security}>
-                      {message.pqcEncrypted ? '🔐 PQC' : '🔒 STD'}
+                      {message.metadata?.pqcEncrypted ? '🔐 PQC' : '🔒 STD'}
                     </span>
                   </div>
                   <div className={styles.messageContent}>
@@ -663,7 +626,7 @@ Resources Needed: ${emergencyForm.resourcesNeeded.join(', ')}`;
           <div className={styles.messageInput}>
             <select 
               value={messageType} 
-              onChange={(e) => setMessageType(e.target.value as NostrMessage['messageType'])}
+              onChange={(e) => setMessageType(e.target.value as MessageType)}
               disabled={!isConnected || !isServiceAvailable}
             >
               <option value="text">Text</option>
