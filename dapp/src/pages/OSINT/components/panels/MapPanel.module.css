@@ -1,0 +1,159 @@
+.mapPanel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  color: #e0e0e0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  position: relative;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 10px;
+  background-color: rgba(20, 27, 45, 0.8);
+  border-bottom: 1px solid rgba(65, 132, 228, 0.25);
+}
+
+.toolSection {
+  display: flex;
+  gap: 6px;
+}
+
+.layerButton {
+  padding: 4px 8px;
+  background-color: transparent;
+  border: 1px solid rgba(65, 132, 228, 0.25);
+  border-radius: 3px;
+  color: #a0b4d8;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.activeLayer {
+  background-color: rgba(65, 132, 228, 0.15);
+  color: #4184e4;
+  border-color: rgba(65, 132, 228, 0.4);
+}
+
+.toolButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid rgba(65, 132, 228, 0.25);
+  border-radius: 3px;
+  color: #a0b4d8;
+  cursor: pointer;
+}
+
+.active {
+  background-color: rgba(65, 132, 228, 0.15);
+  color: #4184e4;
+  border-color: rgba(65, 132, 228, 0.4);
+}
+
+.mapContainer {
+  flex-grow: 1;
+  position: relative;
+  background-color: rgba(16, 20, 34, 0.7);
+  overflow: hidden;
+}
+
+.placeholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #a0b4d8;
+}
+
+.placeholderText {
+  margin-top: 16px;
+  text-align: center;
+}
+
+.placeholderText h3 {
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #4184e4;
+}
+
+.placeholderText p {
+  margin: 4px 0;
+  font-size: 14px;
+  color: #a0b4d8;
+}
+
+.locationInfo {
+  padding: 10px;
+  background-color: rgba(20, 27, 45, 0.8);
+  border-top: 1px solid rgba(65, 132, 228, 0.25);
+}
+
+.infoRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 12px;
+}
+
+.infoLabel {
+  color: #a0b4d8;
+  font-weight: 500;
+}
+
+.infoValue {
+  color: #e0e0e0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.activityDot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #e4c641;
+}
+
+.legend {
+  position: absolute;
+  bottom: 50px;
+  right: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  background-color: rgba(20, 27, 45, 0.8);
+  border: 1px solid rgba(65, 132, 228, 0.25);
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legendMarker {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.legendLabel {
+  color: #e0e0e0;
+}

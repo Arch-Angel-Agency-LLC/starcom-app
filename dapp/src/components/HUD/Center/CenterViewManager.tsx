@@ -17,6 +17,7 @@ import AIAgentView from '../../Views/AIAgentView';
 // Import view components
 const InvestigationsDashboard = lazy(() => import('../../../pages/Investigations/InvestigationsDashboard'));
 const IntelDashboard = lazy(() => import('../../../pages/Intel/IntelDashboard'));
+const OSINTDashboard = lazy(() => import('../../../pages/OSINT/OSINTDashboard'));
 
 interface CenterViewManagerProps {
   className?: string;
@@ -52,6 +53,12 @@ const CenterViewManager: React.FC<CenterViewManagerProps> = ({ className = '' })
         return (
           <Suspense fallback={<div className={styles.loadingView}>Loading Intel...</div>}>
             <IntelDashboard />
+          </Suspense>
+        );
+      case 'osint':
+        return (
+          <Suspense fallback={<div className={styles.loadingView}>Loading OSINT Suite...</div>}>
+            <OSINTDashboard />
           </Suspense>
         );
       case 'bots':

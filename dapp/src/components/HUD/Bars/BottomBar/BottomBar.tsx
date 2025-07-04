@@ -32,6 +32,7 @@ export const BottomBar: React.FC = () => {
     },
     { id: 'bots', label: '🤖 Bots', view: 'bots' as ViewMode, tooltip: 'AI agents and automation' },
     { id: 'node-web', label: '🕸️ Node Web', view: 'node-web' as ViewMode, tooltip: 'Network topology and connections' },
+    { id: 'osint', label: '🔍 OSINT', view: 'osint' as ViewMode, tooltip: 'Online OSINT Cyber Investigation Suite' },
     { id: 'investigations', label: '🔍 Cases', view: 'investigations' as ViewMode, tooltip: 'Active investigations' },
     { id: 'intel', label: '📊 Intel', view: 'intel' as ViewMode, tooltip: 'Intelligence reports' }
   ];
