@@ -1,0 +1,149 @@
+.messageDisplay {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: rgba(10, 20, 40, 0.8);
+  color: #e0e0e0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.emergencyMode {
+  background-color: rgba(40, 10, 10, 0.9);
+  border: 1px solid #ff3030;
+}
+
+.channelHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  background-color: rgba(0, 20, 40, 0.7);
+  border-bottom: 1px solid rgba(100, 150, 200, 0.3);
+}
+
+.emergencyMode .channelHeader {
+  background-color: rgba(40, 0, 0, 0.8);
+  border-bottom: 1px solid rgba(255, 50, 50, 0.4);
+}
+
+.channelHeader h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: #a0c0ff;
+}
+
+.emergencyMode .channelHeader h3 {
+  color: #ff9090;
+}
+
+.emergencyIndicator {
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  font-weight: bold;
+  color: #ff3030;
+  background-color: rgba(40, 0, 0, 0.6);
+  padding: 4px 8px;
+  border-radius: 3px;
+  border: 1px solid #ff5050;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.messageList {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.messageItem {
+  padding: 8px 12px;
+  border-radius: 4px;
+  background-color: rgba(30, 40, 60, 0.6);
+  border-left: 3px solid #4080ff;
+  max-width: 85%;
+  align-self: flex-start;
+  word-break: break-word;
+}
+
+.messageItem.emergency {
+  background-color: rgba(60, 30, 30, 0.7);
+  border-left: 3px solid #ff4040;
+}
+
+.messageSender {
+  font-size: 13px;
+  font-weight: 500;
+  color: #90c0ff;
+  margin-bottom: 4px;
+}
+
+.messageItem.emergency .messageSender {
+  color: #ff9090;
+}
+
+.messageContent {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.messageTimestamp {
+  font-size: 11px;
+  color: rgba(160, 180, 200, 0.7);
+  text-align: right;
+  margin-top: 4px;
+}
+
+.messageItem.emergency .messageTimestamp {
+  color: rgba(200, 160, 160, 0.7);
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: rgba(160, 180, 200, 0.7);
+  text-align: center;
+  padding: 20px;
+}
+
+.emptyState p {
+  font-size: 14px;
+  max-width: 80%;
+}
+
+/* Custom scrollbar for the message list */
+.messageList::-webkit-scrollbar {
+  width: 6px;
+}
+
+.messageList::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.messageList::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 150, 200, 0.3);
+  border-radius: 3px;
+}
+
+.emergencyMode .messageList::-webkit-scrollbar-thumb {
+  background-color: rgba(200, 100, 100, 0.3);
+}
