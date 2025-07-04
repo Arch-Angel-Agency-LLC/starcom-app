@@ -1220,4 +1220,14 @@ export class IPFSContentOrchestrator {
     // Alias for startContentVerification for backward compatibility
     this.startContentVerification();
   }
+
+  /**
+   * Stubbed upload for IntelPackage to IPFS (no-op for local testing)
+   */
+  public static async uploadIntelPackage(_data: unknown): Promise<void> {
+    // stubbed, do nothing
+    return Promise.resolve();
+  }
 }
+
+export const ipfsOrchestrator = new IPFSContentOrchestrator();

@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { useRightSideBar } from '../../../../context/useRightSideBar';
 import { useOverlayData } from '../../../../hooks/useOverlayData';
+import { useFloatingPanel } from '../../../../hooks/useFloatingPanel';
 import styles from './RightSideBar.module.css';
 import GlobeStatus from './GlobeStatus';
 import DeveloperToolbar from '../../DeveloperToolbar/DeveloperToolbar';
 import CyberInvestigationHub from './CyberInvestigationHub';
 import ChatOverlay from '../../../Chat/ChatOverlay';
+import ChatFloatingPanel from '../../FloatingPanels/panels/ChatFloatingPanel';
 
 // Import assets from public directory (served directly by Vite)
 const cryptoSentinelIcon = '/assets/images/icons/x128/starcom_icon-cryptosentinel-01a.jpg';
@@ -85,11 +88,31 @@ const externalApps = [
 ];
 
 const RightSideBar: React.FC = () => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const [activeSection, setActiveSection] = useState<'mission' | 'intel' | 'chat' | 'apps' | 'developer'>('mission');
+  // Use the RightSideBar context instead of local state
+  const { 
+    isCollapsed, 
+    setIsCollapsed, 
+    activeSection, 
+    setActiveSection,
+    sidebarWidth 
+  } = useRightSideBar();
+  
   const [isChatOverlayOpen, setIsChatOverlayOpen] = useState(false);
   const overlayData = useOverlayData();
-
+  const { openPanel } = useFloatingPanel();
+  
+  // Apply dynamic width to sidebar element
+  const getContainerClassName = () => {
+    let className = `${styles.sidebar} ${isCollapsed ? styles.collapsed : ''}`;
+    
+    // Add expanded class when chat tab is active
+    if (activeSection === 'chat' && !isCollapsed) {
+      className += ` ${styles.expanded}`;
+    }
+    
+    return className;
+  };
+  
   // Mock chat statistics
   const chatStats = {
     globalMessages: 47,
@@ -151,7 +174,16 @@ const RightSideBar: React.FC = () => {
         
         <button 
           className={styles.openChatBtn}
-          onClick={() => setIsChatOverlayOpen(true)}
+          onClick={() => {
+            // Open chat in a floating panel instead of overlay
+            openPanel('chat-panel', ChatFloatingPanel, {
+              title: '💬 Quantum Communications Hub',
+              width: 800,
+              height: 600,
+              resizable: true,
+              moveable: true
+            });
+          }}
         >
           🚀 Open Chat Interface
         </button>
@@ -190,7 +222,7 @@ const RightSideBar: React.FC = () => {
   );
 
   return (
-    <div className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ''}`}>
+    <div className={getContainerClassName()}>
       {/* Mission Control Header */}
       <div className={styles.missionHeader}>
         <div className={styles.missionTitle}>
@@ -266,11 +298,13 @@ const RightSideBar: React.FC = () => {
         )}
       </div>
 
-      {/* Chat Overlay */}
-      <ChatOverlay 
-        isOpen={isChatOverlayOpen}
-        onClose={() => setIsChatOverlayOpen(false)}
-      />
+      {/* Chat Overlay - Legacy method, keeping for backwards compatibility */}
+      {isChatOverlayOpen && (
+        <ChatOverlay 
+          isOpen={isChatOverlayOpen}
+          onClose={() => setIsChatOverlayOpen(false)}
+        />
+      )}
 
       {/* Enhanced Status Footer with Mission Control Status */}
       <div className={styles.statusFooter}>

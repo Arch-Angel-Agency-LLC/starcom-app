@@ -1286,3 +1286,92 @@
 .sidebar.collapsed .chatQuickAccess {
   display: none;
 }
+
+/* Expanded state for the chat section */
+.expanded {
+  width: 320px !important;
+}
+
+/* Media queries for responsive behavior */
+@media (max-width: 1200px) {
+  .expanded {
+    width: 280px !important;
+  }
+}
+
+@media (max-width: 992px) {
+  .expanded {
+    width: 260px !important;
+  }
+}
+
+/* Chat specific styling */
+.chatHub {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 10px;
+}
+
+.chatHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.chatHeader h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: #00c4ff;
+}
+
+.chatHint {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-style: italic;
+}
+
+.chatStats {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(0, 196, 255, 0.2);
+  border-radius: 8px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.statItem {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+}
+
+.statLabel {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.statValue {
+  color: #00c4ff;
+  font-weight: bold;
+}
+
+.openChatBtn {
+  background: linear-gradient(135deg, rgba(0, 124, 196, 0.6) 0%, rgba(0, 156, 255, 0.7) 100%);
+  border: 1px solid rgba(0, 196, 255, 0.6);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: bold;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.openChatBtn:hover {
+  background: linear-gradient(135deg, rgba(0, 144, 216, 0.8) 0%, rgba(20, 176, 255, 0.9) 100%);
+  box-shadow: 0 0 12px rgba(0, 196, 255, 0.6);
+  transform: translateY(-1px);
+}

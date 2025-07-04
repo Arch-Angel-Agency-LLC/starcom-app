@@ -56,3 +56,54 @@ pub fn create_intel_report(
 
 // No on-chain instruction needed for listing; all fetching is done off-chain for overlays and UI.
 // All changes must be documented in overlays and integration artifacts.
+
+// CyberTeam account schema for private team collaboration
+#[account]
+pub struct CyberTeam {
+    pub name: String,         // Case room name
+    pub members: Vec<Pubkey>, // Wallet addresses of team members
+}
+
+#[derive(Accounts)]
+pub struct CreateCyberTeam<'info> {
+    #[account(init, payer = authority, space = 8 + 4 + 256 + (4 + 32 * 9))]
+    pub cyber_team: Account<'info, CyberTeam>,
+    #[account(mut)]
+    pub authority: Signer<'info>,
+    pub system_program: Program<'info, System>,
+}
+
+pub fn create_cyber_team(ctx: Context<CreateCyberTeam>, name: String) -> Result<()> {
+    let team = &mut ctx.accounts.cyber_team;
+    team.name = name;
+    team.members = vec![*ctx.accounts.authority.key];
+    Ok(())
+}
+
+#[derive(Accounts)]
+pub struct AddMember<'info> {
+    #[account(mut, has_one = authority)]
+    pub cyber_team: Account<'info, CyberTeam>,
+    pub authority: Signer<'info>,
+}
+
+pub fn add_member(ctx: Context<AddMember>, new_member: Pubkey) -> Result<()> {
+    let team = &mut ctx.accounts.cyber_team;
+    if !team.members.contains(&new_member) {
+        team.members.push(new_member);
+    }
+    Ok(())
+}
+
+#[derive(Accounts)]
+pub struct RemoveMember<'info> {
+    #[account(mut, has_one = authority)]
+    pub cyber_team: Account<'info, CyberTeam>,
+    pub authority: Signer<'info>,
+}
+
+pub fn remove_member(ctx: Context<RemoveMember>, member: Pubkey) -> Result<()> {
+    let team = &mut ctx.accounts.cyber_team;
+    team.members.retain(|m| m != &member);
+    Ok(())
+}

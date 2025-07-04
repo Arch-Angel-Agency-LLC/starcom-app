@@ -11,7 +11,7 @@ test.describe('AI Agent Interface - Universal Component Detection', () => {
     await agent.initialize(context, page);
     
     // Navigate to a simple test page
-    await agent.navigate('http://localhost:5173');
+    await agent.navigate('http://localhost:5174');
     
     // Wait for page to load
     await page.waitForTimeout(3000);

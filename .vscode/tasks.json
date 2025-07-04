@@ -1,0 +1,13 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Phase 0: Fix EarthAllianceCommunicationPanel Component",
+			"type": "shell",
+			"command": "echo 'EarthAllianceCommunicationPanel requires significant refactoring to handle the NostrService emergency stabilization'",
+			"group": "build",
+			"isBackground": false,
+			"problemMatcher": []
+		}
+	]
+}

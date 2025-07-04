@@ -8,6 +8,8 @@ import realTimeTeamService from '../../services/RealTimeTeamService';
 import TeamCard from '../../components/Teams/TeamCard';
 import TeamCreationForm from '../../components/Teams/TeamCreationForm';
 import { TeamCollaborationHub } from '../../components/Teams/TeamCollaborationHub';
+import ConnectionStatusDashboard from '../../components/Technical/ConnectionStatusDashboard';
+import TeamDirectory from '../../components/Technical/TeamDirectory';
 import styles from './TeamsDashboard.module.css';
 
 interface TeamDisplay {
@@ -283,6 +285,28 @@ const TeamsDashboard: React.FC = () => {
             {teams.filter(team => team.blockchainEnabled).length}
           </div>
           <div className={styles.statLabel}>Blockchain Teams</div>
+        </div>
+      </div>
+
+      {/* Technical Team Components */}
+      <div className={styles.technicalSection}>
+        <div className={styles.technicalGrid}>
+          <div className={styles.technicalCard}>
+            <ConnectionStatusDashboard 
+              teamId={teams.find(t => t.status === 'active')?.id}
+              compact={false}
+            />
+          </div>
+          <div className={styles.technicalCard}>
+            <TeamDirectory
+              onJoinTeam={(teamId) => navigate(`/teams/${teamId}`)}
+              currentTeamId={teams.find(t => t.status === 'active')?.id}
+              onCreateTeam={(teamName) => {
+                setShowCreateForm(true);
+                // Pre-populate form with team name if needed
+              }}
+            />
+          </div>
         </div>
       </div>
 

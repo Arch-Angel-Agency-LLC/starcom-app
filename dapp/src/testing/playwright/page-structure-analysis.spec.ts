@@ -1,7 +1,7 @@
 import { test } from '@playwright/test';
 
 test('Page Structure Analysis', async ({ page }) => {
-  await page.goto('http://localhost:5173');
+  await page.goto('http://localhost:5174');
   
   // Wait for any dynamic content to load
   await page.waitForTimeout(3000);

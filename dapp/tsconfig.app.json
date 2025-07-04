@@ -16,6 +16,7 @@
     "strict": false,
     "jsx": "react-jsx",
     "esModuleInterop": true,
+    "downlevelIteration": true,
     "forceConsistentCasingInFileNames": true,
     "baseUrl": "./",
     "paths": {

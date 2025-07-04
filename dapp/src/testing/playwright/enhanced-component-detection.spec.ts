@@ -22,7 +22,7 @@ test.describe('Enhanced Component Detection', () => {
     console.log('🚀 Starting enhanced component detection test...');
     
     // Navigate to the application
-    await page.goto('http://localhost:5173');
+    await page.goto('http://localhost:5174');
     console.log('📍 Navigated to application');
 
     // Use enhanced detector to wait for React and detect components
@@ -71,7 +71,7 @@ test.describe('Enhanced Component Detection', () => {
   });
 
   test('should detect different component types', async ({ page }) => {
-    await page.goto('http://localhost:5173');
+    await page.goto('http://localhost:5174');
     
     // Wait for app to load
     await enhancedDetector.waitForReactApp(page);
@@ -97,7 +97,7 @@ test.describe('Enhanced Component Detection', () => {
       agentInterface.page = page;
     }
     
-    await page.goto('http://localhost:5173');
+    await page.goto('http://localhost:5174');
     
     // Test the updated detectComponents method
     const components = await agentInterface.detectComponents();
@@ -123,5 +123,42 @@ test.describe('Enhanced Component Detection', () => {
 
     console.log('✅ AgentInterface enhanced detection test completed');
     expect(true).toBe(true);
+  });
+});
+
+test.describe('Enhanced Component Detection Logic', () => {
+  let page: Page;
+
+  test.beforeAll(async ({ browser }) => {
+    page = await browser.newPage();
+    await page.goto('http://localhost:5174');
+  });
+
+  test.afterAll(async () => {
+    await page.close();
+  });
+
+  test('should detect top navigation bar with improved accuracy', async () => {
+    await page.goto('http://localhost:5174');
+    const navDetector = new ComponentDetector(page);
+    const navElement = await navDetector.findElement('nav[aria-label="Top Navigation"]', {
+      text: 'Starcom',
+      exact: true
+    });
+    expect(navElement).not.toBeNull();
+  });
+
+  test('should detect main content area', async () => {
+    await page.goto('http://localhost:5174');
+    const mainDetector = new ComponentDetector(page);
+    const mainElement = await mainDetector.findElement('main');
+    expect(mainElement).not.toBeNull();
+  });
+
+  test('should detect footer', async () => {
+    await page.goto('http://localhost:5174');
+    const footerDetector = new ComponentDetector(page);
+    const footerElement = await footerDetector.findElement('footer');
+    expect(footerElement).not.toBeNull();
   });
 });

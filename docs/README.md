@@ -30,6 +30,17 @@ Welcome to the comprehensive documentation for the STARCOM project - a decentral
 - [`TEAM-COLLABORATION-IMPLEMENTATION-COMPLETE.md`](./dapp/TEAM-COLLABORATION-IMPLEMENTATION-COMPLETE.md) - Team collaboration implementation
 - [`WEEK1-IMPLEMENTATION-TASKS.md`](./dapp/WEEK1-IMPLEMENTATION-TASKS.md) - Week 1 implementation tasks
 
+#### 💬 Multi-Protocol Chat System
+- [`MULTI-PROTOCOL-CHAT-DEVELOPMENT-PHASES.md`](./dapp/docs/MULTI-PROTOCOL-CHAT-DEVELOPMENT-PHASES.md) - Development phase overview
+- [`chat-system-audit-report.md`](./dapp/docs/chat-system-audit-report.md) - Initial system audit
+- [`PHASE-0-EMERGENCY-STABILIZATION.md`](./dapp/docs/chat-system-phases/PHASE-0-EMERGENCY-STABILIZATION.md) - Emergency fixes
+- [`PHASE-1-UNIFIED-ADAPTER-ARCHITECTURE.md`](./dapp/docs/chat-system-phases/PHASE-1-UNIFIED-ADAPTER-ARCHITECTURE.md) - Adapter pattern implementation
+- [`PHASE-2-UNIFIED-MESSAGE-STORE-CONTEXT.md`](./dapp/docs/chat-system-phases/PHASE-2-UNIFIED-MESSAGE-STORE-CONTEXT.md) - Message store & context provider
+- [`PHASE-3-PROTOCOL-SELECTION-FALLBACK.md`](./dapp/docs/chat-system-phases/PHASE-3-PROTOCOL-SELECTION-FALLBACK.md) - Protocol selection & fallbacks
+- [`PHASE-4-PROTOCOL-SELECTION-SETTINGS.md`](./dapp/docs/chat-system-phases/PHASE-4-PROTOCOL-SELECTION-SETTINGS.md) - Settings & identity management
+- [`PHASE-5-ENHANCED-FEATURES.md`](./dapp/docs/chat-system-phases/PHASE-5-ENHANCED-FEATURES.md) - Enhanced features & optimization
+- [`PHASE-6-ADVANCED-EXTENSIONS.md`](./dapp/docs/chat-system-phases/PHASE-6-ADVANCED-EXTENSIONS.md) - Voice/video, AI, external integrations
+
 #### 📊 Intel Reports 3D System
 - [`INTEL-REPORTS-3D-CONSOLIDATION-PLAN.md`](./dapp/INTEL-REPORTS-3D-CONSOLIDATION-PLAN.md) - Context-aware consolidation strategy
 - [`INTEL-REPORTS-3D-IMPLEMENTATION-GUIDE.md`](./dapp/INTEL-REPORTS-3D-IMPLEMENTATION-GUIDE.md) - Detailed implementation guide
