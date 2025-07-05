@@ -10,3 +10,4 @@ export type { CommunicationContextType } from './context/CommunicationContext';
 export { ChannelSelector } from './components/ChannelSelector';
 export { MessageDisplay } from './components/MessageDisplay';
 export { MessageComposer } from './components/MessageComposer';
+export { ErrorBoundary } from './ErrorBoundary';

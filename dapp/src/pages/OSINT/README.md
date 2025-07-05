@@ -14,15 +14,19 @@ This module provides a comprehensive OSINT (Open-Source Intelligence) investigat
 
 - [x] Initial integration with Starcom dApp UI
 - [x] Dashboard layout and styling
-- [ ] Panel system implementation
-- [ ] Search functionality
-- [ ] Results display
-- [ ] Entity graph visualization
-- [ ] Timeline analysis
-- [ ] Map/globe integration
-- [ ] Blockchain analysis tools
-- [ ] Dark web monitoring
-- [ ] OPSEC shield features
+- [x] Panel system implementation
+- [x] Search functionality
+- [x] Results display
+- [x] Entity graph visualization
+- [x] Timeline analysis
+- [x] Map/globe integration
+- [x] Blockchain analysis tools
+- [x] Dark web monitoring
+- [x] OPSEC shield features
+- [x] Error handling & resilience
+- [ ] Panel drag-and-drop
+- [ ] Panel maximize/minimize/close
+- [ ] Real backend integration
 
 ## Implementation Resources
 
@@ -37,6 +41,20 @@ This module provides a comprehensive OSINT (Open-Source Intelligence) investigat
 3. Progressive enhancement based on authentication status
 4. Integrate with existing systems (Nostr, IPFS, 3D globe)
 5. Optimize for performance with large datasets
+6. Use standardized error handling patterns (see `docs/project-planning/osint/OSINT-ERROR-HANDLING-DEVELOPER-GUIDE.md`)
+
+## Error Handling
+
+This module implements comprehensive error handling using the following pattern:
+
+1. **Service Layer**: Return structured errors using `ErrorDetail` type
+2. **Hook Layer**: Manage errors with retry logic and clean error state
+3. **UI Layer**: Display errors with `ErrorDisplay` component for consistency
+
+For details, refer to:
+- `types/errors.ts` - Error type definitions
+- `components/common/ErrorDisplay.tsx` - Reusable error component
+- `docs/project-planning/osint/OSINT-ERROR-HANDLING-DEVELOPER-GUIDE.md`
 
 ## Testing
 

@@ -9,6 +9,134 @@
   background-color: rgba(16, 20, 34, 0.7);
 }
 
+/* Error Display Styles */
+.errorContainer {
+  margin-bottom: 16px;
+  padding: 12px;
+  border-radius: 4px;
+  background-color: rgba(40, 24, 24, 0.85);
+  border-left: 4px solid #e44141;
+  font-size: 13px;
+}
+
+.errorHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.errorTitle {
+  flex: 1;
+  font-weight: 600;
+  color: #e0e0e0;
+}
+
+.errorMessage {
+  margin-bottom: 8px;
+  color: #e0e0e0;
+  line-height: 1.4;
+}
+
+.dismissButton {
+  background: none;
+  border: none;
+  color: #a0a0a0;
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dismissButton:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #e0e0e0;
+}
+
+.errorActions {
+  margin-top: 8px;
+  font-size: 12px;
+}
+
+.actionTitle {
+  font-weight: 600;
+  color: #a0b4d8;
+}
+
+.actionList {
+  margin: 4px 0 0 0;
+  padding-left: 20px;
+  color: #c0c0c0;
+}
+
+.retryInfo {
+  margin-top: 6px;
+  font-size: 11px;
+  color: #a0a0a0;
+  text-align: right;
+  font-style: italic;
+}
+
+.operationContext {
+  display: block;
+  font-size: 11px;
+  color: #a0a0a0;
+  margin-top: 4px;
+  font-style: italic;
+}
+
+/* Error category styling */
+.networkError { border-left-color: #e47441; }
+.securityError { border-left-color: #e44141; }
+.authError { border-left-color: #e441d2; }
+.timeoutError { border-left-color: #b841e4; }
+.apiError { border-left-color: #4175e4; }
+.serverError { border-left-color: #e4c241; }
+.unknownError { border-left-color: #e44141; }
+
+/* Icon styling */
+.criticalIcon { color: #e44141; }
+.errorIcon { color: #e47441; }
+.warningIcon { color: #e4c241; }
+.infoIcon { color: #41a0e4; }
+
+/* Error summary */
+.errorSummary {
+  padding: 8px;
+  background-color: rgba(40, 24, 24, 0.5);
+  border-radius: 4px;
+  color: #e0a0a0;
+  font-size: 12px;
+}
+
+/* Loaders */
+.spinningLoader {
+  animation: spin 1.5s linear infinite;
+}
+
+.selectWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.selectLoader {
+  position: absolute;
+  right: 24px;
+  pointer-events: none;
+}
+
+.checkboxLoader {
+  margin-left: 8px;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 .securityStatus {
   margin-bottom: 16px;
   padding: 12px;
@@ -242,4 +370,63 @@
 .toolButton:hover {
   background-color: rgba(65, 132, 228, 0.15);
   color: #e0e0e0;
+}
+
+.loadingMessage,
+.errorMessage,
+.emptyMessage {
+  padding: 10px;
+  text-align: center;
+  font-size: 12px;
+  border-radius: 4px;
+  background-color: rgba(30, 37, 54, 0.7);
+}
+
+.loadingMessage {
+  color: #4184e4;
+}
+
+.errorMessage {
+  color: #e44141;
+}
+
+.emptyMessage {
+  color: #a0b4d8;
+}
+
+.acknowledgedMark {
+  color: #41e484;
+  font-weight: bold;
+}
+
+.refreshButton {
+  background: none;
+  border: none;
+  color: #4184e4;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.refreshButton:hover {
+  background-color: rgba(65, 132, 228, 0.15);
+}
+
+.refreshButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.spinningLoader {
+  animation: spin 1.5s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }

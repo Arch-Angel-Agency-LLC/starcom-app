@@ -1,0 +1,334 @@
+import React, { useEffect, useState } from 'react';
+import { Shield, Lock, Eye, Activity, Globe, User, AlertTriangle, RefreshCw, Loader, X, Info, AlertCircle } from 'lucide-react';
+import styles from './OPSECPanel.module.css';
+import { useOPSECSecurity } from '../../hooks/useOPSECSecurity';
+import type { RoutingMethod } from '../../services/opsec/opsecService';
+import { ErrorDetail, ErrorCategory, ErrorSeverity } from '../../types/errors';
+
+interface OPSECPanelProps {
+  data?: Record<string, unknown>;
+  panelId?: string;
+}t, { useEffect, useState } from 'react';
+import { Shield, Lock, Eye, Activity, Globe, User, AlertTriangle, RefreshCw, Loader, X, Info, AlertCircle } from 'lucide-react';
+import styles from './OPSECPanel.module.css';
+import { useOPSECSecurity } from '../../hooks/useOPSECSecurity';
+import type { RoutingMethod } from '../../services/opsec/opsecService';
+import { ErrorDetail, ErrorSeverity, ErrorCategory } from '../../types/errors';
+
+interface OPSECPanelProps {
+  data?: Record<string, unknown>;
+  panelId?: string;
+}
+
+/**
+ * Error Display Component
+ */
+const ErrorDisplay: React.FC<{
+  error: ErrorDetail | null;
+  onDismiss: () => void;
+}> = ({ error, onDismiss }) => {
+  if (!error) return null;
+  
+  // Map severity to icon
+  const getIcon = (severity?: ErrorSeverity) => {
+    switch (severity) {
+      case 'critical': return <AlertTriangle size={16} className={styles.criticalIcon} />;
+      case 'error': return <AlertCircle size={16} className={styles.errorIcon} />;
+      case 'warning': return <AlertTriangle size={16} className={styles.warningIcon} />;
+      case 'info': return <Info size={16} className={styles.infoIcon} />;
+      default: return <AlertCircle size={16} className={styles.errorIcon} />;
+    }
+  };
+  
+  // Map category to color class
+  const getCategoryClass = (category?: ErrorCategory) => {
+    switch (category) {
+      case 'network': return styles.networkError;
+      case 'security': return styles.securityError;
+      case 'authentication': return styles.authError;
+      case 'timeout': return styles.timeoutError;
+      case 'api': return styles.apiError;
+      case 'server': return styles.serverError;
+      default: return styles.unknownError;
+    }
+  };
+  
+  return (
+    <div className={`${styles.errorContainer} ${getCategoryClass(error.category)}`}>
+      <div className={styles.errorHeader}>
+        {getIcon(error.severity)}
+        <span className={styles.errorTitle}>
+          {error.code || (error.category ? `${error.category.toUpperCase()} Error` : 'Error')}
+        </span>
+        <button className={styles.dismissButton} onClick={onDismiss}>
+          <X size={14} />
+        </button>
+      </div>
+      <div className={styles.errorMessage}>
+        {error.message}
+      </div>
+      {error.userActions && error.userActions.length > 0 && (
+        <div className={styles.errorActions}>
+          <span className={styles.actionTitle}>Suggested Actions:</span>
+          <ul className={styles.actionList}>
+            {error.userActions.map((action, index) => (
+              <li key={index}>{action}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {error.retryable && (
+        <div className={styles.retryInfo}>
+          {error.retryCount && error.retryCount > 0 ? (
+            <span>Retry attempt {error.retryCount}</span>
+          ) : (
+            <span>Retry available</span>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+/**
+ * OPSEC Shield Panel
+ * 
+ * Provides operational security tools and protections for investigators
+ */
+const OPSECPanel: React.FC<OPSECPanelProps> = () => {
+  const {
+    connectionStatus,
+    securityLevel,
+    routingMethod,
+    fingerprintProtection,
+    securityAlerts,
+    isLoading,
+    error,
+    
+    changeRoutingMethod,
+    changeSecurityLevel,
+    toggleFingerprintProtection,
+    getSecurityAlerts,
+    acknowledgeAlert,
+    generateNewIdentity,
+    checkIdentity,
+    scanForThreats,
+    clearError
+  } = useOPSECSecurity();
+  
+  // State for button loading
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
+  
+  // Fetch security alerts periodically
+  useEffect(() => {
+    const fetchAlerts = async () => {
+      await getSecurityAlerts();
+    };
+    
+    // Initial fetch
+    fetchAlerts();
+    
+    // Set up interval for periodic fetching
+    const intervalId = setInterval(fetchAlerts, 60000); // Every minute
+    
+    // Clean up interval on unmount
+    return () => clearInterval(intervalId);
+  }, [getSecurityAlerts]);
+  
+  return (
+    <div className={styles.opsecPanel}>
+      {/* Error display at the top */}
+      {error && <ErrorDisplay error={error} onDismiss={clearError} />}
+      
+      <div className={styles.securityStatus}>
+        <div className={styles.statusHeader}>
+          <Shield size={18} />
+          <h3 className={styles.statusTitle}>OPSEC Protection Status</h3>
+        </div>          <div className={styles.statusIndicators}>
+          <div className={styles.statusItem}>
+            <div className={`${styles.statusLight} ${connectionStatus?.encryptionActive ? styles.active : styles.inactive}`}></div>
+            <span className={styles.statusLabel}>Traffic Encryption</span>
+          </div>
+          <div className={styles.statusItem}>
+            <div className={`${styles.statusLight} ${connectionStatus?.isSecure ? styles.active : styles.inactive}`}></div>
+            <span className={styles.statusLabel}>Identity Protection</span>
+          </div>
+          <div className={styles.statusItem}>
+            <div className={`${styles.statusLight} ${routingMethod !== 'direct' ? styles.active : styles.inactive}`}></div>
+            <span className={styles.statusLabel}>Secure Routing</span>
+          </div>
+          <div className={styles.statusItem}>
+            <div className={`${styles.statusLight} ${fingerprintProtection ? styles.active : styles.inactive}`}></div>
+            <span className={styles.statusLabel}>Fingerprint Masking</span>
+          </div>
+        </div>
+      </div>
+      
+      <div className={styles.controlsSection}>
+        <div className={styles.controlGroup}>
+          <label className={styles.controlLabel}>Security Level</label>
+          <div className={styles.securityLevelControls}>
+            <button 
+              className={`${styles.levelButton} ${securityLevel === 'standard' ? styles.activeLevel : ''}`}
+              onClick={() => changeSecurityLevel('standard')}
+              disabled={isLoading}
+            >
+              Standard
+              {isLoading && securityLevel !== 'standard' && <Loader size={12} className={styles.spinningLoader} />}
+            </button>
+            <button 
+              className={`${styles.levelButton} ${securityLevel === 'enhanced' ? styles.activeLevel : ''}`}
+              onClick={() => changeSecurityLevel('enhanced')}
+              disabled={isLoading}
+            >
+              Enhanced
+              {isLoading && securityLevel !== 'enhanced' && <Loader size={12} className={styles.spinningLoader} />}
+            </button>
+            <button 
+              className={`${styles.levelButton} ${securityLevel === 'maximum' ? styles.activeLevel : ''}`}
+              onClick={() => changeSecurityLevel('maximum')}
+              disabled={isLoading}
+            >
+              Maximum
+              {isLoading && securityLevel !== 'maximum' && <Loader size={12} className={styles.spinningLoader} />}
+            </button>
+          </div>
+        </div>
+        
+        <div className={styles.controlGroup}>
+          <label className={styles.controlLabel}>Routing Method</label>
+          <div className={styles.selectWrapper}>
+            <select 
+              className={styles.controlSelect}
+              value={routingMethod}
+              onChange={(e) => changeRoutingMethod(e.target.value as RoutingMethod)}
+              disabled={isLoading}
+            >
+              <option value="direct">Direct Connection (Unsecured)</option>
+              <option value="vpn">VPN</option>
+              <option value="tor">Tor Network</option>
+              <option value="tor+vpn">Tor over VPN (Maximum Security)</option>
+            </select>
+            {isLoading && <Loader size={14} className={`${styles.spinningLoader} ${styles.selectLoader}`} />}
+          </div>
+        </div>
+        
+        <div className={styles.controlGroup}>
+          <label className={styles.controlLabel}>
+            <input
+              type="checkbox"
+              checked={fingerprintProtection}
+              onChange={(e) => toggleFingerprintProtection(e.target.checked)}
+              className={styles.controlCheckbox}
+              disabled={isLoading}
+            />
+            Browser Fingerprint Protection
+            {isLoading && <Loader size={14} className={`${styles.spinningLoader} ${styles.checkboxLoader}`} />}
+          </label>
+        </div>
+      </div>
+      
+      <div className={styles.securityAlerts}>
+        <h4 className={styles.alertsTitle}>
+          <Activity size={14} />
+          <span>Security Alerts</span>
+          <button 
+            className={styles.refreshButton}
+            onClick={getSecurityAlerts}
+            disabled={isLoading}
+          >
+            <RefreshCw size={14} />
+          </button>
+        </h4>
+        
+        <div className={styles.alertsList}>
+          {isLoading ? (
+            <div className={styles.loadingMessage}>Loading security alerts...</div>
+          ) : error ? (
+            <div className={styles.errorSummary}>
+              {error.message}
+              {error.operation && <span className={styles.operationContext}>While: {error.operation}</span>}
+            </div>
+          ) : securityAlerts.length === 0 ? (
+            <div className={styles.emptyMessage}>No security alerts</div>
+          ) : (
+            securityAlerts.map(alert => (
+              <div 
+                key={alert.id} 
+                className={`${styles.alertItem} ${styles[alert.type]}`}
+                onClick={() => !alert.acknowledged && acknowledgeAlert(alert.id)}
+              >
+                {alert.type === 'warning' && <AlertTriangle size={14} />}
+                {alert.type === 'info' && <Globe size={14} />}
+                {alert.type === 'critical' && <Shield size={14} />}
+                <div className={styles.alertContent}>
+                  <span className={styles.alertMessage}>{alert.message}</span>
+                  <span className={styles.alertTime}>{alert.time}</span>
+                </div>
+                {alert.acknowledged && (
+                  <span className={styles.acknowledgedMark}>✓</span>
+                )}
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+      
+      <div className={styles.operationalTools}>
+        <h4 className={styles.toolsTitle}>Quick Actions</h4>
+        <div className={styles.toolsGrid}>
+          <button 
+            className={styles.toolButton}
+            onClick={async () => {
+              setActionLoading('identity');
+              await generateNewIdentity();
+              setActionLoading(null);
+            }}
+            disabled={actionLoading === 'identity'}
+          >
+            {actionLoading === 'identity' ? <Loader size={16} className={styles.spinningLoader} /> : <Lock size={16} />}
+            <span>New Identity</span>
+          </button>
+          <button 
+            className={styles.toolButton}
+            onClick={async () => {
+              setActionLoading('exposure');
+              await checkIdentity();
+              setActionLoading(null);
+            }}
+            disabled={actionLoading === 'exposure'}
+          >
+            {actionLoading === 'exposure' ? <Loader size={16} className={styles.spinningLoader} /> : <User size={16} />}
+            <span>Check Exposure</span>
+          </button>
+          <button 
+            className={styles.toolButton}
+            onClick={async () => {
+              setActionLoading('analysis');
+              await scanForThreats();
+              setActionLoading(null);
+            }}
+            disabled={actionLoading === 'analysis'}
+          >
+            {actionLoading === 'analysis' ? <Loader size={16} className={styles.spinningLoader} /> : <Eye size={16} />}
+            <span>Traffic Analysis</span>
+          </button>
+          <button 
+            className={styles.toolButton}
+            onClick={async () => {
+              setActionLoading('exitNode');
+              await changeRoutingMethod(routingMethod);
+              setActionLoading(null);
+            }}
+            disabled={actionLoading === 'exitNode'}
+          >
+            {actionLoading === 'exitNode' ? <Loader size={16} className={styles.spinningLoader} /> : <Globe size={16} />}
+            <span>Change Exit Node</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default OPSECPanel;
