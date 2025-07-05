@@ -1,40 +1,19 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Network, ZoomIn, ZoomOut, Maximize, Download, Filter, RotateCcw, GitBranch } from 'lucide-react';
+import { Network, ZoomIn, ZoomOut, Maximize, Download, Filter, RotateCcw, GitBranch, Plus } from 'lucide-react';
 import ForceGraph2D from 'react-force-graph-2d';
 import styles from './GraphPanel.module.css';
 
+// Hooks and services
+import { useEntityGraph } from '../../hooks/useEntityGraph';
+import ErrorDisplay from '../common/ErrorDisplay';
+
 interface GraphPanelProps {
-  data: Record<string, any>;
+  data: Record<string, unknown>;
   panelId: string;
+  investigationId?: string;
 }
 
-// Mock data for the entity graph
-const mockGraphData = {
-  nodes: [
-    { id: 'n1', group: 'person', name: 'John Anderson', value: 20 },
-    { id: 'n2', group: 'organization', name: 'TechCorp', value: 30 },
-    { id: 'n3', group: 'wallet', name: '0x7Fc66...DDaE9', value: 15 },
-    { id: 'n4', group: 'person', name: 'Sarah Miller', value: 18 },
-    { id: 'n5', group: 'organization', name: 'CryptoFund', value: 25 },
-    { id: 'n6', group: 'domain', name: 'techcorp.com', value: 12 },
-    { id: 'n7', group: 'account', name: '@john_tech', value: 10 },
-    { id: 'n8', group: 'person', name: 'Michael Wong', value: 17 },
-    { id: 'n9', group: 'wallet', name: '0x9Fc12...FFbA2', value: 14 },
-  ],
-  links: [
-    { source: 'n1', target: 'n2', type: 'employee' },
-    { source: 'n1', target: 'n3', type: 'owner' },
-    { source: 'n1', target: 'n7', type: 'owner' },
-    { source: 'n2', target: 'n6', type: 'owner' },
-    { source: 'n3', target: 'n5', type: 'transaction' },
-    { source: 'n4', target: 'n2', type: 'employee' },
-    { source: 'n4', target: 'n8', type: 'associate' },
-    { source: 'n5', target: 'n9', type: 'transaction' },
-    { source: 'n8', target: 'n9', type: 'owner' },
-  ]
-};
-
-// Node color map by group
+// Node color map by type
 const nodeColorMap: Record<string, string> = {
   person: '#4184e4',
   organization: '#41c7e4',
@@ -62,11 +41,25 @@ const linkColorMap: Record<string, string> = {
  * 
  * Visualizes connections between entities in an investigation
  */
-const GraphPanel: React.FC<GraphPanelProps> = ({ data, panelId }) => {
-  const [graphData, setGraphData] = useState(mockGraphData);
+const GraphPanel: React.FC<GraphPanelProps> = ({ data, panelId, investigationId }) => {
+  // Use the entity graph hook
+  const {
+    graphData,
+    loading,
+    error,
+    expandNode,
+    findPath,
+    refreshGraph,
+    selectedNode,
+    setSelectedNode,
+    isExpanding
+  } = useEntityGraph({
+    investigationId: investigationId || (data.investigationId as string),
+    autoLoad: true
+  });
+  
   const [highlightNodes, setHighlightNodes] = useState(new Set());
   const [highlightLinks, setHighlightLinks] = useState(new Set());
-  const [selectedNode, setSelectedNode] = useState<any>(null);
   const [selectedLink, setSelectedLink] = useState<any>(null);
   const [zoomLevel, setZoomLevel] = useState(1);
   
@@ -113,7 +106,7 @@ const GraphPanel: React.FC<GraphPanelProps> = ({ data, panelId }) => {
   
   // Handle node click
   const handleNodeClick = (node: any) => {
-    setSelectedNode(node);
+    setSelectedNode(node.id);
     setSelectedLink(null);
   };
   
@@ -121,6 +114,35 @@ const GraphPanel: React.FC<GraphPanelProps> = ({ data, panelId }) => {
   const handleLinkClick = (link: any) => {
     setSelectedLink(link);
     setSelectedNode(null);
+  };
+  
+  // Handle node expansion
+  const handleExpandNode = async () => {
+    if (!selectedNode) return;
+    
+    try {
+      await expandNode(selectedNode);
+    } catch (err) {
+      console.error('Error expanding node:', err);
+    }
+  };
+  
+  // Handle find path between nodes
+  const handleFindPath = async () => {
+    // This would typically show a UI to select target node
+    // For now, just demonstrate finding a path to a random node
+    if (!selectedNode || graphData.nodes.length < 2) return;
+    
+    const otherNodes = graphData.nodes.filter(node => node.id !== selectedNode);
+    if (otherNodes.length === 0) return;
+    
+    const randomTargetNode = otherNodes[Math.floor(Math.random() * otherNodes.length)];
+    
+    try {
+      await findPath(selectedNode, randomTargetNode.id);
+    } catch (err) {
+      console.error('Error finding path:', err);
+    }
   };
   
   // Handle zoom in/out
@@ -181,8 +203,21 @@ const GraphPanel: React.FC<GraphPanelProps> = ({ data, panelId }) => {
           <button className={styles.toolButton} title="Filter nodes">
             <Filter size={14} />
           </button>
-          <button className={styles.toolButton} title="Show connections">
+          <button 
+            className={styles.toolButton} 
+            onClick={handleFindPath} 
+            title="Find connections"
+            disabled={!selectedNode}
+          >
             <GitBranch size={14} />
+          </button>
+          <button 
+            className={styles.toolButton} 
+            onClick={handleExpandNode} 
+            title="Expand node"
+            disabled={!selectedNode || isExpanding}
+          >
+            <Plus size={14} />
           </button>
         </div>
         
@@ -193,20 +228,44 @@ const GraphPanel: React.FC<GraphPanelProps> = ({ data, panelId }) => {
           <button className={styles.toolButton} title="Full screen">
             <Maximize size={14} />
           </button>
+          <button 
+            className={styles.toolButton} 
+            onClick={refreshGraph}
+            title="Refresh graph"
+          >
+            <RotateCcw size={14} />
+          </button>
         </div>
       </div>
       
       <div className={styles.graphContainer}>
+        {loading && (
+          <div className={styles.loadingOverlay}>
+            <div className={styles.spinner}></div>
+            <div className={styles.loadingText}>Loading graph data...</div>
+          </div>
+        )}
+        
+        {error && (
+          <div className={styles.errorContainer}>
+            <ErrorDisplay 
+              error={error}
+              onRetry={refreshGraph}
+              className={styles.graphError}
+            />
+          </div>
+        )}
+        
         <ForceGraph2D
           ref={graphRef}
           graphData={graphData}
           nodeId="id"
-          nodeVal={node => node.value}
-          nodeLabel={node => node.name}
+          nodeVal={node => node.size || 1}
+          nodeLabel={node => node.label}
           nodeColor={node => {
             const isHighlighted = !highlightNodes.size || highlightNodes.has(node.id);
             return isHighlighted 
-              ? nodeColorMap[node.group] || '#4184e4'
+              ? (node.color || nodeColorMap[node.type] || '#4184e4')
               : 'rgba(160, 180, 216, 0.3)';
           }}
           nodeRelSize={6}
@@ -217,7 +276,7 @@ const GraphPanel: React.FC<GraphPanelProps> = ({ data, panelId }) => {
           linkColor={link => {
             const isHighlighted = !highlightLinks.size || highlightLinks.has(link);
             return isHighlighted 
-              ? linkColorMap[link.type] || '#a0b4d8'
+              ? (link.color || linkColorMap[link.type] || '#a0b4d8')
               : 'rgba(160, 180, 216, 0.2)';
           }}
           linkDirectionalArrowLength={3}
@@ -235,20 +294,50 @@ const GraphPanel: React.FC<GraphPanelProps> = ({ data, panelId }) => {
       <div className={styles.detailsPanel}>
         {selectedNode ? (
           <div className={styles.entityDetails}>
-            <h4 className={styles.detailsTitle}>{selectedNode.name}</h4>
-            <div className={styles.detailType}>
-              <span className={styles.detailLabel}>Type:</span>
-              <span className={styles.detailValue}>{selectedNode.group}</span>
-            </div>
-            <div className={styles.detailConnections}>
-              <span className={styles.detailLabel}>Connections:</span>
-              <span className={styles.detailValue}>
-                {graphData.links.filter(link => 
-                  link.source.id === selectedNode.id || 
-                  link.target.id === selectedNode.id
-                ).length}
-              </span>
-            </div>
+            {(() => {
+              const node = graphData.nodes.find(n => n.id === selectedNode);
+              if (!node) return <div>Loading node details...</div>;
+              
+              return (
+                <>
+                  <h4 className={styles.detailsTitle}>{node.label}</h4>
+                  <div className={styles.detailType}>
+                    <span className={styles.detailLabel}>Type:</span>
+                    <span className={styles.detailValue}>{node.type}</span>
+                  </div>
+                  <div className={styles.detailConnections}>
+                    <span className={styles.detailLabel}>Connections:</span>
+                    <span className={styles.detailValue}>
+                      {graphData.links.filter(link => 
+                        link.source.id === selectedNode || 
+                        link.target.id === selectedNode
+                      ).length}
+                    </span>
+                  </div>
+                  {node.metadata && node.metadata.entity && (
+                    <div className={styles.actionButtons}>
+                      <button 
+                        className={styles.actionButton}
+                        onClick={handleExpandNode}
+                        disabled={isExpanding}
+                      >
+                        {isExpanding ? (
+                          <>
+                            <div className={styles.buttonSpinner}></div>
+                            <span>Expanding...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Plus size={14} />
+                            <span>Expand Connections</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  )}
+                </>
+              );
+            })()}
           </div>
         ) : selectedLink ? (
           <div className={styles.relationshipDetails}>
@@ -261,16 +350,16 @@ const GraphPanel: React.FC<GraphPanelProps> = ({ data, panelId }) => {
               <span className={styles.detailLabel}>Source:</span>
               <span className={styles.detailValue}>
                 {typeof selectedLink.source === 'object' 
-                  ? selectedLink.source.name 
-                  : graphData.nodes.find(n => n.id === selectedLink.source)?.name}
+                  ? selectedLink.source.label 
+                  : graphData.nodes.find(n => n.id === selectedLink.source)?.label}
               </span>
             </div>
             <div className={styles.detailTarget}>
               <span className={styles.detailLabel}>Target:</span>
               <span className={styles.detailValue}>
                 {typeof selectedLink.target === 'object' 
-                  ? selectedLink.target.name 
-                  : graphData.nodes.find(n => n.id === selectedLink.target)?.name}
+                  ? selectedLink.target.label 
+                  : graphData.nodes.find(n => n.id === selectedLink.target)?.label}
               </span>
             </div>
           </div>

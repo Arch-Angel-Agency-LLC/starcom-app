@@ -1,24 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { List, Grid, UserPlus, Globe, Filter, Link2, Save, Shield } from 'lucide-react';
+import { List, Grid, UserPlus, Globe, Filter, Link2, Save, FileText } from 'lucide-react';
 import styles from './ResultsPanel.module.css';
+
+// Services and hooks
+import { useOSINTSearch } from '../../hooks/useOSINTSearch';
+import { SearchResult } from '../../types/osint';
+import ErrorDisplay from '../common/ErrorDisplay';
 
 interface ResultsPanelProps {
   data: {
     query?: string;
-    filters?: Record<string, any>;
+    filters?: Record<string, unknown>;
+    sources?: string[];
   };
   panelId: string;
-}
-
-interface ResultItem {
-  id: string;
-  type: 'person' | 'organization' | 'website' | 'document' | 'social' | 'wallet';
-  title: string;
-  subtitle: string;
-  source: string;
-  confidence: number;
-  tags: string[];
-  verified: boolean;
 }
 
 /**
@@ -26,115 +21,84 @@ interface ResultItem {
  * 
  * Displays OSINT search results with filtering and visualization options
  */
-const ResultsPanel: React.FC<ResultsPanelProps> = ({ data, panelId }) => {
+const ResultsPanel: React.FC<ResultsPanelProps> = ({ data }) => {
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
-  const [results, setResults] = useState<ResultItem[]>([]);
   const [loading, setLoading] = useState(false);
   
-  // Generate mock results based on the query
+  // Get search functionality from hook
+  const {
+    query,
+    setQuery,
+    filters,
+    setFilters,
+    sources,
+    setSources,
+    results,
+    search,
+    loading: searchLoading,
+    error,
+    clearError,
+    retryLastOperation
+  } = useOSINTSearch({
+    initialQuery: data.query || '',
+    initialFilters: data.filters || {},
+    initialSources: data.sources || []
+  });
+  
+  // Update local loading state from hook
   useEffect(() => {
-    if (data.query) {
-      setLoading(true);
-      
-      // Simulate API call
-      setTimeout(() => {
-        const mockResults: ResultItem[] = [
-          {
-            id: '1',
-            type: 'person',
-            title: 'John Anderson',
-            subtitle: 'Software Developer at TechCorp',
-            source: 'LinkedIn',
-            confidence: 0.92,
-            tags: ['tech', 'developer', 'California'],
-            verified: true
-          },
-          {
-            id: '2',
-            type: 'social',
-            title: '@j_anderson_dev',
-            subtitle: 'Twitter account with 1,243 followers',
-            source: 'Twitter',
-            confidence: 0.87,
-            tags: ['social media', 'tech'],
-            verified: false
-          },
-          {
-            id: '3',
-            type: 'website',
-            title: 'johnanderson.dev',
-            subtitle: 'Personal website and blog',
-            source: 'DomainTools',
-            confidence: 0.95,
-            tags: ['website', 'blog'],
-            verified: true
-          },
-          {
-            id: '4',
-            type: 'organization',
-            title: 'TechCorp International',
-            subtitle: 'Employer - Software Company',
-            source: 'CrunchBase',
-            confidence: 0.90,
-            tags: ['employer', 'tech company'],
-            verified: true
-          },
-          {
-            id: '5',
-            type: 'document',
-            title: 'Technical Whitepaper: Quantum Computing',
-            subtitle: 'Co-authored research paper',
-            source: 'Google Scholar',
-            confidence: 0.78,
-            tags: ['research', 'publication'],
-            verified: true
-          },
-          {
-            id: '6',
-            type: 'wallet',
-            title: '0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9',
-            subtitle: 'Ethereum wallet with 24 transactions',
-            source: 'Etherscan',
-            confidence: 0.82,
-            tags: ['crypto', 'ethereum'],
-            verified: false
-          },
-          {
-            id: '7',
-            type: 'social',
-            title: 'John A.',
-            subtitle: 'GitHub profile with 31 repositories',
-            source: 'GitHub',
-            confidence: 0.89,
-            tags: ['developer', 'open source'],
-            verified: true
-          }
-        ];
-        
-        setResults(mockResults);
-        setLoading(false);
-      }, 1000);
-    } else {
-      setResults([]);
+    setLoading(searchLoading);
+  }, [searchLoading]);
+  
+  // Search when query or filters change
+  useEffect(() => {
+    if (data.query && data.query !== query) {
+      setQuery(data.query);
     }
-  }, [data.query]);
+    
+    if (data.filters && JSON.stringify(data.filters) !== JSON.stringify(filters)) {
+      setFilters(data.filters);
+    }
+    
+    if (data.sources && JSON.stringify(data.sources) !== JSON.stringify(sources)) {
+      setSources(data.sources);
+    }
+  }, [data.query, data.filters, data.sources, query, filters, sources, setQuery, setFilters, setSources]);
+  
+  // Execute search when necessary
+  useEffect(() => {
+    if (query) {
+      search();
+    }
+  }, [query, filters, sources, search]);
   
   // Filter results by type
   const filteredResults = activeFilter 
     ? results.filter(result => result.type === activeFilter)
     : results;
   
+  // Get type counts for filtering
+  const typeCounts = results.reduce((acc, result) => {
+    acc[result.type] = (acc[result.type] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+  
+  // Get tooltip text for each filter button
+  const getFilterTooltip = (type: string): string => {
+    const count = typeCounts[type] || 0;
+    return `${type.charAt(0).toUpperCase() + type.slice(1)} (${count})`;
+  };
+  
   // Render result item based on view mode
-  const renderResultItem = (result: ResultItem) => {
+  const renderResultItem = (result: SearchResult) => {
     const getIconForType = (type: string) => {
       switch (type) {
-        case 'person': return <UserPlus size={16} />;
-        case 'organization': return <UserPlus size={16} />;
-        case 'website': return <Globe size={16} />;
+        case 'entity': return <UserPlus size={16} />;
+        case 'relationship': return <Link2 size={16} />;
+        case 'event': return <FileText size={16} />;
         case 'document': return <FileText size={16} />;
-        case 'social': return <Link2 size={16} />;
-        case 'wallet': return <Shield size={16} />;
+        case 'media': return <Globe size={16} />;
         default: return <Globe size={16} />;
       }
     };
@@ -151,13 +115,15 @@ const ResultsPanel: React.FC<ResultsPanelProps> = ({ data, panelId }) => {
               {Math.round(result.confidence * 100)}%
             </span>
           </div>
-          <p className={styles.resultSubtitle}>{result.subtitle}</p>
+          <p className={styles.resultSubtitle}>{result.snippet}</p>
           <div className={styles.resultMeta}>
             <span className={styles.resultSource}>{result.source}</span>
             <div className={styles.resultTags}>
-              {result.tags.map(tag => (
-                <span key={tag} className={styles.resultTag}>{tag}</span>
-              ))}
+              {result.metadata.tags && Array.isArray(result.metadata.tags) && 
+                (result.metadata.tags as string[]).map(tag => (
+                  <span key={tag} className={styles.resultTag}>{tag}</span>
+                ))
+              }
             </div>
           </div>
         </div>
@@ -181,7 +147,7 @@ const ResultsPanel: React.FC<ResultsPanelProps> = ({ data, panelId }) => {
           </span>
         </div>
         <h4 className={styles.gridItemTitle}>{result.title}</h4>
-        <p className={styles.gridItemSubtitle}>{result.subtitle}</p>
+        <p className={styles.gridItemSubtitle}>{result.snippet}</p>
         <span className={styles.gridItemSource}>{result.source}</span>
         <div className={styles.gridItemActions}>
           <button className={styles.actionButton} title="Add to investigation">
@@ -219,38 +185,44 @@ const ResultsPanel: React.FC<ResultsPanelProps> = ({ data, panelId }) => {
           <button 
             className={`${styles.filterButton} ${activeFilter === null ? styles.activeFilter : ''}`}
             onClick={() => setActiveFilter(null)}
+            title="Show all results"
           >
-            All
+            All ({results.length})
           </button>
           <button 
             className={`${styles.filterButton} ${activeFilter === 'person' ? styles.activeFilter : ''}`}
             onClick={() => setActiveFilter('person')}
+            title={getFilterTooltip('person')}
           >
-            People
+            People {typeCounts['person'] ? `(${typeCounts['person']})` : ''}
           </button>
           <button 
             className={`${styles.filterButton} ${activeFilter === 'organization' ? styles.activeFilter : ''}`}
             onClick={() => setActiveFilter('organization')}
+            title={getFilterTooltip('organization')}
           >
-            Orgs
+            Orgs {typeCounts['organization'] ? `(${typeCounts['organization']})` : ''}
           </button>
           <button 
             className={`${styles.filterButton} ${activeFilter === 'website' ? styles.activeFilter : ''}`}
             onClick={() => setActiveFilter('website')}
+            title={getFilterTooltip('website')}
           >
-            Web
+            Web {typeCounts['website'] ? `(${typeCounts['website']})` : ''}
           </button>
           <button 
             className={`${styles.filterButton} ${activeFilter === 'social' ? styles.activeFilter : ''}`}
             onClick={() => setActiveFilter('social')}
+            title={getFilterTooltip('social')}
           >
-            Social
+            Social {typeCounts['social'] ? `(${typeCounts['social']})` : ''}
           </button>
           <button 
             className={`${styles.filterButton} ${activeFilter === 'document' ? styles.activeFilter : ''}`}
             onClick={() => setActiveFilter('document')}
+            title={getFilterTooltip('document')}
           >
-            Docs
+            Docs {typeCounts['document'] ? `(${typeCounts['document']})` : ''}
           </button>
           <button
             className={styles.moreFiltersButton}
@@ -262,7 +234,15 @@ const ResultsPanel: React.FC<ResultsPanelProps> = ({ data, panelId }) => {
       </div>
       
       <div className={styles.resultsContainer}>
-        {loading ? (
+        {error ? (
+          <div className={styles.errorWrapper}>
+            <ErrorDisplay 
+              error={error}
+              onRetry={retryLastOperation}
+              onDismiss={clearError}
+            />
+          </div>
+        ) : loading ? (
           <div className={styles.loading}>
             <div className={styles.loadingSpinner}></div>
             <p>Searching intelligence sources...</p>

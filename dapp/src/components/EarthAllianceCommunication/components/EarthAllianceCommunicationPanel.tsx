@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { CommunicationProvider } from '../context/CommunicationProvider';
 import { CommunicationContext } from '../context/CommunicationContext';
 import { ChannelSelector } from './ChannelSelector';
 import { MessageDisplay } from './MessageDisplay';
 import { MessageComposer } from './MessageComposer';
+import { ErrorBoundary } from '../ErrorBoundary';
 import styles from './EarthAllianceCommunicationPanel.module.css';
+import { logger } from '../../../utils';
 
 // Default NostrService configuration
 const DEFAULT_CONFIG = {
@@ -33,6 +35,8 @@ export const EarthAllianceCommunicationPanel: React.FC<EarthAllianceCommunicatio
   const [showEmergencyControls, setShowEmergencyControls] = useState(false);
   const [emergencyReason, setEmergencyReason] = useState('');
   const [emergencyMode, setEmergencyMode] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
   
   // Merge custom endpoints with defaults
   const config = {
@@ -41,9 +45,14 @@ export const EarthAllianceCommunicationPanel: React.FC<EarthAllianceCommunicatio
   };
   
   // Toggle emergency controls
-  const toggleEmergencyControls = () => {
+  const toggleEmergencyControls = useCallback(() => {
     setShowEmergencyControls(prev => !prev);
-  };
+  }, []);
+  
+  // Handle and clear errors
+  const clearError = useCallback(() => {
+    setError(null);
+  }, []);
   
   // Listen for emergency events from NostrService
   useEffect(() => {
@@ -53,10 +62,10 @@ export const EarthAllianceCommunicationPanel: React.FC<EarthAllianceCommunicatio
       
       if (active && reason) {
         // Update UI with emergency information
-        console.info('Emergency declared:', reason);
+        logger.info('Emergency declared:', reason);
       } else if (!active) {
         // Update UI when emergency is resolved
-        console.info('Emergency resolved');
+        logger.info('Emergency resolved');
       }
     };
     
@@ -70,29 +79,41 @@ export const EarthAllianceCommunicationPanel: React.FC<EarthAllianceCommunicatio
   }, []);
   
   return (
-    <CommunicationProvider config={config}>
-      <div className={`${styles.panel} ${className} ${emergencyMode ? styles.emergencyModePanel : ''}`}>
-        <div className={styles.panelHeader}>
-          <h2>Earth Alliance Communication {emergencyMode && <span className={styles.emergencyIndicator}>EMERGENCY MODE</span>}</h2>
-          <EmergencyControls 
-            show={showEmergencyControls} 
-            reason={emergencyReason}
-            setReason={setEmergencyReason}
-            onToggle={toggleEmergencyControls}
-            isEmergencyMode={emergencyMode}
-          />
-        </div>
-        
-        <div className={styles.panelContent}>
-          <ChannelSelector className={styles.channelSelector} />
+    <ErrorBoundary fallback={<div className={styles.errorState}>Communication system is experiencing critical issues. Please try again later.</div>}>
+      <CommunicationProvider config={config}>
+        <div className={`${styles.panel} ${className} ${emergencyMode ? styles.emergencyModePanel : ''} ${error ? styles.errorPanel : ''}`}>
+          {error && (
+            <div className={styles.errorMessage}>
+              <span>{error}</span>
+              <button onClick={clearError} className={styles.dismissButton}>Dismiss</button>
+            </div>
+          )}
           
-          <div className={styles.messageArea}>
-            <MessageDisplay className={styles.messageDisplay} />
-            <MessageComposer className={styles.messageComposer} />
+          <div className={styles.panelHeader}>
+            <h2>Earth Alliance Communication {emergencyMode && <span className={styles.emergencyIndicator}>EMERGENCY MODE</span>}</h2>
+            <EmergencyControls 
+              show={showEmergencyControls} 
+              reason={emergencyReason}
+              setReason={setEmergencyReason}
+              onToggle={toggleEmergencyControls}
+              isEmergencyMode={emergencyMode}
+              isProcessing={isProcessing}
+              setIsProcessing={setIsProcessing}
+              setError={setError}
+            />
+          </div>
+          
+          <div className={styles.panelContent}>
+            <ChannelSelector className={styles.channelSelector} />
+            
+            <div className={styles.messageArea}>
+              <MessageDisplay className={styles.messageDisplay} />
+              <MessageComposer className={styles.messageComposer} />
+            </div>
           </div>
         </div>
-      </div>
-    </CommunicationProvider>
+      </CommunicationProvider>
+    </ErrorBoundary>
   );
 };
 
@@ -102,6 +123,9 @@ interface EmergencyControlsProps {
   setReason: (reason: string) => void;
   onToggle: () => void;
   isEmergencyMode?: boolean;
+  isProcessing: boolean;
+  setIsProcessing: (isProcessing: boolean) => void;
+  setError: (error: string | null) => void;
 }
 
 const EmergencyControls: React.FC<EmergencyControlsProps> = ({
@@ -110,6 +134,9 @@ const EmergencyControls: React.FC<EmergencyControlsProps> = ({
   setReason,
   onToggle,
   isEmergencyMode: externalEmergencyMode,
+  isProcessing,
+  setIsProcessing,
+  setError,
 }) => {
   const { 
     declareEmergency, 
@@ -121,34 +148,51 @@ const EmergencyControls: React.FC<EmergencyControlsProps> = ({
   const isEmergencyMode = externalEmergencyMode !== undefined ? externalEmergencyMode : contextEmergencyMode;
   
   const handleDeclareEmergency = async () => {
-    if (!reason.trim()) {
+    if (!reason.trim() || isProcessing) {
       return;
     }
     
     try {
+      setIsProcessing(true);
+      setError(null);
       await declareEmergency(reason);
       setReason('');
       onToggle();
     } catch (error) {
-      console.error('Failed to declare emergency:', error);
+      logger.error('Failed to declare emergency:', error);
+      setError(`Failed to declare emergency: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setIsProcessing(false);
     }
   };
   
   const handleResolveEmergency = async () => {
+    if (isProcessing) {
+      return;
+    }
+    
     try {
+      setIsProcessing(true);
+      setError(null);
       await resolveEmergency();
     } catch (error) {
-      console.error('Failed to resolve emergency:', error);
+      logger.error('Failed to resolve emergency:', error);
+      setError(`Failed to resolve emergency: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setIsProcessing(false);
     }
   };
   
   return (
     <div className={styles.emergencyControlsContainer}>
       <button 
-        className={`${styles.emergencyButton} ${isEmergencyMode ? styles.resolveButton : ''}`}
+        className={`${styles.emergencyButton} ${isEmergencyMode ? styles.resolveButton : ''} ${isProcessing ? styles.processingButton : ''}`}
         onClick={isEmergencyMode ? handleResolveEmergency : onToggle}
+        disabled={isProcessing}
       >
-        {isEmergencyMode ? 'RESOLVE EMERGENCY' : 'EMERGENCY'}
+        {isProcessing ? 
+          (isEmergencyMode ? 'RESOLVING...' : 'PROCESSING...') : 
+          (isEmergencyMode ? 'RESOLVE EMERGENCY' : 'EMERGENCY')}
       </button>
       
       {show && !isEmergencyMode && (
@@ -159,13 +203,14 @@ const EmergencyControls: React.FC<EmergencyControlsProps> = ({
             onChange={(e) => setReason(e.target.value)}
             placeholder="Reason for emergency declaration"
             className={styles.emergencyInput}
+            disabled={isProcessing}
           />
           <button 
-            className={styles.declareButton}
+            className={`${styles.declareButton} ${isProcessing ? styles.processingButton : ''}`}
             onClick={handleDeclareEmergency}
-            disabled={!reason.trim()}
+            disabled={!reason.trim() || isProcessing}
           >
-            DECLARE
+            {isProcessing ? 'DECLARING...' : 'DECLARE'}
           </button>
         </div>
       )}

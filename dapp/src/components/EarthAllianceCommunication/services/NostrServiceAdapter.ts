@@ -509,23 +509,56 @@ export class NostrServiceAdapter {
     logger.info('NostrServiceAdapter.declareEmergency() called with:', reason);
     
     try {
+      let emergencyDeclared = false;
+      
       // Send an emergency coordination to all active channels
       for (const channelId of this.activeChannels) {
-        await this.nostrService.sendEmergencyCoordination(
-          channelId,
-          'operational_security', // Type of emergency
-          'critical', // Urgency level
-          {
-            description: reason,
-            actionRequired: 'Activate emergency protocols and maintain secure communications',
-            timeframe: 'Immediate',
-            affectedRegions: ['All'],
-            resourcesNeeded: ['Secure communication channels']
-          }
-        );
+        try {
+          await this.nostrService.sendEmergencyCoordination(
+            channelId,
+            'operational_security', // Type of emergency
+            'critical', // Urgency level
+            {
+              description: reason,
+              actionRequired: 'Activate emergency protocols and maintain secure communications',
+              timeframe: 'Immediate',
+              affectedRegions: ['All'],
+              resourcesNeeded: ['Secure communication channels']
+            }
+          );
+          emergencyDeclared = true;
+        } catch (error) {
+          logger.error(`Failed to send emergency coordination to channel ${channelId}:`, error);
+          // Continue with other channels even if one fails
+        }
       }
       
-      // Set emergency active flag
+      // If no channels were successfully notified, try the fallback channel
+      if (!emergencyDeclared && this.activeChannels.size === 0) {
+        try {
+          // Use a fallback channel if no active channels exist
+          const fallbackChannelId = 'earth-alliance-emergency';
+          await this.nostrService.sendEmergencyCoordination(
+            fallbackChannelId,
+            'operational_security',
+            'critical',
+            {
+              description: reason,
+              actionRequired: 'Activate emergency protocols and maintain secure communications',
+              timeframe: 'Immediate',
+              affectedRegions: ['All'],
+              resourcesNeeded: ['Secure communication channels']
+            }
+          );
+          emergencyDeclared = true;
+        } catch (fallbackError) {
+          logger.error('Failed to send emergency coordination to fallback channel:', fallbackError);
+          // Even if fallback fails, we'll still set emergency mode locally
+        }
+      }
+      
+      // Set emergency active flag even if communications failed
+      // This ensures the UI updates appropriately even during connectivity issues
       this.isEmergencyActive = true;
       
       // Dispatch a custom event to notify the system of emergency mode
@@ -534,30 +567,51 @@ export class NostrServiceAdapter {
       });
       window.dispatchEvent(emergencyEvent);
       
-      // Fetch and join emergency channels
-      const emergencyChannels = await this.fetchEmergencyChannels();
-      
-      // Join all emergency channels
-      for (const channel of emergencyChannels) {
-        await this.joinChannel(channel.id).catch(error => {
-          logger.error(`Failed to join emergency channel ${channel.id}:`, error);
-        });
-      }
-      
-      // Dispatch a custom event for emergency declared
-      const event = new CustomEvent('earth-alliance-emergency', {
-        detail: {
-          active: true,
-          reason,
-          timestamp: Date.now()
+      // Try to fetch and join emergency channels
+      try {
+        const emergencyChannels = await this.fetchEmergencyChannels();
+        
+        // Join all emergency channels
+        for (const channel of emergencyChannels) {
+          try {
+            await this.joinChannel(channel.id);
+            logger.info(`Joined emergency channel: ${channel.name}`);
+          } catch (joinError) {
+            logger.error(`Failed to join emergency channel ${channel.id}:`, joinError);
+            // Continue with other channels even if one fails
+          }
         }
-      });
-      
-      window.dispatchEvent(event);
-      
-      logger.info('Emergency declared successfully');
+      } catch (fetchError) {
+        logger.error('Failed to fetch emergency channels:', fetchError);
+        // Fall back to hardcoded emergency channels if fetch fails
+        const fallbackEmergencyChannels = [
+          'emergency-global',
+          'emergency-alerts',
+          'emergency-command'
+        ];
+        
+        for (const channelId of fallbackEmergencyChannels) {
+          try {
+            await this.joinChannel(channelId);
+            logger.info(`Joined fallback emergency channel: ${channelId}`);
+          } catch (joinError) {
+            logger.error(`Failed to join fallback emergency channel ${channelId}:`, joinError);
+          }
+        }
+      }
     } catch (error) {
-      logger.error('Error declaring emergency:', error);
+      logger.error('Failed to declare emergency:', error);
+      
+      // Ensure emergency mode is still activated locally
+      this.isEmergencyActive = true;
+      
+      // Still dispatch the event to update UI
+      const emergencyEvent = new CustomEvent('nostr-emergency', {
+        detail: { active: true, reason }
+      });
+      window.dispatchEvent(emergencyEvent);
+      
+      // Re-throw for UI error handling
       throw error;
     }
   }
@@ -569,20 +623,52 @@ export class NostrServiceAdapter {
     logger.info('NostrServiceAdapter.resolveEmergency() called');
     
     try {
+      let resolutionSent = false;
+      
       // Send a resolution message to all active channels
       for (const channelId of this.activeChannels) {
-        await this.nostrService.sendEmergencyCoordination(
-          channelId,
-          'operational_security',
-          'medium', // Lower urgency for resolution
-          {
-            description: 'EMERGENCY RESOLVED. Return to normal operations.',
-            actionRequired: 'Resume standard protocols',
-            timeframe: 'Immediate',
-            affectedRegions: ['All'],
-            resourcesNeeded: []
-          }
-        );
+        try {
+          await this.nostrService.sendEmergencyCoordination(
+            channelId,
+            'operational_security',
+            'medium', // Lower urgency for resolution
+            {
+              description: 'EMERGENCY RESOLVED. Return to normal operations.',
+              actionRequired: 'Resume standard protocols',
+              timeframe: 'Immediate',
+              affectedRegions: ['All'],
+              resourcesNeeded: []
+            }
+          );
+          resolutionSent = true;
+        } catch (error) {
+          logger.error(`Failed to send emergency resolution to channel ${channelId}:`, error);
+          // Continue with other channels even if one fails
+        }
+      }
+      
+      // If no active channels successfully received the resolution, try fallback
+      if (!resolutionSent && this.activeChannels.size === 0) {
+        try {
+          // Use a fallback channel
+          const fallbackChannelId = 'earth-alliance-emergency';
+          await this.nostrService.sendEmergencyCoordination(
+            fallbackChannelId,
+            'operational_security',
+            'medium',
+            {
+              description: 'EMERGENCY RESOLVED. Return to normal operations.',
+              actionRequired: 'Resume standard protocols',
+              timeframe: 'Immediate',
+              affectedRegions: ['All'],
+              resourcesNeeded: []
+            }
+          );
+          resolutionSent = true;
+        } catch (fallbackError) {
+          logger.error('Failed to send emergency resolution to fallback channel:', fallbackError);
+          // Continue with resolution anyway
+        }
       }
       
       // Set emergency inactive flag
@@ -593,7 +679,6 @@ export class NostrServiceAdapter {
         detail: { active: false }
       });
       window.dispatchEvent(emergencyEvent);
-      this.isEmergencyActive = false;
       
       // Dispatch a custom event for emergency resolved
       const event = new CustomEvent('earth-alliance-emergency', {
@@ -608,6 +693,17 @@ export class NostrServiceAdapter {
       logger.info('Emergency resolved successfully');
     } catch (error) {
       logger.error('Error resolving emergency:', error);
+      
+      // Even on error, ensure emergency mode is deactivated locally
+      this.isEmergencyActive = false;
+      
+      // Still dispatch the event to update UI
+      const emergencyEvent = new CustomEvent('nostr-emergency', {
+        detail: { active: false }
+      });
+      window.dispatchEvent(emergencyEvent);
+      
+      // Re-throw for UI error handling
       throw error;
     }
   }

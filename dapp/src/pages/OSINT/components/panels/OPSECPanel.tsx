@@ -1,152 +1,252 @@
-import React, { useState } from 'react';
-import { Shield, Lock, Eye, Activity, Globe, User, AlertTriangle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
 import styles from './OPSECPanel.module.css';
 
 interface OPSECPanelProps {
-  data: Record<string, unknown>;
   panelId: string;
 }
 
-/**
- * OPSEC Shield Panel
- * 
- * Provides operational security tools and protections for investigators
- */
-const OPSECPanel: React.FC<OPSECPanelProps> = ({ data, panelId }) => {
-  const [securityLevel, setSecurityLevel] = useState<'standard' | 'enhanced' | 'maximum'>('enhanced');
-  const [routingMethod, setRoutingMethod] = useState<'direct' | 'vpn' | 'tor' | 'tor+vpn'>('vpn');
-  const [fingerprintProtection, setFingerprintProtection] = useState(true);
-  const [securityAlerts, setSecurityAlerts] = useState([
-    { id: 1, type: 'warning', message: 'Current IP address has been used for 4+ hours', time: '10 min ago' },
-    { id: 2, type: 'info', message: 'VPN connection established via London node', time: '35 min ago' },
-    { id: 3, type: 'critical', message: 'Potential DNS leak detected and blocked', time: '1 hour ago' },
-  ]);
+const OPSECPanel: React.FC<OPSECPanelProps> = ({ panelId }) => {
+  // Mock connection status data
+  const [connectionStatus, setConnectionStatus] = useState({
+    isSecure: true,
+    routingMethod: 'vpn',
+    encryptionActive: true,
+    fingerprintProtection: true,
+    dnsSecure: true
+  });
   
+  const [securityLevel, setSecurityLevel] = useState('enhanced');
+  const [isLoading, setIsLoading] = useState(false);
+  
+  // Mock security alerts
+  const [securityAlerts, setSecurityAlerts] = useState([
+    {
+      id: 'alert-1',
+      title: 'Potential Tracking Detected',
+      message: 'Your current connection may be monitored. Consider switching to a more secure routing method.',
+      severity: 'medium',
+      timestamp: new Date().toISOString(),
+      action: 'Switch to TOR',
+    }
+  ]);
+
+  // Simulate initial loading
+  useEffect(() => {
+    setIsLoading(true);
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+    
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Mock functions
+  const changeRoutingMethod = (method) => {
+    setConnectionStatus(prev => ({
+      ...prev,
+      routingMethod: method
+    }));
+  };
+  
+  const changeSecurityLevel = (level) => {
+    setSecurityLevel(level);
+  };
+  
+  const toggleFingerprintProtection = () => {
+    setConnectionStatus(prev => ({
+      ...prev,
+      fingerprintProtection: !prev.fingerprintProtection
+    }));
+  };
+  
+  const acknowledgeAlert = (alertId) => {
+    setSecurityAlerts(prev => prev.filter(alert => alert.id !== alertId));
+  };
+  
+  const generateNewIdentity = () => {
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+      setSecurityAlerts(prev => [
+        ...prev,
+        {
+          id: `alert-${Date.now()}`,
+          title: 'Identity Refreshed',
+          message: 'Your digital identity has been refreshed. New fingerprint generated.',
+          severity: 'low',
+          timestamp: new Date().toISOString()
+        }
+      ]);
+    }, 1500);
+  };
+  
+  const scanForThreats = () => {
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+      const foundThreat = Math.random() > 0.5;
+      
+      if (foundThreat) {
+        setSecurityAlerts(prev => [
+          ...prev,
+          {
+            id: `alert-${Date.now()}`,
+            title: 'Security Vulnerability Detected',
+            message: 'A potential security vulnerability was detected in your connection.',
+            severity: 'high',
+            timestamp: new Date().toISOString(),
+            action: 'Increase Security',
+          }
+        ]);
+      } else {
+        setSecurityAlerts(prev => [
+          ...prev,
+          {
+            id: `alert-${Date.now()}`,
+            title: 'Security Scan Complete',
+            message: 'No threats detected. Your connection is secure.',
+            severity: 'low',
+            timestamp: new Date().toISOString()
+          }
+        ]);
+      }
+    }, 2000);
+  };
+
+  if (isLoading) {
+    return (
+      <div className={styles.opsecPanel} data-panel-id={panelId}>
+        <h2 className={styles.title}>OPSEC Security</h2>
+        <div className={styles.loadingContainer}>
+          <div className={styles.spinner}></div>
+          <p>Initializing secure connection...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className={styles.opsecPanel}>
-      <div className={styles.securityStatus}>
-        <div className={styles.statusHeader}>
-          <Shield size={18} />
-          <h3 className={styles.statusTitle}>OPSEC Protection Status</h3>
-        </div>
-        
-        <div className={styles.statusIndicators}>
+    <div className={styles.opsecPanel} data-panel-id={panelId}>
+      <h2 className={styles.title}>OPSEC Security</h2>
+      
+      <div className={styles.section}>
+        <h3 className={styles.sectionTitle}>Connection Status</h3>
+        <div className={styles.statusGrid}>
           <div className={styles.statusItem}>
-            <div className={`${styles.statusLight} ${styles.active}`}></div>
-            <span className={styles.statusLabel}>Traffic Encryption</span>
+            <span className={styles.statusLabel}>Secure Connection:</span>
+            <span className={`${styles.statusValue} ${connectionStatus.isSecure ? styles.secure : styles.insecure}`}>
+              {connectionStatus.isSecure ? 'Active' : 'Inactive'}
+            </span>
           </div>
           <div className={styles.statusItem}>
-            <div className={`${styles.statusLight} ${styles.active}`}></div>
-            <span className={styles.statusLabel}>Identity Protection</span>
+            <span className={styles.statusLabel}>Routing Method:</span>
+            <span className={styles.statusValue}>{connectionStatus.routingMethod}</span>
           </div>
           <div className={styles.statusItem}>
-            <div className={`${styles.statusLight} ${routingMethod !== 'direct' ? styles.active : styles.inactive}`}></div>
-            <span className={styles.statusLabel}>Secure Routing</span>
+            <span className={styles.statusLabel}>Encryption:</span>
+            <span className={`${styles.statusValue} ${connectionStatus.encryptionActive ? styles.secure : styles.insecure}`}>
+              {connectionStatus.encryptionActive ? 'Active' : 'Inactive'}
+            </span>
           </div>
           <div className={styles.statusItem}>
-            <div className={`${styles.statusLight} ${fingerprintProtection ? styles.active : styles.inactive}`}></div>
-            <span className={styles.statusLabel}>Fingerprint Masking</span>
+            <span className={styles.statusLabel}>Fingerprint Protection:</span>
+            <span className={`${styles.statusValue} ${connectionStatus.fingerprintProtection ? styles.secure : styles.insecure}`}>
+              {connectionStatus.fingerprintProtection ? 'Active' : 'Inactive'}
+            </span>
           </div>
         </div>
       </div>
       
-      <div className={styles.controlsSection}>
-        <div className={styles.controlGroup}>
-          <label className={styles.controlLabel}>Security Level</label>
-          <div className={styles.securityLevelControls}>
-            <button 
-              className={`${styles.levelButton} ${securityLevel === 'standard' ? styles.activeLevel : ''}`}
-              onClick={() => setSecurityLevel('standard')}
+      <div className={styles.section}>
+        <h3 className={styles.sectionTitle}>Security Controls</h3>
+        <div className={styles.controls}>
+          <div className={styles.controlItem}>
+            <label>Routing Method:</label>
+            <select 
+              value={connectionStatus.routingMethod} 
+              onChange={(e) => changeRoutingMethod(e.target.value)}
+              className={styles.selectControl}
             >
-              Standard
-            </button>
-            <button 
-              className={`${styles.levelButton} ${securityLevel === 'enhanced' ? styles.activeLevel : ''}`}
-              onClick={() => setSecurityLevel('enhanced')}
+              <option value="direct">Direct</option>
+              <option value="vpn">VPN</option>
+              <option value="tor">TOR</option>
+              <option value="i2p">I2P</option>
+            </select>
+          </div>
+          
+          <div className={styles.controlItem}>
+            <label>Security Level:</label>
+            <select 
+              value={securityLevel} 
+              onChange={(e) => changeSecurityLevel(e.target.value)}
+              className={styles.selectControl}
             >
-              Enhanced
-            </button>
+              <option value="standard">Standard</option>
+              <option value="enhanced">Enhanced</option>
+              <option value="maximum">Maximum</option>
+            </select>
+          </div>
+          
+          <div className={styles.controlItem}>
+            <label>Fingerprint Protection:</label>
             <button 
-              className={`${styles.levelButton} ${securityLevel === 'maximum' ? styles.activeLevel : ''}`}
-              onClick={() => setSecurityLevel('maximum')}
+              className={`${styles.toggleButton} ${connectionStatus.fingerprintProtection ? styles.toggleActive : ''}`}
+              onClick={toggleFingerprintProtection}
             >
-              Maximum
+              {connectionStatus.fingerprintProtection ? 'ON' : 'OFF'}
             </button>
           </div>
         </div>
         
-        <div className={styles.controlGroup}>
-          <label className={styles.controlLabel}>Routing Method</label>
-          <select 
-            className={styles.controlSelect}
-            value={routingMethod}
-            onChange={(e) => setRoutingMethod(e.target.value as any)}
+        <div className={styles.actions}>
+          <button 
+            className={styles.actionButton}
+            onClick={generateNewIdentity}
           >
-            <option value="direct">Direct Connection (Unsecured)</option>
-            <option value="vpn">VPN</option>
-            <option value="tor">Tor Network</option>
-            <option value="tor+vpn">Tor over VPN (Maximum Security)</option>
-          </select>
-        </div>
-        
-        <div className={styles.controlGroup}>
-          <label className={styles.controlLabel}>
-            <input
-              type="checkbox"
-              checked={fingerprintProtection}
-              onChange={(e) => setFingerprintProtection(e.target.checked)}
-              className={styles.controlCheckbox}
-            />
-            Browser Fingerprint Protection
-          </label>
+            Generate New Identity
+          </button>
+          <button 
+            className={styles.actionButton}
+            onClick={scanForThreats}
+          >
+            Scan For Threats
+          </button>
         </div>
       </div>
       
-      <div className={styles.securityAlerts}>
-        <h4 className={styles.alertsTitle}>
-          <Activity size={14} />
-          <span>Security Alerts</span>
-        </h4>
-        
-        <div className={styles.alertsList}>
-          {securityAlerts.map(alert => (
-            <div 
-              key={alert.id} 
-              className={`${styles.alertItem} ${styles[alert.type]}`}
-            >
-              {alert.type === 'warning' && <AlertTriangle size={14} />}
-              {alert.type === 'info' && <Globe size={14} />}
-              {alert.type === 'critical' && <Shield size={14} />}
-              <div className={styles.alertContent}>
-                <span className={styles.alertMessage}>{alert.message}</span>
-                <span className={styles.alertTime}>{alert.time}</span>
+      {securityAlerts.length > 0 && (
+        <div className={styles.section}>
+          <h3 className={styles.sectionTitle}>Security Alerts</h3>
+          <div className={styles.alertsList}>
+            {securityAlerts.map((alert) => (
+              <div key={alert.id} className={`${styles.alertItem} ${styles[alert.severity]}`}>
+                <div className={styles.alertHeader}>
+                  <span className={styles.alertTitle}>{alert.title}</span>
+                  <button 
+                    className={styles.dismissButton}
+                    onClick={() => acknowledgeAlert(alert.id)}
+                  >
+                    Dismiss
+                  </button>
+                </div>
+                <p className={styles.alertMessage}>{alert.message}</p>
+                {alert.action && (
+                  <button 
+                    className={styles.alertActionButton}
+                    onClick={() => {
+                      if (alert.action.includes('TOR')) changeRoutingMethod('tor');
+                      if (alert.action.includes('Security')) changeSecurityLevel('maximum');
+                      acknowledgeAlert(alert.id);
+                    }}
+                  >
+                    {alert.action}
+                  </button>
+                )}
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
-      
-      <div className={styles.operationalTools}>
-        <h4 className={styles.toolsTitle}>Quick Actions</h4>
-        <div className={styles.toolsGrid}>
-          <button className={styles.toolButton}>
-            <Lock size={16} />
-            <span>New Identity</span>
-          </button>
-          <button className={styles.toolButton}>
-            <User size={16} />
-            <span>Check Exposure</span>
-          </button>
-          <button className={styles.toolButton}>
-            <Eye size={16} />
-            <span>Traffic Analysis</span>
-          </button>
-          <button className={styles.toolButton}>
-            <Globe size={16} />
-            <span>Change Exit Node</span>
-          </button>
-        </div>
-      </div>
+      )}
     </div>
   );
 };

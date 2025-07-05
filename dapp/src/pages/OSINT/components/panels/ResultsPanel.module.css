@@ -321,3 +321,54 @@
   text-align: center;
   font-size: 14px;
 }
+
+.errorWrapper {
+  margin: 16px;
+}
+
+/* Error message styles */
+.errorMessage {
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  margin: 10px 0;
+  background-color: rgba(187, 17, 34, 0.1);
+  border: 1px solid rgba(187, 17, 34, 0.25);
+  border-radius: 4px;
+  color: #ff6b7a;
+}
+
+.errorTitle {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.errorTitle svg {
+  margin-right: 8px;
+}
+
+.errorText {
+  margin: 0;
+  font-size: 13px;
+}
+
+.retryButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  margin-top: 10px;
+  background: rgba(65, 132, 228, 0.15);
+  border: 1px solid rgba(65, 132, 228, 0.3);
+  border-radius: 3px;
+  color: #4184e4;
+  font-size: 12px;
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+.retryButton:hover {
+  background: rgba(65, 132, 228, 0.25);
+}

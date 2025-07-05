@@ -36,6 +36,37 @@ export interface Panel {
   locked: boolean;          // Whether panel can be moved/resized
 }
 
+// Search Query Definition
+export interface SearchQuery {
+  text: string;              // Search text
+  filters?: Record<string, unknown>; // Filter criteria
+  sources?: string[];        // Data sources to search
+  timeRange?: {              // Time range filter
+    start?: string;          // ISO date string
+    end?: string;            // ISO date string
+  };
+  maxResults?: number;       // Maximum results to return
+  page?: number;             // Pagination page number
+  sortBy?: string;           // Sort field
+  sortDirection?: 'asc' | 'desc'; // Sort direction
+  authenticated?: boolean;   // Whether the request is authenticated
+}
+
+// Search Result Definition
+export interface SearchResult {
+  id: string;                // Unique identifier
+  type: 'entity' | 'relationship' | 'event' | 'document' | 'media'; // Result type
+  title: string;             // Result title
+  snippet: string;           // Result snippet/preview
+  source: string;            // Data source
+  timestamp: string;         // ISO date string
+  confidence: number;        // Confidence score (0-1)
+  score?: number;            // Search relevance score
+  url?: string;              // Result URL
+  entityIds?: string[];      // Related entity IDs
+  metadata: Record<string, unknown>; // Additional metadata
+}
+
 // Entity Types
 export type EntityType = 
   | 'person'      // Individual
