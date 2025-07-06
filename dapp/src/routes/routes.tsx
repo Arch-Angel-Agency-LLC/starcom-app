@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import MainPage from '../pages/MainPage/MainPage';
 import SettingsPage from '../pages/SettingsPage/SettingsPage';
 import IntelReportsPage from '../pages/IntelReportsPage';
@@ -11,30 +11,59 @@ import CyberInvestigationMVP from '../components/CyberInvestigation/CyberInvesti
 import IPFSNostrIntegrationDemo from '../components/Demo/IPFSNostrIntegrationDemo';
 import ChatDemoPage from '../pages/Demo/ChatDemoPage';
 
-// New page imports
-import TeamsDashboard from '../pages/Teams/TeamsDashboard';
+// Standalone page imports
 import TeamWorkspace from '../pages/Teams/TeamWorkspace';
 import InvestigationsDashboard from '../pages/Investigations/InvestigationsDashboard';
 import IntelDashboard from '../pages/Intel/IntelDashboard';
-import NewReportPage from '../pages/Reports/NewReportPage'; // Import the new report page
+import NewReportPage from '../pages/Reports/NewReportPage';
 
 // Layout imports
 import BaseLayout from '../layouts/BaseLayout/BaseLayout';
 
+/**
+ * Main routing component for the application
+ * 
+ * We use a nested route structure to handle the main application screens:
+ * - The parent route (/) renders MainPage which contains the navigation and layout
+ * - Each child route represents a specific screen within MainPage
+ * - The RouteSynchronizer component ensures URL routes and ViewContext stay in sync
+ */
 const AppRoutes: React.FC = () => (
   <Routes>
-    {/* Primary Globe Interface - unchanged */}
-    <Route path="/" element={<MainPage />} />
+    {/* Main Application Routes - Using nested routes for better organization */}
+    <Route path="/" element={<MainPage />}>
+      {/* Default screen (Globe) */}
+      <Route index element={null} /> {/* Empty element - MainPage handles the actual rendering */}
+      
+      {/* Main screens with support for parameters */}
+      <Route path="netrunner" element={null} />
+      <Route path="netrunner/:searchQuery" element={null} />
+      <Route path="analyzer" element={null} />
+      <Route path="nodeweb" element={null} />
+      <Route path="nodeweb/:nodeId" element={null} />
+      <Route path="timeline" element={null} />
+      <Route path="timeline/:timeframeId" element={null} />
+      <Route path="cases" element={null} />
+      <Route path="cases/:caseId" element={null} />
+      <Route path="teams" element={null} />
+      <Route path="teams/:teamId" element={null} />
+      <Route path="aiagent" element={null} />
+      <Route path="bots" element={null} />
+      <Route path="bots/:botId" element={null} />
+    </Route>
     
-    {/* Team Management Routes */}
-    <Route path="/teams" element={
-      <ProtectedRoute>
-        <BaseLayout>
-          <TeamsDashboard />
-        </BaseLayout>
-      </ProtectedRoute>
-    } />
-    <Route path="/teams/:teamId" element={
+    {/* Settings Routes - Also using nested routes */}
+    <Route path="/settings" element={<SettingsPage />}>
+      <Route index element={<Navigate to="/settings/profile" replace />} />
+      <Route path="profile" element={null} />
+      <Route path="appearance" element={null} />
+      <Route path="security" element={null} />
+      <Route path="notifications" element={null} />
+      <Route path="advanced" element={null} />
+    </Route>
+    
+    {/* Legacy and Standalone Routes - These use their own components */}
+    <Route path="/team/:teamId" element={
       <ProtectedRoute>
         <BaseLayout>
           <TeamWorkspace />
@@ -42,7 +71,6 @@ const AppRoutes: React.FC = () => (
       </ProtectedRoute>
     } />
     
-    {/* Investigation Management Routes */}
     <Route path="/investigations" element={
       <ProtectedRoute>
         <BaseLayout>
@@ -50,6 +78,7 @@ const AppRoutes: React.FC = () => (
         </BaseLayout>
       </ProtectedRoute>
     } />
+    
     <Route path="/investigations/:investigationId" element={
       <ProtectedRoute>
         <BaseLayout>
@@ -58,7 +87,6 @@ const AppRoutes: React.FC = () => (
       </ProtectedRoute>
     } />
     
-    {/* Intel Management Routes */}
     <Route path="/intel" element={
       <ProtectedRoute>
         <BaseLayout>
@@ -66,6 +94,7 @@ const AppRoutes: React.FC = () => (
         </BaseLayout>
       </ProtectedRoute>
     } />
+    
     <Route path="/intel/:reportId" element={
       <ProtectedRoute>
         <BaseLayout>
@@ -74,7 +103,6 @@ const AppRoutes: React.FC = () => (
       </ProtectedRoute>
     } />
     
-    {/* Report creation for team intel */}
     <Route path="/team/:teamId/new-report" element={
       <ProtectedRoute>
         <BaseLayout>
@@ -83,22 +111,18 @@ const AppRoutes: React.FC = () => (
       </ProtectedRoute>
     } />
     
-    {/* Existing routes */}
-    <Route path="/settings" element={
-      <ProtectedRoute>
-        <SettingsPage />
-      </ProtectedRoute>
-    } />
     <Route path="/intelreports" element={
       <ProtectedRoute>
         <IntelReportsPage />
       </ProtectedRoute>
     } />
+    
     <Route path="/cyber-investigation" element={
       <ProtectedRoute>
         <CyberInvestigationMVP />
       </ProtectedRoute>
     } />
+    
     <Route path="/token-gated" element={
       <ProtectedRoute>
         <TokenGatedPage />
@@ -111,6 +135,9 @@ const AppRoutes: React.FC = () => (
     <Route path="/chat-demo" element={<ChatDemoPage />} />
     <Route path="/test-ui" element={<UXFlowIntegrationTest />} />
     <Route path="/ux-test" element={<UXFlowIntegrationTest />} />
+    
+    {/* Catch-all route - redirect to home */}
+    <Route path="*" element={<Navigate to="/" replace />} />
   </Routes>
 );
 
