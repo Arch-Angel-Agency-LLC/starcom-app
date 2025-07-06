@@ -12,6 +12,9 @@ import { UnifiedGlobalCommandProvider } from "./context/UnifiedGlobalCommandCont
 import { InvestigationProvider } from "./context/InvestigationContext";
 import { GlobalGlobeContextMenuProvider } from "./context/GlobalGlobeContextMenuProvider";
 import { RightSideBarProvider } from "./context/RightSideBarContext";
+import { ViewProvider } from "./context/ViewContext";
+import { SecureChatProvider } from "./communication/context/SecureChatContext";
+import RouteSynchronizer from "./components/Navigation/RouteSynchronizer";
 import SettingsInitializer from "./components/SettingsInitializer";
 import SettingsStatusIndicator from "./components/SettingsStatusIndicator";
 import PreloaderManager from "./components/Preloader/PreloaderManager";
@@ -45,6 +48,7 @@ const AppContent: React.FC = () => {
     <>
       <SettingsInitializer />
       <BrowserRouter>
+        <RouteSynchronizer />
         <AppRoutes />
       </BrowserRouter>
       <SettingsStatusIndicator />
@@ -69,9 +73,13 @@ const App: React.FC = () => (
                         <InvestigationProvider>
                           <GlobalGlobeContextMenuProvider>
                             <RightSideBarProvider>
-                              <div data-testid="app-root">
-                                <AppContent />
-                              </div>
+                              <ViewProvider>
+                                <SecureChatProvider>
+                                  <div data-testid="app-root">
+                                    <AppContent />
+                                  </div>
+                                </SecureChatProvider>
+                              </ViewProvider>
                             </RightSideBarProvider>
                           </GlobalGlobeContextMenuProvider>
                         </InvestigationProvider>

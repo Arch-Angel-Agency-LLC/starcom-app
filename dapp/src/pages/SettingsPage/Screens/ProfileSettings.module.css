@@ -1,0 +1,139 @@
+.profileSettings {
+  padding: 20px;
+  max-width: 800px;
+}
+
+.profileSettings h2 {
+  margin-bottom: 24px;
+  color: var(--color-blue-400);
+  font-size: 1.8rem;
+}
+
+.settingSection {
+  margin-bottom: 32px;
+  background: rgba(30, 40, 60, 0.3);
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid rgba(60, 80, 120, 0.3);
+}
+
+.settingSection h3 {
+  margin-bottom: 16px;
+  color: var(--color-blue-300);
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.settingGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.setting {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.setting label {
+  font-size: 0.9rem;
+  color: var(--color-gray-200);
+}
+
+.setting input[type="text"],
+.setting input[type="email"],
+.setting select,
+.setting textarea {
+  background: rgba(20, 30, 50, 0.5);
+  border: 1px solid rgba(60, 80, 120, 0.4);
+  border-radius: 4px;
+  color: var(--color-gray-100);
+  padding: 8px 12px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.setting input[type="text"]:focus,
+.setting input[type="email"]:focus,
+.setting select:focus,
+.setting textarea:focus {
+  border-color: var(--color-blue-400);
+  box-shadow: 0 0 0 2px rgba(80, 150, 255, 0.2);
+}
+
+.setting textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.avatarSection {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.currentAvatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: rgba(40, 60, 100, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 2px solid rgba(100, 150, 200, 0.4);
+}
+
+.avatarPlaceholder {
+  font-size: 48px;
+  color: var(--color-gray-300);
+}
+
+.avatarControls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+.primaryButton {
+  background: linear-gradient(to bottom, #3880ff, #2872e0);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.primaryButton:hover {
+  background: linear-gradient(to bottom, #4d90ff, #3880ff);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.secondaryButton {
+  background: rgba(50, 70, 100, 0.3);
+  color: var(--color-blue-200);
+  border: 1px solid rgba(80, 120, 180, 0.4);
+  border-radius: 4px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.secondaryButton:hover {
+  background: rgba(60, 80, 120, 0.4);
+  color: var(--color-blue-100);
+}

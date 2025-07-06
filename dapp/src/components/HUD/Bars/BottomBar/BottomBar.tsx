@@ -2,12 +2,14 @@ import React from 'react';
 import { useView, ViewMode } from '../../../../context/ViewContext';
 import { useCollaboration } from '../../../../hooks/useUnifiedGlobalCommand';
 import { useFeatureFlag } from '../../../../utils/featureFlags';
+import { useViewNavigation } from '../../../../hooks/navigation/useViewNavigation';
 import styles from './BottomBar.module.css';
 
 export const BottomBar: React.FC = () => {
   const { currentView, setCurrentView } = useView();
   const { isConnected } = useCollaboration();
   const aiSuggestionsEnabled = useFeatureFlag('aiSuggestionsEnabled');
+  const { navigateToView } = useViewNavigation();
   
   // Check if user has visited teams page to hide new user hints
   const hasVisitedTeams = localStorage.getItem('starcom-visited-teams');
@@ -31,9 +33,12 @@ export const BottomBar: React.FC = () => {
       status: aiSuggestionsEnabled ? 'active' : 'available'
     },
     { id: 'bots', label: '🤖 Bots', view: 'bots' as ViewMode, tooltip: 'AI agents and automation' },
+    { id: 'netrunner', label: '🌐 NetRunner', view: 'netrunner' as ViewMode, tooltip: 'Advanced online search and reconnaissance' },
+    { id: 'info-gathering', label: '🔍 Info Gathering', view: 'info-gathering' as ViewMode, tooltip: 'Collect information from various sources' },
+    { id: 'info-analysis', label: '📈 Info Analysis', view: 'info-analysis' as ViewMode, tooltip: 'Analyze collected information' },
     { id: 'node-web', label: '🕸️ Node Web', view: 'node-web' as ViewMode, tooltip: 'Network topology and connections' },
-    { id: 'osint', label: '🔍 OSINT', view: 'osint' as ViewMode, tooltip: 'Online OSINT Cyber Investigation Suite' },
-    { id: 'investigations', label: '🔍 Cases', view: 'investigations' as ViewMode, tooltip: 'Active investigations' },
+    { id: 'timeline', label: '📅 Timeline', view: 'timeline' as ViewMode, tooltip: 'Chronological event analysis' },
+    { id: 'cases', label: '📁 Cases', view: 'cases' as ViewMode, tooltip: 'Case management and tracking' },
     { id: 'intel', label: '📊 Intel', view: 'intel' as ViewMode, tooltip: 'Intelligence reports' }
   ];
 
@@ -44,7 +49,11 @@ export const BottomBar: React.FC = () => {
       localStorage.setItem('starcom-hint-seen', 'true');
     }
     
+    // Update the current view in context
     setCurrentView(view);
+    
+    // Navigate to the corresponding route
+    navigateToView(view);
   };
 
   return (
