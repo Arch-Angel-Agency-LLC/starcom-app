@@ -1,92 +1,346 @@
-# STARCOM Documentation Index
+# Starcom Earth Alliance Documentation Hub
 
-Welcome to the comprehensive documentation for the STARCOM project - a decentralized intelligence exchange platform.
+**Mission-Critical Documentation for Global Civilian Resistance Operations**
 
-## 📁 Documentation Structure
+Welcome to the Earth Alliance Starcom platform documentation - designed for efficient AI agent navigation and operative reference in the fight against transnational crime syndicates.
 
-### 🏗️ Architecture
-- [`ARCHITECTURE-DIAGRAM.md`](./architecture/ARCHITECTURE-DIAGRAM.md) - Complete system architecture diagram
-
-### 🚀 Deployment
-- [`SERVERLESS-DEPLOYMENT-GUIDE.md`](./deployment/SERVERLESS-DEPLOYMENT-GUIDE.md) - Serverless deployment instructions
-- [`EMERGENCY-INTERN-DEPLOYMENT.md`](./deployment/EMERGENCY-INTERN-DEPLOYMENT.md) - Emergency deployment procedures
-
-### 🎨 UI/UX Design
-- [`UI-SUPERSTRUCTURE-ARCHITECTURE.md`](./ui-ux/UI-SUPERSTRUCTURE-ARCHITECTURE.md) - UI architecture plan
-- [`UI-SUPERSTRUCTURE-IMPLEMENTATION-GUIDE.md`](./ui-ux/UI-SUPERSTRUCTURE-IMPLEMENTATION-GUIDE.md) - Implementation guide
-- [`UI-SUPERSTRUCTURE-ACTION-PLAN.md`](./ui-ux/UI-SUPERSTRUCTURE-ACTION-PLAN.md) - Action plan
-
-### 👥 Team Collaboration
-- [`TEAM-COLLABORATION-GUIDE.md`](./team-collaboration/TEAM-COLLABORATION-GUIDE.md) - Team collaboration guidelines
-
-### 📊 Project Management
-- [`RESTRUCTURE-SUMMARY.md`](./project-management/RESTRUCTURE-SUMMARY.md) - Project restructure summary
-- [`INTEL-REPORTS-SECOND-PASS-COMPLETION.md`](./project-management/INTEL-REPORTS-SECOND-PASS-COMPLETION.md) - Intel reports completion status
-- [`VISUALIZATION-MODE-IMPLEMENTATION-COMPLETE.md`](./project-management/VISUALIZATION-MODE-IMPLEMENTATION-COMPLETE.md) - Visualization mode completion
-
-### 🌐 dApp Documentation
-- [`MVP-IMPLEMENTATION-PLAN.md`](./dapp/MVP-IMPLEMENTATION-PLAN.md) - MVP implementation plan
-- [`ADVANCED-3D-TOUCH-INTERFACE-REDESIGN.md`](./dapp/ADVANCED-3D-TOUCH-INTERFACE-REDESIGN.md) - 3D touch interface redesign
-- [`TEAM-COLLABORATION-IMPLEMENTATION-COMPLETE.md`](./dapp/TEAM-COLLABORATION-IMPLEMENTATION-COMPLETE.md) - Team collaboration implementation
-- [`WEEK1-IMPLEMENTATION-TASKS.md`](./dapp/WEEK1-IMPLEMENTATION-TASKS.md) - Week 1 implementation tasks
-
-#### 💬 Multi-Protocol Chat System
-- [`MULTI-PROTOCOL-CHAT-DEVELOPMENT-PHASES.md`](./dapp/docs/MULTI-PROTOCOL-CHAT-DEVELOPMENT-PHASES.md) - Development phase overview
-- [`chat-system-audit-report.md`](./dapp/docs/chat-system-audit-report.md) - Initial system audit
-- [`PHASE-0-EMERGENCY-STABILIZATION.md`](./dapp/docs/chat-system-phases/PHASE-0-EMERGENCY-STABILIZATION.md) - Emergency fixes
-- [`PHASE-1-UNIFIED-ADAPTER-ARCHITECTURE.md`](./dapp/docs/chat-system-phases/PHASE-1-UNIFIED-ADAPTER-ARCHITECTURE.md) - Adapter pattern implementation
-- [`PHASE-2-UNIFIED-MESSAGE-STORE-CONTEXT.md`](./dapp/docs/chat-system-phases/PHASE-2-UNIFIED-MESSAGE-STORE-CONTEXT.md) - Message store & context provider
-- [`PHASE-3-PROTOCOL-SELECTION-FALLBACK.md`](./dapp/docs/chat-system-phases/PHASE-3-PROTOCOL-SELECTION-FALLBACK.md) - Protocol selection & fallbacks
-- [`PHASE-4-PROTOCOL-SELECTION-SETTINGS.md`](./dapp/docs/chat-system-phases/PHASE-4-PROTOCOL-SELECTION-SETTINGS.md) - Settings & identity management
-- [`PHASE-5-ENHANCED-FEATURES.md`](./dapp/docs/chat-system-phases/PHASE-5-ENHANCED-FEATURES.md) - Enhanced features & optimization
-- [`PHASE-6-ADVANCED-EXTENSIONS.md`](./dapp/docs/chat-system-phases/PHASE-6-ADVANCED-EXTENSIONS.md) - Voice/video, AI, external integrations
-
-#### 📊 Intel Reports 3D System
-- [`INTEL-REPORTS-3D-CONSOLIDATION-PLAN.md`](./dapp/INTEL-REPORTS-3D-CONSOLIDATION-PLAN.md) - Context-aware consolidation strategy
-- [`INTEL-REPORTS-3D-IMPLEMENTATION-GUIDE.md`](./dapp/INTEL-REPORTS-3D-IMPLEMENTATION-GUIDE.md) - Detailed implementation guide
-- [`INTEL-REPORTS-3D-ARCHITECTURE-ANALYSIS.md`](./dapp/INTEL-REPORTS-3D-ARCHITECTURE-ANALYSIS.md) - Architecture analysis & migration plan
-- [`INTEL-REPORTS-3D-DEVELOPMENT-PROGRESS.md`](./dapp/INTEL-REPORTS-3D-DEVELOPMENT-PROGRESS.md) - Live development progress tracking
-- [`INTEL-REPORTS-3D-DEVELOPER-CHEAT-SHEET.md`](./dapp/INTEL-REPORTS-3D-DEVELOPER-CHEAT-SHEET.md) - Developer quick reference guide
-- [`INTEL-REPORTS-3D-SERVICE-ARCHITECTURE.md`](./dapp/INTEL-REPORTS-3D-SERVICE-ARCHITECTURE.md) - Service layer architecture specification
-
-#### 🌍 3D Globe System
-- [`ENHANCED-3D-GLOBE-INTERACTION-SYSTEM.md`](./dapp/3d-globe/ENHANCED-3D-GLOBE-INTERACTION-SYSTEM.md) - Enhanced globe interaction system
-- [`STARCOM-GLOBE-3D-FIX-COMPLETE.md`](./dapp/3d-globe/STARCOM-GLOBE-3D-FIX-COMPLETE.md) - Globe 3D fixes completion
-- [`STARCOM-GLOBE-V2-COMPLETE-OVERHAUL.md`](./dapp/3d-globe/STARCOM-GLOBE-V2-COMPLETE-OVERHAUL.md) - Globe V2 complete overhaul
-- [`GLOBE-3D-INTERACTION-TEST-SUMMARY.md`](./dapp/3d-globe/GLOBE-3D-INTERACTION-TEST-SUMMARY.md) - Globe interaction test summary
-- [`GLOBE-INTERACTION-RACE-CONDITION-FIX.md`](./dapp/3d-globe/GLOBE-INTERACTION-RACE-CONDITION-FIX.md) - Race condition fixes
-
-#### 🔗 Integration
-- [`IPFS-NOSTR-INTEGRATION-STATUS.md`](./dapp/integration/IPFS-NOSTR-INTEGRATION-STATUS.md) - IPFS-Nostr integration status
-- [`SUBNET-GATEWAY-ARCHETYPES.md`](./dapp/integration/SUBNET-GATEWAY-ARCHETYPES.md) - Subnet gateway archetypes
-- [`SUBNET-GATEWAY-IMPLEMENTATION-STATUS.md`](./dapp/integration/SUBNET-GATEWAY-IMPLEMENTATION-STATUS.md) - Subnet gateway implementation status
-
-#### 🔨 Build Reports
-- [`BUILD-FIX-SUMMARY.md`](./dapp/build-reports/BUILD-FIX-SUMMARY.md) - Build fix summary
-- [`BUILD-SUCCESS-REPORT.md`](./dapp/build-reports/BUILD-SUCCESS-REPORT.md) - Build success report
-
-### 🤖 AI Security RelayNode
-- [`NEWCOMER-GUIDE.md`](./ai-security-relaynode/NEWCOMER-GUIDE.md) - Newcomer guide
-- [`README-DEVELOPMENT.md`](./ai-security-relaynode/README-DEVELOPMENT.md) - Development documentation
-- [`BUILD-SUCCESS-REPORT.md`](./ai-security-relaynode/BUILD-SUCCESS-REPORT.md) - Build success report
-- [`DEVELOPMENT-ROADMAP.md`](./ai-security-relaynode/DEVELOPMENT-ROADMAP.md) - Development roadmap
-- [`FINAL-STATUS-REPORT.md`](./ai-security-relaynode/FINAL-STATUS-REPORT.md) - Final status report
-- [`IMPLEMENTATION-GUIDE.md`](./ai-security-relaynode/IMPLEMENTATION-GUIDE.md) - Implementation guide
-- [`TESTING-STRATEGY.md`](./ai-security-relaynode/TESTING-STRATEGY.md) - Testing strategy
-
-## 📋 Quick Start
-
-1. Begin with [`PROJECT-OVERVIEW.md`](./PROJECT-OVERVIEW.md) for a comprehensive project overview
-2. Review the [`ARCHITECTURE-DIAGRAM.md`](./architecture/ARCHITECTURE-DIAGRAM.md) to understand the system architecture
-3. For development, consult the relevant component documentation:
-   - dApp development: Start with [`MVP-IMPLEMENTATION-PLAN.md`](./dapp/MVP-IMPLEMENTATION-PLAN.md)
-   - AI RelayNode development: Start with [`NEWCOMER-GUIDE.md`](./ai-security-relaynode/NEWCOMER-GUIDE.md)
-4. For deployment: Review the [`SERVERLESS-DEPLOYMENT-GUIDE.md`](./deployment/SERVERLESS-DEPLOYMENT-GUIDE.md)
-
-## 🔄 Document Updates
-
-This documentation structure was organized on June 28, 2025, to provide better navigation and organization of the project's extensive documentation. All documents maintain their original content while being reorganized for improved accessibility.
+**Context**: SOCOM cybersecurity standards are used as security baseline - enhanced for decentralized civilian resistance operations.
 
 ---
 
-*For additional information or questions about the documentation structure, please refer to the individual documents or the project's main README.*
+## 🌍 **Earth Alliance Quick Start for AI Agents**
+
+1. **Mission Context**: Read `EARTH-ALLIANCE-MISSION-ANALYSIS.md` for complete mission understanding
+2. **Current Status**: Check `BUILD-STATUS.md` and cache artifacts for operational state  
+3. **Security Baseline**: Understand SOCOM standards are minimum requirements, not operational authority
+4. **Project Conventions**: Reference `.primer` for Earth Alliance terminology and protocols
+5. **Onboarding**: Use `.onboarding` for immediate deployment context
+
+---
+
+## 🎯 **Mission-Critical Documentation**
+
+### **Earth Alliance Operations**
+- **[Earth Alliance Mission Analysis](./EARTH-ALLIANCE-MISSION-ANALYSIS.md)** - Complete mission context and objectives
+- **[Build Status](./BUILD-STATUS.md)** - Current operational readiness and development status  
+- **[Security Analysis](./COMPREHENSIVE-SECURITY-GAP-ANALYSIS.md)** - Security posture assessment
+- **[Current Status Report](./CURRENT-STATUS-REPORT.md)** - Latest mission status and priorities
+
+### **Technical Implementation**
+- **[HTTP-Nostr Bridge Plan](./HTTP-NOSTR-BRIDGE-IMPLEMENTATION-PLAN.md)** - Censorship-resistant communications
+- **[Reality Check Analysis](./REALITY-CHECK-HIDDEN-ELEPHANTS.md)** - Technical constraints and solutions
+- **[Platform Integration](./NOSTR-PQC-IPFS-SERVERLESS-INTEGRATION-ANALYSIS.md)** - Complete architecture analysis
+
+### **Multi-Protocol Chat System**
+- **[Development Phases](./MULTI-PROTOCOL-CHAT-DEVELOPMENT-PHASES.md)** - Complete multi-phase development plan
+- **[Chat System Audit Report](./chat-system-audit-report.md)** - Detailed analysis of the current chat system
+- **[Project-Wide Technical Debt](./chat-system-phases/PROJECT-WIDE-TECHNICAL-DEBT.md)** - Analysis of fundamental architectural issues
+- **[Phase 0: Emergency Stabilization](./chat-system-phases/PHASE-0-EMERGENCY-STABILIZATION.md)** - Critical fixes and immediate stability improvements
+- **[Phase 1: Unified Adapter Architecture](./chat-system-phases/PHASE-1-UNIFIED-ADAPTER-ARCHITECTURE.md)** - Protocol-agnostic adapter implementation
+- **[Phase 2: Unified Message Store](./chat-system-phases/PHASE-2-UNIFIED-MESSAGE-STORE-CONTEXT.md)** - Cross-protocol data layer
+- **[Phase 3: Protocol Selection & Fallback](./chat-system-phases/PHASE-3-PROTOCOL-SELECTION-FALLBACK.md)** - Intelligent protocol switching
+- **[Phase 4: Settings & Identity](./chat-system-phases/PHASE-4-PROTOCOL-SELECTION-SETTINGS.md)** - Cross-protocol identity management
+- **[Phase 5: Enhanced Features](./chat-system-phases/PHASE-5-ENHANCED-FEATURES.md)** - Advanced functionality and optimizations
+- **[Phase 6: Advanced Extensions](./chat-system-phases/PHASE-6-ADVANCED-EXTENSIONS.md)** - Voice/video, AI features and external integrations
+- **[Floating Chat Button Positioning](./floating-chat-button-dynamic-positioning.md)** - Dynamic chat button positioning relative to RightSideBar
+
+---
+
+## 📚 **Documentation Structure**
+
+### **Core References** 
+- **[API Documentation](./api/)** - Components, hooks, services, interfaces
+- **[Development Guide](./development/)** - Setup, architecture, testing, contributing
+- **[User Documentation](./user/)** - Getting started, features, troubleshooting
+- **[Deployment Guide](./deployment/)** - Production, staging, monitoring
+
+### **Historical Archive**
+- **[Project Reports](./project-reports/)** - Phase reports, status updates, analysis
+- **[Archived Documentation](./archived/)** - Legacy docs and deprecated content
+
+---
+
+## 🛡️ **Earth Alliance AI Agent Navigation Guide**
+
+### **For Resistance Operations Development**
+1. Check **Mission Analysis** docs for Earth Alliance context and objectives
+2. Review **Security Analysis** for quantum-safe, censorship-resistant requirements  
+3. Verify **SOCOM baseline** compliance while exceeding with decentralized enhancements
+4. Use **Build Status** for current operational readiness
+
+### **For Feature Development**
+1. Check **Earth Alliance** requirements first - mission-critical features prioritized
+2. Review **API docs** for existing resistance-focused components/services
+3. Ensure **decentralized architecture** - no single points of failure
+4. Update relevant docs after implementation with Earth Alliance context
+
+### **For Security Implementation**  
+1. **Quantum-Safe First**: Post-quantum cryptography mandatory
+2. **Censorship-Resistant**: Multiple communication pathways required
+3. **SOCOM Baseline**: Military cybersecurity as minimum standard
+4. **Enhanced Decentralized**: Exceed centralized security through distribution
+
+### **For Troubleshooting**
+1. Check **Reality Check** docs for known technical constraints
+2. Review **Build Status** for current operational blockers
+3. Use **safe test runner** protocols for Earth Alliance operations
+4. Prioritize **mission-critical** functionality over convenience features
+
+---
+
+## 📋 **Earth Alliance Documentation Standards**
+
+- **Mission-Driven**: All docs linked to Earth Alliance objectives and resistance operations
+- **Security-First**: SOCOM baseline compliance with quantum-safe enhancements  
+- **Decentralized**: No central authorities or single points of failure
+- **AI-NOTE Comments**: Context for future agents working on resistance platform
+- **Structured TODOs**: `TODO: [EARTH-ALLIANCE-QUESTION] — [FILE/ARTIFACT]`
+- **Consistent Naming**: Follow `.primer` Earth Alliance conventions
+- **Regular Updates**: Maintained by onboarding automation for operational readiness
+
+---
+
+## 🔧 **Maintenance Protocol**
+
+This Earth Alliance documentation structure is maintained through:
+- Automated onboarding script (`scripts/onboard.cjs`) - operational readiness
+- Regular consolidation focused on mission-critical information
+- AI agent protocols for Earth Alliance context preservation  
+- Artifact-driven development patterns for resistance operations
+- SOCOM security baseline with decentralized enhancements
+
+*Last Updated: June 25, 2025*  
+*AI-NOTE: Documentation optimized for Earth Alliance resistance operations against transnational crime syndicate. SOCOM standards provide security baseline only.*
+
+---
+
+## 📚 Documentation Structure
+
+### 👥 [User Documentation](./user/)
+Documentation for end users of the application.
+
+- **[User Guide](./user/guide.md)** - Complete guide to using the application
+- **[Getting Started](./user/getting-started.md)** - Quick start guide (planned)
+- **[Troubleshooting](./user/troubleshooting.md)** - Common issues and solutions (planned)
+
+### 🛠️ [Development Documentation](./development/)
+Technical documentation for developers working on the project.
+
+- **[Architecture](./development/architecture.md)** - System architecture overview
+- **[Features](./development/features.md)** - Detailed feature implementation guide
+- **[Implementation History](./development/implementation-history.md)** - Project timeline and decisions
+- **[Testing Guide](./development/testing.md)** - Testing strategies and procedures (planned)
+- **[Contributing](./development/contributing.md)** - Guidelines for contributors (planned)
+
+### 🔧 [API Documentation](./api/)
+Reference documentation for developers integrating with or extending the application.
+
+- **[API Reference](./api/reference.md)** - Complete API documentation
+- **[Component API](./api/components.md)** - React component interfaces (planned)
+- **[Hooks API](./api/hooks.md)** - Custom React hooks documentation (planned)
+
+### 🚀 [Deployment Documentation](./deployment/)
+Guides for deploying and operating the application.
+
+- **[Production Deployment](./deployment/production.md)** - Production deployment guide
+- **[Staging Environment](./deployment/staging.md)** - Staging setup and procedures (planned)
+- **[Monitoring](./deployment/monitoring.md)** - Operations and monitoring guide (planned)
+
+### 📁 [Archived Documentation](./archived/)
+Historical documentation preserved for reference.
+
+- Implementation reports from various development phases
+- Recent bug fixes and implementation summaries (Solar Flare, Context Persistence, UI Modernization)
+- Migration guides for completed transitions
+- Deprecated feature documentation
+- Legacy system documentation
+
+*See [`archived/README.md`](./archived/README.md) for complete index*
+
+---
+
+## 🔍 Quick Navigation
+
+### I want to...
+
+#### **Use the Application**
+→ Start with [User Guide](./user/guide.md)
+
+#### **Understand the System**
+→ Read [Architecture Overview](./development/architecture.md)
+
+#### **Implement a Feature**
+→ Check [Features Guide](./development/features.md)
+
+#### **Integrate or Extend**
+→ Browse [API Reference](./api/reference.md)
+
+#### **Deploy to Production**
+→ Follow [Deployment Guide](./deployment/production.md)
+
+#### **Debug an Issue**
+→ Use [User Guide Troubleshooting](./user/guide.md#troubleshooting) or [Development Testing](./development/features.md#ai-testing-framework)
+
+#### **Understand Project History**
+→ Review [Implementation History](./development/implementation-history.md)
+
+---
+
+## 🎯 Key Features
+
+### Core Application Features
+- **3D Globe Visualization** - Interactive globe with real-time data overlays
+- **HUD Interface** - Sophisticated heads-up display with contextual information
+- **Space Weather Integration** - Real-time NOAA space weather data and visualization
+- **Financial Data Feeds** - Live market data, commodities, and cryptocurrency prices
+- **AI Testing Framework** - Autonomous UI testing with safety monitoring
+- **Feature Flag System** - Safe feature rollout and configuration management
+
+### Development Features
+- **TypeScript Throughout** - Full type safety and excellent developer experience
+- **Comprehensive Testing** - Unit, integration, E2E, and AI-powered testing
+- **Performance Monitoring** - Real-time performance metrics and optimization
+- **Security Hardening** - Enterprise-grade security measures and monitoring
+- **Diagnostics Mode** - Toggle for development tools and testing UI
+
+---
+
+## 🔧 Quick Reference
+
+### Essential Commands
+```bash
+# Development
+npm run dev                    # Start development server
+npm run build                 # Production build
+npm run test                  # Run all tests
+npm run test:ai-agent         # Run AI testing framework
+
+# Development Tools
+Ctrl+Shift+D                  # Toggle diagnostics mode
+npm run type-check            # TypeScript validation
+npm run lint                  # Code quality check
+```
+
+### Key Directories in Source Code
+```
+src/
+├── components/HUD/           # User interface components
+├── components/Globe/         # 3D visualization
+├── testing/ai-agent/         # AI testing framework
+├── utils/featureFlags.ts     # Feature flag management
+└── layouts/HUDLayout/        # Main application layout
+```
+
+### Important Configuration
+- **Feature Flags**: Managed in `src/utils/featureFlags.ts`
+- **Build Config**: `vite.config.ts` and `package.json`
+- **TypeScript**: `tsconfig.json` with strict mode enabled
+- **Testing**: Vitest + Playwright configuration
+
+---
+
+## 📋 Documentation Standards
+
+### Writing Guidelines
+- **Clear Purpose**: Each document states its purpose at the top
+- **Living Documents**: Regular updates rather than creating new files
+- **Cross-References**: Link to related documentation
+- **Code Examples**: Include practical usage examples
+- **Date Stamps**: Keep track of when documents were last updated
+
+### Naming Conventions
+- **Kebab Case**: `feature-implementation-guide.md`
+- **Descriptive Names**: Avoid abbreviations and codes
+- **Categorized Structure**: Directory organization indicates content type
+- **Archived Files**: Date-prefixed for historical documents
+
+### Maintenance
+- **Quarterly Review**: Check for outdated information
+- **Link Validation**: Ensure all internal links work
+- **Content Consolidation**: Merge redundant information
+- **Archive Management**: Move completed project docs to archive
+
+---
+
+## 🤝 Contributing to Documentation
+
+### Before Adding New Documentation
+1. **Check Existing Docs**: Can current documentation be updated instead?
+2. **Clear Purpose**: Ensure the document solves a specific problem
+3. **Proper Location**: Place in the appropriate directory
+4. **Follow Standards**: Use established formatting and naming conventions
+
+### When Updating Documentation
+1. **Update Date Stamps**: Modify "Last Updated" dates
+2. **Cross-Reference Updates**: Update related documents if needed
+3. **Version Control**: Commit documentation changes with descriptive messages
+4. **Review Process**: Have changes reviewed like code changes
+
+---
+
+## 📞 Getting Help
+
+### Documentation Issues
+- **Missing Information**: Check if it exists in archived documentation
+- **Outdated Content**: Submit an issue or pull request to update
+- **Organization Problems**: Suggest improvements to the structure
+
+### Technical Support
+- **Development Issues**: See [Features Guide](./development/features.md) and [API Reference](./api/reference.md)
+- **Deployment Problems**: Check [Deployment Guide](./deployment/production.md)
+- **User Questions**: Start with [User Guide](./user/guide.md)
+
+### Project Resources
+- **Source Code**: Main application repository
+- **Issue Tracker**: Report bugs and request features
+- **Discussions**: Community discussions and Q&A
+- **Documentation Repository**: This documentation source
+
+---
+
+## 📊 Documentation Health
+
+### Current Status
+- ✅ **Well Organized**: Clear structure and navigation
+- ✅ **Comprehensive Coverage**: All major features documented
+- ✅ **Regular Maintenance**: Quarterly review process established
+- ✅ **User Focused**: Both end-user and developer documentation
+- ✅ **Quality Standards**: Consistent formatting and naming
+
+### Metrics
+- **Total Documents**: ~12 core documents (down from 135+ scattered files)
+- **Coverage**: All major features and APIs documented
+- **Maintenance**: Quarterly review schedule established
+- **Accessibility**: Clear navigation and search-friendly structure
+
+---
+
+*This documentation hub is designed to be the single source of truth for all Starcom MK2 information. If you can't find what you're looking for, please suggest improvements or additions.*
+
+---
+
+## 🔐 **SOCOM Standards Clarification**
+
+**IMPORTANT**: References to SOCOM (Special Operations Command) in this codebase are **SECURITY BASELINE ONLY**.
+
+### **Why SOCOM Standards?**
+- **Baseline Security**: Military cybersecurity requirements provide rigorous minimum standards
+- **Proven Framework**: Battle-tested security protocols for high-threat environments  
+- **Comprehensive Coverage**: Addresses authentication, encryption, audit, and operational security
+- **Industry Recognition**: Widely respected cybersecurity benchmark
+
+### **Earth Alliance Enhancement**
+- **Decentralized Superiority**: Our distributed architecture exceeds centralized military security
+- **Quantum-Safe Future**: Post-quantum cryptography surpasses current military standards
+- **Censorship Resistance**: Multiple pathways provide resilience unavailable to centralized systems
+- **Global Coordination**: Civilian resistance network capabilities beyond military scope
+
+### **Operational Authority**
+- **Earth Alliance Command**: All operational decisions and mission priorities  
+- **Civilian Leadership**: Democratic resistance coordination, not military hierarchy
+- **Mission Focus**: Counter transnational crime syndicate, not support military operations
+- **Independence**: Operates beyond government control or oversight
+
+**AI-NOTE**: SOCOM references in code are security standards compliance only. Platform serves Earth Alliance civilian resistance mission exclusively.
+
+---

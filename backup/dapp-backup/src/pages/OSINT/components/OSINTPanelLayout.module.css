@@ -1,0 +1,121 @@
+.panelLayoutContainer {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.layout {
+  width: 100%;
+  height: 100%;
+}
+
+.panel {
+  background-color: rgba(16, 20, 34, 0.8);
+  border: 1px solid rgba(65, 132, 228, 0.25);
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.maximized {
+  z-index: 100;
+}
+
+.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.locked {
+  border-color: rgba(228, 65, 65, 0.25);
+}
+
+.panelHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  background-color: rgba(20, 27, 45, 0.9);
+  border-bottom: 1px solid rgba(65, 132, 228, 0.25);
+  cursor: move;
+}
+
+.panelHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dragHandle {
+  color: rgba(160, 180, 216, 0.5);
+}
+
+.panelTitle {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #e0e0e0;
+}
+
+.panelControls {
+  display: flex;
+  gap: 4px;
+}
+
+.panelControl {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  background: transparent;
+  border: none;
+  border-radius: 3px;
+  color: rgba(160, 180, 216, 0.7);
+  cursor: pointer;
+}
+
+.panelControl:hover {
+  background-color: rgba(65, 132, 228, 0.15);
+  color: #e0e0e0;
+}
+
+.panelContent {
+  flex-grow: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Override react-grid-layout styles */
+:global(.react-grid-item.react-grid-placeholder) {
+  background: rgba(65, 132, 228, 0.2);
+  border: 1px dashed rgba(65, 132, 228, 0.5);
+  border-radius: 4px;
+}
+
+:global(.react-resizable-handle) {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%234184e4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 18 8"></polyline><path d="M22 18v-4h-4"></path><path d="M12 12H8V8"></path><path d="M2 18v-4h4"></path></svg>');
+  background-size: 12px 12px;
+  background-position: bottom right;
+  background-repeat: no-repeat;
+  bottom: 4px !important;
+  right: 4px !important;
+  width: 16px;
+  height: 16px;
+  opacity: 0.5;
+}
+
+:global(.react-resizable-handle:hover) {
+  opacity: 1;
+}
+
+:global(.react-grid-item.react-grid-item--resizing) {
+  z-index: 1;
+  border-color: rgba(65, 132, 228, 0.5);
+  box-shadow: 0 0 12px rgba(65, 132, 228, 0.3);
+}

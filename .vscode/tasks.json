@@ -1,4 +1,30 @@
 {
 	"version": "2.0.0",
-	"tasks": []
+	"tasks": [
+		{
+			"label": "Build and Run Starcom App",
+			"type": "shell",
+			"command": "npm run build && npm run dev",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"problemMatcher": ["$tsc"]
+		},
+		{
+			"label": "Build Starcom App",
+			"type": "shell",
+			"command": "npm run build",
+			"group": "build",
+			"problemMatcher": ["$tsc"]
+		},
+		{
+			"label": "Run Dev Server",
+			"type": "shell",
+			"command": "npm run dev",
+			"group": "test",
+			"isBackground": true,
+			"problemMatcher": []
+		}
+	]
 }

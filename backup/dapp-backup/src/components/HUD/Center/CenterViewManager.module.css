@@ -1,0 +1,371 @@
+/* Center View Manager Styles - Multi-Context Display System */
+
+.centerViewManager {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #0a0f1c 0%, #1a2332 100%);
+  border: 1px solid rgba(64, 224, 255, 0.2);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  pointer-events: auto; /* Ensure all child elements can be interactive */
+}
+
+/* Globe container - special styling for the embedded globe-only mode */
+.globeContainer.globeOnly {
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(64, 224, 255, 0.15);
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+/* Context Switcher Controls */
+.contextSwitcher {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+  background: rgba(15, 23, 42, 0.8);
+  border-bottom: 1px solid rgba(64, 224, 255, 0.2);
+  backdrop-filter: blur(8px);
+  z-index: 10;
+}
+
+.displayModeControls {
+  display: flex;
+  gap: 8px;
+}
+
+.displayModeControls button {
+  padding: 6px 12px;
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(64, 224, 255, 0.3);
+  border-radius: 4px;
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.displayModeControls button:hover {
+  background: rgba(64, 224, 255, 0.1);
+  color: #40e0ff;
+  border-color: rgba(64, 224, 255, 0.5);
+  transform: translateY(-1px);
+}
+
+.displayModeControls button.active {
+  background: rgba(64, 224, 255, 0.2);
+  color: #40e0ff;
+  border-color: #40e0ff;
+  box-shadow: 0 0 8px rgba(64, 224, 255, 0.3);
+}
+
+.splitControls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.splitControls button {
+  padding: 4px 8px;
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(64, 224, 255, 0.2);
+  border-radius: 3px;
+  color: #94a3b8;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.splitControls button:hover {
+  background: rgba(64, 224, 255, 0.1);
+  color: #40e0ff;
+}
+
+.splitControls button.active {
+  background: rgba(64, 224, 255, 0.15);
+  color: #40e0ff;
+  border-color: #40e0ff;
+}
+
+/* Main Display Area */
+.displayArea {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+}
+
+/* Layout Configurations */
+.singleView {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+/* Loading View */
+.loadingView {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: #94a3b8;
+  font-size: 18px;
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(4px);
+}
+
+/* Placeholder View */
+.placeholderView {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: #94a3b8;
+}
+
+.placeholderContent {
+  text-align: center;
+  max-width: 500px;
+  padding: 30px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(64, 224, 255, 0.2);
+  border-radius: 10px;
+  backdrop-filter: blur(8px);
+}
+
+.placeholderContent h2 {
+  color: #40e0ff;
+  margin-bottom: 16px;
+  font-weight: 500;
+}
+
+.placeholderContent p {
+  color: #94a3b8;
+  line-height: 1.6;
+}
+
+/* Node Graph View Styles */
+.nodeGraphView {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #0a0f1c 0%, #1a2332 100%);
+  border: 1px solid rgba(64, 224, 255, 0.2);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.nodeGraphContent {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 1rem;
+}
+
+.viewHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(64, 224, 255, 0.2);
+}
+
+.viewHeader h3 {
+  color: #40e0ff;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.viewMode {
+  color: #94a3b8;
+  font-size: 0.8rem;
+}
+
+.graphCanvas {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.graphPlaceholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #64748b;
+  gap: 2rem;
+}
+
+.nodeVisualization {
+  position: relative;
+  width: 300px;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.centralNode {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(45deg, #40e0ff, #0ea5e9);
+  color: white;
+  padding: 0.8rem 1.2rem;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  box-shadow: 0 4px 20px rgba(64, 224, 255, 0.3);
+  z-index: 2;
+}
+
+.satelliteNodes {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.node {
+  position: absolute;
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(64, 224, 255, 0.4);
+  color: #94a3b8;
+  padding: 0.5rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  backdrop-filter: blur(8px);
+}
+
+.node:nth-child(1) {
+  top: 20%;
+  left: 10%;
+}
+
+.node:nth-child(2) {
+  top: 20%;
+  right: 10%;
+}
+
+.node:nth-child(3) {
+  bottom: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.analysisInfo {
+  color: #64748b;
+  font-size: 0.85rem;
+  font-style: italic;
+  max-width: 300px;
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* Unknown View Styles */
+.unknownView {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #1e1e2e 0%, #2d2d44 100%);
+  border: 1px solid rgba(255, 68, 68, 0.3);
+  border-radius: 8px;
+}
+
+.unknownContent {
+  text-align: center;
+  color: #fbbf24;
+  padding: 2rem;
+}
+
+.unknownContent h3 {
+  color: #fbbf24;
+  margin-bottom: 1rem;
+}
+
+.unknownContent p {
+  color: #94a3b8;
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+}
+
+/* Enhanced Context Controls */
+.contextControls {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(64, 224, 255, 0.2);
+  flex-wrap: wrap;
+}
+
+.splitButton {
+  padding: 0.4rem 0.8rem;
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(64, 224, 255, 0.3);
+  border-radius: 4px;
+  color: #94a3b8;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.splitButton:hover {
+  background: rgba(64, 224, 255, 0.1);
+  color: #40e0ff;
+  border-color: rgba(64, 224, 255, 0.5);
+  transform: translateY(-1px);
+}
+
+.splitButton:active {
+  transform: translateY(0);
+}
+
+/* Globe and Dynamic View Containers */
+.globeContainer {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: auto; /* Globe interactions */
+  z-index: 0; /* Behind dynamic views */
+}
+
+.dynamicViewContainer {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: auto; /* Ensure interactive elements work */
+  z-index: 1; /* Lower than HUD elements */
+}

@@ -1,0 +1,114 @@
+.geoPoliticalSettings {
+  font-size: 9px;
+  color: #00C4FF;
+  font-family: 'Orbitron', Arial, sans-serif;
+  text-align: left;
+  padding: 12px 4px;
+}
+
+.subModeTitle {
+  font-size: 10px;
+  font-weight: bold;
+  color: #38bdf8;
+  margin-bottom: 8px;
+  text-transform: capitalize;
+  text-align: center;
+}
+
+.settingsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.settingGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.settingLabel {
+  font-size: 8px;
+  color: #38bdf8;
+  font-weight: 500;
+}
+
+.checkboxLabel {
+  font-size: 8px;
+  color: #00C4FF;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.checkboxLabel input[type="checkbox"] {
+  width: 12px;
+  height: 12px;
+  accent-color: #00C4FF;
+}
+
+.slider {
+  width: 100%;
+  height: 12px;
+  background: #1e293b;
+  outline: none;
+  border-radius: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #00C4FF;
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+.slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: #00C4FF;
+  cursor: pointer;
+  border-radius: 50%;
+  border: none;
+}
+
+.select {
+  font-size: 8px;
+  background: #1e293b;
+  color: #00C4FF;
+  border: 1px solid #475569;
+  border-radius: 4px;
+  padding: 2px 4px;
+  outline: none;
+  font-family: 'Orbitron', Arial, sans-serif;
+}
+
+.select:focus {
+  border-color: #00C4FF;
+}
+
+.subheading {
+  font-size: 8px;
+  color: #64748b;
+  margin: 4px 0 2px 0;
+  font-weight: 600;
+}
+
+.comingSoon {
+  font-size: 8px;
+  color: #64748b;
+  font-style: italic;
+  margin-bottom: 8px;
+}
+
+.placeholder {
+  font-size: 7px;
+  color: #475569;
+  text-align: left;
+  line-height: 1.4;
+}

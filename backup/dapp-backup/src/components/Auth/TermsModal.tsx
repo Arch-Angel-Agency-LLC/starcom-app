@@ -1,0 +1,3 @@
+// This file has been removed. See artifact: removed-terms-modal-feature-2025-06-14.artifact
+
+// TODO: Implement intel marker clustering with smooth zoom transitions - PRIORITY: HIGH

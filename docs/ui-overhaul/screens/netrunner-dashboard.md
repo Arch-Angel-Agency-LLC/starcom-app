@@ -1,92 +1,106 @@
-# NetRunner Dashboard Documentation
-
-**Status:** Active  
-**Last Updated:** July 6, 2025
+# NetRunner Dashboard
 
 ## Overview
+The NetRunner Dashboard serves as the central hub for network exploration and OSINT gathering in the Starcom application. It provides advanced search capabilities, entity extraction, and intelligence gathering tools in a unified interface.
 
-The NetRunner Dashboard serves as the central interface for OSINT (Open Source Intelligence) operations within the Starcom App. It provides tools for gathering, analyzing, and visualizing information from various online sources, with a focus on creating a streamlined, efficient workflow for investigators and analysts.
+## Current Implementation
 
-## Features
+### Components
+- **NetRunnerDashboard**: Main component with search functionality
+- **useNetRunnerSearch**: Custom hook for search operations
+- **FilterPanel**: Advanced filtering component
+- **EntityExtractor**: Entity extraction and display component
+- **SearchResult** and related types: Type definitions for search functionality
 
-### Current Implementation
+### Features Implemented
+- Basic search functionality with query input
+- Tab system for different search modes
+- Results display with Material UI cards
+- Search history tracking
+- Advanced filtering options with source selection
+- Entity extraction and classification
+- Two-column layout for results and entity analysis
 
-- **Multi-source Search**: Search across multiple data sources simultaneously
-- **Category Filtering**: Filter results by source category
-- **Time-based Filtering**: Filter results by time range
-- **Search History**: Track and recall previous searches
-- **Result Visualization**: Display search results with confidence scoring
-- **Mode Switching**: Toggle between basic and advanced search modes
-- **Settings Management**: Configure search preferences and data sources
+### Screens
+- The NetRunnerScreen component loads the NetRunnerDashboard
+- Integrated with the main UI via the ScreenLoader component
 
-### Planned Features
+## Planned Features
 
-- **Entity Extraction**: Identify and extract entities from search results
-- **Relationship Mapping**: Visualize relationships between entities
-- **Timeline Integration**: Add discovered events to the Timeline
-- **Data Export**: Export search results in various formats
-- **Advanced Filtering**: More granular control over search parameters
-- **Dark Web Integration**: Access dark web sources (authenticated users only)
-- **Blockchain Analysis**: Add cryptocurrency and blockchain data sources
-- **OPSEC Tooling**: Operational security tools for sensitive investigations
+### Short Term
+- ~~Advanced filtering panel with source selection~~ ✅
+- ~~Entity extraction from search results~~ ✅
+- Integration with dark web sources
+- Integration with blockchain analysis tools
+- OPSEC shield for secure searching
+- Data export functionality
 
-## Architecture
+### Medium Term
+- Custom search templates
+- Saved searches with notifications
+- Integration with third-party intelligence sources
+- Automated reconnaissance workflows
+- Report generation
 
-The NetRunner Dashboard is built using the following components:
+### Long Term
+- Machine learning for entity relationship mapping
+- Predictive analysis based on search patterns
+- Integration with external OSINT tools via API
+- Collaborative search sessions
 
-- **NetRunnerDashboard.tsx**: Main container component
-- **useNetRunnerSearch.ts**: Custom hook for search functionality
-- **netrunner.ts**: TypeScript definitions and interfaces
+## Component Structure
 
-### Data Flow
+```
+NetRunnerScreen
+└── NetRunnerDashboard
+    ├── SearchBar
+    ├── FilterPanel
+    ├── TabNavigation
+    ├── ResultsDisplay
+    │   └── ResultCard
+    └── EntityExtractor
+        ├── EntityTypeSection
+        └── EntityItem
+```
 
-1. User inputs search query and configures filters
-2. Search request is processed through the `useNetRunnerSearch` hook
-3. Results are fetched from configured data sources
-4. Results are displayed in the dashboard with appropriate visualizations
-5. User can interact with results, refine search, or export data
+## API Usage
 
-## Integration
+The NetRunnerDashboard uses the following APIs:
+- Internal search API via useNetRunnerSearch hook
+- Entity extraction service
+- Source selection and management
 
-The NetRunner Dashboard integrates with several other components of the Starcom App:
+## Code Examples
 
-- **ViewContext**: For screen navigation and state management
-- **Route Synchronization**: For URL-based navigation
-- **GlobalHeader**: For global search integration
-- **Timeline**: For adding events discovered during research
-- **NodeWeb**: For adding entities and relationships to the network graph
+### Basic Search Implementation
+```typescript
+// Inside NetRunnerDashboard component
+const { query, setQuery, results, isSearching, search } = useNetRunnerSearch({
+  initialSources: ['web', 'social', 'news'],
+  maxResults: 50,
+  autoSearch: false
+});
 
-## Migration Progress
+// Search handler
+const handleSearch = async () => {
+  if (query.trim()) {
+    await search();
+  }
+};
+```
 
-The NetRunner Dashboard is being migrated from the legacy OSINT components. Current progress:
+## Integration Points
 
-- [x] Basic search functionality implemented
-- [x] Result display implemented
-- [x] Category filtering implemented
-- [x] Time range filtering implemented
-- [x] Search history implemented
-- [x] Mode switching implemented
-- [ ] Entity extraction to be implemented
-- [ ] Dark web integration to be implemented
-- [ ] Blockchain analysis to be implemented
-- [ ] OPSEC tools to be implemented
+The NetRunnerDashboard integrates with:
+- ViewContext for navigation and screen state
+- RouteSynchronizer for URL-based navigation
+- NodeWeb for visualization of search results
+- Analyzer for deeper analysis of findings
 
-## Usage
+## Next Development Steps
 
-To use the NetRunner Dashboard:
-
-1. Navigate to the NetRunner screen from the bottom navigation bar
-2. Enter a search query in the search field
-3. Optionally select a category tab to filter results
-4. View and interact with search results
-5. Use the Advanced Mode for more detailed search options
-
-## Future Development
-
-Future development of the NetRunner Dashboard will focus on:
-
-1. Integrating more data sources
-2. Enhancing visualization capabilities
-3. Adding machine learning for entity extraction and relationship mapping
-4. Implementing automated report generation
-5. Adding collaborative features for team investigations
+1. ~~Complete the filtering panel implementation~~ ✅
+2. ~~Implement entity extraction functionality~~ ✅
+3. Add dark web and blockchain sources
+4. Integrate with NodeWeb for visualization
+5. Implement data export functionality

@@ -1,0 +1,256 @@
+/* AdaptiveUIController.module.css */
+
+.adaptiveContainer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.adaptationIndicator {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.9);
+  border: 1px solid #00C4FF;
+  border-radius: 6px;
+  padding: 8px 12px;
+  z-index: 9999;
+  font-family: 'Orbitron', monospace;
+  font-size: 11px;
+  color: #00C4FF;
+  box-shadow: 0 0 10px rgba(0, 196, 255, 0.3);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.adaptationIndicator:hover {
+  box-shadow: 0 0 15px rgba(0, 196, 255, 0.5);
+  transform: scale(1.05);
+}
+
+.indicatorContent {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+}
+
+.roleIndicator {
+  color: #FFD700;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+}
+
+.complexityIndicator {
+  color: #00FF88;
+  font-size: 9px;
+  text-transform: uppercase;
+}
+
+.experienceIndicator {
+  color: #FF6B6B;
+  font-size: 9px;
+  text-transform: uppercase;
+}
+
+/* Global CSS Variables for Adaptive UI */
+:global(html[data-operator-role="ANALYST"]) {
+  --primary-interface-color: #00C4FF;
+  --secondary-interface-color: #0ea5e9;
+  --complexity-indicators: block;
+}
+
+:global(html[data-operator-role="COMMANDER"]) {
+  --primary-interface-color: #FFD700;
+  --secondary-interface-color: #F59E0B;
+  --complexity-indicators: block;
+}
+
+:global(html[data-operator-role="FIELD_OPERATIVE"]) {
+  --primary-interface-color: #00FF88;
+  --secondary-interface-color: #10B981;
+  --complexity-indicators: none;
+}
+
+:global(html[data-operator-role="TECHNICAL_SPECIALIST"]) {
+  --primary-interface-color: #8B5CF6;
+  --secondary-interface-color: #7C3AED;
+  --complexity-indicators: block;
+}
+
+:global(html[data-operator-role="INTELLIGENCE_OFFICER"]) {
+  --primary-interface-color: #FF6B6B;
+  --secondary-interface-color: #EF4444;
+  --complexity-indicators: block;
+}
+
+:global(html[data-operator-role="CYBER_WARRIOR"]) {
+  --primary-interface-color: #F59E0B;
+  --secondary-interface-color: #D97706;
+  --complexity-indicators: block;
+}
+
+/* Complexity Level Adaptations */
+:global(html[data-complexity-level="SIMPLIFIED"]) {
+  --ui-density: 0.8;
+  --panel-padding: 20px;
+  --font-size-multiplier: 1.1;
+  --button-size-multiplier: 1.2;
+}
+
+:global(html[data-complexity-level="STANDARD"]) {
+  --ui-density: 1.0;
+  --panel-padding: 16px;
+  --font-size-multiplier: 1.0;
+  --button-size-multiplier: 1.0;
+}
+
+:global(html[data-complexity-level="ADVANCED"]) {
+  --ui-density: 1.2;
+  --panel-padding: 12px;
+  --font-size-multiplier: 0.9;
+  --button-size-multiplier: 0.9;
+}
+
+:global(html[data-complexity-level="EXPERT"]) {
+  --ui-density: 1.4;
+  --panel-padding: 8px;
+  --font-size-multiplier: 0.8;
+  --button-size-multiplier: 0.8;
+}
+
+/* Experience Level Adaptations */
+:global(html[data-experience-level="NOVICE"]) {
+  --guidance-visibility: visible;
+  --tooltip-delay: 0ms;
+  --help-prominence: high;
+}
+
+:global(html[data-experience-level="INTERMEDIATE"]) {
+  --guidance-visibility: visible;
+  --tooltip-delay: 500ms;
+  --help-prominence: medium;
+}
+
+:global(html[data-experience-level="EXPERT"]) {
+  --guidance-visibility: hidden;
+  --tooltip-delay: 1000ms;
+  --help-prominence: low;
+}
+
+:global(html[data-experience-level="MASTER"]) {
+  --guidance-visibility: hidden;
+  --tooltip-delay: 2000ms;
+  --help-prominence: none;
+}
+
+/* Progressive Disclosure Adaptations */
+:global(html[data-progressive-disclosure="enabled"]) .progressive-feature {
+  display: block;
+  animation: fadeInUp 0.3s ease;
+}
+
+:global(html[data-progressive-disclosure="enabled"]) .advanced-only {
+  opacity: var(--ui-density);
+  transition: opacity 0.3s ease;
+}
+
+/* AI Recommendations Adaptations */
+:global(html[data-ai-recommendations="enabled"]) .ai-suggestion {
+  display: flex;
+  animation: slideInRight 0.4s ease;
+}
+
+:global(html[data-ai-recommendations="enabled"]) .recommendation-glow {
+  box-shadow: 0 0 8px rgba(0, 196, 255, 0.4);
+}
+
+/* Adaptive Role UI */
+:global(html[data-adaptive-role-ui="enabled"]) .role-specific {
+  border-left: 3px solid var(--primary-interface-color);
+  background: linear-gradient(90deg, 
+    rgba(var(--primary-interface-color), 0.1) 0%, 
+    transparent 100%);
+}
+
+/* Animation Keyframes */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Responsive Adaptations */
+@media (max-width: 768px) {
+  .adaptationIndicator {
+    top: 10px;
+    right: 10px;
+    padding: 6px 8px;
+    font-size: 10px;
+  }
+  
+  .indicatorContent {
+    gap: 2px;
+  }
+  
+  .roleIndicator,
+  .complexityIndicator,
+  .experienceIndicator {
+    font-size: 8px;
+  }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  .adaptationIndicator {
+    border: 2px solid #FFFFFF;
+    background: #000000;
+    color: #FFFFFF;
+  }
+  
+  .roleIndicator {
+    color: #FFFF00;
+  }
+  
+  .complexityIndicator {
+    color: #00FF00;
+  }
+  
+  .experienceIndicator {
+    color: #FF0000;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .adaptationIndicator {
+    transition: none;
+  }
+  
+  .adaptationIndicator:hover {
+    transform: none;
+  }
+  
+  :global(.progressive-feature),
+  :global(.ai-suggestion) {
+    animation: none;
+  }
+}
