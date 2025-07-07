@@ -1,19 +1,17 @@
 import React from 'react';
+import TimelineDashboard from '../../Timeline/components/TimelineDashboard';
 import styles from './TimelineScreen.module.css';
 
+/**
+ * Timeline Screen
+ * 
+ * Integrates the Timeline Dashboard into the main UI structure.
+ * This screen provides chronological analysis of events and activities.
+ */
 const TimelineScreen: React.FC = () => {
   return (
     <div className={styles.timelineScreen}>
-      <div className={styles.container}>
-        <h1 className={styles.title}>Timeline Analysis</h1>
-        <div className={styles.content}>
-          <p>The Timeline dashboard provides tools for chronological analysis of events and activities.</p>
-          <div className={styles.placeholder}>
-            <div className={styles.icon}>⏱️</div>
-            <div className={styles.message}>Timeline tools are being integrated into the new UI structure.</div>
-          </div>
-        </div>
-      </div>
+      <TimelineDashboard />
     </div>
   );
 };

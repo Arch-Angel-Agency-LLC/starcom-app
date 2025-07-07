@@ -4,10 +4,7 @@
   background-color: #0a1520;
   color: #d0e0f0;
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 2rem;
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 .container {
