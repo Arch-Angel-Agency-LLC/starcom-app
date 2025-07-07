@@ -14,8 +14,6 @@ import NOAAFloatingIntegration from '../../components/HUD/FloatingPanels/NOAAFlo
 import CenterViewManager from '../../components/HUD/Center/CenterViewManager';
 import QuickAccessPanel from '../../components/HUD/QuickAccess/QuickAccessPanel';
 import NewUserHint from '../../components/HUD/NewUserHint/NewUserHint';
-// import FeatureFlagControls from '../../components/HUD/FeatureFlagControls/FeatureFlagControls';
-// import DiagnosticsToggle from '../../components/HUD/DiagnosticsToggle/DiagnosticsToggle';
 import NotificationSystem from '../../components/NotificationSystem/NotificationSystem';
 import ContextBridge from '../../components/Bridge/ContextBridge';
 import PhaseTransitionManager from '../../components/Bridge/PhaseTransitionManager';
@@ -31,21 +29,29 @@ import { PopupProvider } from '../../components/Popup/PopupManager';
 import { GlobeLoadingProvider } from '../../context/GlobeLoadingContext';
 import { SecureChatManager } from '../../components/SecureChat';
 
-const HUDLayout: React.FC = () => {
+interface HUDLayoutProps {
+  isEmbedded?: boolean;
+}
+
+const HUDLayout: React.FC<HUDLayoutProps> = ({ isEmbedded = false }) => {
   const [showQuickAccess, setShowQuickAccess] = useState(false);
   
+  // Core feature flags
   const enhancedCenterEnabled = useFeatureFlag('enhancedCenter');
   const enhancedAdaptiveEnabled = useFeatureFlag('enhancedContextEnabled');
-  const adaptiveInterfaceEnabled = useFeatureFlag('adaptiveInterfaceEnabled');
+  // Performance and monitoring flags
   const performanceMonitoringEnabled = useFeatureFlag('performanceMonitoringEnabled');
-  const performanceOptimizerEnabled = useFeatureFlag('performanceOptimizerEnabled');
   const securityHardeningEnabled = useFeatureFlag('securityHardeningEnabled');
+  // UI and testing flags
   const uiTestingDiagnosticsEnabled = useFeatureFlag('uiTestingDiagnosticsEnabled');
-  const phase4EnabledFlag = useFeatureFlag('phase4Enabled');
-  const phase5EnabledFlag = useFeatureFlag('phase5Enabled');
+  // Using existing feature flags for phases
+  const phase4EnabledFlag = useFeatureFlag('gamingUxEnabled');
+  const phase5EnabledFlag = useFeatureFlag('performanceOptimizationsEnabled');
 
   // Keyboard shortcut to show quick access
   React.useEffect(() => {
+    if (isEmbedded) return; // Don't register keyboard shortcuts when embedded
+    
     const handleKeyDown = (event: KeyboardEvent) => {
       if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
         event.preventDefault();
@@ -58,7 +64,7 @@ const HUDLayout: React.FC = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [isEmbedded]);
 
   const AdaptiveProvider = enhancedAdaptiveEnabled ? EnhancedAdaptiveInterfaceProvider : AdaptiveInterfaceProvider;
 
@@ -70,18 +76,23 @@ const HUDLayout: React.FC = () => {
             <PhaseTransitionManager>
               <ContextBridge>
                 <FloatingPanelManager>
-                  <div className={styles.hudLayout}>
+                  <div className={`${styles.hudLayout} ${isEmbedded ? styles.embeddedMode : ''}`}>
                     <div className={styles.topLeftCorner}><TopLeftCorner /></div>
                     <div className={styles.topRightCorner}><TopRightCorner /></div>
                     <div className={styles.bottomLeftCorner}><BottomLeftCorner /></div>
                     <div className={styles.bottomRightCorner}><BottomRightCorner /></div>
-                    <div className={styles.topBar}><TopBar /></div>
-                    <div className={styles.bottomBar}><NewBottomBar /></div>
+                    
+                    {/* Only show TopBar in full mode or if specifically needed in embedded mode */}
+                    {!isEmbedded && <div className={styles.topBar}><TopBar /></div>}
+                    
+                    <div className={`${styles.bottomBar} ${isEmbedded ? styles.embeddedBottomBar : ''}`}>
+                      <NewBottomBar isEmbedded={isEmbedded} />
+                    </div>
                     <div className={styles.leftSideBar}><LeftSideBar /></div>
                     <div className={styles.rightSideBar}><RightSideBar /></div>
-                    <div className={styles.center}>
+                    <div className={`${styles.center} ${isEmbedded ? styles.embeddedCenter : ''}`}>
                       {enhancedCenterEnabled ? (
-                        <CenterViewManager />
+                        <CenterViewManager globeOnly={isEmbedded} />
                       ) : (
                         // Legacy center content - empty for now
                         <div />
@@ -89,25 +100,22 @@ const HUDLayout: React.FC = () => {
                     </div>
                     
                     {/* NOAA Floating Integration - Connects NOAA datasets to floating panels */}
-                    <NOAAFloatingIntegration />
+                    {!isEmbedded && <NOAAFloatingIntegration />}
                     
                     {/* UI Testing Diagnostics - Only visible when diagnostics mode is enabled */}
-                    {uiTestingDiagnosticsEnabled && (
+                    {uiTestingDiagnosticsEnabled && !isEmbedded && (
                       <>
                         {/* Floating Panel Demo - Development/Testing only */}
                         <FloatingPanelDemo />
-                        
-                        {/* Feature Flag Controls - Now integrated into RightSideBar Developer Tools */}
-                        {/* <FeatureFlagControls /> */}
                       </>
                     )}
                   </div>
                   
                   {/* Earth Alliance Secure Chat System */}
-                  <SecureChatManager />
+                  {!isEmbedded && <SecureChatManager />}
                   
                   {/* Quick Access Panel - Triggered by Ctrl+K */}
-                  {showQuickAccess && (
+                  {showQuickAccess && !isEmbedded && (
                     <div className={styles.overlay} onClick={() => setShowQuickAccess(false)}>
                       <div onClick={(e) => e.stopPropagation()}>
                         <QuickAccessPanel />
@@ -122,10 +130,15 @@ const HUDLayout: React.FC = () => {
         </AdaptiveProvider>
         
         {/* Subtle New User Hint - Non-blocking */}
-        <NewUserHint />
+        {!isEmbedded && <NewUserHint />}
       </PopupProvider>
     </GlobeLoadingProvider>
   );
+
+  // For embedded mode, use a simplified wrapper
+  if (isEmbedded) {
+    return <HUDContent />;
+  }
 
   // Phase 4 Integration: Wrap with gaming enhancements if enabled
   // Phase 5 Integration: Wrap with optimization monitoring if enabled

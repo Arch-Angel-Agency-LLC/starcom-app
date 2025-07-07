@@ -33,10 +33,20 @@
 - Enhanced useRouteSync hook with bidirectional synchronization and circular update protection
 - Updated MainPage and SettingsPage to work with nested routes
 - Implemented direct routing with automatic ViewContext synchronization
+- Refactored HUDLayout to be modular and embeddable within GlobeScreen
+- Created embedded mode for HUDLayout with smaller dimensions and simplified UI
+- Redesigned GlobeScreen to use HUDLayout in a container
+- Removed the rotating GlobalView placeholder from GlobeScreen
+- Updated CenterViewManager to support globe-only mode for embedded usage
+- Created a minimal NewBottomBar component with embedded support
+- Simplified phase integration in HUDLayout
 
 ## Screen Components Created
 ### Main Screens
 - `GlobeScreen` - The global view screen
+  - Integrated with actual HUDLayout and 3D globe
+  - Uses embedded mode for HUDLayout within a container
+  - Removes placeholder rotating globe animation
 - `NetRunnerScreen` - Dashboard for network exploration and OSINT gathering
   - Implemented with real search functionality
   - Connected to search hook with filtering capabilities

@@ -2,7 +2,7 @@
 // Handles Globe, Teams, Bots, Node Web, Investigations, and Intel views
 
 import React, { lazy, Suspense, useRef, useEffect } from 'react';
-import { useView } from '../../../context/ViewContext';
+import { useView } from '../../../context/useView';
 import styles from './CenterViewManager.module.css';
 
 // Import the real Globe component - not lazy loaded to keep it mounted
@@ -15,26 +15,35 @@ import TeamCollaborationView from '../../Views/TeamCollaborationView';
 import AIAgentView from '../../Views/AIAgentView';
 
 // Import view components
-const InvestigationsDashboard = lazy(() => import('../../../pages/Investigations/InvestigationsDashboard'));
 const IntelDashboard = lazy(() => import('../../../pages/Intel/IntelDashboard'));
 const OSINTDashboard = lazy(() => import('../../../pages/OSINT/OSINTDashboard'));
 
 interface CenterViewManagerProps {
   className?: string;
+  globeOnly?: boolean; // Add prop to show only the globe (for embedded mode)
 }
 
-const CenterViewManager: React.FC<CenterViewManagerProps> = ({ className = '' }) => {
+const CenterViewManager: React.FC<CenterViewManagerProps> = ({ 
+  className = '', 
+  globeOnly = false 
+}) => {
   const { currentView } = useView();
   const globeContainerRef = useRef<HTMLDivElement>(null);
 
   // Update globe container visibility based on current view
   useEffect(() => {
     if (globeContainerRef.current) {
-      globeContainerRef.current.style.display = currentView === 'globe' ? 'block' : 'none';
+      // In globeOnly mode, always show the globe regardless of currentView
+      globeContainerRef.current.style.display = globeOnly || currentView === 'globe' ? 'block' : 'none';
     }
-  }, [currentView]);
+  }, [currentView, globeOnly]);
 
   const renderCurrentView = () => {
+    // If in globeOnly mode, don't render any other views
+    if (globeOnly) {
+      return null;
+    }
+    
     switch (currentView) {
       case 'globe':
         // Globe is always mounted, just show/hide the container
@@ -43,19 +52,14 @@ const CenterViewManager: React.FC<CenterViewManagerProps> = ({ className = '' })
         return <TeamCollaborationView />;
       case 'ai-agent':
         return <AIAgentView />;
-      case 'investigations':
-        return (
-          <Suspense fallback={<div className={styles.loadingView}>Loading Investigations...</div>}>
-            <InvestigationsDashboard />
-          </Suspense>
-        );
       case 'intel':
         return (
           <Suspense fallback={<div className={styles.loadingView}>Loading Intel...</div>}>
             <IntelDashboard />
           </Suspense>
         );
-      case 'osint':
+      case 'info-gathering':
+      case 'netrunner':
         return (
           <Suspense fallback={<div className={styles.loadingView}>Loading OSINT Suite...</div>}>
             <OSINTDashboard />
@@ -89,9 +93,9 @@ const CenterViewManager: React.FC<CenterViewManagerProps> = ({ className = '' })
       {/* Globe container - always mounted but hidden when not active */}
       <div 
         ref={globeContainerRef}
-        className={styles.globeContainer}
+        className={`${styles.globeContainer} ${globeOnly ? styles.globeOnly : ''}`}
         style={{ 
-          display: currentView === 'globe' ? 'block' : 'none',
+          display: globeOnly || currentView === 'globe' ? 'block' : 'none',
           width: '100%',
           height: '100%'
         }}
@@ -99,12 +103,8 @@ const CenterViewManager: React.FC<CenterViewManagerProps> = ({ className = '' })
         <Globe />
       </div>
       
-      {/* Other views - dynamically rendered */}
-      {currentView !== 'globe' && (
-        <div className={styles.dynamicViewContainer}>
-          {renderCurrentView()}
-        </div>
-      )}
+      {/* Other views */}
+      {renderCurrentView()}
     </div>
   );
 };
