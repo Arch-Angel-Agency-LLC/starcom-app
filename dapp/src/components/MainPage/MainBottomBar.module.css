@@ -1,7 +1,5 @@
 .mainBottomBar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
+  position: relative; /* Changed from fixed to relative */
   width: 100%;
   background-color: rgba(15, 15, 25, 0.85);
   backdrop-filter: blur(10px);

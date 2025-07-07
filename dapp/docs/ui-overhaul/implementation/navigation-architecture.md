@@ -31,6 +31,26 @@ Key points:
 - Provides view-related hooks (`useView`, `useNavigation`, etc.)
 - Synchronizes with URL routes through the `useRouteSync` hook
 
+## Navigation Component Structure
+
+The MainPage component is structured to ensure proper component hierarchy and layout:
+
+```
+MainPage
+├── GlobalHeader (top bar with logo, search)
+├── MarqueeTopBar (status indicators)
+├── MainCenter (main content area)
+│   └── ScreenLoader (renders the active screen)
+│       └── Actual Screen Component
+└── MainBottomBar (navigation bar)
+```
+
+Key points:
+- `MainBottomBar` is positioned at the same level as `MainCenter` and `GlobalHeader`
+- `MainBottomBar` uses relative positioning rather than fixed positioning
+- Screen components fill the available space in `MainCenter`
+- Each screen component is lazy-loaded for better performance
+
 ## Routing Structure
 
 The application uses React Router's nested routes for better organization and feature support:
@@ -110,6 +130,24 @@ Navigation items include:
 - Route parameters (e.g., `:searchQuery`) are extracted and added to screen params
 - Both are passed to screen components via the ScreenLoader
 
+## GlobeScreen and HUDLayout Integration
+
+The GlobeScreen is a special case with additional considerations:
+
+```
+GlobeScreen
+└── HUDLayout (isEmbedded=true)
+    ├── TopLeftCorner, TopRightCorner, etc.
+    ├── NewBottomBar (embeddedBottomBar)
+    └── CenterViewManager (globeOnly=true)
+```
+
+Key points:
+- `GlobeScreen` contains `HUDLayout` in embedded mode
+- `HUDLayout` has its own `NewBottomBar` that's distinct from `MainBottomBar`
+- The positioning is handled through CSS classes rather than dynamic JavaScript adjustments
+- `CenterViewManager` in globe-only mode focuses exclusively on the 3D globe visualization
+
 ## Navigation Hooks
 
 ### useView
@@ -158,6 +196,33 @@ To prevent circular updates (where a route change triggers a ViewContext update,
 - Handles screen transitions and animations
 - Passes screen parameters to components
 
+## Screen Components
+
+### Common Structure
+Each screen follows a similar pattern:
+
+```tsx
+const ScreenName: React.FC = () => {
+  return (
+    <div className={styles.screenName}>
+      <div className={styles.container}>
+        <h1 className={styles.title}>Screen Title</h1>
+        <div className={styles.content}>
+          {/* Screen-specific content */}
+        </div>
+      </div>
+    </div>
+  );
+};
+```
+
+### Implemented Screens
+- **GlobeScreen**: Displays the 3D globe visualization within HUDLayout
+- **TeamsScreen**: Team collaboration with TeamCollaborationHub integration
+- **NetRunnerScreen**: Intelligence gathering with search and entity extraction
+- **AnalyzerScreen**: Intelligence analysis with dashboard cards and visualization
+- **NodeWebScreen**: Network topology visualization with filters and node details
+
 ## Best Practices
 
 1. Use React Router's navigation functions (`navigate`, `useParams`) for routing
@@ -165,3 +230,6 @@ To prevent circular updates (where a route change triggers a ViewContext update,
 3. Keep providers at the appropriate level in the component tree
 4. Use the ScreenLoader for consistent transitions and parameter passing
 5. Follow the established module pattern for new screens
+6. Use relative positioning for navigation bars to maintain proper document flow
+7. Implement responsive layouts for all screen components
+8. Lazy-load screen components for better performance

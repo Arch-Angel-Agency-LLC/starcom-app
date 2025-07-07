@@ -52,3 +52,12 @@
   font-size: 1.2rem;
   opacity: 0.8;
 }
+
+.teamsContainerWrapper {
+  width: 100%;
+  height: calc(100vh - 180px); /* Account for padding, header, title */
+  background-color: rgba(20, 40, 60, 0.5);
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(0, 40, 80, 0.3);
+  overflow: hidden;
+}
