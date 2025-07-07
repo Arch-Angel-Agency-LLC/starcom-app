@@ -1,9 +1,19 @@
 .hudLayout {
-  /* Removed flexbox that breaks absolute positioning of HUD elements */
   height: 100vh;
   width: 100vw; /* Ensure full width of the viewport */
   position: relative;
   pointer-events: none; /* Allow clicks to pass through */
+}
+
+/* Special styling for embedded mode */
+.embeddedMode {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 
 .hudLayout > div {
@@ -18,6 +28,31 @@
   pointer-events: auto; /* Enable clicks on HUD components */
   width: 20%;
   height: 20%;
+}
+
+/* Adjust corner positions for embedded mode */
+.embeddedMode .topLeftCorner {
+  top: 0;
+  left: 0;
+  width: 15%;
+  height: 15%;
+}
+
+.embeddedMode .topRightCorner {
+  top: 5%;
+  right: 5%;
+  width: 80px;
+  height: 80px;
+}
+
+.embeddedMode .bottomLeftCorner {
+  bottom: 2%;
+  left: 3%;
+}
+
+.embeddedMode .bottomRightCorner {
+  bottom: 2%;
+  right: 5%;
 }
 
 .topLeftCorner {
@@ -68,6 +103,16 @@
   pointer-events: auto; /* Enable clicks on HUD components */
 }
 
+/* Adjust bars for embedded mode */
+.embeddedMode .bottomBar {
+  left: 80px; /* Smaller left sidebar in embedded mode */
+  width: calc(100% - 80px);
+  height: 4%;
+  bottom: 0;
+  position: absolute;
+  z-index: 1002; /* Ensure it's above other elements but below MainBottomBar */
+}
+
 .leftSideBar, .rightSideBar {
   position: absolute;
   background: rgba(0, 0, 0, 0.0); /* transparent background */
@@ -93,34 +138,70 @@
   pointer-events: auto;
 }
 
+/* Adjust sidebars for embedded mode */
+.embeddedMode .leftSideBar {
+  width: 80px;
+}
+
+.embeddedMode .rightSideBar {
+  width: auto;
+}
+
 .center {
   position: absolute;
   top: 5%; /* Below TopBar */
   left: 110px; /* Right of LeftSideBar (110px wide) */
   right: 120px; /* Left of RightSideBar (120px wide) */
   bottom: 5%; /* Above BottomBar */
-  background: transparent; /* Fully transparent background */
-  pointer-events: auto; /* Enable interaction with Globe */
-  z-index: 1; /* Behind HUD elements but above background */
-  
-  /* Remove constraints that might limit space usage */
-  /* Display will be handled by child components */
+  overflow: hidden;
+  pointer-events: auto;
+  z-index: 1; /* Base layer */
 }
 
-/* Overlay for quick access panel */
+/* Adjust center area for embedded mode */
+.embeddedMode .center {
+  top: 2%;
+  left: 80px;
+  right: 80px;
+  bottom: 40px; /* Match the fixed height of the embedded NewBottomBar */
+  position: absolute;
+}
+
+.embeddedCenter {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 40px !important; /* Leave room just for the NewBottomBar */
+  width: 100% !important;
+  height: calc(100% - 40px) !important;
+}
+
 .overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(5px);
+  background: rgba(0, 10, 30, 0.7);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10000;
+  z-index: 9999;
+  backdrop-filter: blur(5px);
   pointer-events: auto;
+}
+
+/* Styles for embedded bottom bar */
+.embeddedBottomBar {
+  position: absolute;
+  bottom: 0;
+  height: 40px !important;
+  background: rgba(0, 20, 40, 0.7) !important;
+  border-top: 1px solid rgba(64, 200, 255, 0.2) !important;
 }
 
 /* Responsive adjustments for smaller screens */
