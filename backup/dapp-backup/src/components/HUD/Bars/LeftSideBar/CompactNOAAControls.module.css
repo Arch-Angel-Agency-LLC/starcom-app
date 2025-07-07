@@ -1,0 +1,385 @@
+/* Compact NOAA Controls for LeftSideBar */
+.compactNOAAControls {
+  width: 100%;
+  background: rgba(0, 20, 40, 0.9);
+  border: 1px solid rgba(0, 196, 255, 0.3);
+  border-radius: 4px;
+  padding: 4px;
+  margin: 2px 0;
+  font-size: 0.6rem;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2px 4px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid rgba(0, 196, 255, 0.2);
+}
+
+.title {
+  color: #00c4ff;
+  font-weight: 600;
+  font-size: 0.65rem;
+}
+
+.headerControls {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.activeCount {
+  background: rgba(0, 196, 255, 0.2);
+  color: #00c4ff;
+  padding: 1px 4px;
+  border-radius: 2px;
+  font-size: 0.55rem;
+  font-weight: 600;
+  min-width: 14px;
+  text-align: center;
+}
+
+.settingsBtn {
+  background: rgba(0, 40, 80, 0.7);
+  border: 1px solid rgba(0, 196, 255, 0.2);
+  color: #888;
+  width: 16px;
+  height: 16px;
+  border-radius: 2px;
+  font-size: 0.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.settingsBtn:hover {
+  background: rgba(0, 60, 120, 0.8);
+  border-color: rgba(0, 196, 255, 0.4);
+  color: #00c4ff;
+}
+
+/* Presets Section */
+.presetsSection {
+  margin-bottom: 4px;
+}
+
+.presetGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+}
+
+.presetBtn {
+  background: rgba(0, 40, 80, 0.7);
+  border: 1px solid rgba(0, 196, 255, 0.2);
+  color: #cccccc;
+  padding: 2px 4px;
+  border-radius: 2px;
+  font-size: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.presetBtn:hover {
+  background: rgba(0, 60, 120, 0.8);
+  border-color: rgba(0, 196, 255, 0.4);
+  color: #ffffff;
+}
+
+.presetBtn.active {
+  background: rgba(0, 196, 255, 0.2);
+  border-color: #00c4ff;
+  color: #00c4ff;
+  font-weight: 600;
+}
+
+/* Categories Section */
+.categoriesSection {
+  margin-bottom: 4px;
+}
+
+.categoryGroup {
+  margin-bottom: 2px;
+}
+
+.categoryHeader {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.categoryBtn {
+  flex: 1;
+  background: rgba(0, 30, 60, 0.8);
+  border: 1px solid rgba(0, 196, 255, 0.2);
+  color: #cccccc;
+  padding: 3px 4px;
+  border-radius: 2px;
+  font-size: 0.55rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.categorySettingsBtn {
+  background: rgba(0, 40, 80, 0.7);
+  border: 1px solid rgba(0, 196, 255, 0.2);
+  color: #888;
+  width: 16px;
+  height: 20px;
+  border-radius: 2px;
+  font-size: 0.4rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.categorySettingsBtn:hover {
+  background: rgba(0, 60, 120, 0.8);
+  border-color: rgba(0, 196, 255, 0.4);
+  color: #00c4ff;
+}
+
+.expandIcon {
+  margin-left: auto;
+  font-size: 0.5rem;
+  color: #888;
+}
+
+.categoryBtn:hover {
+  background: rgba(0, 50, 100, 0.9);
+  border-color: rgba(0, 196, 255, 0.4);
+  color: #ffffff;
+}
+
+.categoryBtn.expanded {
+  background: rgba(0, 196, 255, 0.1);
+  border-color: rgba(0, 196, 255, 0.5);
+  color: #00c4ff;
+}
+
+.categoryBtn.hasActive {
+  border-left: 3px solid #00c4ff;
+}
+
+.categoryIcon {
+  font-size: 0.7rem;
+  flex-shrink: 0;
+}
+
+.categoryCount {
+  margin-left: auto;
+  background: rgba(0, 196, 255, 0.3);
+  color: #00c4ff;
+  padding: 0px 3px;
+  border-radius: 2px;
+  font-size: 0.5rem;
+  font-weight: 600;
+  min-width: 12px;
+  text-align: center;
+}
+
+/* Expanded Content */
+.expandedContent {
+  margin-top: 2px;
+  padding-left: 4px;
+  border-left: 2px solid rgba(0, 196, 255, 0.1);
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.datasetGroup {
+  margin-bottom: 3px;
+  padding: 2px;
+  background: rgba(0, 10, 30, 0.5);
+  border-radius: 2px;
+}
+
+.datasetHeader {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-bottom: 2px;
+  font-size: 0.5rem;
+  color: #aaaaaa;
+  font-weight: 500;
+}
+
+.datasetIcon {
+  font-size: 0.6rem;
+}
+
+.datasetName {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.visualizationList {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.visualizationBtn {
+  width: 100%;
+  background: rgba(0, 20, 40, 0.6);
+  border: 1px solid rgba(0, 196, 255, 0.1);
+  color: #cccccc;
+  padding: 2px 3px;
+  border-radius: 2px;
+  font-size: 0.45rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.visualizationBtn:hover {
+  background: rgba(0, 40, 80, 0.8);
+  border-color: rgba(0, 196, 255, 0.3);
+  color: #ffffff;
+}
+
+.visualizationBtn.enabled {
+  background: rgba(0, 196, 255, 0.1);
+  border-color: rgba(0, 196, 255, 0.4);
+  color: #00c4ff;
+}
+
+.visualizationDot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.visualizationName {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.visualizationStatus {
+  font-size: 0.5rem;
+  opacity: 0.8;
+  flex-shrink: 0;
+}
+
+/* Quick Actions */
+.quickActions {
+  display: flex;
+  gap: 2px;
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid rgba(0, 196, 255, 0.2);
+}
+
+.actionBtn {
+  flex: 1;
+  background: rgba(0, 40, 80, 0.7);
+  border: 1px solid rgba(0, 196, 255, 0.2);
+  color: #cccccc;
+  padding: 2px 4px;
+  border-radius: 2px;
+  font-size: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.actionBtn:hover {
+  background: rgba(0, 60, 120, 0.8);
+  border-color: rgba(0, 196, 255, 0.4);
+  color: #ffffff;
+}
+
+.helpBtn {
+  background: rgba(0, 40, 80, 0.7);
+  border: 1px solid rgba(0, 196, 255, 0.2);
+  color: #888;
+  width: 18px;
+  height: 18px;
+  border-radius: 2px;
+  font-size: 0.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.helpBtn:hover {
+  background: rgba(0, 60, 120, 0.8);
+  border-color: rgba(0, 196, 255, 0.4);
+  color: #00c4ff;
+}
+
+.moreBtn {
+  background: rgba(0, 50, 100, 0.6);
+  border: 1px solid rgba(0, 196, 255, 0.1);
+  color: #888;
+  padding: 1px 3px;
+  border-radius: 2px;
+  font-size: 0.45rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  margin-top: 2px;
+}
+
+.moreBtn:hover {
+  background: rgba(0, 70, 140, 0.7);
+  border-color: rgba(0, 196, 255, 0.3);
+  color: #00c4ff;
+}
+
+/* Scrollbar styling for expanded content */
+.expandedContent::-webkit-scrollbar {
+  width: 2px;
+}
+
+.expandedContent::-webkit-scrollbar-track {
+  background: rgba(0, 20, 40, 0.3);
+}
+
+.expandedContent::-webkit-scrollbar-thumb {
+  background: rgba(0, 196, 255, 0.3);
+  border-radius: 1px;
+}
+
+.expandedContent::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 196, 255, 0.5);
+}
+
+/* Responsive adjustments for even smaller spaces */
+@media (max-width: 120px) {
+  .presetGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .quickActions {
+    flex-direction: column;
+  }
+  
+  .visualizationName,
+  .datasetName {
+    font-size: 0.4rem;
+  }
+}

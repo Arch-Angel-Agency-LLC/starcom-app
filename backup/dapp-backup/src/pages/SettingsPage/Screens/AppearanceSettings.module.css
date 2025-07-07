@@ -1,0 +1,250 @@
+.appearanceSettings {
+  padding: 20px;
+  max-width: 800px;
+}
+
+.appearanceSettings h2 {
+  margin-bottom: 24px;
+  color: var(--color-blue-400);
+  font-size: 1.8rem;
+}
+
+.settingSection {
+  margin-bottom: 32px;
+  background: rgba(30, 40, 60, 0.3);
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid rgba(60, 80, 120, 0.3);
+}
+
+.settingSection h3 {
+  margin-bottom: 16px;
+  color: var(--color-blue-300);
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.themeOptions {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 16px;
+}
+
+.themeOption {
+  flex: 1;
+  max-width: 160px;
+}
+
+.themeOption input[type="radio"] {
+  display: none;
+}
+
+.themeOption label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.themePreview {
+  width: 100%;
+  height: 90px;
+  border-radius: 6px;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 2px solid transparent;
+}
+
+.themeOption input[type="radio"]:checked + label .themePreview {
+  border-color: var(--color-blue-400);
+  box-shadow: 0 0 0 2px rgba(80, 150, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.darkTheme {
+  background-color: #0a121a;
+}
+
+.lightTheme {
+  background-color: #f0f4f8;
+}
+
+.systemTheme {
+  background: linear-gradient(to right, #0a121a 50%, #f0f4f8 50%);
+}
+
+.previewHeader {
+  height: 20%;
+  background: rgba(30, 80, 130, 0.5);
+}
+
+.darkTheme .previewHeader {
+  background: rgba(30, 80, 130, 0.5);
+}
+
+.lightTheme .previewHeader {
+  background: rgba(60, 140, 220, 0.5);
+}
+
+.systemTheme .previewHeader {
+  background: linear-gradient(to right, rgba(30, 80, 130, 0.5) 50%, rgba(60, 140, 220, 0.5) 50%);
+}
+
+.previewContent {
+  height: 80%;
+  display: flex;
+  flex-direction: column;
+  padding: 6px;
+  gap: 4px;
+}
+
+.darkTheme .previewContent::before,
+.darkTheme .previewContent::after {
+  content: "";
+  height: 8px;
+  background: rgba(80, 120, 180, 0.2);
+  border-radius: 2px;
+  margin-bottom: 4px;
+}
+
+.lightTheme .previewContent::before,
+.lightTheme .previewContent::after {
+  content: "";
+  height: 8px;
+  background: rgba(80, 140, 220, 0.2);
+  border-radius: 2px;
+  margin-bottom: 4px;
+}
+
+.systemTheme .previewContent::before,
+.systemTheme .previewContent::after {
+  content: "";
+  height: 8px;
+  background: linear-gradient(to right, rgba(80, 120, 180, 0.2) 50%, rgba(80, 140, 220, 0.2) 50%);
+  border-radius: 2px;
+  margin-bottom: 4px;
+}
+
+.themeOption span {
+  color: var(--color-gray-200);
+  font-size: 0.9rem;
+}
+
+.settingGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.setting {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.setting label {
+  font-size: 0.9rem;
+  color: var(--color-gray-200);
+}
+
+.rangeWithValue {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.rangeWithValue input[type="range"] {
+  flex: 1;
+  background: rgba(20, 30, 50, 0.5);
+  height: 6px;
+  border-radius: 3px;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.rangeWithValue input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--color-blue-400);
+  cursor: pointer;
+}
+
+.rangeWithValue span {
+  width: 40px;
+  text-align: right;
+  color: var(--color-gray-200);
+  font-size: 0.9rem;
+}
+
+.setting select {
+  background: rgba(20, 30, 50, 0.5);
+  border: 1px solid rgba(60, 80, 120, 0.4);
+  border-radius: 4px;
+  color: var(--color-gray-100);
+  padding: 8px 12px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.settingCheckbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.settingCheckbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-blue-400);
+}
+
+.settingCheckbox label {
+  font-size: 1rem;
+  color: var(--color-gray-100);
+}
+
+.actionButtons {
+  display: flex;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+.primaryButton {
+  background: linear-gradient(to bottom, #3880ff, #2872e0);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.primaryButton:hover {
+  background: linear-gradient(to bottom, #4d90ff, #3880ff);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.secondaryButton {
+  background: rgba(50, 70, 100, 0.3);
+  color: var(--color-blue-200);
+  border: 1px solid rgba(80, 120, 180, 0.4);
+  border-radius: 4px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.secondaryButton:hover {
+  background: rgba(60, 80, 120, 0.4);
+  color: var(--color-blue-100);
+}

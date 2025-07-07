@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marquee Interaction Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #000;
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .instructions {
+            background: #333;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .test-button {
+            background: #007acc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #005a9e;
+        }
+        .console-output {
+            background: #111;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            height: 200px;
+            overflow-y: auto;
+            border: 1px solid #444;
+            margin-top: 10px;
+        }
+        .app-frame {
+            width: 100%;
+            height: 600px;
+            border: 1px solid #444;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🎯 Marquee Drag-to-Scroll Test</h1>
+        
+        <div class="instructions">
+            <h2>📋 Test Instructions</h2>
+            <p><strong>Purpose:</strong> Verify the marquee drag-to-scroll functionality works correctly</p>
+            
+            <h3>Tests to Perform:</h3>
+            <ol>
+                <li><strong>Gentle Drag:</strong> Slowly drag the marquee left/right at comfortable speed</li>
+                <li><strong>Moderate Speed:</strong> Normal-paced drag across full width</li>
+                <li><strong>Quick Flick:</strong> Fast swipe with immediate release</li>
+                <li><strong>Micro-Adjustments:</strong> Small 1-5px movements for precision</li>
+            </ol>
+            
+            <h3>What to Look For:</h3>
+            <ul>
+                <li>✅ Smooth, responsive scrolling</li>
+                <li>✅ Natural momentum physics</li>
+                <li>✅ Console stays silent during normal usage</li>
+                <li>✅ Scroll position persists between drags</li>
+                <li>✅ No jerky movements or position jumps</li>
+            </ul>
+            
+            <div>
+                <button class="test-button" onclick="openDevTools()">Open DevTools Console</button>
+                <button class="test-button" onclick="clearConsole()">Clear Console</button>
+                <button class="test-button" onclick="refreshApp()">Refresh App</button>
+            </div>
+        </div>
+        
+        <div class="app-frame-container">
+            <h2>🚀 StarCom App - Marquee Test</h2>
+            <iframe src="http://localhost:5176/" class="app-frame" id="app-frame"></iframe>
+        </div>
+        
+        <div class="console-output" id="console-output">
+            <div style="color: #888;">Console output will appear here...</div>
+        </div>
+    </div>
+
+    <script>
+        function openDevTools() {
+            alert('Press F12 or right-click → Inspect to open DevTools Console');
+        }
+        
+        function clearConsole() {
+            const output = document.getElementById('console-output');
+            output.innerHTML = '<div style="color: #888;">Console cleared...</div>';
+        }
+        
+        function refreshApp() {
+            const frame = document.getElementById('app-frame');
+            frame.src = frame.src;
+        }
+        
+        // Capture console messages (basic implementation)
+        const originalLog = console.log;
+        const originalWarn = console.warn;
+        const originalError = console.error;
+        
+        function appendToOutput(type, message) {
+            const output = document.getElementById('console-output');
+            const color = type === 'error' ? '#ff4444' : type === 'warn' ? '#ffaa00' : '#00ff00';
+            const timestamp = new Date().toLocaleTimeString();
+            output.innerHTML += `<div style="color: ${color};">[${timestamp}] ${type.toUpperCase()}: ${message}</div>`;
+            output.scrollTop = output.scrollHeight;
+        }
+        
+        console.log = function(...args) {
+            appendToOutput('log', args.join(' '));
+            originalLog.apply(console, args);
+        };
+        
+        console.warn = function(...args) {
+            appendToOutput('warn', args.join(' '));
+            originalWarn.apply(console, args);
+        };
+        
+        console.error = function(...args) {
+            appendToOutput('error', args.join(' '));
+            originalError.apply(console, args);
+        };
+        
+        // Initial status
+        console.log('Marquee test page loaded. Ready for testing.');
+    </script>
+</body>
+</html>

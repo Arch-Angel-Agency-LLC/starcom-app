@@ -1,0 +1,434 @@
+/**
+ * OSINT Timeline Service
+ * 
+ * Provides timeline visualization and analysis services for the OSINT module.
+ * Handles timeline event data, correlation, and chronological analysis.
+ */
+
+import { osintApi } from '../api/osintApi';
+import osintEndpoints from '../api/endpoints';
+import { TimelineEvent } from '../../types/osint';
+import { createErrorDetail, ErrorDetail, ErrorUtils } from '../../types/errors';
+
+/**
+ * Timeline data structure
+ */
+export interface TimelineData {
+  events: TimelineEvent[];
+  timeRange: {
+    start: string; // ISO date string
+    end: string;   // ISO date string
+  };
+  categories: string[];
+}
+
+/**
+ * Timeline filter options
+ */
+export interface TimelineFilter {
+  timeRange?: {
+    start?: string; // ISO date string
+    end?: string;   // ISO date string
+  };
+  categories?: string[];
+  entityIds?: string[];
+  minConfidence?: number; // 0-1
+}
+
+/**
+ * Event correlation result
+ */
+export interface EventCorrelation {
+  sourceEvent: TimelineEvent;
+  correlatedEvents: Array<{
+    event: TimelineEvent;
+    strength: number; // 0-1 correlation strength
+    reason: string;   // Reason for correlation
+  }>;
+}
+
+/**
+ * Timeline service for OSINT operations
+ */
+class TimelineService {
+  /**
+   * Get timeline events
+   */
+  async getTimelineEvents(filter?: TimelineFilter): Promise<{ data?: TimelineData; error?: ErrorDetail }> {
+    try {
+      // If in development and no real backend, return mock data
+      if (process.env.NODE_ENV === 'development') {
+        return { data: this.getMockTimelineData(filter) };
+      }
+      
+      const result = await osintApi.post<TimelineData>(osintEndpoints.timeline.events, filter);
+      
+      if (result.success && result.data) {
+        return { data: result.data };
+      }
+      
+      return {
+        error: createErrorDetail(result.error || 'Failed to get timeline data', {
+          code: 'API_ERROR',
+          category: 'api',
+          severity: 'error',
+          operation: 'getTimelineEvents',
+          retryable: true,
+          userActions: [
+            'Check your internet connection',
+            'Verify your timeline filter settings',
+            'Try again later'
+          ]
+        })
+      };
+    } catch (error) {
+      console.error('Error fetching timeline data:', error);
+      
+      // In development mode, return mock data instead of error
+      if (process.env.NODE_ENV === 'development') {
+        return { data: this.getMockTimelineData(filter) };
+      }
+      
+      return {
+        error: createErrorDetail(
+          ErrorUtils.getErrorMessage(error) || 'Failed to get timeline data',
+          {
+            code: 'UNEXPECTED_ERROR',
+            category: 'network',
+            severity: 'error',
+            operation: 'getTimelineEvents',
+            originalError: error instanceof Error ? error : undefined,
+            retryable: true,
+            userActions: [
+              'Check your internet connection',
+              'Try again later',
+              'Contact support if the problem persists'
+            ]
+          }
+        )
+      };
+    }
+  }
+  
+  /**
+   * Correlate events to find relationships
+   */
+  async correlateEvents(eventId: string, maxResults: number = 10): Promise<{ data?: EventCorrelation; error?: ErrorDetail }> {
+    try {
+      // If in development and no real backend, return mock data
+      if (process.env.NODE_ENV === 'development') {
+        return { data: this.getMockCorrelation(eventId) };
+      }
+      
+      const result = await osintApi.post<EventCorrelation>(osintEndpoints.timeline.correlate, {
+        eventId,
+        maxResults
+      });
+      
+      if (result.success && result.data) {
+        return { data: result.data };
+      }
+      
+      return {
+        error: createErrorDetail(result.error || 'Failed to correlate events', {
+          code: 'API_ERROR',
+          category: 'api',
+          severity: 'error',
+          operation: 'correlateEvents',
+          retryable: true,
+          context: { eventId, maxResults },
+          userActions: [
+            'Check your internet connection',
+            'Verify the event ID exists',
+            'Try with a different event'
+          ]
+        })
+      };
+    } catch (error) {
+      console.error('Error correlating events:', error);
+      
+      // In development mode, return mock data instead of error
+      if (process.env.NODE_ENV === 'development') {
+        return { data: this.getMockCorrelation(eventId) };
+      }
+      
+      return {
+        error: createErrorDetail(
+          ErrorUtils.getErrorMessage(error) || 'Failed to correlate events',
+          {
+            code: 'UNEXPECTED_ERROR',
+            category: 'network',
+            severity: 'error',
+            operation: 'correlateEvents',
+            originalError: error instanceof Error ? error : undefined,
+            retryable: true,
+            context: { eventId, maxResults },
+            userActions: [
+              'Check your internet connection',
+              'Try again later',
+              'Contact support if the problem persists'
+            ]
+          }
+        )
+      };
+    }
+  }
+  
+  /**
+   * Generate mock timeline data
+   */
+  private getMockTimelineData(filter?: TimelineFilter): TimelineData {
+    // Start with a base set of events
+    const allEvents: TimelineEvent[] = [
+      {
+        id: 'evt-001',
+        title: 'Suspicious network traffic detected',
+        description: 'Unusual outbound traffic pattern detected from server cluster alpha-3',
+        timestamp: '2025-06-25T14:23:00Z',
+        category: 'security',
+        source: 'network-monitor',
+        confidence: 0.75,
+        entities: ['server-cluster-alpha-3', 'unknown-endpoint-x45']
+      },
+      {
+        id: 'evt-002',
+        title: 'New cryptocurrency wallet created',
+        description: 'Target entity created a new wallet on the Solana blockchain',
+        timestamp: '2025-06-26T09:12:00Z',
+        category: 'financial',
+        source: 'blockchain-monitor',
+        confidence: 0.95,
+        entities: ['target-alias-zeta', 'wallet-sol-x892f4']
+      },
+      {
+        id: 'evt-003',
+        title: 'Forum post mentioning operation codename',
+        description: 'Reference to operation "Blue Dawn" found on encrypted forum',
+        timestamp: '2025-06-26T22:45:00Z',
+        category: 'intelligence',
+        source: 'darkweb-monitor',
+        confidence: 0.65,
+        entities: ['forum-shadowtalk', 'op-blue-dawn']
+      },
+      {
+        id: 'evt-004',
+        title: 'Communication with known threat actor',
+        description: 'Target established encrypted communication channel with known entity "Nightshade"',
+        timestamp: '2025-06-27T11:30:00Z',
+        category: 'communication',
+        source: 'signal-intercept',
+        confidence: 0.85,
+        entities: ['target-alias-zeta', 'threat-actor-nightshade']
+      },
+      {
+        id: 'evt-005',
+        title: 'Large cryptocurrency transfer',
+        description: 'Transfer of 250 ETH from known wallet to mixing service',
+        timestamp: '2025-06-28T15:20:00Z',
+        category: 'financial',
+        source: 'blockchain-monitor',
+        confidence: 0.98,
+        entities: ['wallet-eth-394fd', 'mixer-tornado-cash']
+      },
+      {
+        id: 'evt-006',
+        title: 'Server vulnerability exploited',
+        description: 'Zero-day vulnerability exploitation detected on finance department server',
+        timestamp: '2025-06-29T04:15:00Z',
+        category: 'security',
+        source: 'endpoint-protection',
+        confidence: 0.92,
+        entities: ['server-finance-03', 'vulnerability-zd-292']
+      },
+      {
+        id: 'evt-007',
+        title: 'Data exfiltration detected',
+        description: 'Approximately 2.3GB of encrypted data transferred to unknown endpoint',
+        timestamp: '2025-06-29T04:45:00Z',
+        category: 'security',
+        source: 'network-monitor',
+        confidence: 0.88,
+        entities: ['server-finance-03', 'unknown-endpoint-y72']
+      },
+      {
+        id: 'evt-008',
+        title: 'Social media post with hidden message',
+        description: 'Steganography detected in image posted by suspect account',
+        timestamp: '2025-07-01T18:30:00Z',
+        category: 'communication',
+        source: 'social-media-scanner',
+        confidence: 0.45,
+        entities: ['social-account-twilight-raven', 'steganography-image-445']
+      },
+      {
+        id: 'evt-009',
+        title: 'Dark web marketplace listing',
+        description: 'New listing for "corporate financial data package" on dark web marketplace',
+        timestamp: '2025-07-02T21:15:00Z',
+        category: 'intelligence',
+        source: 'darkweb-monitor',
+        confidence: 0.72,
+        entities: ['marketplace-shadow-bazar', 'listing-42391']
+      },
+      {
+        id: 'evt-010',
+        title: 'Target accessed secure drop location',
+        description: 'Target detected at physical location associated with dead drop site',
+        timestamp: '2025-07-03T13:40:00Z',
+        category: 'logistics',
+        source: 'physical-surveillance',
+        confidence: 0.79,
+        entities: ['target-alias-zeta', 'location-drop-site-7']
+      }
+    ];
+    
+    // Apply filters if provided
+    let filteredEvents = [...allEvents];
+    
+    if (filter) {
+      // Filter by date range
+      if (filter.timeRange) {
+        if (filter.timeRange.start) {
+          const startDate = new Date(filter.timeRange.start);
+          filteredEvents = filteredEvents.filter(event => 
+            new Date(event.timestamp) >= startDate
+          );
+        }
+        
+        if (filter.timeRange.end) {
+          const endDate = new Date(filter.timeRange.end);
+          filteredEvents = filteredEvents.filter(event => 
+            new Date(event.timestamp) <= endDate
+          );
+        }
+      }
+      
+      // Filter by categories
+      if (filter.categories && filter.categories.length > 0) {
+        filteredEvents = filteredEvents.filter(event => 
+          filter.categories?.includes(event.category)
+        );
+      }
+      
+      // Filter by entity IDs
+      if (filter.entityIds && filter.entityIds.length > 0) {
+        filteredEvents = filteredEvents.filter(event => 
+          event.entities.some(entity => filter.entityIds?.includes(entity))
+        );
+      }
+      
+      // Filter by confidence
+      if (filter.minConfidence !== undefined) {
+        filteredEvents = filteredEvents.filter(event => 
+          event.confidence >= filter.minConfidence
+        );
+      }
+    }
+    
+    // Sort events by timestamp
+    filteredEvents.sort((a, b) => 
+      new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+    );
+    
+    // Get all unique categories
+    const categories = Array.from(new Set(filteredEvents.map(event => event.category)));
+    
+    // Get time range
+    const timeRange = {
+      start: filteredEvents.length > 0 
+        ? filteredEvents[0].timestamp 
+        : new Date().toISOString(),
+      end: filteredEvents.length > 0 
+        ? filteredEvents[filteredEvents.length - 1].timestamp 
+        : new Date().toISOString()
+    };
+    
+    return {
+      events: filteredEvents,
+      timeRange,
+      categories
+    };
+  }
+  
+  /**
+   * Generate mock correlation data
+   */
+  private getMockCorrelation(eventId: string): EventCorrelation {
+    // Get all mock events
+    const allEvents = this.getMockTimelineData().events;
+    
+    // Find the source event
+    const sourceEvent = allEvents.find(event => event.id === eventId) || allEvents[0];
+    
+    // Find related events (simplified logic for mock data)
+    const relatedEvents = allEvents
+      .filter(event => event.id !== sourceEvent.id)
+      .map(event => {
+        // Calculate a mock correlation strength based on various factors
+        let strength = 0;
+        
+        // Same category increases correlation
+        if (event.category === sourceEvent.category) {
+          strength += 0.3;
+        }
+        
+        // Shared entities increases correlation
+        const sharedEntities = event.entities.filter(entity => 
+          sourceEvent.entities.includes(entity)
+        );
+        
+        if (sharedEntities.length > 0) {
+          strength += 0.4 * (sharedEntities.length / Math.max(event.entities.length, sourceEvent.entities.length));
+        }
+        
+        // Time proximity increases correlation (within 24 hours = higher correlation)
+        const timeDiff = Math.abs(
+          new Date(event.timestamp).getTime() - new Date(sourceEvent.timestamp).getTime()
+        );
+        
+        const hoursDiff = timeDiff / (1000 * 60 * 60);
+        if (hoursDiff < 24) {
+          strength += 0.3 * (1 - (hoursDiff / 24));
+        }
+        
+        // Add some randomness
+        strength += Math.random() * 0.1;
+        
+        // Cap at 0.95
+        strength = Math.min(0.95, strength);
+        
+        // Generate a reason string
+        let reasons = [];
+        if (event.category === sourceEvent.category) {
+          reasons.push(`Same category (${event.category})`);
+        }
+        if (sharedEntities.length > 0) {
+          reasons.push(`Shared entities: ${sharedEntities.join(', ')}`);
+        }
+        if (hoursDiff < 24) {
+          reasons.push(`Events occurred within ${Math.round(hoursDiff)} hours`);
+        }
+        
+        return {
+          event,
+          strength,
+          reason: reasons.join('; ')
+        };
+      })
+      .filter(relation => relation.strength > 0.2) // Only include reasonably related events
+      .sort((a, b) => b.strength - a.strength) // Sort by correlation strength
+      .slice(0, 5); // Take top 5
+    
+    return {
+      sourceEvent,
+      correlatedEvents: relatedEvents
+    };
+  }
+}
+
+// Create singleton instance
+const timelineService = new TimelineService();
+
+// Export service and types
+export { timelineService };
+export type { TimelineData, TimelineFilter, EventCorrelation };

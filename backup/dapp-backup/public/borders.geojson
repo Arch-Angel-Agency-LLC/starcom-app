@@ -1,0 +1,17 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "name": "Sample Border" },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-74.0, 40.0],
+          [-73.0, 41.0],
+          [-72.0, 42.0]
+        ]
+      }
+    }
+  ]
+}

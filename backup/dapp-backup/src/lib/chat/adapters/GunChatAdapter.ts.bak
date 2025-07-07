@@ -1,0 +1,1534 @@
+/**
+ * GunChatAdapter.ts
+ * 
+ * Adapter for the Gun.js chat implementation that conforms to the unified ChatProviderInterface.
+ * This adapter extends BaseChatAdapter and implements the required methods for Gun.js.
+ */
+
+import { BaseChatAdapter } from './BaseChatAdapter';
+import { 
+  EnhancedChatMessage, 
+  EnhancedChatChannel, 
+  EnhancedChatUser,
+  EnhancedChatProviderOptions,
+  ConnectionStatus,
+  ConnectionDetails,
+  MessageStatus
+} from '../types/ChatAdapterTypes';
+import { ChatProviderCapabilities, ProtocolInfo } from '../types/ProtocolTypes';
+import { SearchOptions, SearchResult } from '../interfaces/ChatProviderInterface';
+import { gun as gunInstance } from '../../gun-db';
+import { uploadToIPFS, getIPFSGatewayUrl } from '../../ipfs-client';
+import { P2PConnection } from '../../webrtc-signaling';
+import { logger } from '../../../utils';
+
+// Define a minimal GunJS type interface for TypeScript
+interface GunInstance {
+  get: (key: string) => GunInstance;
+  put: (data: Record<string, unknown>) => GunInstance;
+  on: (callback: (data: unknown, key: string) => void) => GunInstance;
+  once: (callback: (data: unknown, key: string) => void) => GunInstance;
+  map: () => GunInstance;
+  set: (data: unknown) => GunInstance;
+  off: () => GunInstance;
+}
+
+/**
+ * Options specific to the Gun chat adapter.
+ */
+export interface GunChatAdapterOptions extends EnhancedChatProviderOptions {
+  gunInstance?: any; // Using any to avoid type conflicts
+  useWebRTC?: boolean;
+  useSEA?: boolean;
+}
+
+/**
+ * Adapter for Gun.js that implements the ChatProviderInterface.
+ */
+export class GunChatAdapter extends BaseChatAdapter {
+  private gun: any; // Using any to avoid type conflicts
+  private p2pConnections: Map<string, P2PConnection> = new Map();
+  private messageSubscriptions: Map<string, () => void> = new Map();
+  private presenceSubscriptions: Map<string, () => void> = new Map();
+  private useWebRTC: boolean;
+  private useSEA: boolean;
+
+  constructor(options?: GunChatAdapterOptions) {
+    super(options);
+    
+    this.gun = options?.gunInstance || gunInstance;
+    this.useWebRTC = options?.useWebRTC || false;
+    this.useSEA = options?.useSEA || false;
+    
+    // Register additional features based on options
+    if (this.useWebRTC) {
+      this.registerFeature('p2p');
+    }
+    
+    if (this.useSEA) {
+      this.registerFeature('encryption');
+    }
+  }
+
+  /**
+   * Initialize protocol-specific capabilities.
+   */
+  protected initializeCapabilities(): ChatProviderCapabilities {
+    return {
+      directMessaging: true,
+      groupChat: true,
+      fileAttachments: true,
+      endToEndEncryption: this.useSEA,
+      messageHistory: true,
+      presenceDetection: true,
+      messageDeliveryStatus: true,
+      messageReactions: false,
+      messageThreads: false,
+      userProfiles: true,
+      channelManagement: true,
+      messageSearch: true,
+      p2pCommunication: this.useWebRTC,
+      offline: true,
+      messageEditing: false,
+      messageDeleting: true,
+      readReceipts: true,
+      typing: false
+    };
+  }
+
+  /**
+   * Initialize protocol-specific information.
+   */
+  protected initializeProtocolInfo(): ProtocolInfo {
+    return {
+      name: 'Gun.js',
+      version: '0.2020.1235',
+      description: 'Decentralized graph database with P2P capabilities',
+      protocolType: 'decentralized',
+      encryption: this.useSEA,
+      website: 'https://gun.eco',
+      documentation: 'https://gun.eco/docs',
+      implementationDetails: {
+        storageType: 'graph',
+        transportLayer: this.useWebRTC ? 'WebRTC/WebSockets' : 'WebSockets',
+        persistence: true,
+        replication: true
+      }
+    };
+  }
+
+  /**
+   * Connect to the Gun.js network.
+   */
+  public async connect(options?: Partial<EnhancedChatProviderOptions>): Promise<void> {
+    try {
+      this.updateConnectionStatus('connecting');
+      
+      // Apply any new options
+      if (options) {
+        this.options = { ...this.options, ...options };
+      }
+      
+      // Simulate connection delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Update connection status
+      this.updateConnectionStatus('connected', {
+        connectedAt: Date.now(),
+        latency: 50, // Mock latency
+        endpoint: 'gun',
+        protocol: this.useWebRTC ? 'WebRTC/WebSockets' : 'WebSockets',
+        encryptionEnabled: this.useSEA
+      });
+      
+      logger.info('Connected to Gun.js network');
+    } catch (error) {
+      this.updateConnectionStatus('error', {
+        errorMessage: error instanceof Error ? error.message : String(error)
+      });
+      
+      throw error;
+    }
+  }
+
+  /**
+   * Disconnect from the Gun.js network.
+   */
+  public async disconnect(): Promise<void> {
+    try {
+      // Clean up subscriptions
+      this.messageSubscriptions.forEach(unsubscribe => unsubscribe());
+      this.messageSubscriptions.clear();
+      
+      this.presenceSubscriptions.forEach(unsubscribe => unsubscribe());
+      this.presenceSubscriptions.clear();
+      
+      // Close P2P connections
+      this.p2pConnections.forEach(conn => conn.close());
+      this.p2pConnections.clear();
+      
+      // Update connection status
+      this.updateConnectionStatus('disconnected');
+      
+      logger.info('Disconnected from Gun.js network');
+    } catch (error) {
+      logger.error('Error disconnecting from Gun.js network:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Send a message to a channel.
+   */
+  public async sendMessage(channelId: string, content: string, attachments?: File[]): Promise<EnhancedChatMessage> {
+    if (!this.isConnected()) {
+      throw new Error('Not connected to Gun.js network');
+    }
+    
+    try {
+      const messageId = `msg_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+      
+      // Handle attachments if provided
+      const attachmentData = attachments && attachments.length > 0
+        ? await Promise.all(attachments.map(async file => {
+            const result = await this.uploadAttachment(file);
+            return {
+              id: result.id,
+              name: file.name,
+              url: result.url,
+              size: file.size,
+              type: file.type
+            };
+          }))
+        : [];
+      
+      const message: EnhancedChatMessage = {
+        id: messageId,
+        senderId: this.options.userId || 'unknown',
+        senderName: this.options.userName || 'Unknown User',
+        content,
+        timestamp: Date.now(),
+        channelId,
+        type: attachmentData.length > 0 ? 'file' : 'text',
+        status: 'sending',
+        attachments: attachmentData
+      };
+      
+      // Simulate sending delay
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      // Update message status to sent
+      message.status = 'sent';
+      
+      // Store message in Gun.js
+      this.gun.get('channels').get(channelId).get('messages').get(messageId).put(message);
+      
+      logger.info(`Message sent to channel ${channelId}`);
+      
+      return message;
+    } catch (error) {
+      logger.error(`Error sending message to channel ${channelId}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get messages from a channel.
+   */
+  public async getMessages(channelId: string, limit: number = 50, before?: number): Promise<EnhancedChatMessage[]> {
+    if (!this.isConnected()) {
+      throw new Error('Not connected to Gun.js network');
+    }
+    
+    try {
+      return new Promise<EnhancedChatMessage[]>((resolve, reject) => {
+        const messages: EnhancedChatMessage[] = [];
+        
+        this.gun.get('channels').get(channelId).get('messages').map().once((data: any, key: string) => {
+          if (data && typeof data === 'object') {
+            const message = data as EnhancedChatMessage;
+            
+            // Filter by timestamp if 'before' is specified
+            if (before && message.timestamp >= before) {
+              return;
+            }
+            
+            messages.push(message);
+            
+            // Resolve once we have enough messages or Gun.js has processed all messages
+            if (messages.length >= limit) {
+              resolve(messages.sort((a, b) => b.timestamp - a.timestamp));
+            }
+          }
+        });
+        
+        // Set a timeout to resolve after a reasonable time
+        setTimeout(() => {
+          resolve(messages.sort((a, b) => b.timestamp - a.timestamp));
+        }, 1000);
+      });
+    } catch (error) {
+      logger.error(`Error getting messages from channel ${channelId}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Subscribe to messages in a channel.
+   */
+  public subscribeToMessages(channelId: string, callback: (message: EnhancedChatMessage) => void): () => void {
+    if (!this.isConnected()) {
+      throw new Error('Not connected to Gun.js network');
+    }
+    
+    // Unsubscribe from previous subscription for this channel if exists
+    if (this.messageSubscriptions.has(channelId)) {
+      const unsubscribe = this.messageSubscriptions.get(channelId);
+      if (unsubscribe) {
+        unsubscribe();
+      }
+      this.messageSubscriptions.delete(channelId);
+    }
+    
+    // Create a new subscription
+    const listener = this.gun.get('channels').get(channelId).get('messages').map().on((data: any, key: string) => {
+      if (data && typeof data === 'object') {
+        const message = data as EnhancedChatMessage;
+        callback(message);
+      }
+    });
+    
+    // Store the unsubscribe function
+    const unsubscribe = () => {
+      listener.off();
+      this.messageSubscriptions.delete(channelId);
+    };
+    
+    this.messageSubscriptions.set(channelId, unsubscribe);
+    
+    return unsubscribe;
+  }
+
+  /**
+   * Create a channel.
+   */
+  public async createChannel(name: string, type: string, participants: string[]): Promise<EnhancedChatChannel> {
+    if (!this.isConnected()) {
+      throw new Error('Not connected to Gun.js network');
+    }
+    
+    try {
+      const channelId = `channel_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+      
+      const channel: EnhancedChatChannel = {
+        id: channelId,
+        name,
+        type: type as any, // Type assertion to match the ChannelType
+        participants,
+        createdAt: Date.now(),
+        createdBy: this.options.userId || 'unknown'
+      };
+      
+      // Store the channel in Gun.js
+      this.gun.get('channels').get(channelId).put(channel);
+      
+      logger.info(`Channel ${name} created with ID ${channelId}`);
+      
+      return channel;
+    } catch (error) {
+      logger.error(`Error creating channel ${name}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Join a channel.
+   */
+  public async joinChannel(channelId: string): Promise<void> {
+    if (!this.isConnected()) {
+      throw new Error('Not connected to Gun.js network');
+    }
+    
+    try {
+      // Get the channel
+      const channel = await this.getChannelDetails(channelId);
+      
+      if (!channel) {
+        throw new Error(`Channel ${channelId} not found`);
+      }
+      
+      // Add current user to participants if not already there
+      if (!channel.participants.includes(this.options.userId || 'unknown')) {
+        channel.participants.push(this.options.userId || 'unknown');
+        
+        // Update the channel in Gun.js
+        this.gun.get('channels').get(channelId).get('participants').put(channel.participants);
+      }
+      
+      logger.info(`Joined channel ${channelId}`);
+    } catch (error) {
+      logger.error(`Error joining channel ${channelId}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Leave a channel.
+   */
+  public async leaveChannel(channelId: string): Promise<void> {
+    if (!this.isConnected()) {
+      throw new Error('Not connected to Gun.js network');
+    }
+    
+    try {
+      // Get the channel
+      const channel = await this.getChannelDetails(channelId);
+      
+      if (!channel) {
+        throw new Error(`Channel ${channelId} not found`);
+      }
+      
+      // Remove current user from participants if present
+      const userIndex = channel.participants.indexOf(this.options.userId || 'unknown');
+      if (userIndex >= 0) {
+        channel.participants.splice(userIndex, 1);
+        
+        // Update the channel in Gun.js
+        this.gun.get('channels').get(channelId).get('participants').put(channel.participants);
+      }
+      
+      logger.info(`Left channel ${channelId}`);
+    } catch (error) {
+      logger.error(`Error leaving channel ${channelId}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get all available channels.
+   */
+  public async getChannels(): Promise<EnhancedChatChannel[]> {
+    if (!this.isConnected()) {
+      throw new Error('Not connected to Gun.js network');
+    }
+    
+    try {
+      return new Promise<EnhancedChatChannel[]>((resolve, reject) => {
+        const channels: EnhancedChatChannel[] = [];
+        
+        this.gun.get('channels').map().once((data: any, key: string) => {
+          if (data && typeof data === 'object') {
+            const channel = data as EnhancedChatChannel;
+            channels.push(channel);
+          }
+        });
+        
+        // Set a timeout to resolve after a reasonable time
+        setTimeout(() => {
+          resolve(channels);
+        }, 1000);
+      });
+    } catch (error) {
+      logger.error('Error getting channels:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get details of a specific channel.
+   */
+  public async getChannelDetails(channelId: string): Promise<EnhancedChatChannel> {
+    if (!this.isConnected()) {
+      throw new Error('Not connected to Gun.js network');
+    }
+    
+    try {
+      return new Promise<EnhancedChatChannel>((resolve, reject) => {
+        this.gun.get('channels').get(channelId).once((data: any) => {
+          if (data && typeof data === 'object') {
+            resolve(data as EnhancedChatChannel);
+          } else {
+            reject(new Error(`Channel ${channelId} not found`));
+          }
+        });
+      });
+    } catch (error) {
+      logger.error(`Error getting channel details for ${channelId}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get users in a channel.
+   */
+  public async getUsers(channelId: string): Promise<EnhancedChatUser[]> {
+    if (!this.isConnected()) {
+      throw new Error('Not connected to Gun.js network');
+    }
+    
+    try {
+      // Get the channel
+      const channel = await this.getChannelDetails(channelId);
+      
+      if (!channel) {
+        throw new Error(`Channel ${channelId} not found`);
+      }
+      
+      // Get user details for each participant
+      const userPromises = channel.participants.map(userId => this.getUserById(userId));
+      
+      // Wait for all user details to be fetched
+      const users = await Promise.all(userPromises);
+      
+      // Filter out null values (users not found)
+      return users.filter((user): user is EnhancedChatUser => user !== null);
+    } catch (error) {
+      logger.error(`Error getting users for channel ${channelId}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get a user by ID.
+   */
+  public async getUserById(userId: string): Promise<EnhancedChatUser | null> {
+    if (!this.isConnected()) {
+      throw new Error('Not connected to Gun.js network');
+    }
+    
+    try {
+      return new Promise<EnhancedChatUser | null>((resolve, reject) => {
+        this.gun.get('users').get(userId).once((data: any) => {
+          if (data && typeof data === 'object') {
+            resolve(data as EnhancedChatUser);
+          } else {
+            // If user not found, create a default user object
+            const defaultUser: EnhancedChatUser = {
+              id: userId,
+              name: userId.substring(0, 8),
+              status: 'offline'
+            };
+            resolve(defaultUser);
+          }
+        });
+      });
+    } catch (error) {
+      logger.error(`Error getting user by ID ${userId}:`, error);
+      return null;
+    }
+  }
+
+  /**
+   * Subscribe to user presence in a channel.
+   */
+  public subscribeToUserPresence(channelId: string, callback: (users: EnhancedChatUser[]) => void): () => void {
+    if (!this.isConnected()) {
+      throw new Error('Not connected to Gun.js network');
+    }
+    
+    // Unsubscribe from previous subscription for this channel if exists
+    if (this.presenceSubscriptions.has(channelId)) {
+      const unsubscribe = this.presenceSubscriptions.get(channelId);
+      if (unsubscribe) {
+        unsubscribe();
+      }
+      this.presenceSubscriptions.delete(channelId);
+    }
+    
+    // Create a new subscription
+    const updatePresence = () => {
+      this.getUsers(channelId).then(users => {
+        callback(users);
+      }).catch(error => {
+        logger.error(`Error in presence subscription for channel ${channelId}:`, error);
+      });
+    };
+    
+    // Initial update
+    updatePresence();
+    
+    // Setup a periodic update
+    const intervalId = setInterval(updatePresence, 30000);
+    
+    // Store the unsubscribe function
+    const unsubscribe = () => {
+      clearInterval(intervalId);
+      this.presenceSubscriptions.delete(channelId);
+    };
+    
+    this.presenceSubscriptions.set(channelId, unsubscribe);
+    
+    return unsubscribe;
+  }
+
+  /**
+   * Mark messages as read.
+   */
+  public async markMessagesAsRead(channelId: string, messageIds: string[]): Promise<void> {
+    if (!this.isConnected()) {
+      throw new Error('Not connected to Gun.js network');
+    }
+    
+    try {
+      // Mark each message as read
+      for (const messageId of messageIds) {
+        this.gun.get('channels').get(channelId).get('messages').get(messageId).get('status').put('read' as MessageStatus);
+        
+        // Add current user to readBy list if it exists
+        this.gun.get('channels').get(channelId).get('messages').get(messageId).get('readBy').once((readBy: string[] | null) => {
+          const newReadBy = Array.isArray(readBy) ? [...readBy] : [];
+          
+          if (!newReadBy.includes(this.options.userId || 'unknown')) {
+            newReadBy.push(this.options.userId || 'unknown');
+            this.gun.get('channels').get(channelId).get('messages').get(messageId).get('readBy').put(newReadBy);
+          }
+        });
+      }
+      
+      logger.info(`Marked ${messageIds.length} messages as read in channel ${channelId}`);
+    } catch (error) {
+      logger.error(`Error marking messages as read in channel ${channelId}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Upload a file attachment.
+   */
+  public async uploadAttachment(file: File): Promise<{ id: string; url: string; }> {
+    try {
+      // Upload the file to IPFS
+      const cid = await uploadToIPFS(file);
+      
+      // Get the gateway URL for the uploaded file
+      const url = getIPFSGatewayUrl(cid);
+      
+      return {
+        id: cid,
+        url
+      };
+    } catch (error) {
+      logger.error('Error uploading attachment:', error);
+      throw error;
+    }
+  }
+}
+    this.gun = options?.gunInstance || gunInstance;
+    this.userId = options?.userId || '';
+    this.userName = options?.userName || '';
+    this.useWebRTC = options?.useWebRTC !== undefined ? options.useWebRTC : true;
+    this.useSEA = options?.useSEA !== undefined ? options.useSEA : false;
+    
+    // Setup feature detection
+    this.setupFeatureDetection();
+  }
+  
+  /**
+   * Sets up feature detection for Gun adapter.
+   */
+  protected override setupFeatureDetection(): void {
+    super.setupFeatureDetection();
+    
+    // Add Gun-specific features
+    this.featureDetector.addFeature('createChannel');
+    this.featureDetector.addFeature('joinChannel');
+    this.featureDetector.addFeature('leaveChannel');
+    this.featureDetector.addFeature('getChannels');
+    this.featureDetector.addFeature('getUsers');
+    this.featureDetector.addFeature('getUserById');
+    this.featureDetector.addFeature('subscribeToUserPresence');
+    
+    if (this.useWebRTC) {
+      this.featureDetector.addFeature('p2p');
+    }
+    
+    if (this.useSEA) {
+      this.featureDetector.addFeature('encryption');
+    }
+  }
+  
+  // Implement required abstract methods from EnhancedChatProvider
+  protected doSearchMessages(query: string, channelId?: string): Promise<ChatMessage[]> {
+    // Implementation of search messages
+    return this.executeWithRetry(
+      async () => {
+        // Simple client-side search implementation
+        const allMessages = channelId 
+          ? await this.getMessages(channelId)
+          : await this.getAllMessages();
+          
+        return allMessages.filter(message => 
+          message.content.toLowerCase().includes(query.toLowerCase())
+        );
+      },
+      'searchMessages',
+      { retryable: true }
+    );
+  }
+  
+  protected async doMarkMessagesAsRead(channelId: string, messageIds: string[]): Promise<void> {
+    return this.executeWithRetry(
+      async () => {
+        // Implementation of mark messages as read
+        const gunMessages = this.gun.get('starcom-messages').get(channelId);
+        
+        for (const messageId of messageIds) {
+          gunMessages.get(messageId).get('status').put('read');
+        }
+      },
+      'markMessagesAsRead',
+      { retryable: true }
+    );
+  }
+  
+  protected async doUploadAttachment(file: File): Promise<{ id: string; url: string; }> {
+    return this.executeWithRetry(
+      async () => {
+        const result = await uploadToIPFS(file);
+        return {
+          id: result.cid,
+          url: getIPFSGatewayUrl(result.cid)
+        };
+      },
+      'uploadAttachment',
+      { retryable: true }
+    );
+  }
+  
+  // Helper method to get all messages across channels
+  private async getAllMessages(): Promise<ChatMessage[]> {
+    const channels = await this.getChannels();
+    const messagesPromises = channels.map(channel => this.getMessages(channel.id));
+    const messagesArrays = await Promise.all(messagesPromises);
+    
+    return messagesArrays.flat();
+  }
+
+  /**
+   * Connects to the Gun.js database and initializes the chat adapter.
+   */
+  async connect(options?: Partial<GunChatAdapterOptions>): Promise<void> {
+    if (this.connected) return;
+
+    try {
+      // Update options if provided
+      if (options) {
+        this.userId = options.userId || this.userId;
+        this.userName = options.userName || this.userName;
+        
+        if (options.gunInstance) {
+          this.gun = options.gunInstance;
+        }
+        
+        if (options.useWebRTC !== undefined) {
+          this.useWebRTC = options.useWebRTC;
+        }
+        
+        if (options.useSEA !== undefined) {
+          this.useSEA = options.useSEA;
+        }
+      }
+
+      // Validate required fields
+      if (!this.userId) {
+        throw new Error('User ID is required to connect to the chat system');
+      }
+
+      // Initialize presence
+      this.gun.get('starcom-presence').get(this.userId).put({
+        online: true,
+        lastSeen: Date.now(),
+        name: this.userName || this.userId.slice(0, 6),
+      });
+
+      // Set up disconnect handling
+      window.addEventListener('beforeunload', this.handleDisconnect);
+
+      // Set connected flag
+      this.connected = true;
+    } catch (error) {
+      console.error('Failed to connect to Gun.js chat:', error);
+      throw new Error(`Failed to connect to Gun.js chat: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  /**
+   * Disconnects from the Gun.js database and cleans up resources.
+   */
+  async disconnect(): Promise<void> {
+    if (!this.connected) return;
+
+    try {
+      this.handleDisconnect();
+      
+      // Clean up subscriptions
+      for (const unsubscribe of this.messageSubscriptions.values()) {
+        unsubscribe();
+      }
+      this.messageSubscriptions.clear();
+      
+      for (const unsubscribe of this.presenceSubscriptions.values()) {
+        unsubscribe();
+      }
+      this.presenceSubscriptions.clear();
+      
+      // Close P2P connections
+      for (const connection of this.p2pConnections.values()) {
+        connection.close();
+      }
+      this.p2pConnections.clear();
+      
+      // Remove event listener
+      window.removeEventListener('beforeunload', this.handleDisconnect);
+      
+      this.connected = false;
+    } catch (error) {
+      console.error('Failed to disconnect from Gun.js chat:', error);
+      throw new Error(`Failed to disconnect from Gun.js chat: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  /**
+   * Handles the disconnection process by updating presence and cleaning up.
+   */
+  private handleDisconnect = () => {
+    // Update presence status
+    this.gun.get('starcom-presence').get(this.userId).put({
+      online: false,
+      lastSeen: Date.now()
+    });
+  };
+
+  /**
+   * Sends a message to the specified channel.
+   */
+  async sendMessage(channelId: string, content: string, attachments?: File[]): Promise<ChatMessage> {
+    if (!this.connected) {
+      throw new Error('Not connected to the chat system');
+    }
+
+    try {
+      // Upload attachments to IPFS if provided
+      let attachmentData: ChatMessage['attachments'] = [];
+      
+      if (attachments && attachments.length > 0) {
+        attachmentData = await Promise.all(
+          attachments.map(async (file) => {
+            const ipfsHash = await uploadToIPFS(file);
+            return {
+              id: this.generateId(),
+              name: file.name,
+              url: getIPFSGatewayUrl(ipfsHash),
+              size: file.size,
+              type: file.type
+            };
+          })
+        );
+      }
+      
+      // Create the message object
+      const messageId = this.generateId();
+      const timestamp = Date.now();
+      
+      const message: ChatMessage = {
+        id: messageId,
+        senderId: this.userId,
+        senderName: this.userName || this.userId.slice(0, 6),
+        content,
+        timestamp,
+        channelId,
+        type: attachmentData.length > 0 ? 'file' : 'text',
+        status: 'sending',
+        attachments: attachmentData,
+        metadata: {
+          source: 'gun',
+          encrypted: this.encryptionEnabled,
+          webrtc: this.useWebRTC
+        }
+      };
+      
+      // Convert to Gun.js format
+      const gunMessage: DecentralizedMessage = {
+        id: message.id,
+        sender: {
+          address: message.senderId,
+          username: message.senderName
+        },
+        content: message.content,
+        encrypted: this.encryptionEnabled,
+        timestamp: message.timestamp,
+        type: channelId.startsWith('dm-') ? 'dm' : channelId.startsWith('team-') ? 'team' : 'global',
+        teamId: channelId.startsWith('team-') ? channelId.substring(5) : undefined,
+        recipientAddress: channelId.startsWith('dm-') ? channelId.split('-')[2] : undefined,
+        attachments: message.attachments ? message.attachments.map(a => ({
+          name: a.name,
+          ipfsHash: a.url.split('/').pop() || '',
+          size: a.size,
+          type: a.type
+        })) : []
+      };
+      
+      // Store in Gun.js
+      this.gun.get('starcom-messages')
+        .get(channelId)
+        .get(messageId)
+        .put(gunMessage);
+      
+      // Update message status
+      message.status = 'sent';
+      
+      // If using WebRTC for direct messages, send through P2P connection
+      if (this.useWebRTC && channelId.startsWith('dm-')) {
+        const recipientId = channelId.split('-')[2];
+        this.ensureP2PConnection(recipientId)
+          .then(connection => {
+            connection.sendMessage(JSON.stringify(gunMessage));
+          })
+          .catch(error => {
+            console.warn(`Failed to send message through WebRTC, falling back to Gun.js: ${error}`);
+          });
+      }
+      
+      return message;
+    } catch (error) {
+      console.error('Failed to send message:', error);
+      throw new Error(`Failed to send message: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  /**
+   * Retrieves messages from the specified channel.
+   */
+  async getMessages(channelId: string, limit = 50, before?: number): Promise<ChatMessage[]> {
+    if (!this.connected) {
+      throw new Error('Not connected to the chat system');
+    }
+
+    return new Promise<ChatMessage[]>((resolve, reject) => {
+      const messages: ChatMessage[] = [];
+      const gunMessages = this.gun.get('starcom-messages').get(channelId);
+      
+      gunMessages.map().once((data: DecentralizedMessage | null, id: string) => {
+        if (!data || id === '_' || (before && data.timestamp >= before)) return;
+        
+        const message: ChatMessage = this.convertGunMessageToChatMessage(data, channelId);
+        messages.push(message);
+        
+        // Resolve once we have all messages or hit the limit
+        if (messages.length >= limit) {
+          // Sort by timestamp in ascending order
+          messages.sort((a, b) => a.timestamp - b.timestamp);
+          resolve(messages);
+        }
+      });
+      
+      // Set a timeout to resolve with whatever messages we have
+      setTimeout(() => {
+        if (messages.length === 0) {
+          resolve([]);
+        } else {
+          // Sort by timestamp in ascending order
+          messages.sort((a, b) => a.timestamp - b.timestamp);
+          resolve(messages);
+        }
+      }, 2000);
+    });
+  }
+
+  /**
+   * Subscribes to messages in the specified channel.
+   */
+  subscribeToMessages(channelId: string, callback: (message: ChatMessage) => void): () => void {
+    if (!this.connected) {
+      throw new Error('Not connected to the chat system');
+    }
+
+    // Unsubscribe from previous subscription if exists
+    if (this.messageSubscriptions.has(channelId)) {
+      const unsubscribe = this.messageSubscriptions.get(channelId)!;
+      unsubscribe();
+      this.messageSubscriptions.delete(channelId);
+    }
+
+    // Set up new subscription
+    const gunMessages = this.gun.get('starcom-messages').get(channelId);
+    
+    const listener = gunMessages.map().on((data: DecentralizedMessage | null, id: string) => {
+      if (!data || id === '_') return;
+      
+      const message = this.convertGunMessageToChatMessage(data, channelId);
+      callback(message);
+    });
+    
+    // Create unsubscribe function
+    const unsubscribe = () => {
+      listener.off();
+      this.messageSubscriptions.delete(channelId);
+    };
+    
+    // Store the unsubscribe function
+    this.messageSubscriptions.set(channelId, unsubscribe);
+    
+    return unsubscribe;
+  }
+
+  /**
+   * Creates a new channel.
+   */
+  async createChannel(name: string, type: 'direct' | 'team' | 'global', participants: string[]): Promise<ChatChannel> {
+    if (!this.connected) {
+      throw new Error('Not connected to the chat system');
+    }
+
+    try {
+      let channelId: string;
+      
+      if (type === 'direct') {
+        // For direct messages, create a deterministic channel ID
+        const sortedParticipants = [...participants].sort();
+        channelId = `dm-${sortedParticipants.join('-')}`;
+      } else if (type === 'team') {
+        // For team channels, use a new ID
+        channelId = `team-${this.generateId()}`;
+      } else {
+        // For global channels, use a fixed channel ID
+        channelId = `global-${name.toLowerCase().replace(/\s+/g, '-')}`;
+      }
+      
+      const channel: ChatChannel = {
+        id: channelId,
+        name,
+        type,
+        participants,
+        metadata: {
+          createdBy: this.userId,
+          createdAt: Date.now()
+        }
+      };
+      
+      // Store channel in Gun.js
+      this.gun.get('starcom-channels')
+        .get(channelId)
+        .put({
+          id: channel.id,
+          name: channel.name,
+          type: channel.type,
+          participants: channel.participants,
+          createdBy: this.userId,
+          createdAt: Date.now()
+        });
+      
+      return channel;
+    } catch (error) {
+      console.error('Failed to create channel:', error);
+      throw new Error(`Failed to create channel: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  /**
+   * Joins an existing channel.
+   */
+  async joinChannel(channelId: string): Promise<void> {
+    if (!this.connected) {
+      throw new Error('Not connected to the chat system');
+    }
+
+    try {
+      // Get the channel
+      const channel = await new Promise<any>((resolve, reject) => {
+        this.gun.get('starcom-channels')
+          .get(channelId)
+          .once((data) => {
+            if (!data) {
+              reject(new Error(`Channel ${channelId} not found`));
+              return;
+            }
+            resolve(data);
+          });
+      });
+      
+      // Check if user is already a participant
+      if (channel.participants && Array.isArray(channel.participants) && channel.participants.includes(this.userId)) {
+        return;
+      }
+      
+      // Add user to participants
+      const participants = Array.isArray(channel.participants) ? [...channel.participants, this.userId] : [this.userId];
+      
+      // Update channel
+      this.gun.get('starcom-channels')
+        .get(channelId)
+        .get('participants')
+        .put(participants);
+      
+      // If it's a direct message channel, establish P2P connection
+      if (channelId.startsWith('dm-') && this.useWebRTC) {
+        const parts = channelId.split('-');
+        if (parts.length >= 3) {
+          const otherUserId = parts[1] === this.userId ? parts[2] : parts[1];
+          await this.ensureP2PConnection(otherUserId);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to join channel:', error);
+      throw new Error(`Failed to join channel: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  /**
+   * Leaves a channel.
+   */
+  async leaveChannel(channelId: string): Promise<void> {
+    if (!this.connected) {
+      throw new Error('Not connected to the chat system');
+    }
+
+    try {
+      // Get the channel
+      const channel = await new Promise<any>((resolve, reject) => {
+        this.gun.get('starcom-channels')
+          .get(channelId)
+          .once((data) => {
+            if (!data) {
+              reject(new Error(`Channel ${channelId} not found`));
+              return;
+            }
+            resolve(data);
+          });
+      });
+      
+      // Remove user from participants
+      const participants = Array.isArray(channel.participants) 
+        ? channel.participants.filter((id: string) => id !== this.userId)
+        : [];
+      
+      // Update channel
+      this.gun.get('starcom-channels')
+        .get(channelId)
+        .get('participants')
+        .put(participants);
+      
+      // If it's a direct message channel, close P2P connection
+      if (channelId.startsWith('dm-') && this.useWebRTC) {
+        const parts = channelId.split('-');
+        if (parts.length >= 3) {
+          const otherUserId = parts[1] === this.userId ? parts[2] : parts[1];
+          if (this.p2pConnections.has(otherUserId)) {
+            this.p2pConnections.get(otherUserId)!.close();
+            this.p2pConnections.delete(otherUserId);
+          }
+        }
+      }
+      
+      // Unsubscribe from messages
+      if (this.messageSubscriptions.has(channelId)) {
+        this.messageSubscriptions.get(channelId)!();
+        this.messageSubscriptions.delete(channelId);
+      }
+      
+      // Unsubscribe from presence
+      if (this.presenceSubscriptions.has(channelId)) {
+        this.presenceSubscriptions.get(channelId)!();
+        this.presenceSubscriptions.delete(channelId);
+      }
+    } catch (error) {
+      console.error('Failed to leave channel:', error);
+      throw new Error(`Failed to leave channel: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  /**
+   * Retrieves all available channels.
+   */
+  async getChannels(): Promise<ChatChannel[]> {
+    if (!this.connected) {
+      throw new Error('Not connected to the chat system');
+    }
+
+    return new Promise<ChatChannel[]>((resolve, reject) => {
+      const channels: ChatChannel[] = [];
+      const gunChannels = this.gun.get('starcom-channels');
+      
+      gunChannels.map().once((data: any, id: string) => {
+        if (!data || id === '_') return;
+        
+        const channel: ChatChannel = {
+          id: data.id || id,
+          name: data.name || '',
+          type: data.type as 'direct' | 'team' | 'global',
+          participants: Array.isArray(data.participants) ? data.participants : [],
+          metadata: {
+            createdBy: data.createdBy,
+            createdAt: data.createdAt
+          }
+        };
+        
+        channels.push(channel);
+      });
+      
+      // Set a timeout to resolve with whatever channels we have
+      setTimeout(() => {
+        resolve(channels);
+      }, 2000);
+    });
+  }
+
+  /**
+   * Retrieves users in the specified channel.
+   */
+  async getUsers(channelId: string): Promise<ChatUser[]> {
+    if (!this.connected) {
+      throw new Error('Not connected to the chat system');
+    }
+
+    try {
+      // Get the channel
+      const channel = await new Promise<any>((resolve, reject) => {
+        this.gun.get('starcom-channels')
+          .get(channelId)
+          .once((data) => {
+            if (!data) {
+              reject(new Error(`Channel ${channelId} not found`));
+              return;
+            }
+            resolve(data);
+          });
+      });
+      
+      // If no participants, return empty array
+      if (!channel.participants || !Array.isArray(channel.participants) || channel.participants.length === 0) {
+        return [];
+      }
+      
+      // Get user data for each participant
+      const users = await Promise.all(
+        channel.participants.map(async (userId: string) => {
+          try {
+            const user = await this.getUserById(userId);
+            return user || {
+              id: userId,
+              name: userId.slice(0, 6),
+              status: 'offline',
+              lastSeen: 0
+            };
+          } catch (error) {
+            console.warn(`Failed to get user ${userId}:`, error);
+            return {
+              id: userId,
+              name: userId.slice(0, 6),
+              status: 'offline',
+              lastSeen: 0
+            };
+          }
+        })
+      );
+      
+      return users as ChatUser[];
+    } catch (error) {
+      console.error('Failed to get users:', error);
+      throw new Error(`Failed to get users: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  /**
+   * Retrieves a user by their ID.
+   */
+  async getUserById(userId: string): Promise<ChatUser | null> {
+    if (!this.connected) {
+      throw new Error('Not connected to the chat system');
+    }
+
+    return new Promise<ChatUser | null>((resolve) => {
+      this.gun.get('starcom-presence').get(userId).once((data) => {
+        if (!data) {
+          resolve(null);
+          return;
+        }
+        
+        const user: ChatUser = {
+          id: userId,
+          name: data.name || userId.slice(0, 6),
+          status: data.online ? 'online' : 'offline',
+          lastSeen: data.lastSeen || 0,
+          metadata: {
+            source: 'gun'
+          }
+        };
+        
+        resolve(user);
+      });
+      
+      // Set a timeout to resolve with null if user not found
+      setTimeout(() => {
+        resolve(null);
+      }, 2000);
+    });
+  }
+
+  /**
+   * Subscribes to user presence updates in the specified channel.
+   */
+  subscribeToUserPresence(channelId: string, callback: (users: ChatUser[]) => void): () => void {
+    if (!this.connected) {
+      throw new Error('Not connected to the chat system');
+    }
+
+    // Unsubscribe from previous subscription if exists
+    if (this.presenceSubscriptions.has(channelId)) {
+      this.presenceSubscriptions.get(channelId)!();
+      this.presenceSubscriptions.delete(channelId);
+    }
+
+    // First, get the channel to get participants
+    const unsubscribePromise = this.gun.get('starcom-channels')
+      .get(channelId)
+      .once((channelData) => {
+        if (!channelData || !Array.isArray(channelData.participants)) {
+          return;
+        }
+        
+        const participants = channelData.participants;
+        const users: Map<string, ChatUser> = new Map();
+        
+        // Subscribe to presence for each participant
+        for (const userId of participants) {
+          this.gun.get('starcom-presence').get(userId).on((userData) => {
+            if (!userData) return;
+            
+            const user: ChatUser = {
+              id: userId,
+              name: userData.name || userId.slice(0, 6),
+              status: userData.online ? 'online' : 'offline',
+              lastSeen: userData.lastSeen || 0,
+              metadata: {
+                source: 'gun'
+              }
+            };
+            
+            users.set(userId, user);
+            
+            // Notify with the updated list
+            callback(Array.from(users.values()));
+          });
+        }
+        
+        // Also subscribe to changes in the participants list
+        this.gun.get('starcom-channels')
+          .get(channelId)
+          .get('participants')
+          .on((participantsData) => {
+            if (!participantsData || !Array.isArray(participantsData)) return;
+            
+            // Remove users that are no longer participants
+            for (const userId of users.keys()) {
+              if (!participantsData.includes(userId)) {
+                users.delete(userId);
+              }
+            }
+            
+            // Add new participants
+            for (const userId of participantsData) {
+              if (!users.has(userId)) {
+                this.gun.get('starcom-presence').get(userId).on((userData) => {
+                  if (!userData) return;
+                  
+                  const user: ChatUser = {
+                    id: userId,
+                    name: userData.name || userId.slice(0, 6),
+                    status: userData.online ? 'online' : 'offline',
+                    lastSeen: userData.lastSeen || 0,
+                    metadata: {
+                      source: 'gun'
+                    }
+                  };
+                  
+                  users.set(userId, user);
+                  
+                  // Notify with the updated list
+                  callback(Array.from(users.values()));
+                });
+              }
+            }
+            
+            // Notify with the updated list
+            callback(Array.from(users.values()));
+          });
+      });
+
+    // Create unsubscribe function
+    const unsubscribe = () => {
+      // The actual unsubscribe logic is complex because we need to 
+      // unsubscribe from multiple listeners. For simplicity, we'll just
+      // use Gun's off() method on the channels and presence nodes.
+      this.gun.get('starcom-channels').get(channelId).off();
+      this.gun.get('starcom-presence').off();
+      this.presenceSubscriptions.delete(channelId);
+    };
+    
+    // Store the unsubscribe function
+    this.presenceSubscriptions.set(channelId, unsubscribe);
+    
+    return unsubscribe;
+  }
+
+  /**
+   * Marks messages as read.
+   */
+  async markMessagesAsRead(channelId: string, messageIds: string[]): Promise<void> {
+    if (!this.connected) {
+      throw new Error('Not connected to the chat system');
+    }
+
+    try {
+      // Currently Gun.js doesn't have a built-in mechanism for tracking read status
+      // We can implement this by storing read status in a separate node
+      for (const messageId of messageIds) {
+        this.gun.get('starcom-read-status')
+          .get(channelId)
+          .get(this.userId)
+          .get(messageId)
+          .put({
+            read: true,
+            timestamp: Date.now()
+          });
+      }
+    } catch (error) {
+      console.error('Failed to mark messages as read:', error);
+      throw new Error(`Failed to mark messages as read: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  /**
+   * Searches for messages matching the query.
+   */
+  async searchMessages(query: string, channelId?: string): Promise<ChatMessage[]> {
+    if (!this.connected) {
+      throw new Error('Not connected to the chat system');
+    }
+
+    return new Promise<ChatMessage[]>((resolve) => {
+      const messages: ChatMessage[] = [];
+      const searchFn = (data: DecentralizedMessage | null, id: string, channelId: string) => {
+        if (!data || id === '_') return;
+        
+        // Check if message content contains the query
+        if (data.content && data.content.toLowerCase().includes(query.toLowerCase())) {
+          const message = this.convertGunMessageToChatMessage(data, channelId);
+          messages.push(message);
+        }
+      };
+      
+      if (channelId) {
+        // Search only in the specified channel
+        this.gun.get('starcom-messages')
+          .get(channelId)
+          .map()
+          .once((data, id) => searchFn(data, id, channelId));
+      } else {
+        // Search in all channels
+        this.gun.get('starcom-channels')
+          .map()
+          .once((channelData: any, channelId: string) => {
+            if (!channelData || channelId === '_') return;
+            
+            this.gun.get('starcom-messages')
+              .get(channelId)
+              .map()
+              .once((data, id) => searchFn(data, id, channelId));
+          });
+      }
+      
+      // Set a timeout to resolve with whatever messages we found
+      setTimeout(() => {
+        resolve(messages);
+      }, 2000);
+    });
+  }
+
+  /**
+   * Uploads a file attachment.
+   */
+  async uploadAttachment(file: File): Promise<{ id: string; url: string; }> {
+    try {
+      const ipfsHash = await uploadToIPFS(file);
+      return {
+        id: this.generateId(),
+        url: getIPFSGatewayUrl(ipfsHash)
+      };
+    } catch (error) {
+      console.error('Failed to upload attachment:', error);
+      throw new Error(`Failed to upload attachment: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  /**
+   * Ensures a WebRTC P2P connection is established with the specified user.
+   */
+  private async ensureP2PConnection(userId: string): Promise<P2PConnection> {
+    if (this.p2pConnections.has(userId)) {
+      return this.p2pConnections.get(userId)!;
+    }
+
+    // Create new connection
+    const connection = new P2PConnection(this.gun, this.userId, userId);
+    
+    // Set up message handler
+    connection.onMessage = (data: string) => {
+      try {
+        const gunMessage = JSON.parse(data) as DecentralizedMessage;
+        const channelId = `dm-${[this.userId, userId].sort().join('-')}`;
+        
+        // Convert to ChatMessage
+        const message = this.convertGunMessageToChatMessage(gunMessage, channelId);
+        
+        // Notify subscribers
+        if (this.messageSubscriptions.has(channelId)) {
+          // This is a hack to trigger the message subscription
+          // In a real implementation, we'd use a proper event system
+          this.gun.get('starcom-messages')
+            .get(channelId)
+            .get(gunMessage.id)
+            .put(gunMessage);
+        }
+      } catch (error) {
+        console.error('Failed to process WebRTC message:', error);
+      }
+    };
+    
+    // Connect
+    await connection.connect();
+    
+    // Store connection
+    this.p2pConnections.set(userId, connection);
+    
+    return connection;
+  }
+
+  /**
+   * Converts a Gun.js message to the unified ChatMessage format.
+   */
+  private convertGunMessageToChatMessage(data: DecentralizedMessage, channelId: string): ChatMessage {
+    return {
+      id: data.id,
+      senderId: data.sender.address,
+      senderName: data.sender.username,
+      content: data.content,
+      timestamp: data.timestamp,
+      channelId,
+      type: data.attachments && data.attachments.length > 0 ? 'file' : 'text',
+      status: 'sent',
+      attachments: data.attachments ? data.attachments.map(a => ({
+        id: this.generateId(),
+        name: a.name,
+        url: getIPFSGatewayUrl(a.ipfsHash),
+        size: a.size,
+        type: a.type
+      })) : undefined,
+      metadata: {
+        source: 'gun',
+        encrypted: data.encrypted,
+        type: data.type
+      }
+    };
+  }
+}

@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/x-icon" href="/starcom.ico" />
+    <link rel="icon" type="image/png" href="/starcom.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Starcom</title>
+    
+    <script>
+      // Polyfill for Buffer and process for browser compatibility
+      if (typeof global === 'undefined') {
+        var global = globalThis;
+      }
+      if (typeof process === 'undefined') {
+        var process = { env: {} };
+      }
+    </script>
+  </head>
+  <body>
+    <!-- Immediate preloader - shows instantly before React loads -->
+    <div id="initial-preloader" style="
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 10001;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    ">
+      <div style="text-align: center;">
+        <!-- Text removed to prevent font loading inconsistencies -->
+        <!-- Only show the loading spinner until React takes over -->
+        <div style="
+          width: 60px;
+          height: 60px;
+          border: 4px solid rgba(0, 255, 255, 0.3);
+          border-top: 4px solid #00ffff;
+          border-radius: 50%;
+          margin: 0 auto;
+          animation: spin 1s linear infinite;
+        "></div>
+      </div>
+      <style>
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      </style>
+    </div>
+    
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    
+    <script>
+      // Hide initial preloader when React preloader takes over
+      window.hideInitialPreloader = function() {
+        const initialPreloader = document.getElementById('initial-preloader');
+        if (initialPreloader) {
+          initialPreloader.style.opacity = '0';
+          initialPreloader.style.transition = 'opacity 0.3s ease-out';
+          setTimeout(function() {
+            initialPreloader.remove();
+          }, 300);
+        }
+      };
+      
+      // Fallback: Remove initial preloader after reasonable time if React doesn't load
+      setTimeout(function() {
+        if (document.getElementById('initial-preloader')) {
+          console.warn('Initial preloader removed by fallback timer');
+          window.hideInitialPreloader();
+        }
+      }, 3000);
+    </script>
+  </body>
+</html>

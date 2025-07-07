@@ -1,0 +1,84 @@
+// Moved from src/__tests__/EIAService.test.ts
+// Test for EIAService (artifact-driven, colocated)
+import { describe, it, expect, vi } from 'vitest';
+
+// TODO: Implement intel report recommendation engine based on user behavior - PRIORITY: LOW
+// TODO: Add support for intel report batch processing and bulk operations - PRIORITY: MEDIUM
+global.fetch = vi.fn();
+
+describe('EIAService', () => {
+    let CacheManager: unknown;
+
+    beforeEach(async () => {
+        vi.resetModules();
+        CacheManager = (await import('../../cache/CacheManager')).default;
+        const instance = (CacheManager as { getInstance(): unknown }).getInstance();
+        const caches = Reflect.get(instance as object, 'caches');
+        if (caches && typeof caches.clear === 'function') {
+            caches.clear();
+        }
+        vi.clearAllMocks();
+    });
+
+    afterEach(async () => {
+        const CacheManager = (await import('../../cache/CacheManager')).default;
+        const instance = (CacheManager as { getInstance(): unknown }).getInstance();
+        const caches = Reflect.get(instance as object, 'caches');
+        if (caches && typeof caches.clear === 'function') {
+            caches.clear();
+        }
+    });
+
+    it('fetches the latest oil price successfully', async () => {
+        const EIAService = (await import('./EIAService.js')).default;
+        const mockResponse = {
+        response: {
+            total: '1',
+            dateFormat: 'YYYY-MM-DD',
+            frequency: 'weekly',
+            data: [{ period: '2025-03-07', value: 67.52 }],
+        },
+        request: { command: '/v2/seriesid/PET.RWTC.W', params: {} },
+        apiVersion: '2.1.8',
+        };
+
+        (fetch as unknown as { mockResolvedValueOnce: (value: unknown) => void }).mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(mockResponse),
+        });
+
+        await EIAService.getLatestOilPrice();
+        expect(fetch).toHaveBeenCalledWith(
+        `https://api.eia.gov/v2/seriesid/PET.RWTC.W?api_key=${import.meta.env.VITE_EIA_API_KEY}`
+        );
+    });
+
+    it('returns fallback gasoline price (deprecated series)', async () => {
+        const EIAService = (await import('./EIAService.js')).default;
+        
+        // Test that the method returns a fallback value without making API calls
+        const result = await EIAService.getLatestGasolinePrice();
+        expect(result).toBe(3.25); // Expected fallback value
+        // Should not call fetch since it's using fallback
+        expect(fetch).not.toHaveBeenCalled();
+    });
+    });
+
+    });
+
+    it('returns fallback oil inventory (deprecated series)', async () => {
+        const EIAService = (await import('./EIAService.js')).default;
+        
+        // Test that the method returns a fallback value without making API calls
+        const result = await EIAService.getLatestOilInventory();
+        expect(result).toBe(350); // Expected fallback value
+        // Should not call fetch since it's using fallback
+        expect(fetch).not.toHaveBeenCalled();
+    });
+
+    it('handles fetch errors', async () => {
+        const EIAService = (await import('./EIAService.js')).default;
+        (fetch as unknown as { mockRejectedValueOnce: (value: unknown) => void }).mockRejectedValueOnce(new Error('Network error'));
+        await expect(EIAService.getLatestOilPrice()).rejects.toThrow('Network error');
+    });
+});

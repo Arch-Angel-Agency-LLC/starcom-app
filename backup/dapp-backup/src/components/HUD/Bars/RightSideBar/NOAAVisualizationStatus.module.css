@@ -1,0 +1,145 @@
+/* NOAA Visualization Status Component */
+.statusPanel {
+  width: 100%;
+  background: rgba(0, 30, 60, 0.9);
+  border: 1px solid rgba(0, 196, 255, 0.3);
+  border-radius: 4px;
+  padding: 4px;
+  margin: 2px 0;
+  font-size: 0.6rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2px 4px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid rgba(0, 196, 255, 0.2);
+}
+
+.title {
+  color: #00c4ff;
+  font-weight: 600;
+  font-size: 0.65rem;
+}
+
+.count {
+  background: rgba(0, 196, 255, 0.2);
+  color: #00c4ff;
+  padding: 1px 4px;
+  border-radius: 2px;
+  font-size: 0.55rem;
+  font-weight: 600;
+  min-width: 14px;
+  text-align: center;
+}
+
+.stats {
+  margin-bottom: 4px;
+}
+
+.statRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+.label {
+  color: #aaa;
+  font-size: 0.55rem;
+}
+
+.value {
+  font-size: 0.5rem;
+  font-weight: 600;
+  padding: 1px 3px;
+  border-radius: 2px;
+}
+
+.value.high {
+  background: rgba(0, 255, 0, 0.2);
+  color: #00ff00;
+}
+
+.value.medium {
+  background: rgba(255, 165, 0, 0.2);
+  color: #ffa500;
+}
+
+.value.low {
+  background: rgba(255, 0, 0, 0.2);
+  color: #ff6666;
+}
+
+.typeBreakdown {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  margin-top: 2px;
+}
+
+.typeRow {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: rgba(0, 40, 80, 0.6);
+  padding: 1px 3px;
+  border-radius: 2px;
+  border: 1px solid rgba(0, 196, 255, 0.1);
+}
+
+.typeIcon {
+  font-size: 0.5rem;
+}
+
+.typeCount {
+  font-size: 0.45rem;
+  color: #ccc;
+}
+
+.activeList {
+  border-top: 1px solid rgba(0, 196, 255, 0.1);
+  padding-top: 3px;
+}
+
+.activeTitle {
+  color: #888;
+  font-size: 0.5rem;
+  margin-bottom: 2px;
+}
+
+.activeItems {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.activeItem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.45rem;
+}
+
+.activeDot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.activeLabel {
+  color: #ccc;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.moreActive {
+  color: #888;
+  font-size: 0.4rem;
+  font-style: italic;
+  margin-top: 1px;
+}

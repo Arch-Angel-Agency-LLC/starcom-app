@@ -1,0 +1,510 @@
+/* Session Manager Styles */
+
+.sessionManager {
+  background: rgba(0, 10, 20, 0.95);
+  border: 1px solid rgba(0, 255, 255, 0.2);
+  border-radius: 6px;
+  padding: 16px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.currentSessionInfo {
+  background: rgba(0, 30, 50, 0.9);
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  border-radius: 4px;
+  padding: 12px;
+  margin-bottom: 16px;
+}
+
+.currentSessionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.currentSessionName {
+  color: #00ffff;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.leaveSessionButton {
+  padding: 4px 12px;
+  background: rgba(255, 0, 0, 0.1);
+  border: 1px solid rgba(255, 0, 0, 0.3);
+  border-radius: 3px;
+  color: #ff6b6b;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.leaveSessionButton:hover {
+  background: rgba(255, 0, 0, 0.2);
+  border-color: #ff6b6b;
+}
+
+.currentSessionDetails {
+  display: flex;
+  gap: 16px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+}
+
+.sessionDetail {
+  font-family: 'Courier New', monospace;
+}
+
+.sessionManagerContent {
+  position: relative;
+}
+
+/* Session List Styles */
+
+.sessionList {
+  position: relative;
+}
+
+.sessionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+}
+
+.sessionHeader h3 {
+  color: #00ffff;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.createSessionButton {
+  padding: 8px 16px;
+  background: rgba(0, 255, 255, 0.1);
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  border-radius: 4px;
+  color: #00ffff;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.createSessionButton:hover {
+  background: rgba(0, 255, 255, 0.2);
+  border-color: #00ffff;
+  box-shadow: 0 2px 6px rgba(0, 255, 255, 0.2);
+}
+
+.sessions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 500px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.sessionCard {
+  background: rgba(0, 20, 35, 0.9);
+  border: 1px solid rgba(0, 255, 255, 0.2);
+  border-left: 3px solid var(--agency-color, #00ffff);
+  border-radius: 4px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.sessionCard:hover {
+  border-color: rgba(0, 255, 255, 0.4);
+  box-shadow: 0 4px 12px rgba(0, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.sessionCard.activeSession {
+  border-color: var(--agency-color, #00ffff);
+  box-shadow: 0 4px 16px rgba(0, 255, 255, 0.2);
+  background: rgba(0, 30, 50, 0.95);
+}
+
+.sessionCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.sessionStatus {
+  font-size: 16px;
+  margin-right: 8px;
+}
+
+.sessionMeta {
+  flex-grow: 1;
+}
+
+.sessionName {
+  color: #00ffff;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.sessionAgency {
+  color: var(--agency-color, #00ffff);
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.sessionClassification {
+  background: var(--classification-color, #666);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.sessionDescription {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 13px;
+  line-height: 1.4;
+  margin-bottom: 12px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.sessionStats {
+  display: flex;
+  gap: 16px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+  font-family: 'Courier New', monospace;
+}
+
+.participantCount,
+.sessionTime,
+.sessionChannels {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.currentSessionIndicator {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 255, 0, 0.2);
+  color: #00ff00;
+  padding: 2px 6px;
+  border-radius: 2px;
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.loadingSpinner {
+  width: 32px;
+  height: 32px;
+  border: 2px solid rgba(0, 255, 255, 0.2);
+  border-top: 2px solid #00ffff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 12px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.emptyIcon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.emptyMessage {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.emptyCreateButton {
+  padding: 10px 20px;
+  background: rgba(0, 255, 255, 0.1);
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  border-radius: 4px;
+  color: #00ffff;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.emptyCreateButton:hover {
+  background: rgba(0, 255, 255, 0.2);
+  border-color: #00ffff;
+  box-shadow: 0 2px 6px rgba(0, 255, 255, 0.2);
+}
+
+/* Session Creator Styles */
+
+.sessionCreator {
+  background: rgba(0, 15, 30, 0.95);
+  border: 2px solid rgba(0, 255, 255, 0.3);
+  border-radius: 6px;
+  padding: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.creatorHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+}
+
+.creatorHeader h3 {
+  color: #00ffff;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.operatorInfo {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  font-family: 'Courier New', monospace;
+}
+
+.creatorForm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.formRow {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.formRow label {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.textInput,
+.textArea,
+.selectInput {
+  background: rgba(0, 10, 20, 0.9);
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  border-radius: 4px;
+  padding: 10px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 13px;
+  font-family: inherit;
+}
+
+.textInput:focus,
+.textArea:focus,
+.selectInput:focus {
+  outline: none;
+  border-color: #00ffff;
+  box-shadow: 0 0 6px rgba(0, 255, 255, 0.3);
+}
+
+.textArea {
+  resize: vertical;
+  min-height: 80px;
+  line-height: 1.4;
+}
+
+.selectInput {
+  cursor: pointer;
+}
+
+.formActions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 8px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0, 255, 255, 0.2);
+}
+
+.createButton,
+.cancelButton {
+  padding: 10px 20px;
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.createButton {
+  background: rgba(0, 255, 255, 0.1);
+  color: #00ffff;
+}
+
+.createButton:hover:not(:disabled) {
+  background: rgba(0, 255, 255, 0.2);
+  border-color: #00ffff;
+  box-shadow: 0 2px 8px rgba(0, 255, 255, 0.2);
+}
+
+.createButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cancelButton {
+  background: rgba(0, 10, 20, 0.9);
+  color: rgba(255, 255, 255, 0.7);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.cancelButton:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.errorMessage {
+  color: #ff6b6b;
+  font-size: 13px;
+  text-align: center;
+  padding: 16px;
+  background: rgba(255, 0, 0, 0.1);
+  border: 1px solid rgba(255, 0, 0, 0.3);
+  border-radius: 4px;
+  margin-bottom: 16px;
+}
+
+/* Session Details Styles */
+
+.sessionDetails {
+  background: rgba(0, 15, 30, 0.95);
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  border-radius: 6px;
+  padding: 20px;
+}
+
+.sessionDetails h3 {
+  color: #00ffff;
+  margin: 0 0 16px 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.backButton {
+  padding: 8px 16px;
+  background: rgba(0, 255, 255, 0.1);
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  border-radius: 4px;
+  color: #00ffff;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 16px;
+}
+
+.backButton:hover {
+  background: rgba(0, 255, 255, 0.2);
+  border-color: #00ffff;
+}
+
+/* Scrollbar styling */
+.sessions::-webkit-scrollbar {
+  width: 8px;
+}
+
+.sessions::-webkit-scrollbar-track {
+  background: rgba(0, 15, 25, 0.5);
+  border-radius: 4px;
+}
+
+.sessions::-webkit-scrollbar-thumb {
+  background: rgba(0, 255, 255, 0.3);
+  border-radius: 4px;
+}
+
+.sessions::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 255, 255, 0.5);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .sessionManager {
+    padding: 12px;
+  }
+  
+  .sessionCard {
+    padding: 12px;
+  }
+  
+  .sessionCardHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .sessionStats {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .formActions {
+    flex-direction: column;
+  }
+  
+  .createButton,
+  .cancelButton {
+    width: 100%;
+  }
+  
+  .currentSessionHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}

@@ -1,0 +1,83 @@
+/* VisualizationModeButtons.module.css */
+.container {
+  margin: 8px 0;
+  padding: 6px;
+  background: rgba(0, 20, 40, 0.8);
+  border: 1px solid rgba(64, 224, 255, 0.3);
+  border-radius: 4px;
+}
+
+/* Primary Mode Buttons */
+.buttonContainer {
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.shaderButton {
+  flex: 1;
+  padding: 6px 4px;
+  background: rgba(16, 32, 48, 0.9);
+  border: 1px solid rgba(64, 224, 255, 0.4);
+  border-radius: 3px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shaderButton:hover {
+  background: rgba(64, 224, 255, 0.15);
+  border-color: rgba(64, 224, 255, 0.6);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(64, 224, 255, 0.2);
+}
+
+.shaderButton.active {
+  background: rgba(64, 224, 255, 0.25);
+  border-color: rgba(64, 224, 255, 0.8);
+  color: rgba(64, 224, 255, 1);
+  box-shadow: 0 0 6px rgba(64, 224, 255, 0.4);
+}
+
+/* Secondary Mode Buttons */
+.secondaryButtonContainer {
+  display: flex;
+  justify-content: space-between;
+  gap: 2px;
+}
+
+.secondaryButton {
+  flex: 1;
+  padding: 4px 2px;
+  background: rgba(8, 16, 24, 0.8);
+  border: 1px solid rgba(64, 224, 255, 0.25);
+  border-radius: 2px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.secondaryButton:hover {
+  background: rgba(64, 224, 255, 0.1);
+  border-color: rgba(64, 224, 255, 0.4);
+  color: rgba(255, 255, 255, 0.95);
+  transform: translateY(-1px);
+}
+
+.secondaryButton.active {
+  background: rgba(64, 224, 255, 0.2);
+  border-color: rgba(64, 224, 255, 0.6);
+  color: rgba(64, 224, 255, 1);
+  box-shadow: 0 0 4px rgba(64, 224, 255, 0.3);
+}

@@ -1,0 +1,150 @@
+/* DataPointList.module.css */
+.dataPointList {
+  width: 100%;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 40px 20px;
+  color: #64748b;
+}
+
+.emptyIcon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+}
+
+.emptyTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #94a3b8;
+  margin: 0 0 8px 0;
+}
+
+.emptyDescription {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.dataPointGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.dataPointCard {
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 8px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dataPointCard:hover {
+  border-color: rgba(56, 189, 248, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.dataPointCard.highlighted {
+  border-color: rgba(250, 204, 21, 0.6);
+  background: rgba(250, 204, 21, 0.05);
+  box-shadow: 0 0 20px rgba(250, 204, 21, 0.2);
+}
+
+.dataPointHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.dataPointIcon {
+  font-size: 1.5rem;
+  width: 32px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.dataPointInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.dataPointLabel {
+  font-weight: 600;
+  color: #f1f5f9;
+  font-size: 0.875rem;
+  margin-bottom: 2px;
+}
+
+.dataPointId {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-family: 'Fira Code', 'Monaco', monospace;
+}
+
+.dataPointStatus {
+  flex-shrink: 0;
+}
+
+.statusIcon {
+  font-size: 1.25rem;
+}
+
+.dataPointValue {
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(56, 189, 248, 0.1);
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.valueLabel {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.value {
+  font-weight: 600;
+  font-size: 0.875rem;
+  font-family: 'Fira Code', 'Monaco', monospace;
+}
+
+.dataPointFooter {
+  text-align: center;
+}
+
+.configureHint {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-style: italic;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .dataPointGrid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .dataPointCard {
+    padding: 12px;
+  }
+  
+  .dataPointHeader {
+    gap: 8px;
+  }
+  
+  .dataPointValue {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}

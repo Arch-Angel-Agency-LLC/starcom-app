@@ -1,0 +1,235 @@
+/* AdvancedTab.module.css */
+.advancedTab {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 24px;
+}
+
+.tabSection {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.sectionTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #38bdf8;
+  margin: 0 0 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sectionDescription {
+  color: #94a3b8;
+  font-size: 0.875rem;
+  margin: 0 0 16px 0;
+  line-height: 1.5;
+}
+
+.toggleGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggleSlider {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background-color: rgba(100, 116, 139, 0.3);
+  border: 1px solid rgba(100, 116, 139, 0.5);
+  border-radius: 24px;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.toggleSlider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 2px;
+  bottom: 2px;
+  background-color: #64748b;
+  transition: all 0.3s ease;
+  border-radius: 50%;
+}
+
+.toggle input:checked + .toggleSlider {
+  background-color: rgba(34, 197, 94, 0.3);
+  border-color: rgba(34, 197, 94, 0.6);
+}
+
+.toggle input:checked + .toggleSlider:before {
+  transform: translateX(20px);
+  background-color: #22c55e;
+}
+
+.toggleLabel {
+  color: #f1f5f9;
+  font-size: 0.875rem;
+  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.toggleDescription {
+  color: #94a3b8;
+  font-size: 0.75rem;
+  font-weight: 400;
+}
+
+.accessibilityInfo {
+  background: rgba(30, 41, 59, 0.4);
+  border: 1px solid rgba(56, 189, 248, 0.15);
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 16px;
+}
+
+.infoTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #38bdf8;
+  margin: 0 0 8px 0;
+}
+
+.featureList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.featureList li {
+  color: #94a3b8;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.developerControls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.devButton {
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: #a855f7;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.devButton:hover {
+  border-color: rgba(168, 85, 247, 0.5);
+  background: rgba(168, 85, 247, 0.1);
+  transform: translateY(-1px);
+}
+
+.debugSection {
+  margin-top: 16px;
+}
+
+.debugToggle {
+  color: #94a3b8;
+  font-size: 0.875rem;
+  cursor: pointer;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.1);
+}
+
+.debugInfo {
+  margin-top: 12px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 4px;
+  padding: 12px;
+}
+
+.debugItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.1);
+}
+
+.debugItem:last-child {
+  border-bottom: none;
+}
+
+.debugLabel {
+  color: #94a3b8;
+  font-size: 0.75rem;
+}
+
+.debugValue {
+  color: #38bdf8;
+  font-size: 0.75rem;
+  font-family: 'Fira Code', 'Monaco', monospace;
+}
+
+.previewNotification {
+  background: linear-gradient(135deg, 
+    rgba(168, 85, 247, 0.1) 0%, 
+    rgba(236, 72, 153, 0.1) 100%);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.previewIcon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.previewText {
+  color: #c084fc;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .advancedTab {
+    padding: 16px;
+    gap: 16px;
+  }
+  
+  .developerControls {
+    flex-direction: column;
+  }
+  
+  .featureList {
+    grid-template-columns: 1fr;
+  }
+}
