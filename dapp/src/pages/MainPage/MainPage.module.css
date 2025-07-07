@@ -9,9 +9,14 @@
   overflow: hidden;
 }
 
-/* Create a grid layout for main content */
+/* Main content takes all available space */
 .mainPage > *:nth-child(3) {
   flex: 1;
   display: flex;
   overflow: hidden;
+}
+
+/* Bottom bar has its own space */
+.mainPage > *:nth-child(4) {
+  flex-shrink: 0;
 }

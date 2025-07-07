@@ -5,14 +5,14 @@ import { ScreenType } from '../../context/ViewContext';
 // Main screens
 const GlobeScreen = lazy(() => import('../../pages/MainPage/Screens/GlobeScreen'));
 const NetRunnerScreen = lazy(() => import('../../pages/MainPage/Screens/NetRunnerScreen'));
+const TeamsScreen = lazy(() => import('../../pages/MainPage/Screens/TeamsScreen'));
+const AnalyzerScreen = lazy(() => import('../../pages/MainPage/Screens/AnalyzerScreen'));
+const NodeWebScreen = lazy(() => import('../../pages/MainPage/Screens/NodeWebScreen'));
 
 // Use PlaceholderScreen for screens that aren't fully implemented yet
 // This approach allows graceful fallback while screens are being developed
-const AnalyzerScreen = () => <PlaceholderScreen name="Analyzer" />;
-const NodeWebScreen = () => <PlaceholderScreen name="Node Web" />;
 const TimelineScreen = () => <PlaceholderScreen name="Timeline" />;
 const CaseManagerScreen = () => <PlaceholderScreen name="Case Manager" />;
-const TeamsScreen = () => <PlaceholderScreen name="Teams" />;
 const AIAgentScreen = () => <PlaceholderScreen name="AI Agent" />;
 const BotRosterScreen = () => <PlaceholderScreen name="Bot Roster" />;
 
