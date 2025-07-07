@@ -8,11 +8,11 @@ const NetRunnerScreen = lazy(() => import('../../pages/MainPage/Screens/NetRunne
 const TeamsScreen = lazy(() => import('../../pages/MainPage/Screens/TeamsScreen'));
 const AnalyzerScreen = lazy(() => import('../../pages/MainPage/Screens/AnalyzerScreen'));
 const NodeWebScreen = lazy(() => import('../../pages/MainPage/Screens/NodeWebScreen'));
+const TimelineScreen = lazy(() => import('../../pages/MainPage/Screens/TimelineScreen'));
 
 // Use PlaceholderScreen for screens that aren't fully implemented yet
 // This approach allows graceful fallback while screens are being developed
-const TimelineScreen = () => <PlaceholderScreen name="Timeline" />;
-const CaseManagerScreen = () => <PlaceholderScreen name="Case Manager" />;
+const CaseManagerScreen = lazy(() => import('../../pages/MainPage/Screens/CaseManagerScreen'));
 const AIAgentScreen = () => <PlaceholderScreen name="AI Agent" />;
 const BotRosterScreen = () => <PlaceholderScreen name="Bot Roster" />;
 
