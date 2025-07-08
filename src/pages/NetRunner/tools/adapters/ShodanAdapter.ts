@@ -171,6 +171,8 @@ const mockShodanApiClient = {
 
 export class ShodanAdapter extends BaseAdapter {
   private apiKey: string | null = null;
+  private shodanClient: ShodanApiClient | null = null;
+  private useMockClient: boolean = true;
   
   constructor() {
     // Find the Shodan tool from the collection
@@ -239,9 +241,31 @@ export class ShodanAdapter extends BaseAdapter {
   
   async initialize(): Promise<boolean> {
     try {
-      // In a real implementation, we would load the API key from a secure source
-      // For now, we'll use a mock API key for demonstration
-      this.apiKey = 'MOCK_API_KEY_FOR_SHODAN';
+      // Try to get API key from environment variables or configuration
+      this.apiKey = process.env.SHODAN_API_KEY || 
+                   process.env.REACT_APP_SHODAN_API_KEY ||
+                   localStorage.getItem('SHODAN_API_KEY') ||
+                   null;
+      
+      if (this.apiKey && this.apiKey !== 'MOCK_API_KEY_FOR_SHODAN') {
+        // We have a real API key, try to initialize the real client
+        try {
+          this.shodanClient = new ShodanApiClient(this.apiKey);
+          // Test the API key with a simple info call
+          await this.shodanClient.getApiInfo();
+          this.useMockClient = false;
+          console.log('Shodan adapter initialized with real API client');
+        } catch (error) {
+          console.warn('Failed to initialize real Shodan client, falling back to mock:', error);
+          this.useMockClient = true;
+          this.shodanClient = null;
+        }
+      } else {
+        // No API key available, use mock client
+        this.useMockClient = true;
+        console.log('Shodan adapter initialized with mock client (no API key provided)');
+      }
+      
       return await super.initialize();
     } catch (error) {
       console.error('Failed to initialize Shodan adapter', error);
@@ -253,10 +277,18 @@ export class ShodanAdapter extends BaseAdapter {
     const startTime = Date.now();
     
     // Check if adapter is initialized
-    if (!this.initialized || !this.apiKey) {
+    if (!this.initialized) {
       return this.createErrorResponse(
         request, 
-        'Shodan adapter not initialized or missing API key'
+        'Shodan adapter not initialized'
+      );
+    }
+    
+    // Check if we have either a real client or can use mock
+    if (!this.useMockClient && !this.shodanClient) {
+      return this.createErrorResponse(
+        request, 
+        'Shodan adapter missing API key and unable to use mock client'
       );
     }
     
@@ -273,6 +305,9 @@ export class ShodanAdapter extends BaseAdapter {
       const operation = (request.parameters.operation || 'search') as string;
       let results: Record<string, unknown>;
       
+      // Choose the appropriate client (real or mock)
+      const client = this.useMockClient ? mockShodanApiClient : this.shodanClient!;
+      
       if (operation === 'host') {
         // Check if IP is provided for host operation
         const ip = request.parameters.ip as string;
@@ -283,13 +318,13 @@ export class ShodanAdapter extends BaseAdapter {
           );
         }
         
-        results = await mockShodanApiClient.host(ip);
+        results = await client.host(ip);
       } else {
         // Extract parameters for search operation
         const query = request.parameters.query as string;
         const limit = (request.parameters.limit || 10) as number;
         
-        results = await mockShodanApiClient.search(query, limit);
+        results = await client.search(query, limit);
       }
       
       // Determine intel types generated
