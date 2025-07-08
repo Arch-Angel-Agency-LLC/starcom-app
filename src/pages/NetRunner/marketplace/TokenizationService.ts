@@ -8,6 +8,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { IntelReport } from '../models/IntelReport';
 import { IntelListingEntry, IntelTransaction } from './IntelligenceExchange';
+import { marketplaceDB } from './MarketplaceDatabaseService';
 
 // Tokenized asset structure
 export interface TokenizedIntel {
@@ -117,8 +118,13 @@ export async function tokenizeIntelReport(
     ]
   };
   
-  // In a real implementation, this would be stored in a database
-  // and linked to the user's account
+  // Save tokenized asset to database
+  const saveResult = marketplaceDB.createTokenizedAsset(tokenizedAsset);
+  
+  if (!saveResult) {
+    throw new Error('Failed to save tokenized asset to database');
+  }
+  
   return tokenizedAsset;
 }
 
@@ -126,8 +132,7 @@ export async function tokenizeIntelReport(
  * Get a tokenized asset by its token ID
  */
 export async function getTokenizedAsset(tokenId: string): Promise<TokenizedIntel | null> {
-  // In a real implementation, this would query the blockchain and/or database
-  return null;
+  return marketplaceDB.getTokenizedAsset(tokenId);
 }
 
 /**
@@ -138,12 +143,28 @@ export async function transferAsset(
   toAddress: string,
   price?: number
 ): Promise<boolean> {
-  // In a real implementation, this would:
-  // 1. Call smart contract to transfer token
-  // 2. Update database records
-  // 3. Handle payment if applicable
+  const asset = marketplaceDB.getTokenizedAsset(tokenId);
   
-  return true;
+  if (!asset) {
+    return false;
+  }
+  
+  // Create transaction history entry
+  const newTransaction = {
+    transactionId: `tx-${Math.random().toString(16).substring(2, 10)}`,
+    timestamp: new Date().toISOString(),
+    fromAddress: asset.owner,
+    toAddress: toAddress,
+    price: price
+  };
+  
+  // Update asset ownership and transaction history
+  const updateResult = marketplaceDB.updateTokenizedAsset(tokenId, {
+    owner: toAddress,
+    transactionHistory: [...asset.transactionHistory, newTransaction]
+  });
+  
+  return updateResult;
 }
 
 /**
@@ -153,8 +174,9 @@ export async function linkListingToToken(
   listing: IntelListingEntry,
   tokenId: string
 ): Promise<boolean> {
-  // In a real implementation, this would update the listing
-  // with the token ID and update any marketplace smart contracts
+  // In a real implementation, this would link the listing to the token
+  // For now, we'll just log the association
+  console.log(`Linking listing ${listing.id} to token ${tokenId}`);
   
   return true;
 }
@@ -169,13 +191,23 @@ export async function processTransaction(
   transactionId?: string;
   error?: string;
 }> {
-  // In a real implementation, this would:
-  // 1. Verify funds are available
-  // 2. Execute the transfer on the blockchain
-  // 3. Update transaction status and ownership records
-  
-  return {
-    success: true,
-    transactionId: `tx-${Math.random().toString(16).substring(2, 10)}`
-  };
+  try {
+    // In a real implementation, this would:
+    // 1. Verify funds are available
+    // 2. Execute the transfer on the blockchain
+    // 3. Update transaction status and ownership records
+    
+    // For now, simulate successful transaction processing
+    console.log(`Processing transaction ${transaction.id} for ${transaction.price} tokens`);
+    
+    return {
+      success: true,
+      transactionId: `tx-${Math.random().toString(16).substring(2, 10)}`
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: `Transaction processing failed: ${(error as Error).message}`
+    };
+  }
 }
