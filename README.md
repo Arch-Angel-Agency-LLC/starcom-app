@@ -1,14 +1,12 @@
-# Starcom Earth Alliance Platform 🌍
+# Starcom - Earth Alliance Platform 🌍
 
 **Decentralized Quantum-Safe Global Reclamation Platform**
 
 A next-generation civilian-led intelligence platform for corruption exposure, truth liberation, and coordinated planetary reclamation operations against transnational crime syndicates.
 
-**Mission**: Earth Alliance / Tho'ra Clan operations to counter banking cartel cabals and restore natural planetary governance by 2030.
+**Mission**: Earth Alliance / Tho'ra Clan operations to counter death cult cabals and restore natural planetary governance by 2030.
 
 ---
-
-## 🎯 **Earth Alliance Mission**
 
 ## 🎯 **Earth Alliance Mission**
 
@@ -45,12 +43,14 @@ Start with `.onboarding` → `docs/EARTH-ALLIANCE-MISSION-ANALYSIS.md` → `.pri
 **Mission Priority**: Planetary reclamation, not resistance. We're taking Earth back.
 
 ### **Project Structure**
-The Starcom App has a streamlined structure:
+The Starcom App has a streamlined structure as of July 7, 2025:
 - **Main App**: All application code is now in the main directory
 - **Documentation**: Extensive docs in the `/docs` directory
 - **Assets**: Visual assets in `/public` and `/asset development`
 - **Backup**: Automatic backups in `/backup_logs`
 - **Documentation**: All docs consolidated in `/docs` with clear organization
+
+See `docs/RESTRUCTURE-SUMMARY.md` for details on the July 2025 restructuring.
 
 ---
 

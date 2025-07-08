@@ -21,27 +21,46 @@ import {
   BarChart2,
   Clock,
   ExternalLink,
-  Filter
+  Filter,
+  Bot,
+  ShoppingCart
 } from 'lucide-react';
 
 // Import custom hook for search functionality
 import { useNetRunnerSearch } from './hooks/useNetRunnerSearch';
 import { DashboardMode, SearchSource } from './types/netrunner';
+import { IntelReport } from './models/IntelReport';
 import FilterPanel from './components/FilterPanel';
 import EntityExtractor from './components/EntityExtractor';
+import PowerToolsPanel from './components/PowerToolsPanel';
+import BotControlPanel from './components/BotControlPanel';
+import WorkflowControlPanel from './components/WorkflowControlPanel';
+import IntelMarketplacePanel from './components/IntelMarketplacePanel';
+import UserMarketplaceDashboard from './components/UserMarketplaceDashboard';
+import CreateListingForm from './components/CreateListingForm';
+import MonitoringDashboard from './components/MonitoringDashboard';
+import MonitoringPanel from './components/MonitoringPanel';
+import IntelReportBuilder from './components/IntelReportBuilder';
+import IntelAnalysisPanel from './components/IntelAnalysisPanel';
+
+// Import tools and bots
+import { netRunnerPowerTools } from './tools/NetRunnerPowerTools';
+import { sampleBots } from './integration/BotRosterIntegration';
+import { sampleListings } from './marketplace/IntelligenceExchange';
 
 /**
  * NetRunner Dashboard
  * 
- * Advanced online search and reconnaissance dashboard for OSINT operations.
+ * Advanced online search and intelligence gathering dashboard.
  * This component serves as the main interface for the NetRunner module.
  * 
  * Features:
  * - Multi-source search capabilities
- * - Advanced filtering options
- * - Results visualization
- * - Search history tracking
- * - Entity analysis
+ * - Power tools integration for OSINT operations
+ * - Bot automation integration with BotRoster
+ * - Intel report creation and analysis
+ * - Intelligence Exchange Marketplace integration
+ * - Advanced filtering and visualization
  */
 const NetRunnerDashboard: React.FC = () => {
   // State management
@@ -51,6 +70,16 @@ const NetRunnerDashboard: React.FC = () => {
   const [timeRange, setTimeRange] = useState<string>('all');
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [searchHistoryAnchor, setSearchHistoryAnchor] = useState<null | HTMLElement>(null);
+  
+  // Power tools and bots state
+  const [selectedTools, setSelectedTools] = useState<string[]>([]);
+  const [activeBots, setActiveBots] = useState<string[]>([]);
+  const [activeCategory, setActiveCategory] = useState<string>('discovery');
+  
+  // Marketplace state
+  const [showUserDashboard, setShowUserDashboard] = useState<boolean>(false);
+  const [showCreateListing, setShowCreateListing] = useState<boolean>(false);
+  const [selectedReport, setSelectedReport] = useState<IntelReport | null>(null);
   
   // Sources configuration with premium flag
   const [sources, setSources] = useState<SearchSource[]>([
@@ -192,22 +221,62 @@ const NetRunnerDashboard: React.FC = () => {
         <Typography variant="h4" component="h1">
           NetRunner
         </Typography>
-        <Box>
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          <Button 
+            variant={activeMode === 'search' || activeMode === 'advanced' ? 'contained' : 'outlined'}
+            color="primary"
+            onClick={() => handleModeChange(activeMode === 'search' ? 'advanced' : 'search')}
+            startIcon={<Search />}
+          >
+            Search
+          </Button>
+          <Button 
+            variant={activeMode === 'powertools' ? 'contained' : 'outlined'}
+            color="primary"
+            onClick={() => handleModeChange('powertools')}
+            startIcon={<Database />}
+          >
+            Power Tools
+          </Button>
+          <Button 
+            variant={activeMode === 'bots' ? 'contained' : 'outlined'}
+            color="primary"
+            onClick={() => handleModeChange('bots')}
+            startIcon={<Bot size={16} />}
+          >
+            Bots
+          </Button>
+          <Button 
+            variant={activeMode === 'analysis' ? 'contained' : 'outlined'}
+            color="primary"
+            onClick={() => handleModeChange('analysis')}
+            startIcon={<BarChart2 />}
+          >
+            Analysis
+          </Button>
+          <Button 
+            variant={activeMode === 'marketplace' ? 'contained' : 'outlined'}
+            color="primary"
+            onClick={() => handleModeChange('marketplace')}
+            startIcon={<ShoppingCart size={16} />}
+          >
+            Market
+          </Button>
+          <Button 
+            variant={activeMode === 'monitoring' ? 'contained' : 'outlined'}
+            color="primary"
+            onClick={() => handleModeChange('monitoring')}
+            startIcon={<Clock size={16} />}
+          >
+            Monitor
+          </Button>
           <Button 
             variant="outlined" 
             onClick={handleSettingsClick}
             startIcon={<Settings />}
-            sx={{ mr: 1 }}
+            sx={{ ml: 2 }}
           >
             Settings
-          </Button>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => handleModeChange(activeMode === 'search' ? 'advanced' : 'search')}
-            startIcon={activeMode === 'search' ? <BarChart2 /> : <Search />}
-          >
-            {activeMode === 'search' ? 'Advanced Mode' : 'Basic Mode'}
           </Button>
           
           {/* Settings Menu */}
@@ -302,82 +371,276 @@ const NetRunnerDashboard: React.FC = () => {
         />
       </Paper>
       
-      
       <Box sx={{ display: 'flex', gap: 3, mt: 3 }}>
-        {/* Main results column */}
-        <Box sx={{ flex: 2 }}>
-          {isSearching ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
-              <CircularProgress />
-            </Box>
-          ) : searchResults.length > 0 ? (
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              {searchResults.map((result) => (
-                <Card key={result.id}>
-                  <CardContent>
-                    <Typography variant="h6">{result.title}</Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Source: {result.source} | {new Date(result.timestamp).toLocaleString()}
-                    </Typography>
-                    <Typography variant="body1" sx={{ mt: 1 }}>
-                      {result.snippet}
-                    </Typography>
-                    <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between' }}>
-                      <Typography variant="caption">
-                        Confidence: {(result.confidence * 100).toFixed(0)}%
-                      </Typography>
-                      {result.url && (
-                        <Button 
-                          size="small" 
-                          variant="outlined" 
-                          href={result.url} 
-                          target="_blank"
-                          endIcon={<ExternalLink size={16} />}
-                        >
-                          Open
-                        </Button>
-                      )}
-                    </Box>
-                  </CardContent>
-                </Card>
-              ))}
-            </Box>
-          ) : searchQuery ? (
-            <Box sx={{ textAlign: 'center', p: 4 }}>
-              <Typography variant="h6">No results found</Typography>
-              <Typography variant="body2" color="text.secondary">
-                Try modifying your search terms or selecting a different category
-              </Typography>
-            </Box>
-          ) : (
-            <Box sx={{ textAlign: 'center', p: 4 }}>
-              <Database size={48} style={{ color: 'gray', marginBottom: 16 }} />
-              <Typography variant="h6">Enter a search query to begin</Typography>
-              <Typography variant="body2" color="text.secondary">
-                NetRunner can search across multiple sources simultaneously
-              </Typography>
-              {searchHistory.length > 0 && (
-                <Button 
-                  variant="text" 
-                  onClick={handleHistoryClick}
-                  startIcon={<Clock />}
-                  sx={{ mt: 2 }}
-                >
-                  View Search History
-                </Button>
+        {/* Main content area */}
+        {(activeMode === 'search' || activeMode === 'advanced') && (
+          <>
+            {/* Main results column */}
+            <Box sx={{ flex: 2 }}>
+              {isSearching ? (
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
+                  <CircularProgress />
+                </Box>
+              ) : searchResults.length > 0 ? (
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  {searchResults.map((result) => (
+                    <Card key={result.id}>
+                      <CardContent>
+                        <Typography variant="h6">{result.title}</Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          Source: {result.source} | {new Date(result.timestamp).toLocaleString()}
+                        </Typography>
+                        <Typography variant="body1" sx={{ mt: 1 }}>
+                          {result.snippet}
+                        </Typography>
+                        <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between' }}>
+                          <Typography variant="caption">
+                            Confidence: {(result.confidence * 100).toFixed(0)}%
+                          </Typography>
+                          {result.url && (
+                            <Button 
+                              size="small" 
+                              variant="outlined" 
+                              href={result.url} 
+                              target="_blank"
+                              endIcon={<ExternalLink size={16} />}
+                            >
+                              Open
+                            </Button>
+                          )}
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </Box>
+              ) : searchQuery ? (
+                <Box sx={{ textAlign: 'center', p: 4 }}>
+                  <Typography variant="h6">No results found</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Try modifying your search terms or selecting a different category
+                  </Typography>
+                </Box>
+              ) : (
+                <Box sx={{ textAlign: 'center', p: 4 }}>
+                  <Database size={48} style={{ color: 'gray', marginBottom: 16 }} />
+                  <Typography variant="h6">Enter a search query to begin</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    NetRunner can search across multiple sources simultaneously
+                  </Typography>
+                  {searchHistory.length > 0 && (
+                    <Button 
+                      variant="text" 
+                      onClick={handleHistoryClick}
+                      startIcon={<Clock />}
+                      sx={{ mt: 2 }}
+                    >
+                      View Search History
+                    </Button>
+                  )}
+                </Box>
               )}
             </Box>
-          )}
-        </Box>
-        
-        {/* Entity extraction column */}
-        <Box sx={{ flex: 1 }}>
-          <EntityExtractor 
-            searchResults={searchResults}
-            isLoading={isSearching}
-          />
-        </Box>
+            
+            {/* Entity extraction column */}
+            <Box sx={{ flex: 1 }}>
+              <EntityExtractor 
+                searchResults={searchResults}
+              />
+            </Box>
+          </>
+        )}
+
+        {/* Power Tools Mode */}
+        {activeMode === 'powertools' && (
+          <Box sx={{ flex: 1 }}>
+            <PowerToolsPanel 
+              tools={netRunnerPowerTools}
+              selectedTools={selectedTools}
+              onToolSelect={(toolId) => setSelectedTools(prev => 
+                prev.includes(toolId) ? prev.filter(id => id !== toolId) : [...prev, toolId]
+              )}
+              activeCategory={activeCategory}
+              onCategoryChange={setActiveCategory}
+            />
+          </Box>
+        )}
+
+        {/* Bot Automation Mode */}
+        {activeMode === 'bots' && (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, width: '100%' }}>
+            {/* Bot Control Panel for immediate bot actions */}
+            <BotControlPanel 
+              bots={sampleBots}
+              activeBots={activeBots}
+              onBotActivate={(botId) => setActiveBots(prev => 
+                prev.includes(botId) ? prev.filter(id => id !== botId) : [...prev, botId]
+              )}
+              tools={netRunnerPowerTools}
+            />
+            
+            {/* Workflow Control Panel for automated workflows */}
+            <WorkflowControlPanel
+              bots={sampleBots}
+              tools={netRunnerPowerTools}
+            />
+          </Box>
+        )}
+
+        {/* Marketplace Mode */}
+        {activeMode === 'marketplace' && (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, width: '100%' }}>
+            {showCreateListing && selectedReport ? (
+              <CreateListingForm 
+                report={selectedReport}
+                onListingCreated={(listing) => {
+                  console.log('Listing created:', listing);
+                  setShowCreateListing(false);
+                  setSelectedReport(null);
+                  // Here we would add the listing to a local state or database
+                }}
+                onCancel={() => {
+                  setShowCreateListing(false);
+                  setSelectedReport(null);
+                }}
+              />
+            ) : showUserDashboard ? (
+              <UserMarketplaceDashboard 
+                onCreateListing={() => {
+                  // In a real implementation, this would show a report selection UI
+                  // For now, we'll create a dummy report
+                  const dummyReport: IntelReport = {
+                    id: '12345',
+                    title: 'Sample Intelligence Report',
+                    summary: 'This is a sample intelligence report for demonstration purposes.',
+                    content: 'Detailed content would go here...',
+                    classification: 'CONFIDENTIAL',
+                    verificationLevel: 'CONFIRMED',
+                    sources: [
+                      { id: 'src1', name: 'Source 1', reliability: 'HIGH', timestamp: new Date().toISOString() }
+                    ],
+                    entities: [
+                      { id: 'ent1', name: 'Test Entity', type: 'organization', confidence: 0.9 }
+                    ],
+                    intelTypes: ['network', 'identity'],
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString(),
+                    author: 'Current User',
+                    tags: ['sample', 'test', 'demonstration']
+                  };
+                  
+                  setSelectedReport(dummyReport);
+                  setShowCreateListing(true);
+                }}
+                onEditListing={(listing) => console.log('Edit listing:', listing)}
+                onViewDetails={(listing) => console.log('View listing details:', listing)}
+              />
+            ) : (
+              <Box sx={{ width: '100%' }}>
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+                  <Button 
+                    variant="contained"
+                    startIcon={<ShoppingCart size={16} />}
+                    onClick={() => setShowUserDashboard(true)}
+                  >
+                    My Marketplace
+                  </Button>
+                </Box>
+                
+                <IntelMarketplacePanel 
+                  listings={sampleListings}
+                  onPurchase={(listing) => console.log('Purchase listing:', listing)}
+                  onViewDetails={(listing) => console.log('View listing details:', listing)}
+                />
+              </Box>
+            )}
+          </Box>
+        )}
+
+        {/* Monitoring Mode */}
+        {activeMode === 'monitoring' && (
+          <Box sx={{ flex: 1 }}>
+            {/* Use existing MonitoringDashboard but pass props for integrating the advanced panel */}
+            <MonitoringDashboard 
+              onCreateMonitor={(monitor) => console.log('Create monitor:', monitor)}
+              onDeleteMonitor={(monitorId) => console.log('Delete monitor:', monitorId)}
+              onToggleMonitor={(monitorId, active) => console.log('Toggle monitor:', monitorId, active)}
+              renderAdvancedPanel={() => (
+                <Box mt={4}>
+                  <Typography variant="h6" gutterBottom>Advanced Monitoring System</Typography>
+                  <Paper sx={{ p: 2 }}>
+                    <MonitoringPanel 
+                      onTargetSelect={(targetId) => console.log('Target selected:', targetId)}
+                    />
+                  </Paper>
+                </Box>
+              )}
+            />
+          </Box>
+        )}
       </Box>
+      
+      {/* Power Tools Panel - New addition */}
+      {activeMode === 'advanced' && (
+        <Paper elevation={3} sx={{ p: 3, mt: 3 }}>
+          <Typography variant="h6" sx={{ mb: 2 }}>
+            Power Tools
+          </Typography>
+          <PowerToolsPanel 
+            tools={netRunnerPowerTools}
+            selectedTools={[]}
+            onToolSelect={(toolId) => console.log('Tool selected:', toolId)}
+            activeCategory="all"
+            onCategoryChange={(category) => console.log('Category changed:', category)}
+          />
+        </Paper>
+      )}
+      
+      {/* Bot Control Panel - New addition */}
+      {activeMode === 'advanced' && (
+        <Paper elevation={3} sx={{ p: 3, mt: 3 }}>
+          <Typography variant="h6" sx={{ mb: 2 }}>
+            Bot Control
+          </Typography>
+          <BotControlPanel 
+            bots={sampleBots}
+            activeBots={[]}
+            onBotActivate={(botId) => console.log('Bot activated:', botId)}
+            tools={netRunnerPowerTools}
+          />
+        </Paper>
+      )}
+      
+      {/* Intel Analysis Panel - New addition */}
+      {activeMode === 'analysis' && (
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+          <IntelAnalysisPanel 
+            searchResults={searchResults}
+            onPackageCreated={(analysisResult) => {
+              console.log('Analysis package created:', analysisResult);
+              // Here we could save the analysis result to state or database
+              // and notify the user that the analysis is complete
+              
+              // Example of showing a notification (would need to implement this):
+              // showNotification({
+              //   title: 'Analysis Complete',
+              //   message: `Created ${analysisResult.packageType} package with ${analysisResult.entities.length} entities`,
+              //   type: 'success'
+              // });
+            }}
+          />
+          
+          <Paper elevation={3} sx={{ p: 3 }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              Intelligence Report Builder
+            </Typography>
+            <IntelReportBuilder 
+              searchResults={searchResults}
+              onCreateReport={(report) => console.log('Report created:', report)}
+              onSaveDraft={(report) => console.log('Draft saved:', report)}
+            />
+          </Paper>
+        </Box>
+      )}
     </Box>
   );
 };
