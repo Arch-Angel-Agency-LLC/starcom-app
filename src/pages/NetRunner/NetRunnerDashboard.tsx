@@ -46,7 +46,7 @@ import IntelAnalysisPanel from './components/IntelAnalysisPanel';
 // Import tools and bots
 import { netRunnerPowerTools } from './tools/NetRunnerPowerTools';
 import { sampleBots } from './integration/BotRosterIntegration';
-import { sampleListings } from './marketplace/IntelligenceExchange';
+import { marketplaceDB } from './marketplace/MarketplaceDatabaseService';
 
 /**
  * NetRunner Dashboard
@@ -511,21 +511,40 @@ const NetRunnerDashboard: React.FC = () => {
                   const dummyReport: IntelReport = {
                     id: '12345',
                     title: 'Sample Intelligence Report',
+                    subtitle: 'Demo Report',
                     summary: 'This is a sample intelligence report for demonstration purposes.',
-                    content: 'Detailed content would go here...',
+                    description: 'Detailed description would go here...',
+                    content: [
+                      {
+                        id: 'content1',
+                        title: 'Sample Content',
+                        type: 'text',
+                        content: 'Detailed content would go here...',
+                        order: 1
+                      }
+                    ],
                     classification: 'CONFIDENTIAL',
                     verificationLevel: 'CONFIRMED',
                     sources: [
-                      { id: 'src1', name: 'Source 1', reliability: 'HIGH', timestamp: new Date().toISOString() }
+                      { id: 'src1', name: 'Source 1', type: 'open_source', reliability: 'A' }
                     ],
                     entities: [
-                      { id: 'ent1', name: 'Test Entity', type: 'organization', confidence: 0.9 }
+                      { id: 'ent1', name: 'Test Entity', type: 'organization', confidence: 0.9, sources: ['src1'] }
                     ],
+                    relationships: [],
+                    evidence: [],
                     intelTypes: ['network', 'identity'],
                     createdAt: new Date().toISOString(),
                     updatedAt: new Date().toISOString(),
-                    author: 'Current User',
-                    tags: ['sample', 'test', 'demonstration']
+                    author: 'current-user',
+                    authorName: 'Current User',
+                    marketValue: 100,
+                    tradable: true,
+                    exchangeStatus: 'DRAFT',
+                    hash: 'sample-hash-12345',
+                    encryptionStatus: 'UNENCRYPTED',
+                    tags: ['sample', 'test', 'demonstration'],
+                    categories: ['demo']
                   };
                   
                   setSelectedReport(dummyReport);
@@ -547,7 +566,7 @@ const NetRunnerDashboard: React.FC = () => {
                 </Box>
                 
                 <IntelMarketplacePanel 
-                  listings={sampleListings}
+                  listings={marketplaceDB.searchListings({})}
                   onPurchase={(listing) => console.log('Purchase listing:', listing)}
                   onViewDetails={(listing) => console.log('View listing details:', listing)}
                 />

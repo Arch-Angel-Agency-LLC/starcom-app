@@ -6,12 +6,12 @@
  * This is an adapted version of the legacy useOSINTSearch hook.
  */
 
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { 
   SearchQuery, 
-  SearchResult,
-  SearchSource
+  SearchResult
 } from '../types/netrunner';
+import { netRunnerSearchService } from '../services/NetRunnerSearchService';
 
 interface UseNetRunnerSearchOptions {
   initialQuery?: string;
@@ -34,55 +34,8 @@ interface UseNetRunnerSearchResult {
   search: () => Promise<void>;
   clearResults: () => void;
   clearError: () => void;
+  error: Error | null;
 }
-
-// Mock search service for now
-const mockSearchService = {
-  async performSearch(query: SearchQuery): Promise<SearchResult[]> {
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // Generate mock results based on query
-    return [
-      { 
-        id: '1', 
-        title: `Result for "${query.text}" from web`, 
-        snippet: 'This is a sample result description that would come from a web search.',
-        source: 'web', 
-        timestamp: new Date().toISOString(),
-        confidence: 0.89,
-        metadata: {}
-      },
-      { 
-        id: '2', 
-        title: `Social media match for "${query.text}"`, 
-        snippet: 'Found on a social media platform with matching criteria.',
-        source: 'social', 
-        timestamp: new Date().toISOString(),
-        confidence: 0.76,
-        metadata: {}
-      },
-      { 
-        id: '3', 
-        title: `News article mentioning "${query.text}"`, 
-        snippet: 'Recent news coverage that includes the search terms.',
-        source: 'news', 
-        timestamp: new Date().toISOString(),
-        confidence: 0.92,
-        metadata: {}
-      },
-      { 
-        id: '4', 
-        title: `Technical document with "${query.text}"`, 
-        snippet: 'A technical resource that contains references to the search terms.',
-        source: 'technical', 
-        timestamp: new Date().toISOString(),
-        confidence: 0.85,
-        metadata: {}
-      }
-    ];
-  }
-};
 
 /**
  * Custom hook for NetRunner search functionality
@@ -127,7 +80,7 @@ export function useNetRunnerSearch({
       };
       
       // Perform search
-      const searchResults = await mockSearchService.performSearch(searchQuery);
+      const searchResults = await netRunnerSearchService.performSearch(searchQuery);
       setResults(searchResults);
       
     } catch (err) {
@@ -167,6 +120,7 @@ export function useNetRunnerSearch({
     isSearching,
     search,
     clearResults,
-    clearError
+    clearError,
+    error
   };
 }
