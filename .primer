@@ -1,0 +1,114 @@
+Starcom dApp - Intelligence Exchange Marketplace
+
+**Project**: Decentralized intelligence marketplace with cyber command interface
+**Stack**: React + TypeScript + Web3 (Solana/Ethereum) + Nostr + IPFS
+**Theme**: Earth Alliance cyber operations (motivational context)
+
+---
+
+# Developer Quick Start
+## Core Architecture
+- **Frontend**: React/TypeScript SPA with Three.js 3D cyber interface
+- **Intelligence Market**: Smart contract marketplace for intel trading and verification
+- **Authentication**: Web3 wallet integration (Solana primary, refactor in progress)
+- **Communications**: Nostr protocol for decentralized messaging
+- **Storage**: IPFS for intelligence report persistence
+- **Deployment**: Serverless + HTTP bridges for decentralized hosting
+
+## Current Development Status
+- **Authentication Refactor**: Removing broken UI, implementing contextual auth
+- **Intelligence Market**: Core smart contracts and UI components
+- **Cyber Interface**: 3D globe visualization with interactive intel markers
+- **Nostr Integration**: HTTP bridge for censorship-resistant communications
+
+# Key Technologies
+- React, TypeScript, Vite (modern web stack)
+- Solana wallet adapter, Web3 integration
+- Three.js for 3D cyber command interface
+- Nostr protocol for decentralized communications
+- IPFS for decentralized storage
+- Post-Quantum Cryptography for future-proof security
+
+---
+
+# AI Quickstart (Read First)
+- **When in doubt:** Add a `TODO:` with your question and reference the relevant artifact or doc.
+- **Always:**
+  - Check for existing artifacts, modules, or docs before generating new code.
+  - Link new code to artifacts and update docs.
+  - Use short, clear comments and repeat key terms (see Glossary).
+  - Leave `AI-NOTE:` comments for non-obvious logic or context for future agents.
+- **Context Window:**
+  - You can only see ~25-75 lines at a time. Chunk your work. Use file/folder names and section headers as anchors.
+  - Use the directory structure and `docs/` for navigation and context.
+
+# Key Technologies
+- React, TypeScript, Vite
+- Rust/WASM modules  
+- Solana + Ethereum integration
+- Nostr protocol (decentralized communications)
+- IPFS (decentralized storage)
+- Post-Quantum Cryptography (future-proof security)
+- Artifact-driven development
+
+# Development Principles
+- **Decentralized Architecture**: No single points of failure
+- **Web3 Integration**: Blockchain-based authentication and marketplace
+- **User Experience**: Intuitive cyber command interface
+- **Security First**: Quantum-safe cryptography and secure communications
+- **Component-Driven**: Reusable React components with clear APIs
+- **Artifact-Driven Development**: Use existing implementations and specifications
+
+# Project Context (Motivational Theming)
+- **Setting**: Earth Alliance cyber operations center
+- **Mission**: Decentralized intelligence marketplace and analysis
+- **Security**: Military-grade cybersecurity (SOCOM baseline)
+- **Operations**: Cyber investigation, intelligence trading, secure communications
+- **Theme**: Futuristic cyber command interface with Earth Alliance branding
+
+# Glossary & Technical Terms
+- **Starcom**: Secure Team Alliance Reconnaissance Communications Operations & Management
+- **Intelligence Exchange**: Marketplace for trading and verifying intelligence reports
+- **Cyber Command Interface**: 3D web interface for intelligence operations
+- **Earth Alliance**: Thematic context for UI/UX (cyber operations theme)
+- **Truth Liberation**: Exposing multi-millennial lies and coverups
+- **Quantum-Safe**: Post-quantum cryptography resistant to future quantum computers
+- **Decentralized**: No single point of failure or control
+- **Censorship-Resistant**: Cannot be shut down by authorities
+- **SOCOM Standards**: Military cybersecurity baseline (enhanced for civilian operations)
+- **Artifact**: Modular, versioned unit of knowledge (code, test, doc, design)
+- **Module**: Self-contained code unit (component, service, contract, etc.)
+- **Context**: All information needed to understand or generate code
+- **Cache**: Storage for temporary or computed data
+- **TODO**: Marker for unresolved questions or missing context
+- **AI-NOTE**: Structured comment for future AI agents
+
+# AI Agent Protocols
+- If context is missing or ambiguous, create a TODO with a specific question and reference the relevant artifact or doc.
+- Always check for existing artifacts, modules, or documentation before generating new code.
+- When generating or updating code, link it to relevant artifacts and update documentation.
+- Leave structured comments for future AI agents (e.g., `AI-NOTE:`).
+- Use short, declarative sentences and consistent terminology in all documentation and comments.
+
+# Common AI Pitfalls & Mitigations
+- **Duplication**: Always search for existing code or artifacts before creating new ones.
+- **Ambiguity**: If unsure, escalate with a TODO and reference the artifact or doc.
+- **Edge Cases**: Check for edge cases and document assumptions.
+- **Semantic Drift**: Ensure code changes are reflected in related artifacts and docs.
+
+# Meta-Coordination for AI Agents
+- Leave breadcrumbs: Use `AI-NOTE:` comments to explain non-obvious decisions or context for future agents.
+- Use structured TODOs: `TODO: [QUESTION] — [FILE/ARTIFACT]`
+- Document all new or updated artifacts in `artifacts/` and/or `docs/`.
+
+# File/Folder Index (See directory structure)
+- Use `src/`, `artifacts/`, `docs/`, `contracts/`, `wasm-ephemeris/`, etc. as anchors for navigation.
+- Refer to `directory-structure.txt` for a full map.
+
+# Audience
+- Cyber investigators, intelligence analysts, financial analysts, global monitoring teams
+- AI agents (Copilot, GPT, etc.)
+
+---
+
+Prioritize clarity, traceability, and context. This .primer is your anchor—refer to it often. Chunk your work and use anchors for navigation.
