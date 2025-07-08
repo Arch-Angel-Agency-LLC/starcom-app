@@ -12,7 +12,13 @@ const TimelineScreen = lazy(() => import('../../pages/MainPage/Screens/TimelineS
 
 // Use PlaceholderScreen for screens that aren't fully implemented yet
 // This approach allows graceful fallback while screens are being developed
-const CaseManagerScreen = lazy(() => import('../../pages/MainPage/Screens/CaseManagerScreen'));
+const CaseManagerScreen = lazy(() => 
+  import('../../pages/MainPage/Screens/CaseManagerScreen')
+    .catch(error => {
+      console.error('Failed to load CaseManagerScreen:', error);
+      return { default: () => <PlaceholderScreen name="Case Manager (Failed to Load)" /> };
+    })
+);
 const AIAgentScreen = () => <PlaceholderScreen name="AI Agent" />;
 const BotRosterScreen = () => <PlaceholderScreen name="Bot Roster" />;
 

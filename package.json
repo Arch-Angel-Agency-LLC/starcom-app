@@ -1,10 +1,11 @@
 {
-  "name": "starcom-dapp",
+  "name": "starcom-app",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:clean": "rm -rf node_modules/.vite && VITE_ENTRY=index.html vite --force",
     "build": "NODE_OPTIONS='--max-old-space-size=8192' vite build",
     "build:strict": "NODE_OPTIONS='--max-old-space-size=8192' tsc -b && NODE_OPTIONS='--max-old-space-size=8192' vite build",
     "build:local": "NODE_OPTIONS='--max-old-space-size=8192' vite build",
@@ -125,7 +126,6 @@
     "react": "^18.3.1",
     "react-chartjs-2": "^5.3.0",
     "react-dom": "^18.3.1",
-    "react-force-graph": "^1.48.0",
     "react-force-graph-2d": "^1.28.0",
     "react-globe.gl": "^2.28.3",
     "react-grid-layout": "^1.5.2",
