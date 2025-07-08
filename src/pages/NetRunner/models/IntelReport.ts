@@ -186,8 +186,23 @@ export const finalizeIntelReport = (report: IntelReport): IntelReport => {
   // Update timestamp
   finalReport.updatedAt = new Date().toISOString();
   
-  // Calculate hash (in a real implementation, this would use a cryptographic hash function)
-  finalReport.hash = `hash_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+  // Generate deterministic hash based on content
+  const contentForHash = JSON.stringify({
+    title: finalReport.title,
+    content: finalReport.content,
+    entities: finalReport.entities,
+    relationships: finalReport.relationships,
+    evidence: finalReport.evidence,
+    sources: finalReport.sources,
+    timestamp: finalReport.createdAt
+  });
+  
+  // Simple hash function (djb2 algorithm) - in production use crypto.subtle.digest
+  let hash = 5381;
+  for (let i = 0; i < contentForHash.length; i++) {
+    hash = ((hash << 5) + hash) + contentForHash.charCodeAt(i);
+  }
+  finalReport.hash = Math.abs(hash).toString(16);
   
   // Set as tradable if it meets minimum requirements
   finalReport.tradable = 

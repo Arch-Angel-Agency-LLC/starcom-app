@@ -8,6 +8,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { IntelReport, ClassificationLevel, VerificationLevel } from '../models/IntelReport';
 import { IntelType } from '../tools/NetRunnerPowerTools';
+import { marketplaceDB } from './MarketplaceDatabaseService';
 
 // Market listing status
 export type ListingStatus = 
@@ -203,27 +204,35 @@ export const sampleListings: IntelListingEntry[] = [
   }
 ];
 
-// Initial market metrics
-export const initialMarketMetrics: MarketMetrics = {
-  totalListings: sampleListings.length,
-  activeListings: sampleListings.filter(l => l.status === 'active').length,
-  completedTransactions: 127,
-  disputedTransactions: 3,
-  totalVolume: 156750,
-  averagePrice: 823,
-  topCategories: [
-    { category: 'threat-intelligence', count: 45 },
-    { category: 'vulnerability-assessment', count: 38 },
-    { category: 'dark-web-intelligence', count: 22 }
-  ],
-  topSellers: [
-    { sellerId: 'crypto-tracker', sellerName: 'CryptoTracker', volume: 42500 },
-    { sellerId: 'shadow-intel', sellerName: 'ShadowIntel', volume: 38750 },
-    { sellerId: 'threat-watcher', sellerName: 'ThreatWatcher', volume: 25200 }
-  ],
-  recentTransactions: 8,
-  updateTime: new Date().toISOString()
-};
+// Function to get current market metrics
+export function getCurrentMarketMetrics(): MarketMetrics {
+  const allListings = marketplaceDB.searchListings({});
+  const activeListings = allListings.filter(l => l.status === 'active');
+  
+  return {
+    totalListings: allListings.length,
+    activeListings: activeListings.length,
+    completedTransactions: 127,
+    disputedTransactions: 3,
+    totalVolume: 156750,
+    averagePrice: allListings.length > 0 ? allListings.reduce((sum, l) => sum + l.price, 0) / allListings.length : 0,
+    topCategories: [
+      { category: 'threat-intelligence', count: 45 },
+      { category: 'vulnerability-assessment', count: 38 },
+      { category: 'dark-web-intelligence', count: 22 }
+    ],
+    topSellers: [
+      { sellerId: 'crypto-tracker', sellerName: 'CryptoTracker', volume: 42500 },
+      { sellerId: 'shadow-intel', sellerName: 'ShadowIntel', volume: 38750 },
+      { sellerId: 'threat-watcher', sellerName: 'ThreatWatcher', volume: 25200 }
+    ],
+    recentTransactions: 8,
+    updateTime: new Date().toISOString()
+  };
+}
+
+// Initial market metrics (for backwards compatibility)
+export const initialMarketMetrics: MarketMetrics = getCurrentMarketMetrics();
 
 // Function to create a marketplace listing from an Intel Report
 export const createMarketListing = (
@@ -363,3 +372,22 @@ export const filterListings = (
     return new Date(b.listedAt).getTime() - new Date(a.listedAt).getTime();
   });
 };
+
+// Initialize marketplace database with sample data
+export function initializeMarketplaceData(): void {
+  // Check if data is already initialized
+  const existingListings = marketplaceDB.searchListings({});
+  if (existingListings.length > 0) {
+    return; // Data already exists
+  }
+
+  // Add sample listings to the database
+  sampleListings.forEach(listing => {
+    marketplaceDB.createListing(listing);
+  });
+
+  console.log(`Initialized marketplace database with ${sampleListings.length} sample listings`);
+}
+
+// Auto-initialize on module load
+initializeMarketplaceData();
