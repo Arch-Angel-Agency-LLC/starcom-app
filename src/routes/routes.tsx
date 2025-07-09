@@ -36,9 +36,13 @@ const AppRoutes: React.FC = () => (
       <Route index element={null} /> {/* Empty element - MainPage handles the actual rendering */}
       
       {/* Main screens with support for parameters */}
+      <Route path="search" element={null} />
+      <Route path="search/:searchQuery" element={null} />
       <Route path="netrunner" element={null} />
       <Route path="netrunner/:searchQuery" element={null} />
-      <Route path="analyzer" element={null} />
+      <Route path="intelanalyzer" element={null} />
+      <Route path="marketexchange" element={null} />
+      <Route path="monitoring" element={null} />
       <Route path="nodeweb" element={null} />
       <Route path="nodeweb/:nodeId" element={null} />
       <Route path="timeline" element={null} />

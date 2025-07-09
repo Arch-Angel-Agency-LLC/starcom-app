@@ -6,8 +6,11 @@ export type PageType = 'main' | 'settings';
 export type ScreenType = 
   // Main Page Screens
   | 'globe'
+  | 'search'
   | 'netrunner'
-  | 'analyzer'
+  | 'intelanalyzer'
+  | 'marketexchange'
+  | 'monitoring'
   | 'nodeweb'
   | 'timeline'
   | 'casemanager'
@@ -38,7 +41,7 @@ const viewModeToScreenType: Record<ViewMode, ScreenType> = {
   'bots': 'botroster',
   'netrunner': 'netrunner',
   'info-gathering': 'netrunner', // Consolidated into NetRunner
-  'info-analysis': 'analyzer',   // Renamed to Analyzer
+  'info-analysis': 'intelanalyzer',   // Renamed to IntelAnalyzer
   'node-web': 'nodeweb',
   'timeline': 'timeline',
   'cases': 'casemanager',        // Renamed to CaseManager
@@ -94,10 +97,18 @@ export const ViewProvider: React.FC<ViewProviderProps> = ({ children }) => {
   
   // Navigation methods
   const navigateToScreen = useCallback((screen: ScreenType, params: ScreenParams = {}) => {
+    console.log('📱 ViewContext: navigateToScreen called', {
+      targetScreen: screen,
+      params,
+      currentScreen: viewState.currentScreen,
+      currentParams: viewState.screenParams
+    });
+    
     setViewState(prevState => {
       // Don't add to history if navigating to the same screen
       if (prevState.currentScreen === screen && 
           JSON.stringify(prevState.screenParams) === JSON.stringify(params)) {
+        console.log('📱 ViewContext: No change needed, same screen and params');
         return prevState;
       }
       
@@ -108,7 +119,17 @@ export const ViewProvider: React.FC<ViewProviderProps> = ({ children }) => {
           screen: prevState.currentScreen,
           params: prevState.screenParams
         });
+        console.log('📱 ViewContext: Added to history:', {
+          screen: prevState.currentScreen,
+          params: prevState.screenParams
+        });
       }
+      
+      console.log('📱 ViewContext: State change applied', {
+        from: prevState.currentScreen,
+        to: screen,
+        historyLength: newHistory.length
+      });
       
       return {
         ...prevState,
@@ -126,16 +147,34 @@ export const ViewProvider: React.FC<ViewProviderProps> = ({ children }) => {
         isNavAnimating: false
       }));
     }, 300); // Match this with your CSS transition duration
-  }, []);
+  }, [viewState.currentScreen, viewState.screenParams]);
   
   const navigateToPage = useCallback((page: PageType, screen?: ScreenType, params: ScreenParams = {}) => {
+    console.log('📱 ViewContext: navigateToPage called', {
+      targetPage: page,
+      targetScreen: screen,
+      params,
+      currentPage: viewState.currentPage,
+      currentScreen: viewState.currentScreen
+    });
+    
     setViewState(prevState => {
       // Determine the target screen
       const targetScreen = screen || 
         (page === 'main' ? 'globe' : 'profile'); // Defaults for each page
       
+      console.log('📱 ViewContext: Target screen determined:', targetScreen);
+      
       // Only add to history if changing pages
       const newHistory = prevState.currentPage !== page ? [] : [...prevState.viewHistory];
+      
+      console.log('📱 ViewContext: Page navigation state change', {
+        fromPage: prevState.currentPage,
+        toPage: page,
+        fromScreen: prevState.currentScreen,
+        toScreen: targetScreen,
+        clearHistory: prevState.currentPage !== page
+      });
       
       return {
         ...prevState,
@@ -154,7 +193,7 @@ export const ViewProvider: React.FC<ViewProviderProps> = ({ children }) => {
         isNavAnimating: false
       }));
     }, 300);
-  }, []);
+  }, [viewState.currentPage, viewState.currentScreen]);
   
   const goBack = useCallback(() => {
     setViewState(prevState => {

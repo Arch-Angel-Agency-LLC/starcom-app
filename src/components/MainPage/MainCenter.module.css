@@ -10,10 +10,11 @@
   width: 100%;
   height: 100%;
   display: flex;
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  /* Removed problematic transitions that caused disappear/reappear */
 }
 
-/* Animation states */
+/* Animation states - DISABLED to fix navigation loops */
+/* 
 .exit .screenContainer {
   opacity: 0;
   transform: scale(0.95);
@@ -25,8 +26,9 @@
 }
 
 .animating .screenContainer {
-  pointer-events: none; /* Prevent interaction during animation */
+  pointer-events: none;
 }
+*/
 
 /* Animation for different screen types */
 [data-current-screen="globe"] .screenContainer {

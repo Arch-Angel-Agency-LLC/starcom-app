@@ -162,7 +162,7 @@ const IntelAnalysisPanel: React.FC<IntelAnalysisPanelProps> = ({
   
   // Update analysis result when execution completes
   useEffect(() => {
-    if (executionState.status === 'completed' && executionState.result) {
+    if (executionState && executionState.status === 'completed' && executionState.result) {
       setAnalysisResult(executionState.result as IntelAnalysisResult);
       
       // Call the callback if provided
@@ -385,7 +385,7 @@ const IntelAnalysisPanel: React.FC<IntelAnalysisPanelProps> = ({
           </Box>
         )}
         
-        {executionState.status === 'failed' && (
+        {executionState && executionState.status === 'failed' && (
           <Alert severity="error" sx={{ mt: 2 }}>
             {executionState.error || 'Analysis failed for unknown reasons. Please try again.'}
           </Alert>
