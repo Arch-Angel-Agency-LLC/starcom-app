@@ -1,0 +1,161 @@
+.modeSettingsPanel {
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(0, 20, 30, 0.8));
+  border: 1px solid rgba(0, 196, 255, 0.4);
+  border-radius: 6px; /* Slightly more rounded for modern feel */
+  margin-top: 8px; /* Proper spacing to prevent TinyGlobe overlap */
+  padding: 6px; /* Slightly more padding for breathing room */
+  font-family: 'Orbitron', Arial, sans-serif;
+  font-size: 10px;
+  color: #B8E6FF; /* Better contrast */
+  width: 100%;
+  box-sizing: border-box;
+  pointer-events: auto; /* Allow interaction */
+  backdrop-filter: blur(8px); /* Modern glass effect */
+  box-shadow: 0 2px 8px rgba(0, 196, 255, 0.1);
+  position: relative;
+}
+
+/* Add subtle top border to create visual separation */
+.modeSettingsPanel::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0, 196, 255, 0.3), transparent);
+}
+
+.header {
+  margin-bottom: 6px; /* Better spacing */
+  border-bottom: 1px solid rgba(0, 196, 255, 0.3);
+  padding-bottom: 4px; /* More comfortable padding */
+}
+
+.modeIndicator {
+  font-size: 10px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #38bdf8;
+  text-shadow: 0 1px 2px #0ea5e9;
+}
+
+.subModeIndicator {
+  font-size: 10px; /* Improved readability */
+  color: #87CEEB; /* Better contrast while maintaining hierarchy */
+  text-transform: capitalize;
+  margin-top: 2px; /* Better spacing */
+  font-weight: 300; /* Lighter weight for hierarchy */
+}
+
+.settingsContent {
+  overflow-y: hidden;
+  overflow-x: hidden;
+}
+
+/* Mode Controls Styling */
+.modeControls {
+  margin-bottom: 8px;
+}
+
+.controlSection {
+  margin-bottom: 8px;
+}
+
+.controlLabel {
+  font-size: 9px;
+  color: #94a3b8;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.modeButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.modeButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(64, 224, 255, 0.2);
+  border-radius: 4px;
+  padding: 6px 8px;
+  color: #94a3b8;
+  font-size: 9px;
+  font-family: 'Orbitron', Arial, sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.modeButton:hover {
+  background: rgba(64, 224, 255, 0.1);
+  border-color: rgba(64, 224, 255, 0.4);
+  color: #40e0ff;
+  transform: translateY(-1px);
+}
+
+.modeButton.active {
+  background: rgba(64, 224, 255, 0.2);
+  border-color: #40e0ff;
+  color: #40e0ff;
+  box-shadow: 0 0 8px rgba(64, 224, 255, 0.3);
+}
+
+.modeButton.subModeButton {
+  padding: 4px 6px;
+  font-size: 8px;
+  margin-left: 8px;
+}
+
+.modeIcon {
+  font-size: 12px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.modeLabel {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Current Mode Indicator */
+.currentModeIndicator {
+  background: rgba(0, 20, 30, 0.8);
+  border: 1px solid rgba(0, 196, 255, 0.3);
+  border-radius: 4px;
+  padding: 6px 8px;
+  margin-bottom: 8px;
+}
+
+.currentMode {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.currentModeText {
+  color: #64748b;
+}
+
+.currentModeValue {
+  color: #40e0ff;
+  font-weight: bold;
+}
+
+.currentModeSeparator {
+  color: #94a3b8;
+  font-size: 10px;
+}

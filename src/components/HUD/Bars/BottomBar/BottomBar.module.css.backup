@@ -1,0 +1,226 @@
+.bottomBar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    align-self: flex-end;
+    padding: 0 15px;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    color: #fff;
+    width: calc(100% - 110px); /* Respect LeftSideBar width (110px) */
+    height: 5%; /* Ensure consistent height */
+    position: fixed; /* Fix the BottomBar to the bottom of the viewport */
+    bottom: 0;
+    left: 110px; /* Start after LeftSideBar */
+    pointer-events: auto; /* Enable clicks on HUD components */
+    z-index: 1002; /* Higher than other elements to ensure interaction */
+    border-top: 1px solid rgba(0, 255, 65, 0.3);
+}
+
+.leftSection {
+    display: flex;
+    align-items: center;
+    pointer-events: auto;
+}
+
+.rightSection {
+    display: flex;
+    align-items: center;
+    pointer-events: auto;
+}
+
+.quickNav {
+    display: flex;
+    gap: 10px;
+    pointer-events: auto;
+}
+
+.navButton {
+    background: rgba(0, 255, 65, 0.1);
+    border: 1px solid rgba(0, 255, 65, 0.3);
+    color: #00ff41;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    pointer-events: auto;
+    position: relative;
+}
+
+.navButton:hover {
+    background: rgba(0, 255, 65, 0.2) !important;
+    border-color: #00ff41 !important;
+    transform: translateY(-1px) !important;
+}
+
+.navButton.highlighted {
+    background: rgba(0, 255, 65, 0.2);
+    border-color: #00ff41;
+    position: relative;
+    overflow: hidden;
+}
+
+.navButton.highlighted::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 255, 65, 0.3), transparent);
+    animation: sweep 3s ease-in-out infinite;
+}
+
+@keyframes sweep {
+    0% { left: -100%; }
+    50% { left: 100%; }
+    100% { left: 100%; }
+}
+
+.helpText {
+    font-size: 11px;
+    color: #888888;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.kbd {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+    padding: 2px 6px;
+    font-size: 10px;
+    color: #cccccc;
+}
+
+.resourceSection {
+    font-family: 'Aldrich-Regular', sans-serif; /* From your assets/fonts */
+}
+
+.error {
+    color: #ff4444;
+}
+
+/* New User Badge Styles */
+.newUserBadge {
+    font-size: 10px;
+    color: #00ff41;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 10px;
+    opacity: 0.8;
+}
+
+.pulse {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { 
+        opacity: 0.4;
+        transform: scale(1);
+    }
+    50% { 
+        opacity: 1;
+        transform: scale(1.2);
+    }
+}
+
+/* Active state for the currently selected view button */
+.navButton.active {
+    background: rgba(0, 255, 65, 0.3);
+    border-color: #00ff41;
+    color: #ffffff;
+    box-shadow: 0 0 10px rgba(0, 255, 65, 0.4);
+}
+
+/* Connection status indicators */
+.navButton.connected {
+    background: rgba(0, 255, 65, 0.2);
+    border-color: #00ff41;
+    position: relative;
+}
+
+.connectionDot {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 6px;
+    height: 6px;
+    background: #00ff41;
+    border-radius: 50%;
+    box-shadow: 0 0 6px rgba(0, 255, 65, 0.8);
+    animation: connectedPulse 2s infinite;
+}
+
+@keyframes connectedPulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.6;
+        transform: scale(1.3);
+    }
+}
+
+/* Enhanced hover effects for connected buttons */
+.navButton.connected:hover {
+    background: rgba(0, 255, 65, 0.3);
+    box-shadow: 0 0 15px rgba(0, 255, 65, 0.6);
+    transform: translateY(-2px);
+}
+
+/* AI Agent active status indicators */
+.navButton.aiActive {
+    background: rgba(0, 204, 255, 0.2);
+    border-color: #00ccff;
+    position: relative;
+}
+
+.aiActiveDot {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 6px;
+    height: 6px;
+    background: #00ccff;
+    border-radius: 50%;
+    box-shadow: 0 0 6px rgba(0, 204, 255, 0.8);
+    animation: aiPulse 2s infinite;
+}
+
+@keyframes aiPulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.6;
+        transform: scale(1.3);
+    }
+}
+
+/* Enhanced hover effects for AI active buttons */
+.navButton.aiActive:hover {
+    background: rgba(0, 204, 255, 0.3);
+    box-shadow: 0 0 15px rgba(0, 204, 255, 0.6);
+    transform: translateY(-2px);
+}
+
+/* Responsive design for BottomBar */
+@media (max-width: 768px) {
+  .bottomBar {
+    left: 80px; /* Match mobile LeftSideBar width */
+    width: calc(100% - 80px); /* Adjust width for mobile LeftSideBar */
+  }
+}
+
+/* Debug styles to ensure visibility and interaction */
+.bottomBar * {
+    pointer-events: auto !important;
+}

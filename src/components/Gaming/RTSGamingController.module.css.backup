@@ -1,0 +1,294 @@
+/**
+ * RTS Gaming Controller Styles - Phase 4 Enhancement
+ * 
+ * Module-specific styles for the RTS Gaming UX Controller component.
+ */
+
+.rtsGamingContainer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.rtsGamingContainer[data-rts-gaming="enabled"] {
+  /* Apply RTS gaming theme imports */
+  @import '../../styles/rts-gaming-theme.css';
+}
+
+/* ============================================================================
+   GAMING STATUS OVERLAY
+   ============================================================================ */
+
+.gamingStatusOverlay {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.operatorBadge {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  padding: 8px 12px;
+  background: var(--rts-panel-bg);
+  border: 1px solid var(--rts-panel-border);
+  border-radius: 6px;
+  backdrop-filter: blur(10px);
+  font-family: 'Aldrich-Regular', monospace;
+  font-size: 10px;
+  opacity: 0.8;
+  transition: opacity var(--rts-transition-smooth);
+}
+
+.operatorBadge:hover {
+  opacity: 1;
+}
+
+.roleIndicator {
+  color: var(--rts-role-accent, var(--rts-primary-glow));
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-shadow: 0 0 5px currentColor;
+}
+
+.experienceLevel {
+  color: var(--rts-secondary-glow);
+  font-size: 9px;
+  opacity: 0.7;
+}
+
+.adaptiveIndicator {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* ============================================================================
+   RTS ENTRY ANIMATIONS
+   ============================================================================ */
+
+[data-rts-animate] {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.rtsEntryAnimation {
+  animation: rtsSlideIn 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+@keyframes rtsSlideIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================================================
+   COMMAND EXECUTION EFFECTS
+   ============================================================================ */
+
+.rtsRippleEffect {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(0, 255, 136, 0.6);
+  transform: scale(0);
+  animation: rtsRipple 0.6s linear;
+  pointer-events: none;
+}
+
+@keyframes rtsRipple {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* ============================================================================
+   HOLOGRAPHIC SCAN OVERLAY
+   ============================================================================ */
+
+.holoScanOverlay {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: var(--hologram-scan);
+  animation: holoScan 3s infinite;
+  pointer-events: none;
+  opacity: 0.3;
+}
+
+@keyframes holoScan {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* ============================================================================
+   PROGRESSIVE DISCLOSURE GAMING ENHANCEMENTS
+   ============================================================================ */
+
+.rtsDisclosureVisible {
+  opacity: 1;
+  transform: translateX(0);
+  transition: all var(--rts-transition-dramatic);
+}
+
+.rtsDisclosureHidden {
+  opacity: 0;
+  transform: translateX(-20px);
+  transition: all var(--rts-transition-smooth);
+  pointer-events: none;
+}
+
+/* ============================================================================
+   ROLE-SPECIFIC CONTAINER STYLING
+   ============================================================================ */
+
+/* Commander: Bold, authoritative interface */
+[data-operator-role="COMMANDER"] .rtsGamingContainer {
+  --container-accent: var(--rts-critical-glow);
+}
+
+[data-operator-role="COMMANDER"] .gamingStatusOverlay {
+  border-left: 3px solid var(--rts-critical-glow);
+  box-shadow: -5px 0 15px rgba(255, 56, 56, 0.3);
+}
+
+/* Analyst: Data-focused, analytical */
+[data-operator-role="ANALYST"] .rtsGamingContainer {
+  --container-accent: var(--rts-secondary-glow);
+}
+
+[data-operator-role="ANALYST"] .gamingStatusOverlay {
+  border-left: 2px solid var(--rts-secondary-glow);
+  box-shadow: -5px 0 10px rgba(0, 196, 255, 0.2);
+}
+
+/* Cyber Warrior: Aggressive, tactical */
+[data-operator-role="CYBER_WARRIOR"] .rtsGamingContainer {
+  --container-accent: var(--rts-energy-glow);
+  animation: cyberPulse 2s infinite alternate;
+}
+
+@keyframes cyberPulse {
+  from { filter: brightness(1); }
+  to { filter: brightness(1.05); }
+}
+
+[data-operator-role="CYBER_WARRIOR"] .gamingStatusOverlay {
+  border-left: 3px solid var(--rts-energy-glow);
+  box-shadow: -5px 0 20px rgba(136, 255, 0, 0.4);
+}
+
+/* Field Operative: Operational, efficient */
+[data-operator-role="FIELD_OPERATIVE"] .rtsGamingContainer {
+  --container-accent: var(--rts-warning-glow);
+}
+
+[data-operator-role="FIELD_OPERATIVE"] .gamingStatusOverlay {
+  border-left: 2px solid var(--rts-warning-glow);
+  box-shadow: -5px 0 12px rgba(255, 107, 53, 0.3);
+}
+
+/* Intelligence Officer: Refined, intelligence-focused */
+[data-operator-role="INTELLIGENCE_OFFICER"] .rtsGamingContainer {
+  --container-accent: var(--rts-primary-glow);
+}
+
+[data-operator-role="INTELLIGENCE_OFFICER"] .gamingStatusOverlay {
+  border-left: 2px solid var(--rts-primary-glow);
+  box-shadow: -5px 0 15px rgba(0, 255, 136, 0.3);
+}
+
+/* Technical Specialist: Precise, technical */
+[data-operator-role="TECHNICAL_SPECIALIST"] .rtsGamingContainer {
+  --container-accent: var(--hologram-blue);
+}
+
+[data-operator-role="TECHNICAL_SPECIALIST"] .gamingStatusOverlay {
+  border-left: 1px solid var(--hologram-blue);
+  box-shadow: -3px 0 8px rgba(0, 196, 255, 0.2);
+}
+
+/* ============================================================================
+   EXPERIENCE LEVEL ADAPTATIONS
+   ============================================================================ */
+
+/* Novice: More visual feedback and guidance */
+[data-experience-level="NOVICE"] .rtsGamingContainer {
+  --feedback-intensity: high;
+}
+
+[data-experience-level="NOVICE"] .operatorBadge {
+  border-color: var(--rts-primary-glow);
+  box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+}
+
+/* Master: Minimal, efficient interface */
+[data-experience-level="MASTER"] .rtsGamingContainer {
+  --feedback-intensity: minimal;
+}
+
+[data-experience-level="MASTER"] .gamingStatusOverlay {
+  opacity: 0.5;
+  font-size: 9px;
+}
+
+/* ============================================================================
+   ACCESSIBILITY AND PERFORMANCE
+   ============================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .rtsEntryAnimation,
+  .holoScanOverlay,
+  .cyberPulse {
+    animation: none;
+  }
+  
+  .rtsDisclosureVisible,
+  .rtsDisclosureHidden {
+    transition: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .gamingStatusOverlay {
+    top: 10px;
+    right: 10px;
+    font-size: 9px;
+  }
+  
+  .operatorBadge {
+    padding: 6px 8px;
+  }
+}
+
+/* ============================================================================
+   PERFORMANCE OPTIMIZATION
+   ============================================================================ */
+
+.rtsGamingContainer * {
+  will-change: auto;
+}
+
+.rtsGamingContainer [data-rts-animate] {
+  will-change: opacity, transform;
+}
+
+.holoScanOverlay {
+  will-change: left;
+  contain: layout style paint;
+}
+
+.rtsRippleEffect {
+  will-change: transform, opacity;
+  contain: layout style paint;
+}

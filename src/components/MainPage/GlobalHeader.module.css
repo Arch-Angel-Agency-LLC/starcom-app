@@ -52,7 +52,7 @@
   height: 36px;
   background-color: rgba(40, 60, 80, 0.6);
   border: 1px solid rgba(80, 120, 160, 0.5);
-  border-radius: 18px;
+  border-radius: 0;
   color: #e0f0ff;
   padding: 0 15px;
   font-size: 14px;
@@ -75,7 +75,7 @@
   font-size: 12px;
   padding: 2px 6px;
   background-color: rgba(60, 80, 100, 0.7);
-  border-radius: 4px;
+  border-radius: 0;
   pointer-events: none;
 }
 
@@ -86,7 +86,7 @@
   width: 100%;
   background-color: rgba(30, 40, 50, 0.95);
   border: 1px solid rgba(80, 120, 160, 0.7);
-  border-radius: 8px;
+  border-radius: 0;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
   z-index: 1000;
   max-height: 400px;
@@ -126,7 +126,7 @@
 .searchResultTitle {
   font-size: 14px;
   font-weight: bold;
-  color: #d0e0f0;
+  color: var(--text-primary);
   margin-bottom: 3px;
 }
 
@@ -139,8 +139,8 @@
   font-size: 11px;
   background-color: rgba(80, 120, 160, 0.3);
   padding: 2px 6px;
-  border-radius: 4px;
-  color: #80c0ff;
+  border-radius: 0;
+  color: var(--cyber-cyan);
   text-transform: uppercase;
 }
 
@@ -183,7 +183,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
+  border-radius: 0%;
   width: 36px;
   height: 36px;
   transition: background-color 0.2s;
@@ -205,7 +205,7 @@
   width: 8px;
   height: 8px;
   background-color: #ff5050;
-  border-radius: 50%;
+  border-radius: 0%;
 }
 
 .profileButton {
@@ -217,7 +217,7 @@
   justify-content: center;
   width: 36px;
   height: 36px;
-  border-radius: 50%;
+  border-radius: 0%;
   overflow: hidden;
   border: 2px solid rgba(100, 150, 200, 0.5);
   transition: border-color 0.2s, transform 0.2s;
@@ -252,7 +252,7 @@
   width: 300px;
   background-color: rgba(30, 40, 50, 0.95);
   border: 1px solid rgba(80, 120, 160, 0.7);
-  border-radius: 8px;
+  border-radius: 0;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
   z-index: 1000;
 }
@@ -268,7 +268,7 @@
 .notificationsHeader h3 {
   margin: 0;
   font-size: 16px;
-  color: #d0e0f0;
+  color: var(--text-primary);
 }
 
 .clearButton {

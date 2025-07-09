@@ -1,0 +1,201 @@
+.newUserHint {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  z-index: 1000;
+  animation: slideInRight 0.4s ease-out;
+  pointer-events: auto;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.hintCard {
+  background: linear-gradient(135deg, rgba(10, 10, 10, 0.95) 0%, rgba(26, 26, 46, 0.95) 50%, rgba(22, 33, 62, 0.95) 100%);
+  backdrop-filter: blur(15px);
+  border: 2px solid rgba(0, 255, 65, 0.4);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 255, 65, 0.2);
+  width: 320px;
+  overflow: hidden;
+}
+
+.hintHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px 10px;
+  border-bottom: 1px solid rgba(0, 255, 65, 0.2);
+}
+
+.hintTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #00ff41;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.icon {
+  font-size: 18px;
+}
+
+.hintControls {
+  display: flex;
+  gap: 5px;
+}
+
+.minimizeButton,
+.closeButton {
+  background: none;
+  border: none;
+  color: #888888;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.minimizeButton:hover,
+.closeButton:hover {
+  color: #cccccc;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.hintContent {
+  padding: 15px 20px 20px;
+}
+
+.hintContent p {
+  color: #cccccc;
+  margin: 0 0 15px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.quickTips {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.tip {
+  background: rgba(0, 255, 65, 0.05);
+  border: 1px solid rgba(0, 255, 65, 0.2);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #cccccc;
+}
+
+.tip strong {
+  color: #00ff41;
+}
+
+.hintActions {
+  display: flex;
+  gap: 10px;
+}
+
+.primaryAction {
+  background: linear-gradient(45deg, #00ff41, #00cc33);
+  border: none;
+  color: #000000;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex: 1;
+}
+
+.primaryAction:hover {
+  background: linear-gradient(45deg, #00cc33, #009926);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 255, 65, 0.3);
+}
+
+.secondaryAction {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #cccccc;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex: 1;
+}
+
+.secondaryAction:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Minimized state */
+.minimizedHint {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+  pointer-events: auto;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.minimizedButton {
+  background: rgba(0, 255, 65, 0.1);
+  border: 2px solid rgba(0, 255, 65, 0.3);
+  color: #00ff41;
+  padding: 8px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 16px rgba(0, 255, 65, 0.1);
+}
+
+.minimizedButton:hover {
+  background: rgba(0, 255, 65, 0.2);
+  border-color: #00ff41;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0, 255, 65, 0.2);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .newUserHint {
+    top: 60px;
+    right: 10px;
+    left: 10px;
+  }
+  
+  .hintCard {
+    width: auto;
+  }
+  
+  .minimizedHint {
+    top: 60px;
+    right: 10px;
+  }
+  
+  .hintActions {
+    flex-direction: column;
+  }
+}

@@ -1,0 +1,54 @@
+.advancedScreen {
+  width: 100%;
+  height: 100%;
+  background-color: #0a1520;
+  color: #d0e0f0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+.container {
+  max-width: 800px;
+  width: 100%;
+}
+
+.title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  color: #80c0ff;
+  text-shadow: 0 0 10px rgba(0, 100, 255, 0.5);
+}
+
+.content {
+  background-color: rgba(20, 40, 60, 0.5);
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 0 20px rgba(0, 40, 80, 0.3);
+}
+
+.placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  margin-top: 2rem;
+  background-color: rgba(30, 50, 70, 0.3);
+  border-radius: 8px;
+  border: 1px solid rgba(60, 100, 140, 0.3);
+  text-align: center;
+}
+
+.icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.message {
+  font-size: 1.2rem;
+  opacity: 0.8;
+}

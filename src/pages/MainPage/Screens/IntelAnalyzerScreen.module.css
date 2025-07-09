@@ -1,58 +1,87 @@
+/* INTEL ANALYZER CYBERPUNK CYAN THEME */
 .analyzerScreen {
   width: 100%;
   height: 100%;
-  background-color: #0a1520;
-  color: #d0e0f0;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding: 2rem;
+  padding: var(--space-lg);
   overflow-y: auto;
+  font-family: var(--font-ui);
+  position: relative;
+}
+
+/* Cyber grid background */
+.analyzerScreen::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    linear-gradient(90deg, transparent 98%, var(--cyber-cyan) 100%),
+    linear-gradient(180deg, transparent 98%, var(--cyber-cyan) 100%);
+  background-size: 30px 30px;
+  opacity: 0.05;
+  pointer-events: none;
 }
 
 .container {
   max-width: 1200px;
   width: 100%;
+  z-index: 1;
+  position: relative;
 }
 
 .title {
-  font-family: 'Orbitron', sans-serif;
-  font-size: 2rem;
-  margin-bottom: 2rem;
-  color: #80c0ff;
-  text-shadow: 0 0 10px rgba(0, 100, 255, 0.5);
+  font-family: var(--font-cyber);
+  font-size: var(--text-3xl);
+  margin-bottom: var(--space-lg);
+  color: var(--intel-primary);
+  text-shadow: var(--intel-glow);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border-bottom: 2px solid var(--intel-primary);
+  padding-bottom: var(--space-sm);
 }
 
 .content {
-  background-color: rgba(20, 40, 60, 0.5);
-  border-radius: 8px;
-  padding: 2rem;
-  box-shadow: 0 0 20px rgba(0, 40, 80, 0.3);
+  background-color: var(--bg-secondary);
+  border: 2px solid var(--intel-primary);
+  padding: var(--space-lg);
+  box-shadow: 
+    0 0 20px rgba(0, 212, 255, 0.3),
+    inset 0 0 20px rgba(0, 212, 255, 0.05);
+  position: relative;
 }
 
 .dashboardGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
-  gap: 20px;
+  gap: var(--space-lg);
 }
 
 .card {
-  background-color: rgba(25, 45, 65, 0.5);
-  border-radius: 8px;
+  background-color: var(--bg-tertiary);
+  border: 2px solid var(--border-primary);
   overflow: hidden;
-  border: 1px solid rgba(60, 100, 140, 0.3);
-  transition: all 0.3s ease;
+  transition: all var(--transition-fast);
+  position: relative;
 }
 
 .card:hover {
-  box-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
+  box-shadow: var(--glow-cyan);
   transform: translateY(-2px);
+  border-color: var(--cyber-cyan);
 }
 
 .cardHeader {
-  padding: 16px;
-  background-color: rgba(35, 55, 75, 0.5);
-  border-bottom: 1px solid rgba(60, 100, 140, 0.3);
+  padding: var(--space-lg);
+  background-color: var(--bg-quaternary);
+  border-bottom: 2px solid var(--border-primary);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -60,21 +89,25 @@
 
 .cardHeader h2 {
   margin: 0;
-  font-size: 1.2rem;
-  color: #80c0ff;
+  font-size: var(--text-xl);
+  color: var(--cyber-cyan);
+  font-family: var(--font-cyber);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .badge {
-  background-color: rgba(56, 189, 248, 0.2);
-  color: #80c0ff;
-  font-size: 0.8rem;
-  padding: 4px 8px;
-  border-radius: 4px;
-  border: 1px solid rgba(56, 189, 248, 0.3);
+  background-color: var(--cyber-cyan);
+  color: var(--text-inverse);
+  font-size: var(--text-xs);
+  padding: var(--space-xs) var(--space-sm);
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  font-weight: bold;
 }
 
 .cardContent {
-  padding: 16px;
+  padding: var(--space-lg);
   min-height: 200px;
 }
 
@@ -82,8 +115,8 @@
 .correlationGraph {
   width: 100%;
   height: 150px;
-  background-color: rgba(30, 50, 70, 0.3);
-  border-radius: 4px;
+  background-color: var(--bg-tertiary);
+  border-radius: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -110,7 +143,7 @@
 .listItem {
   display: flex;
   justify-content: space-between;
-  padding: 8px 0;
+  padding: var(--space-sm) 0;
   border-bottom: 1px solid rgba(60, 100, 140, 0.2);
 }
 
@@ -119,16 +152,16 @@
 }
 
 .listItemName {
-  color: #d0e0f0;
+  color: var(--text-primary);
 }
 
 .listItemValue {
-  color: #80c0ff;
+  color: var(--cyber-cyan);
   font-weight: 500;
 }
 
 .cardFooter {
-  padding: 16px;
+  padding: var(--space-lg);
   border-top: 1px solid rgba(60, 100, 140, 0.3);
   text-align: right;
 }
@@ -136,9 +169,9 @@
 .button {
   background-color: rgba(56, 189, 248, 0.2);
   border: 1px solid rgba(56, 189, 248, 0.3);
-  color: #80c0ff;
-  padding: 8px 16px;
-  border-radius: 4px;
+  color: var(--cyber-cyan);
+  padding: var(--space-sm) 16px;
+  border-radius: 0;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -162,7 +195,7 @@
 .statValue {
   font-size: 1.5rem;
   font-weight: 600;
-  color: #80c0ff;
+  color: var(--cyber-cyan);
   margin-bottom: 4px;
 }
 
@@ -186,13 +219,13 @@
 .semanticTerm {
   width: 120px;
   font-size: 0.9rem;
-  color: #d0e0f0;
+  color: var(--text-primary);
 }
 
 .semanticBar {
   height: 8px;
   background-color: rgba(56, 189, 248, 0.5);
-  border-radius: 4px;
+  border-radius: 0;
   flex-grow: 1;
 }
 
@@ -200,7 +233,7 @@
   width: 40px;
   text-align: right;
   font-size: 0.9rem;
-  color: #80c0ff;
+  color: var(--cyber-cyan);
 }
 
 .patternGrid {
@@ -213,7 +246,7 @@
 }
 
 .patternCell {
-  border-radius: 4px;
+  border-radius: 0;
   transition: all 0.3s ease;
 }
 
@@ -222,15 +255,15 @@
 }
 
 .patternInsight {
-  background-color: rgba(30, 50, 70, 0.3);
-  border-radius: 4px;
+  background-color: var(--bg-tertiary);
+  border-radius: 0;
   padding: 12px;
   margin-top: 12px;
 }
 
 .insightTitle {
   font-weight: 600;
-  color: #80c0ff;
+  color: var(--cyber-cyan);
   margin-bottom: 4px;
   font-size: 0.9rem;
 }
