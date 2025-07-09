@@ -1,0 +1,202 @@
+/**
+ * CaseDetails Component Styles
+ */
+
+.detailsContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: var(--background-secondary);
+  color: var(--text-primary);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: var(--background-primary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.title {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-accent);
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  height: 30px;
+  width: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.closeButton:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+}
+
+.metadataBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background-color: var(--background-primary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.status, .priority, .classification {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.infoSection {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.sectionTitle {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sectionContent {
+  margin-left: 1.5rem;
+}
+
+.metaItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+}
+
+.metaLabel {
+  min-width: 80px;
+  color: var(--text-muted);
+}
+
+.metaValue {
+  flex: 1;
+}
+
+.descriptionText {
+  white-space: pre-wrap;
+  line-height: 1.5;
+}
+
+.tagsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  background-color: rgba(80, 120, 160, 0.3);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.relatedEvents {
+  padding: 1rem;
+}
+
+.eventsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.relatedEvent {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background-color: rgba(40, 60, 80, 0.3);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.relatedEvent:hover {
+  background-color: rgba(60, 90, 120, 0.3);
+}
+
+.relatedEventTitle {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.relatedEventDate {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.actionButtons {
+  display: flex;
+  justify-content: flex-end;
+  padding: 1rem;
+  gap: 0.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.actionButton {
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.deleteButton {
+  background-color: rgba(180, 60, 60, 0.2);
+  color: #e66;
+  border: 1px solid rgba(180, 60, 60, 0.3);
+}
+
+.deleteButton:hover {
+  background-color: rgba(180, 60, 60, 0.3);
+}
+
+.editButton {
+  background-color: rgba(60, 100, 180, 0.2);
+  color: #6af;
+  border: 1px solid rgba(60, 100, 180, 0.3);
+}
+
+.editButton:hover {
+  background-color: rgba(60, 100, 180, 0.3);
+}

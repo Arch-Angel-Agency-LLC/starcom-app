@@ -1,0 +1,131 @@
+.topNav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  background: rgba(0, 0, 0, 0.9);
+  border-bottom: 2px solid #00ff41;
+  backdrop-filter: blur(10px);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+}
+
+.logoButton {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #00ff41;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.logoButton:hover {
+  transform: scale(1.05);
+  filter: brightness(1.2);
+}
+
+.logo {
+  height: 40px;
+  width: auto;
+  margin-right: 0.75rem;
+}
+
+.brandText {
+  font-size: 1.5rem;
+  font-weight: bold;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 2px;
+}
+
+.navItems {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  color: #00ff41;
+  text-decoration: none;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  font-family: 'Courier New', monospace;
+  font-weight: 500;
+}
+
+.navItem:hover {
+  background: rgba(0, 255, 65, 0.1);
+  border-color: rgba(0, 255, 65, 0.3);
+  transform: translateY(-1px);
+}
+
+.navItem.active {
+  background: rgba(0, 255, 65, 0.2);
+  border-color: #00ff41;
+  box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+}
+
+.navIcon {
+  font-size: 1.2rem;
+}
+
+.navLabel {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.userActions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.settingsButton {
+  background: none;
+  border: 1px solid rgba(0, 255, 65, 0.3);
+  color: #00ff41;
+  padding: 0.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition: all 0.3s ease;
+}
+
+.settingsButton:hover {
+  background: rgba(0, 255, 65, 0.1);
+  border-color: #00ff41;
+  transform: scale(1.1);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .topNav {
+    padding: 0.75rem 1rem;
+  }
+  
+  .navLabel {
+    display: none;
+  }
+  
+  .brandText {
+    display: none;
+  }
+  
+  .navItems {
+    gap: 0.25rem;
+  }
+  
+  .navItem {
+    padding: 0.5rem;
+  }
+}

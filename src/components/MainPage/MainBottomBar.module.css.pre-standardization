@@ -1,0 +1,225 @@
+.mainBottomBar {
+  position: relative; /* Changed from fixed to relative */
+  width: 100%;
+  background-color: rgba(15, 15, 25, 0.85);
+  backdrop-filter: blur(10px);
+  padding: var(--space-sm) 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 100;
+  border-top: 1px solid rgba(64, 86, 128, 0.25);
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.25);
+}
+
+.leftSection {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(100, 116, 139, 0.5) transparent;
+}
+
+.leftSection::-webkit-scrollbar {
+  height: 4px;
+}
+
+.leftSection::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.leftSection::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 116, 139, 0.5);
+  border-radius: 0;
+}
+
+.navigationContainer {
+  display: flex;
+  padding: 0 4px;
+}
+
+.navButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background-color: rgba(30, 41, 59, 0.5);
+  border: 1px solid rgba(71, 85, 105, 0.3);
+  border-radius: 0;
+  color: rgba(226, 232, 240, 0.8);
+  padding: 6px 12px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  min-width: 40px;
+  justify-content: center;
+}
+
+.navButton:hover {
+  background-color: rgba(51, 65, 85, 0.7);
+  color: rgba(248, 250, 252, 1);
+  border-color: rgba(100, 116, 139, 0.5);
+}
+
+.navButton.active {
+  background-color: rgba(56, 189, 248, 0.2);
+  color: rgba(248, 250, 252, 1);
+  border-color: rgba(56, 189, 248, 0.5);
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.3);
+}
+
+.icon {
+  font-size: 1.1rem;
+}
+
+.label {
+  font-weight: 500;
+}
+
+.highlighted {
+  animation: pulse 2s infinite;
+  position: relative;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(56, 189, 248, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(56, 189, 248, 0);
+  }
+}
+
+.statusIndicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 0%;
+  background-color: #10b981; /* green */
+  display: inline-block;
+}
+
+.connected .statusIndicator {
+  background-color: #10b981; /* green */
+}
+
+.aiActive .statusIndicator {
+  background-color: #8b5cf6; /* purple */
+}
+
+.rightSection {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.helpText {
+  font-size: 0.8rem;
+  color: rgba(148, 163, 184, 0.8);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.kbd {
+  background-color: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(71, 85, 105, 0.5);
+  border-radius: 0;
+  padding: 2px 6px;
+  font-size: 0.7rem;
+  font-family: monospace;
+  box-shadow: 0 2px 0 rgba(15, 23, 42, 0.5);
+}
+
+.newUserBadge {
+  background-color: rgba(56, 189, 248, 0.2);
+  border: 1px solid rgba(56, 189, 248, 0.5);
+  color: rgba(248, 250, 252, 0.9);
+  padding: 4px 8px;
+  border-radius: 0;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pulse {
+  color: #38bdf8;
+  animation: pulseDot 1.5s infinite;
+}
+
+@keyframes pulseDot {
+  0% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.5;
+  }
+}
+
+.navGroup {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+  margin-right: 16px;
+  position: relative;
+  padding-left: 8px;
+}
+
+.navGroup:not(:first-child) {
+  border-left: 1px solid rgba(100, 116, 139, 0.3);
+  padding-left: 16px;
+}
+
+.navGroupLabel {
+  position: absolute;
+  top: -18px;
+  left: 16px;
+  font-size: 10px;
+  color: rgba(148, 163, 184, 0.8);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .label {
+    display: none;
+  }
+
+  .navButton {
+    padding: var(--space-sm);
+    min-width: 40px;
+  }
+
+  .icon {
+    margin: 0;
+  }
+
+  .helpText {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .mainBottomBar {
+    padding: 6px 8px;
+  }
+
+  .navigationContainer {
+    gap: 2px;
+  }
+
+  .navButton {
+    padding: 6px;
+    min-width: 36px;
+  }
+}
