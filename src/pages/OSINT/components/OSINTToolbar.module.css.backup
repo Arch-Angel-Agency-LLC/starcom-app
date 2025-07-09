@@ -1,0 +1,177 @@
+/* OSINT Toolbar - Earth Alliance Cyber Command Styling */
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  background-color: rgba(0, 30, 50, 0.7);
+  border: 1px solid rgba(0, 204, 255, 0.2);
+  border-radius: 0.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.toolbarGroup {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.toolbarButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background-color: rgba(0, 50, 80, 0.4);
+  border: 1px solid rgba(0, 204, 255, 0.2);
+  border-radius: 0.25rem;
+  color: rgba(0, 204, 255, 0.8);
+  font-family: 'Aldrich', 'Courier New', monospace;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.toolbarButton:hover {
+  background-color: rgba(0, 80, 120, 0.5);
+  border-color: rgba(0, 204, 255, 0.4);
+  color: rgba(0, 204, 255, 1);
+}
+
+.disabledButton {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.disabledButton:hover {
+  background-color: rgba(0, 50, 80, 0.4);
+  border-color: rgba(0, 204, 255, 0.2);
+  color: rgba(0, 204, 255, 0.8);
+}
+
+.buttonIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Dropdown styles */
+.dropdown {
+  position: relative;
+}
+
+.dropdownContent {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 100;
+  min-width: 16rem;
+  background-color: rgba(0, 20, 40, 0.95);
+  border: 1px solid rgba(0, 204, 255, 0.3);
+  border-radius: 0.25rem;
+  padding: 0.5rem 0;
+  margin-top: 0.25rem;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.dropdown:hover .dropdownContent {
+  display: block;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdownHeader {
+  padding: 0.5rem 1rem;
+  color: rgba(0, 204, 255, 0.9);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  border-bottom: 1px solid rgba(0, 204, 255, 0.2);
+  margin-bottom: 0.5rem;
+}
+
+.dropdownItems {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.dropdownItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background-color: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.8);
+  font-family: 'Aldrich', 'Courier New', monospace;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dropdownItem:hover {
+  background-color: rgba(0, 80, 120, 0.3);
+  color: rgba(255, 255, 255, 1);
+}
+
+.disabledItem {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.disabledItem:hover {
+  background-color: transparent;
+}
+
+.itemContent {
+  display: flex;
+  flex-direction: column;
+}
+
+.itemLabel {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(0, 204, 255, 0.9);
+}
+
+.itemDescription {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 0.25rem;
+}
+
+.authRequired {
+  font-size: 0.7rem;
+  color: rgba(255, 180, 0, 0.9);
+  background-color: rgba(80, 60, 0, 0.3);
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.25rem;
+  white-space: nowrap;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .toolbar {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .buttonText {
+    display: none;
+  }
+  
+  .toolbarButton {
+    padding: 0.5rem;
+  }
+}

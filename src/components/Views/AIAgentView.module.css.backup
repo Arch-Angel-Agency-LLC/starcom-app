@@ -1,0 +1,651 @@
+/* AIAgentView.module.css */
+.aiAgentView {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: linear-gradient(145deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+  color: #e0e0e0;
+  font-family: 'Orbitron', monospace;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #333;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+.titleSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.titleSection h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #00ff41;
+}
+
+.systemStatus {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.statusIcon {
+  font-size: 1rem;
+}
+
+.statusText {
+  color: #00ff41;
+  font-weight: 500;
+}
+
+.lastUpdate {
+  color: #888;
+  font-size: 0.8rem;
+}
+
+.quickStats {
+  display: flex;
+  gap: 1rem;
+}
+
+.quickStat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.quickStatValue {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #00ff41;
+}
+
+.quickStatLabel {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+/* Tab Navigation */
+.tabNavigation {
+  display: flex;
+  border-bottom: 1px solid #333;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.tabButton {
+  flex: 1;
+  padding: 1rem 1.5rem;
+  background: transparent;
+  border: none;
+  color: #888;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-bottom: 2px solid transparent;
+}
+
+.tabButton:hover {
+  background: rgba(0, 255, 65, 0.05);
+  color: #00ff41;
+}
+
+.tabButton.active {
+  color: #00ff41;
+  background: rgba(0, 255, 65, 0.1);
+  border-bottom-color: #00ff41;
+}
+
+/* Content Area */
+.contentArea {
+  flex: 1;
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+/* Assistant Tab */
+.assistantTab {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.assistantHeader {
+  margin-bottom: 1.5rem;
+}
+
+.personalitySelector h4 {
+  margin: 0 0 1rem 0;
+  color: #00ff41;
+  font-size: 1.1rem;
+}
+
+.personalityCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.personalityCard {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid #333;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.personalityCard:hover {
+  border-color: #00ff41;
+  background: rgba(0, 255, 65, 0.05);
+}
+
+.personalityCard.active {
+  border-color: #00ff41;
+  background: rgba(0, 255, 65, 0.1);
+}
+
+.personalityIcon {
+  font-size: 2rem;
+}
+
+.personalityInfo {
+  flex: 1;
+}
+
+.personalityName {
+  font-weight: 600;
+  color: #00ff41;
+  margin-bottom: 0.25rem;
+}
+
+.personalitySpec {
+  font-size: 0.85rem;
+  color: #888;
+  margin-bottom: 0.5rem;
+}
+
+.personalityStatus {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.personalityStatus.online {
+  background: rgba(0, 255, 65, 0.2);
+  color: #00ff41;
+}
+
+.personalityStatus.busy {
+  background: rgba(255, 184, 0, 0.2);
+  color: #ffb800;
+}
+
+.personalityStatus.offline {
+  background: rgba(255, 68, 68, 0.2);
+  color: #ff4444;
+}
+
+.assistantContent {
+  flex: 1;
+  overflow: hidden;
+}
+
+.aiActionsPanel {
+  height: 100%;
+}
+
+/* Error States */
+.errorFallback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  padding: 2rem;
+}
+
+.errorIcon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.7;
+}
+
+.errorFallback h3 {
+  margin: 0 0 1rem 0;
+  color: #ff4444;
+}
+
+.errorFallback p {
+  margin: 0 0 1.5rem 0;
+  color: #888;
+}
+
+.retryButton {
+  background: #00ff41;
+  border: none;
+  border-radius: 4px;
+  color: #000;
+  padding: 0.75rem 1.5rem;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.retryButton:hover {
+  background: #00cc33;
+}
+
+.disabledState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  padding: 2rem;
+}
+
+.disabledIcon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.disabledState h3 {
+  margin: 0 0 1rem 0;
+  color: #888;
+}
+
+.disabledState p {
+  margin: 0;
+  color: #666;
+}
+
+/* Agents Tab */
+.agentsTab {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.agentsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.agentsHeader h3 {
+  margin: 0;
+  color: #00ff41;
+}
+
+.agentStats {
+  display: flex;
+  gap: 1rem;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.statValue {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #00ff41;
+}
+
+.statLabel {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.agentsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.agentCard {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.agentHeader {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.agentIcon {
+  font-size: 2rem;
+}
+
+.agentInfo {
+  flex: 1;
+}
+
+.agentInfo h4 {
+  margin: 0 0 0.5rem 0;
+  color: #00ff41;
+}
+
+.agentInfo p {
+  margin: 0;
+  color: #888;
+  font-size: 0.9rem;
+}
+
+.agentStatus {
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+}
+
+.agentControls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.agentBtn {
+  background: rgba(0, 255, 65, 0.1);
+  border: 1px solid rgba(0, 255, 65, 0.3);
+  border-radius: 4px;
+  color: #00ff41;
+  padding: 0.5rem 1rem;
+  font-family: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.agentBtn:hover {
+  background: rgba(0, 255, 65, 0.2);
+}
+
+.agentBtn.primary {
+  background: #00ff41;
+  color: #000;
+}
+
+.agentBtn.primary:hover {
+  background: #00cc33;
+}
+
+/* Automation Tab */
+.automationTab {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.automationHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.automationHeader h3 {
+  margin: 0;
+  color: #00ff41;
+}
+
+.createWorkflowBtn {
+  background: #00ff41;
+  border: none;
+  border-radius: 4px;
+  color: #000;
+  padding: 0.75rem 1.5rem;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.createWorkflowBtn:hover {
+  background: #00cc33;
+}
+
+.workflowsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.workflowCard {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.workflowHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.workflowHeader h4 {
+  margin: 0;
+  color: #00ff41;
+}
+
+.workflowStatus {
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  background: rgba(0, 255, 65, 0.2);
+  color: #00ff41;
+}
+
+.workflowCard p {
+  margin: 0 0 1rem 0;
+  color: #888;
+  font-size: 0.9rem;
+}
+
+.workflowStats {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+/* Analytics Tab */
+.analyticsTab {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.analyticsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.analyticsHeader h3 {
+  margin: 0;
+  color: #00ff41;
+}
+
+.timeRange {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.timeBtn {
+  background: rgba(0, 255, 65, 0.1);
+  border: 1px solid rgba(0, 255, 65, 0.3);
+  border-radius: 4px;
+  color: #00ff41;
+  padding: 0.5rem 1rem;
+  font-family: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.timeBtn:hover {
+  background: rgba(0, 255, 65, 0.2);
+}
+
+.timeBtn.active {
+  background: #00ff41;
+  color: #000;
+}
+
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.metricCard {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  height: 150px;
+}
+
+.metricHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.metricHeader h4 {
+  margin: 0;
+  color: #888;
+  font-size: 0.9rem;
+}
+
+.metricValue {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #00ff41;
+}
+
+.metricChart {
+  flex: 1;
+  display: flex;
+  align-items: end;
+  justify-content: center;
+}
+
+.chartBar {
+  width: 20px;
+  background: linear-gradient(to top, #00ff41, rgba(0, 255, 65, 0.3));
+  border-radius: 2px;
+  min-height: 10px;
+  transition: height 0.3s ease;
+}
+
+/* Footer */
+.footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #333;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.aiStatusBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+}
+
+.currentPersonality {
+  color: #00ff41;
+  font-weight: 500;
+}
+
+.systemMetrics {
+  display: flex;
+  gap: 1rem;
+  color: #888;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+  
+  .tabNavigation {
+    flex-wrap: wrap;
+  }
+  
+  .tabButton {
+    flex: 1 1 50%;
+    min-width: 120px;
+  }
+  
+  .personalityCards {
+    grid-template-columns: 1fr;
+  }
+  
+  .metricsGrid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+  
+  .footer {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+  }
+}
+
+/* Scrollbar Styling */
+.contentArea::-webkit-scrollbar {
+  width: 8px;
+}
+
+.contentArea::-webkit-scrollbar-track {
+  background: #1a1a2e;
+}
+
+.contentArea::-webkit-scrollbar-thumb {
+  background: #00ff41;
+  border-radius: 4px;
+}
+
+.contentArea::-webkit-scrollbar-thumb:hover {
+  background: #00cc33;
+}

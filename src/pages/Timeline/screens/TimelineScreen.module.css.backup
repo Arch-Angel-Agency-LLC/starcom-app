@@ -1,0 +1,54 @@
+/* TimelineScreen.module.css */
+
+.timelineScreen {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background-color: #fafafa;
+}
+
+.header {
+  padding: 24px;
+  background-color: #fff;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+}
+
+.description {
+  margin: 8px 0 0 0;
+  font-size: 16px;
+  color: #666;
+}
+
+.content {
+  flex: 1;
+  overflow: hidden;
+  padding: 16px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .header {
+    padding: 16px;
+  }
+  
+  .header h1 {
+    font-size: 20px;
+  }
+  
+  .description {
+    font-size: 14px;
+  }
+  
+  .content {
+    padding: 8px;
+  }
+}

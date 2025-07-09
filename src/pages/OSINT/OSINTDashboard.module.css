@@ -64,7 +64,7 @@
   justify-content: center;
   width: 2.5rem;
   height: 2.5rem;
-  border-radius: 0.25rem;
+  border-radius: 0;
   background-color: rgba(0, 40, 60, 0.4);
   border: 1px solid rgba(0, 204, 255, 0.1);
   color: rgba(0, 204, 255, 0.7);
@@ -123,10 +123,10 @@
 
 /* Auth Popup */
 .authPopup {
-  padding: 1.5rem;
+  padding: var(--space-xl);
   background-color: rgba(10, 20, 30, 0.95);
   border: 1px solid rgba(0, 204, 255, 0.3);
-  border-radius: 0.5rem;
+  border-radius: 0;
   box-shadow: 0 0 20px rgba(0, 204, 255, 0.2);
   text-align: center;
 }
@@ -146,7 +146,7 @@
   border: 1px solid rgba(0, 204, 255, 0.4);
   color: #00ccff;
   padding: 0.5rem 1rem;
-  border-radius: 0.25rem;
+  border-radius: 0;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -167,7 +167,7 @@
   background-color: rgba(0, 30, 50, 0.7);
   backdrop-filter: blur(8px);
   border: 1px solid rgba(0, 204, 255, 0.2);
-  border-radius: 0.25rem;
+  border-radius: 0;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
   overflow: hidden;
   display: flex;

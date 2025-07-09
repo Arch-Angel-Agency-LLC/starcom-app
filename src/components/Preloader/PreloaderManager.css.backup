@@ -1,0 +1,32 @@
+/* PreloaderManager.css - Transition styles */
+
+.preloader-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  transition: opacity 0.8s ease-out;
+  opacity: 1;
+  /* Prevent content shift during fade */
+  will-change: opacity;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+.preloader-overlay.fade-out {
+  opacity: 0;
+}
+
+.app-content {
+  transition: opacity 0.3s ease-in;
+}
+
+.app-content.hidden {
+  opacity: 0;
+}
+
+.app-content.visible {
+  opacity: 1;
+}

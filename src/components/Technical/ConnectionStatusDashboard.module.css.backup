@@ -1,0 +1,241 @@
+.dashboard {
+  background-color: rgba(0, 20, 40, 0.95);
+  border: 1px solid #00c4ff;
+  border-radius: 8px;
+  padding: 16px;
+  min-width: 300px;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  color: #ffffff;
+  backdrop-filter: blur(10px);
+}
+
+.compactStatus {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  background-color: rgba(0, 0, 0, 0.8);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.compactStatus:hover {
+  background-color: rgba(0, 0, 0, 0.9);
+  transform: scale(1.05);
+}
+
+.compactStatus.healthy {
+  border: 1px solid #00ff88;
+}
+
+.compactStatus.degraded {
+  border: 1px solid #ffaa00;
+}
+
+.compactStatus.critical {
+  border: 1px solid #ff4444;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.title {
+  color: #00c4ff;
+  margin: 0;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px;
+  transition: color 0.2s ease;
+}
+
+.closeButton:hover {
+  color: #ff4444;
+}
+
+.overallHealth {
+  margin-bottom: 16px;
+}
+
+.healthIndicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+  border-left: 4px solid;
+}
+
+.healthIndicator.healthy {
+  border-left-color: #00ff88;
+}
+
+.healthIndicator.degraded {
+  border-left-color: #ffaa00;
+}
+
+.healthIndicator.critical {
+  border-left-color: #ff4444;
+}
+
+.healthIcon {
+  font-size: 16px;
+}
+
+.healthText {
+  font-weight: bold;
+}
+
+.teamId {
+  color: #888;
+  margin-left: auto;
+  font-size: 10px;
+}
+
+.section {
+  margin-bottom: 12px;
+}
+
+.sectionTitle {
+  color: #00c4ff;
+  margin-bottom: 4px;
+  font-weight: bold;
+  font-size: 11px;
+}
+
+.relayList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.relayItem {
+  display: flex;
+  justify-content: space-between;
+  padding: 2px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.relayUrl {
+  color: #ccc;
+  font-size: 10px;
+  flex: 1;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.relayStatus {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.serviceItem {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+}
+
+.serviceName {
+  color: #ccc;
+  font-size: 11px;
+}
+
+.serviceStatus {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.footer {
+  color: #666;
+  font-size: 10px;
+  text-align: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 8px;
+  margin-bottom: 12px;
+}
+
+.lastUpdated {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+}
+
+.checking {
+  color: #ffaa00;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.actionButton {
+  background: rgba(0, 196, 255, 0.2);
+  border: 1px solid #00c4ff;
+  color: #00c4ff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 10px;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.actionButton:hover {
+  background: rgba(0, 196, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.actionButton:active {
+  transform: translateY(0);
+}
+
+.actionButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.statusIcon {
+  font-size: 14px;
+}
+
+.statusText {
+  font-weight: bold;
+  font-size: 10px;
+}
+
+.relayCount {
+  color: #888;
+  font-size: 10px;
+}

@@ -1,0 +1,78 @@
+/* DisplayTab.module.css */
+.displayTab {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 24px;
+}
+
+.tabSection {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.sectionTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #38bdf8;
+  margin: 0 0 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sectionDescription {
+  color: #94a3b8;
+  font-size: 0.875rem;
+  margin: 0 0 16px 0;
+  line-height: 1.5;
+}
+
+.previewNotification {
+  background: linear-gradient(135deg, 
+    rgba(250, 204, 21, 0.1) 0%, 
+    rgba(245, 158, 11, 0.1) 100%);
+  border: 1px solid rgba(250, 204, 21, 0.3);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  animation: pulseGlow 2s ease-in-out infinite alternate;
+}
+
+.previewIcon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.previewText {
+  color: #fbbf24;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+@keyframes pulseGlow {
+  from {
+    box-shadow: 0 0 5px rgba(250, 204, 21, 0.3);
+  }
+  to {
+    box-shadow: 0 0 15px rgba(250, 204, 21, 0.5);
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .displayTab {
+    padding: 16px;
+    gap: 16px;
+  }
+  
+  .previewNotification {
+    flex-direction: column;
+    text-align: center;
+    gap: 8px;
+  }
+}

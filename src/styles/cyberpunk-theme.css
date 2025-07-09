@@ -1,0 +1,286 @@
+/* ================================================================
+   STARCOM CYBERPUNK NETRUNNER DESIGN SYSTEM
+   Based on GlobeScreen aesthetic - Military Cyber Command
+================================================================ */
+
+:root {
+  /* ============== CORE COLORS ============== */
+  
+  /* Background Hierarchy */
+  --bg-primary: #0a1520;           /* Main dark blue background */
+  --bg-secondary: #0d1b29;         /* Slightly lighter panels */
+  --bg-tertiary: #142536;          /* Cards and elevated elements */
+  --bg-quaternary: #1a2e42;        /* Interactive elements */
+  
+  /* Cyber Command Accent Colors */
+  --cyber-cyan: #00d4ff;           /* Primary cyber blue */
+  --cyber-teal: #00ffcc;           /* Secondary teal */
+  --cyber-purple: #8a2be2;         /* Command purple */
+  --cyber-green: #00ff41;          /* NetRunner green */
+  
+  /* Text Colors */
+  --text-primary: #e0f0ff;         /* Primary text */
+  --text-secondary: #b0d0f0;       /* Secondary text */
+  --text-muted: #80a0c0;           /* Muted text */
+  --text-inverse: #0a1520;         /* Dark text on light backgrounds */
+  
+  /* Status & Alert Colors */
+  --status-success: var(--cyber-green);
+  --status-warning: #ffa500;
+  --status-error: #ff3b3b;
+  --status-info: var(--cyber-cyan);
+  
+  /* Border & Outline Colors */
+  --border-primary: rgba(0, 212, 255, 0.3);
+  --border-secondary: rgba(0, 255, 204, 0.2);
+  --border-muted: rgba(176, 208, 240, 0.1);
+  
+  /* ============== SPACING ============== */
+  
+  /* Minimal spacing - removing fluff */
+  --space-xs: 0.25rem;    /* 4px */
+  --space-sm: 0.5rem;     /* 8px */
+  --space-md: 0.75rem;    /* 12px */
+  --space-lg: 1rem;       /* 16px */
+  --space-xl: 1.5rem;     /* 24px */
+  --space-2xl: 2rem;      /* 32px */
+  
+  /* ============== TYPOGRAPHY ============== */
+  
+  /* Cyber Command Fonts */
+  --font-mono: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  --font-cyber: 'Orbitron', 'Exo 2', sans-serif;
+  --font-ui: 'Inter', 'System UI', sans-serif;
+  
+  /* Font Sizes */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+  
+  /* ============== EFFECTS ============== */
+  
+  /* Cyber Glows */
+  --glow-cyan: 0 0 10px rgba(0, 212, 255, 0.5);
+  --glow-teal: 0 0 10px rgba(0, 255, 204, 0.5);
+  --glow-purple: 0 0 10px rgba(138, 43, 226, 0.5);
+  --glow-green: 0 0 10px rgba(0, 255, 65, 0.5);
+  
+  /* Box Shadows - Minimal and Sharp */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 2px 6px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.7);
+  
+  /* ============== BORDERS ============== */
+  
+  /* Sharp, minimal borders - NO ROUNDED CORNERS */
+  --border-width: 1px;
+  --border-radius: 0px;       /* ZERO - Sharp military aesthetic */
+  --border-style: solid;
+  
+  /* ============== TRANSITIONS ============== */
+  
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
+  
+  /* ============== SCREEN-SPECIFIC THEMES ============== */
+  
+  /* NetRunner Theme - Green dominant */
+  --netrunner-primary: var(--cyber-green);
+  --netrunner-secondary: #00cc33;
+  --netrunner-bg: #051a05;
+  --netrunner-glow: var(--glow-green);
+  
+  /* Intel Analyzer Theme - Cyan dominant */
+  --intel-primary: var(--cyber-cyan);
+  --intel-secondary: var(--cyber-teal);
+  --intel-glow: var(--glow-cyan);
+  
+  /* Teams Theme - Purple dominant */
+  --teams-primary: var(--cyber-purple);
+  --teams-secondary: #a855f7;
+  --teams-glow: var(--glow-purple);
+}
+
+/* ============== GLOBAL OVERRIDES ============== */
+
+/* SELECTIVE border-radius removal - NOT EVERYTHING! */
+/* Only remove rounded corners from panels, cards, buttons, inputs */
+.MuiPaper-root,
+.MuiCard-root,
+.MuiButton-root,
+.MuiTextField-root,
+.MuiAccordion-root,
+.cyber-panel,
+.cyber-container,
+button,
+input,
+textarea,
+select {
+  border-radius: 0 !important;
+}
+
+/* PRESERVE rounded elements that SHOULD be round */
+.MuiAvatar-root,
+.MuiChip-root,
+.MuiIconButton-root,
+.MuiSpeedDial-root,
+.MuiBadge-badge,
+.orbit,
+.planet,
+.dot,
+.circle,
+.loader-dot,
+.loading-spinner,
+[class*="orbit"],
+[class*="planet"],
+[class*="dot"],
+[class*="circle"],
+[class*="loader"],
+[class*="spinner"] {
+  border-radius: 50% !important; /* Keep these round! */
+}
+
+/* Remove excessive padding/margin on common elements */
+.MuiPaper-root {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+  border: var(--border-width) var(--border-style) var(--border-primary) !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
+.MuiAppBar-root {
+  background-color: var(--bg-secondary) !important;
+  border-bottom: var(--border-width) var(--border-style) var(--border-primary) !important;
+}
+
+.MuiButton-root {
+  background-color: var(--bg-quaternary) !important;
+  border: var(--border-width) var(--border-style) var(--border-primary) !important;
+  color: var(--text-primary) !important;
+  text-transform: uppercase !important;
+  font-family: var(--font-cyber) !important;
+  transition: var(--transition-fast) !important;
+}
+
+.MuiButton-root:hover {
+  background-color: var(--cyber-cyan) !important;
+  color: var(--text-inverse) !important;
+  box-shadow: var(--glow-cyan) !important;
+}
+
+/* ============== UTILITY CLASSES ============== */
+
+.cyber-bg-primary { background-color: var(--bg-primary); }
+.cyber-bg-secondary { background-color: var(--bg-secondary); }
+.cyber-bg-tertiary { background-color: var(--bg-tertiary); }
+
+.cyber-text-primary { color: var(--text-primary); }
+.cyber-text-secondary { color: var(--text-secondary); }
+.cyber-text-muted { color: var(--text-muted); }
+
+.cyber-border { border: var(--border-width) var(--border-style) var(--border-primary); }
+.cyber-border-secondary { border: var(--border-width) var(--border-style) var(--border-secondary); }
+
+.cyber-glow-cyan { box-shadow: var(--glow-cyan); text-shadow: var(--glow-cyan); }
+.cyber-glow-teal { box-shadow: var(--glow-teal); text-shadow: var(--glow-teal); }
+.cyber-glow-purple { box-shadow: var(--glow-purple); text-shadow: var(--glow-purple); }
+.cyber-glow-green { box-shadow: var(--glow-green); text-shadow: var(--glow-green); }
+
+.cyber-font-mono { font-family: var(--font-mono); }
+.cyber-font-cyber { font-family: var(--font-cyber); }
+.cyber-font-ui { font-family: var(--font-ui); }
+
+/* ============== SCREEN LAYOUTS ============== */
+
+.cyber-screen {
+  width: 100%;
+  height: 100%;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  overflow: hidden;
+  position: relative;
+}
+
+.cyber-container {
+  width: 100%;
+  height: 100%;
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.cyber-panel {
+  background-color: var(--bg-secondary);
+  border: var(--border-width) var(--border-style) var(--border-primary);
+  padding: var(--space-lg);
+  position: relative;
+}
+
+.cyber-panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--cyber-cyan), var(--cyber-teal));
+}
+
+.cyber-grid {
+  display: grid;
+  gap: var(--space-lg);
+}
+
+.cyber-grid-2 { grid-template-columns: repeat(2, 1fr); }
+.cyber-grid-3 { grid-template-columns: repeat(3, 1fr); }
+.cyber-grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+.cyber-flex {
+  display: flex;
+  gap: var(--space-lg);
+}
+
+.cyber-flex-col {
+  flex-direction: column;
+}
+
+.cyber-title {
+  font-family: var(--font-cyber);
+  font-size: var(--text-2xl);
+  color: var(--cyber-cyan);
+  text-shadow: var(--glow-cyan);
+  margin: 0 0 var(--space-lg) 0;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.cyber-subtitle {
+  font-family: var(--font-cyber);
+  font-size: var(--text-lg);
+  color: var(--cyber-teal);
+  margin: 0 0 var(--space-md) 0;
+  text-transform: uppercase;
+}
+
+/* NO WHITE BACKGROUNDS ANYWHERE */
+.cyber-no-white,
+.cyber-no-white * {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+.cyber-no-white input,
+.cyber-no-white textarea,
+.cyber-no-white select {
+  background-color: var(--bg-tertiary) !important;
+  border: var(--border-width) var(--border-style) var(--border-primary) !important;
+  color: var(--text-primary) !important;
+}

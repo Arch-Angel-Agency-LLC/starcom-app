@@ -1,0 +1,441 @@
+/**
+ * IntelActionButtons CSS Module
+ * Styles for the Intel Action Buttons component
+ */
+
+/* Container */
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.container.loading {
+  opacity: 0.7;
+}
+
+.container.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.container.batchMode {
+  border: 1px solid var(--accent-color, #00ff88);
+  border-radius: 8px;
+  padding: 12px;
+  background: rgba(0, 255, 136, 0.05);
+}
+
+/* Layout Variants */
+.container.variantHorizontal .buttonGroup {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.container.variantVertical .buttonGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.container.variantCompact .buttonGroup {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+}
+
+.container.variantDropdown {
+  position: relative;
+}
+
+/* Batch Indicator */
+.batchIndicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: var(--surface-highlight, #252525);
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--text-color, #fff);
+  border: 1px solid var(--border-color, #333);
+}
+
+.batchIcon {
+  font-size: 14px;
+}
+
+.batchText {
+  font-weight: 500;
+}
+
+/* Button Group */
+.buttonGroup {
+  align-items: center;
+}
+
+/* Action Button Base */
+.actionButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color, #333);
+  border-radius: 6px;
+  background: var(--surface-color, #1a1a1a);
+  color: var(--text-color, #fff);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.actionButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.actionButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.actionButton.loading {
+  pointer-events: none;
+}
+
+/* Button Sizes */
+.actionButton.sizeSmall {
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+.actionButton.sizeMedium {
+  padding: 8px 12px;
+  font-size: 13px;
+}
+
+.actionButton.sizeLarge {
+  padding: 10px 16px;
+  font-size: 14px;
+}
+
+/* Button Variants */
+.actionButton.variantPrimary {
+  background: var(--accent-color, #00ff88);
+  color: var(--text-inverse, #000);
+  border-color: var(--accent-color, #00ff88);
+}
+
+.actionButton.variantPrimary:hover:not(:disabled) {
+  background: var(--accent-hover, #00e67a);
+  box-shadow: 0 4px 12px rgba(0, 255, 136, 0.3);
+}
+
+.actionButton.variantSecondary {
+  background: var(--surface-highlight, #252525);
+  border-color: var(--border-color, #333);
+}
+
+.actionButton.variantSecondary:hover:not(:disabled) {
+  background: var(--surface-color, #1e1e1e);
+  border-color: var(--accent-color, #00ff88);
+}
+
+.actionButton.variantWarning {
+  background: var(--warning-color, #ff6b35);
+  color: white;
+  border-color: var(--warning-color, #ff6b35);
+}
+
+.actionButton.variantWarning:hover:not(:disabled) {
+  background: #e55a2b;
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+}
+
+.actionButton.variantDanger {
+  background: var(--error-color, #ff4757);
+  color: white;
+  border-color: var(--error-color, #ff4757);
+}
+
+.actionButton.variantDanger:hover:not(:disabled) {
+  background: #e53e3e;
+  box-shadow: 0 4px 12px rgba(255, 71, 87, 0.3);
+}
+
+/* Primary button in group */
+.actionButton.primary {
+  order: -1;
+  font-weight: 600;
+}
+
+/* Button Content */
+.buttonIcon {
+  flex-shrink: 0;
+  font-size: 14px;
+}
+
+.buttonLabel {
+  white-space: nowrap;
+}
+
+.buttonSpinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid currentColor;
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-left: 4px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Dropdown Styles */
+.dropdownToggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--surface-highlight, #252525);
+  border: 1px solid var(--border-color, #333);
+  border-radius: 6px;
+  color: var(--text-color, #fff);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 100px;
+}
+
+.dropdownToggle:hover:not(:disabled) {
+  background: var(--surface-color, #1e1e1e);
+  border-color: var(--accent-color, #00ff88);
+}
+
+.dropdownToggle:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.dropdownIcon {
+  font-size: 14px;
+}
+
+.dropdownLabel {
+  flex: 1;
+  text-align: left;
+}
+
+.dropdownChevron {
+  font-size: 10px;
+  transition: transform 0.2s ease;
+}
+
+.dropdownChevron.open {
+  transform: rotate(180deg);
+}
+
+.dropdownMenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--surface-color, #1a1a1a);
+  border: 1px solid var(--border-color, #333);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  margin-top: 4px;
+  animation: dropdownFade 0.2s ease-out;
+}
+
+@keyframes dropdownFade {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdownItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: none;
+  border: none;
+  text-align: left;
+  color: var(--text-color, #fff);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid var(--border-color, #333);
+}
+
+.dropdownItem:last-child {
+  border-bottom: none;
+}
+
+.dropdownItem:hover:not(:disabled) {
+  background: var(--surface-highlight, #252525);
+  transform: translateX(4px);
+}
+
+.dropdownItem:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.actionIcon {
+  font-size: 14px;
+  width: 16px;
+  text-align: center;
+}
+
+.actionLabel {
+  flex: 1;
+}
+
+.actionSpinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid currentColor;
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container.variantHorizontal .buttonGroup {
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+  .actionButton {
+    justify-content: center;
+    width: 100%;
+  }
+  
+  .batchIndicator {
+    padding: 8px;
+    font-size: 11px;
+  }
+  
+  .dropdownToggle {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+/* Compact mode adjustments */
+.container.variantCompact .actionButton {
+  padding: 6px 8px;
+  min-width: 36px;
+  justify-content: center;
+}
+
+.container.variantCompact .buttonIcon {
+  font-size: 16px;
+}
+
+/* Accessibility */
+.actionButton:focus,
+.dropdownToggle:focus,
+.dropdownItem:focus {
+  outline: 2px solid var(--accent-color, #00ff88);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .actionButton,
+  .dropdownToggle,
+  .dropdownItem,
+  .dropdownChevron,
+  .buttonSpinner,
+  .actionSpinner {
+    transition: none;
+    animation: none;
+  }
+  
+  .actionButton:hover:not(:disabled),
+  .dropdownItem:hover:not(:disabled) {
+    transform: none;
+  }
+  
+  .dropdownMenu {
+    animation: none;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .actionButton,
+  .dropdownToggle {
+    border-width: 2px;
+  }
+  
+  .dropdownMenu {
+    border-width: 2px;
+  }
+  
+  .dropdownItem {
+    border-bottom-width: 2px;
+  }
+}
+
+/* Loading state overlay */
+.actionButton.loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: inherit;
+}
+
+/* Performance optimization */
+.container {
+  contain: layout style paint;
+}
+
+.dropdownMenu {
+  contain: layout style paint;
+  will-change: transform, opacity;
+}
+
+/* Tooltip enhancement */
+.actionButton[title]:hover::before,
+.dropdownItem[title]:hover::before {
+  content: attr(title);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--surface-color, #1a1a1a);
+  color: var(--text-color, #fff);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  white-space: nowrap;
+  z-index: 1001;
+  border: 1px solid var(--border-color, #333);
+  margin-bottom: 4px;
+}

@@ -1,0 +1,454 @@
+/* Investigation Board Styles - Cyber Investigation MVP */
+/* Kanban-style board for managing investigation workflows */
+
+.investigationBoard {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Courier New', monospace;
+  background: #0a0a0a;
+  color: #00ff41;
+  border-radius: 8px;
+  border: 1px solid #333;
+  min-height: 600px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #333;
+}
+
+.header h2 {
+  color: #00ff41;
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.headerActions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.createBtn {
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #00ff41, #00cc33);
+  color: #000;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  font-family: 'Courier New', monospace;
+  transition: all 0.3s ease;
+}
+
+.createBtn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #00cc33, #009928);
+  transform: translateY(-1px);
+}
+
+.createBtn:disabled {
+  background: #333;
+  color: #666;
+  cursor: not-allowed;
+}
+
+.closeBtn {
+  padding: 8px 12px;
+  background: transparent;
+  color: #ff4444;
+  border: 1px solid #ff4444;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: 'Courier New', monospace;
+  transition: all 0.3s ease;
+}
+
+.closeBtn:hover {
+  background: #ff4444;
+  color: #000;
+}
+
+/* Create Form Styles */
+.createForm {
+  background: #111;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.createForm h3 {
+  color: #00ff41;
+  margin: 0 0 20px 0;
+  font-size: 1.2rem;
+}
+
+.formGroup {
+  margin-bottom: 16px;
+}
+
+.formGroup label {
+  display: block;
+  color: #00ff41;
+  margin-bottom: 6px;
+  font-weight: bold;
+}
+
+.formGroup input,
+.formGroup textarea,
+.formGroup select {
+  width: 100%;
+  padding: 10px;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 4px;
+  color: #00ff41;
+  font-family: 'Courier New', monospace;
+}
+
+.formGroup input:focus,
+.formGroup textarea:focus,
+.formGroup select:focus {
+  outline: none;
+  border-color: #00ff41;
+  box-shadow: 0 0 0 2px rgba(0, 255, 65, 0.2);
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.formActions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #333;
+}
+
+.submitBtn {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #00ff41, #00cc33);
+  color: #000;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  font-family: 'Courier New', monospace;
+}
+
+.cancelBtn {
+  padding: 10px 20px;
+  background: transparent;
+  color: #888;
+  border: 1px solid #555;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: 'Courier New', monospace;
+}
+
+/* Kanban Board Styles */
+.kanbanBoard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  min-height: 500px;
+}
+
+.kanbanColumn {
+  background: #111;
+  border: 1px solid #333;
+  border-radius: 8px;
+  min-height: 500px;
+  transition: border-color 0.3s ease;
+}
+
+.kanbanColumn:hover {
+  border-color: #555;
+}
+
+.columnHeader {
+  padding: 16px;
+  border-bottom: 2px solid #333;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #0f0f0f;
+  border-radius: 8px 8px 0 0;
+}
+
+.columnTitle {
+  color: #00ff41;
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.columnCount {
+  background: #333;
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  min-width: 24px;
+  text-align: center;
+}
+
+.columnContent {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Investigation Card Styles */
+.investigationCard {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 16px;
+  cursor: grab;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.investigationCard:hover {
+  border-color: #00ff41;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 255, 65, 0.2);
+}
+
+.investigationCard:active {
+  cursor: grabbing;
+}
+
+.cardHeader {
+  margin-bottom: 12px;
+}
+
+.investigationTitle {
+  color: #00ff41;
+  margin: 0 0 8px 0;
+  font-size: 1rem;
+  font-weight: bold;
+  line-height: 1.3;
+}
+
+.cardMeta {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.priority {
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.priority[data-priority="LOW"] {
+  background: #004400;
+  color: #00ff41;
+}
+
+.priority[data-priority="MEDIUM"] {
+  background: #444400;
+  color: #ffff00;
+}
+
+.priority[data-priority="HIGH"] {
+  background: #440000;
+  color: #ff4444;
+}
+
+.priority[data-priority="CRITICAL"] {
+  background: #660000;
+  color: #ff6666;
+  animation: pulse 2s infinite;
+}
+
+.classification {
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  background: #333;
+  color: #ccc;
+}
+
+.investigationDescription {
+  color: #ccc;
+  margin: 8px 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.progressSection {
+  margin: 12px 0;
+}
+
+.progressLabel {
+  color: #00ff41;
+  font-size: 0.8rem;
+  margin-bottom: 4px;
+}
+
+.progressBar {
+  width: 100%;
+  height: 6px;
+  background: #333;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #00ff41, #00cc33);
+  transition: width 0.3s ease;
+}
+
+.investigationStats {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px solid #333;
+}
+
+.stat {
+  text-align: center;
+}
+
+.statLabel {
+  display: block;
+  color: #888;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+}
+
+.statValue {
+  display: block;
+  color: #00ff41;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+/* Loading and Empty States */
+.loading {
+  text-align: center;
+  padding: 60px 20px;
+  color: #888;
+  font-size: 1.1rem;
+}
+
+.empty {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.empty p {
+  color: #888;
+  margin-bottom: 20px;
+  font-size: 1.1rem;
+}
+
+/* Upload Status Styles */
+.uploadStatus {
+  margin-top: 12px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  border: 1px solid;
+}
+
+.uploadStatus.uploading {
+  background: rgba(255, 165, 0, 0.1);
+  border-color: #ffa500;
+  color: #ffa500;
+}
+
+.uploadStatus.success {
+  background: rgba(0, 255, 65, 0.1);
+  border-color: #00ff41;
+  color: #00ff41;
+}
+
+.uploadStatus.error {
+  background: rgba(255, 68, 68, 0.1);
+  border-color: #ff4444;
+  color: #ff4444;
+}
+
+.ipfsHash {
+  font-family: 'Courier New', monospace;
+  font-size: 0.7rem;
+  word-break: break-all;
+  margin-top: 4px;
+}
+
+/* Animations */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .investigationBoard {
+    padding: 16px;
+  }
+  
+  .kanbanBoard {
+    grid-template-columns: 1fr;
+  }
+  
+  .formRow {
+    grid-template-columns: 1fr;
+  }
+  
+  .header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+  
+  .headerActions {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .investigationBoard {
+    padding: 12px;
+  }
+  
+  .createForm {
+    padding: 16px;
+  }
+  
+  .investigationCard {
+    padding: 12px;
+  }
+}

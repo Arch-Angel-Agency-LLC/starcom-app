@@ -1,0 +1,396 @@
+.spaceWeatherSettings {
+  font-size: 11px; /* Improved readability while staying compact */
+  color: #B8E6FF; /* Better contrast than #00C4FF on dark backgrounds */
+  font-family: 'Orbitron', Arial, sans-serif;
+  line-height: 1.3; /* Better line spacing for readability */
+}
+
+.section {
+  margin-bottom: 6px; /* Reduced margin for compact layout */
+  border-bottom: 1px solid rgba(0, 196, 255, 0.2);
+  padding-bottom: 3px; /* Reduced padding for compact layout */
+}
+
+.section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.sectionTitle {
+  font-size: 10px;
+  font-weight: bold;
+  color: #38bdf8;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-bottom: 3px; /* Reduced margin for compact layout */
+  text-shadow: 0 1px 2px #0ea5e9;
+}
+
+/* Toggle Controls */
+.toggleRow {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2px; /* Reduced margin for compact layout */
+  cursor: pointer;
+  padding: 1px 0;
+}
+
+.checkbox {
+  width: 11px;
+  height: 11px;
+  margin-right: 5px;
+  accent-color: #00C4FF;
+  cursor: pointer;
+}
+
+.toggleLabel {
+  font-size: 11px; /* Improved readability */
+  color: #C1D5E0; /* Better contrast than #94a3b8 */
+  cursor: pointer;
+  user-select: none;
+  font-weight: 400;
+}
+
+.toggleRow:hover .toggleLabel {
+  color: #00C4FF;
+}
+
+/* Slider Controls */
+.sliderRow {
+  margin-bottom: 5px;
+}
+
+.sliderLabel {
+  display: block;
+  font-size: 8px;
+  color: #94a3b8;
+  margin-bottom: 2px;
+}
+
+.slider {
+  width: 100%;
+  height: 3px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 2px;
+  outline: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+.slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 8px;
+  height: 8px;
+  background: #00C4FF;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 3px #00C4FF;
+}
+
+.slider::-moz-range-thumb {
+  width: 8px;
+  height: 8px;
+  background: #00C4FF;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 0 3px #00C4FF;
+}
+
+/* Threshold Controls */
+.thresholdRow {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2px;
+  gap: 2px;
+}
+
+.thresholdLabel {
+  font-size: 8px;
+  color: #94a3b8;
+  min-width: 12px;
+}
+
+.numberInput {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid #00C4FF;
+  border-radius: 2px;
+  color: #00C4FF;
+  font-size: 7px;
+  padding: 1px 2px;
+  width: 30px;
+  text-align: center;
+}
+
+.numberInput:focus {
+  outline: none;
+  box-shadow: 0 0 2px #00C4FF;
+}
+
+.unit {
+  font-size: 6px;
+  color: #64748b;
+  min-width: 15px;
+}
+
+/* Data Settings */
+.refreshRow {
+  margin-left: 18px;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.refreshLabel {
+  font-size: 8px;
+  color: #94a3b8;
+  min-width: 30px;
+}
+
+.select {
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid #00C4FF;
+  border-radius: 2px;
+  color: #00C4FF;
+  font-size: 8px;
+  padding: 2px 4px;
+  min-width: 50px;
+}
+
+.select:focus {
+  outline: none;
+  box-shadow: 0 0 3px #00C4FF;
+}
+
+/* Status Display */
+.statusRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1px;
+  padding: 0;
+}
+
+.statusLabel {
+  font-size: 7px;
+  color: #94a3b8;
+}
+
+.statusValue {
+  font-size: 7px;
+  color: #00C4FF;
+  font-weight: bold;
+}
+
+.loadingIndicator {
+  font-size: 7px;
+  color: #fbbf24;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.errorIndicator {
+  font-size: 7px;
+  color: #ef4444;
+}
+
+/* Enhanced EcoNatural Container */
+.ecoNaturalContainer {
+  font-size: 11px;
+  color: #B8E6FF;
+  font-family: 'Orbitron', Arial, sans-serif;
+  line-height: 1.3;
+}
+
+.ecoNaturalSettings {
+  font-size: 11px;
+  color: #B8E6FF;
+  font-family: 'Orbitron', Arial, sans-serif;
+  line-height: 1.3;
+}
+
+.subModeTitle {
+  font-size: 10px;
+  font-weight: bold;
+  color: #38bdf8;
+  margin-bottom: 8px;
+  text-transform: capitalize;
+  text-align: center;
+  text-shadow: 0 1px 2px #0ea5e9;
+}
+
+.select {
+  font-size: 8px;
+  background: #1e293b;
+  color: #00C4FF;
+  border: 1px solid #475569;
+  border-radius: 4px;
+  padding: 2px 4px;
+  width: 100%;
+  margin-bottom: 4px;
+  outline: none;
+  font-family: 'Orbitron', Arial, sans-serif;
+}
+
+.select:focus {
+  border-color: #00C4FF;
+  box-shadow: 0 0 3px rgba(0, 196, 255, 0.3);
+}
+
+.unitRow {
+  display: flex;
+  align-items: center;
+  margin-bottom: 3px;
+  gap: 8px;
+}
+
+.unitLabel {
+  font-size: 8px;
+  color: #94a3b8;
+  min-width: 60px;
+}
+
+.unitSelect {
+  font-size: 8px;
+  background: #1e293b;
+  color: #00C4FF;
+  border: 1px solid #475569;
+  border-radius: 4px;
+  padding: 1px 3px;
+  outline: none;
+  font-family: 'Orbitron', Arial, sans-serif;
+  flex: 1;
+}
+
+.unitSelect:focus {
+  border-color: #00C4FF;
+}
+
+/* Select Controls */
+.selectRow {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+  gap: 6px;
+}
+
+.selectLabel {
+  font-size: 9px;
+  color: #94a3b8;
+  min-width: 40px;
+}
+
+.select {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(0, 196, 255, 0.3);
+  color: #B8E6FF;
+  font-size: 9px;
+  padding: 2px 4px;
+  border-radius: 2px;
+  outline: none;
+  font-family: 'Orbitron', Arial, sans-serif;
+}
+
+.select:focus {
+  border-color: #00C4FF;
+  box-shadow: 0 0 3px rgba(0, 196, 255, 0.3);
+}
+
+.select option {
+  background: #1a1a1a;
+  color: #B8E6FF;
+}
+
+/* Range Controls for Percentile */
+.rangeRow {
+  margin-bottom: 4px;
+}
+
+.rangeLabel {
+  display: block;
+  font-size: 8px;
+  color: #94a3b8;
+  margin-bottom: 2px;
+}
+
+.rangeInputs {
+  display: flex;
+  gap: 4px;
+}
+
+.rangeSlider {
+  flex: 1;
+  height: 3px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 2px;
+  outline: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+.rangeSlider::-webkit-slider-thumb {
+  appearance: none;
+  width: 8px;
+  height: 8px;
+  background: #00C4FF;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 3px #00C4FF;
+}
+
+.rangeSlider::-moz-range-thumb {
+  width: 8px;
+  height: 8px;
+  background: #00C4FF;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 0 3px #00C4FF;
+}
+
+/* Other Sub-Modes */
+.otherSubMode {
+  text-align: center;
+  padding: 12px 4px;
+}
+
+.comingSoon {
+  font-size: 8px;
+  color: #64748b;
+  font-style: italic;
+}
+
+/* NOAA Button Styles */
+.noaaButton {
+  width: 100%;
+  background: linear-gradient(135deg, rgba(0, 196, 255, 0.1) 0%, rgba(0, 100, 200, 0.1) 100%);
+  border: 1px solid rgba(0, 196, 255, 0.4);
+  border-radius: 4px;
+  color: #00C4FF;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-family: 'Orbitron', Arial, sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  text-shadow: 0 0 2px rgba(0, 196, 255, 0.5);
+}
+
+.noaaButton:hover {
+  background: linear-gradient(135deg, rgba(0, 196, 255, 0.2) 0%, rgba(0, 100, 200, 0.2) 100%);
+  border-color: #00C4FF;
+  box-shadow: 0 0 8px rgba(0, 196, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.noaaButton:active {
+  transform: translateY(0);
+  box-shadow: 0 0 4px rgba(0, 196, 255, 0.2);
+}

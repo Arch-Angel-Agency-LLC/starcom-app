@@ -1,7 +1,7 @@
 .teamsDashboard {
   min-height: 100vh;
   padding: 0;
-  color: #00ff41;
+  color: var(--cyber-green);
   font-family: 'Courier New', monospace;
 }
 
@@ -37,7 +37,7 @@
   margin: 0;
   font-size: 2rem;
   font-weight: bold;
-  color: #00ff41;
+  color: var(--cyber-green);
 }
 
 .titleSection .subtitle {
@@ -54,9 +54,9 @@
 .createButton {
   background: rgba(0, 255, 65, 0.1);
   border: 2px solid #00ff41;
-  color: #00ff41;
+  color: var(--cyber-green);
   padding: 0.75rem 1.5rem;
-  border-radius: 8px;
+  border-radius: 0;
   font-family: 'Courier New', monospace;
   font-weight: bold;
   cursor: pointer;
@@ -79,21 +79,21 @@
 .statCard {
   background: rgba(0, 0, 0, 0.8);
   border: 1px solid rgba(0, 255, 65, 0.3);
-  border-radius: 12px;
-  padding: 1.5rem;
+  border-radius: 0;
+  padding: var(--space-xl);
   text-align: center;
   transition: all 0.3s ease;
 }
 
 .statCard:hover {
-  border-color: #00ff41;
+  border-color: var(--cyber-green);
   box-shadow: 0 4px 12px rgba(0, 255, 65, 0.2);
 }
 
 .statValue {
   font-size: 2.5rem;
   font-weight: bold;
-  color: #00ff41;
+  color: var(--cyber-green);
   display: block;
   margin-bottom: 0.5rem;
 }
@@ -117,7 +117,7 @@
   padding: 4rem 2rem;
   background: rgba(0, 0, 0, 0.4);
   border: 2px dashed rgba(0, 255, 65, 0.3);
-  border-radius: 12px;
+  border-radius: 0;
 }
 
 .emptyIcon {
@@ -127,7 +127,7 @@
 }
 
 .emptyState h3 {
-  color: #00ff41;
+  color: var(--cyber-green);
   margin: 0 0 1rem 0;
   font-size: 1.5rem;
 }
@@ -159,9 +159,9 @@
 
 .collaborationHub {
   margin-bottom: 2rem;
-  padding: 1.5rem;
+  padding: var(--space-xl);
   border: 1px solid rgba(0, 255, 65, 0.2);
-  border-radius: 0.5rem;
+  border-radius: 0;
   background: rgba(0, 0, 0, 0.1);
 }
 

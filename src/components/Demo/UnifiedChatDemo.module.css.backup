@@ -1,0 +1,259 @@
+/* UnifiedChatDemo.module.css */
+/* Styling for the unified chat demo component */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  gap: 20px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-color, #e0e0e0);
+}
+
+.header h2 {
+  margin: 0;
+  font-size: 24px;
+  color: var(--accent-color, #4d6ae4);
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.userName {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.userId {
+  font-size: 12px;
+  color: var(--text-secondary, #666);
+}
+
+.providerSelector {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.providerSelector label {
+  font-size: 14px;
+  color: var(--text-secondary, #666);
+}
+
+.providerButtons {
+  display: flex;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid var(--border-color, #e0e0e0);
+}
+
+.providerButton {
+  padding: 6px 12px;
+  font-size: 14px;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.providerButton:not(:last-child) {
+  border-right: 1px solid var(--border-color, #e0e0e0);
+}
+
+.providerButton:hover {
+  background-color: var(--hover-color, #f0f0f0);
+}
+
+.providerButton.active {
+  background-color: var(--accent-color, #4d6ae4);
+  color: white;
+}
+
+.providerButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+.createChannelButton,
+.logoutButton {
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.createChannelButton {
+  background-color: var(--accent-color, #4d6ae4);
+  color: white;
+  border: none;
+}
+
+.createChannelButton:hover {
+  background-color: var(--accent-dark, #3a56d4);
+}
+
+.createChannelButton:disabled {
+  background-color: var(--disabled-color, #cccccc);
+  cursor: not-allowed;
+}
+
+.logoutButton {
+  background-color: transparent;
+  color: var(--text-primary, #333);
+  border: 1px solid var(--border-color, #e0e0e0);
+}
+
+.logoutButton:hover {
+  background-color: var(--hover-color, #f0f0f0);
+}
+
+.errorBanner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background-color: var(--error-light, #ffeaea);
+  color: var(--error, #e53935);
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.errorIcon {
+  font-size: 18px;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+.statusIndicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.statusDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.connected {
+  background-color: var(--success, #4caf50);
+}
+
+.disconnected {
+  background-color: var(--error, #e53935);
+}
+
+.channelCount {
+  color: var(--text-secondary, #666);
+}
+
+.chatContainer {
+  height: 600px;
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Login Form Styles */
+
+.loginContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: var(--background-secondary, #f5f5f5);
+}
+
+.loginCard {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  width: 400px;
+  max-width: 90%;
+}
+
+.loginCard h2 {
+  margin: 0 0 8px;
+  color: var(--accent-color, #4d6ae4);
+  font-size: 24px;
+}
+
+.loginCard p {
+  margin: 0 0 24px;
+  color: var(--text-secondary, #666);
+  font-size: 14px;
+}
+
+.loginForm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.formGroup label {
+  font-size: 14px;
+  color: var(--text-secondary, #666);
+}
+
+.formGroup input,
+.formGroup select {
+  padding: 10px 12px;
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-radius: 4px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.formGroup input:focus,
+.formGroup select:focus {
+  border-color: var(--accent-color, #4d6ae4);
+  outline: none;
+}
+
+.loginButton {
+  margin-top: 16px;
+  padding: 12px;
+  background-color: var(--accent-color, #4d6ae4);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.loginButton:hover {
+  background-color: var(--accent-dark, #3a56d4);
+}

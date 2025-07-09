@@ -3,7 +3,7 @@
   width: 100%;
   background-color: rgba(15, 15, 25, 0.85);
   backdrop-filter: blur(10px);
-  padding: 8px 16px;
+  padding: var(--space-sm) 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -31,7 +31,7 @@
 
 .leftSection::-webkit-scrollbar-thumb {
   background-color: rgba(100, 116, 139, 0.5);
-  border-radius: 2px;
+  border-radius: 0;
 }
 
 .navigationContainer {
@@ -45,7 +45,7 @@
   gap: 6px;
   background-color: rgba(30, 41, 59, 0.5);
   border: 1px solid rgba(71, 85, 105, 0.3);
-  border-radius: 6px;
+  border-radius: 0;
   color: rgba(226, 232, 240, 0.8);
   padding: 6px 12px;
   font-size: 0.9rem;
@@ -97,7 +97,7 @@
 .statusIndicator {
   width: 8px;
   height: 8px;
-  border-radius: 50%;
+  border-radius: 0%;
   background-color: #10b981; /* green */
   display: inline-block;
 }
@@ -127,7 +127,7 @@
 .kbd {
   background-color: rgba(30, 41, 59, 0.8);
   border: 1px solid rgba(71, 85, 105, 0.5);
-  border-radius: 4px;
+  border-radius: 0;
   padding: 2px 6px;
   font-size: 0.7rem;
   font-family: monospace;
@@ -139,7 +139,7 @@
   border: 1px solid rgba(56, 189, 248, 0.5);
   color: rgba(248, 250, 252, 0.9);
   padding: 4px 8px;
-  border-radius: 4px;
+  border-radius: 0;
   font-size: 0.8rem;
   display: flex;
   align-items: center;
@@ -196,7 +196,7 @@
   }
 
   .navButton {
-    padding: 8px;
+    padding: var(--space-sm);
     min-width: 40px;
   }
 
