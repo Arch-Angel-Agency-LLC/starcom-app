@@ -4,9 +4,12 @@ import { ScreenType } from '../../context/ViewContext';
 // Lazily load screen components for better performance
 // Main screens
 const GlobeScreen = lazy(() => import('../../pages/MainPage/Screens/GlobeScreen'));
+const SearchScreen = lazy(() => import('../../pages/MainPage/Screens/SearchScreen'));
 const NetRunnerScreen = lazy(() => import('../../pages/MainPage/Screens/NetRunnerScreen'));
 const TeamsScreen = lazy(() => import('../../pages/MainPage/Screens/TeamsScreen'));
-const AnalyzerScreen = lazy(() => import('../../pages/MainPage/Screens/AnalyzerScreen'));
+const IntelAnalyzerScreen = lazy(() => import('../../pages/MainPage/Screens/IntelAnalyzerScreen'));
+const MarketExchangeScreen = lazy(() => import('../../pages/MainPage/Screens/MarketExchangeScreen'));
+const MonitoringScreen = lazy(() => import('../../pages/MainPage/Screens/MonitoringScreen'));
 const NodeWebScreen = lazy(() => import('../../pages/MainPage/Screens/NodeWebScreen'));
 const TimelineScreen = lazy(() => import('../../pages/MainPage/Screens/TimelineScreen'));
 
@@ -107,8 +110,11 @@ const PlaceholderScreen = ({ name }: { name: string }) => (
 const screenRegistry: Record<ScreenType, React.ComponentType<unknown>> = {
   // Main screens
   'globe': GlobeScreen,
+  'search': SearchScreen,
   'netrunner': NetRunnerScreen,
-  'analyzer': AnalyzerScreen,
+  'intelanalyzer': IntelAnalyzerScreen,
+  'marketexchange': MarketExchangeScreen,
+  'monitoring': MonitoringScreen,
   'nodeweb': NodeWebScreen,
   'timeline': TimelineScreen,
   'casemanager': CaseManagerScreen,
@@ -132,7 +138,12 @@ interface ScreenLoaderProps {
 // Component that handles loading the appropriate screen
 const ScreenLoader: React.FC<ScreenLoaderProps> = ({ screenType, params = {} }) => {
   // Get the screen component from the registry or use fallback
-  const ScreenComponent = screenRegistry[screenType] || ErrorScreen;
+  const ScreenComponent = screenRegistry[screenType];
+  
+  if (!ScreenComponent) {
+    console.error('❌ ScreenLoader: No component found for screen type:', screenType);
+    return <ErrorScreen />;
+  }
   
   return (
     <Suspense fallback={<LoadingScreen />}>

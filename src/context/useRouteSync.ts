@@ -6,8 +6,11 @@ import { ScreenType, PageType } from './ViewContext';
 // Map URL paths to screen types
 const pathToScreenMap: Record<string, { screen: ScreenType; page: PageType }> = {
   '/': { screen: 'globe', page: 'main' },
+  '/search': { screen: 'search', page: 'main' },
   '/netrunner': { screen: 'netrunner', page: 'main' },
-  '/analyzer': { screen: 'analyzer', page: 'main' },
+  '/intelanalyzer': { screen: 'intelanalyzer', page: 'main' },
+  '/marketexchange': { screen: 'marketexchange', page: 'main' },
+  '/monitoring': { screen: 'monitoring', page: 'main' },
   '/nodeweb': { screen: 'nodeweb', page: 'main' },
   '/timeline': { screen: 'timeline', page: 'main' },
   '/cases': { screen: 'casemanager', page: 'main' },
@@ -23,7 +26,8 @@ const pathToScreenMap: Record<string, { screen: ScreenType; page: PageType }> = 
 
 // Legacy paths that need to be redirected
 const legacyPathRedirects: Record<string, string> = {
-  '/info-analysis': '/analyzer',
+  '/info-analysis': '/intelanalyzer',
+  '/analyzer': '/intelanalyzer',
   '/node-web': '/nodeweb',
   '/ai-agent': '/aiagent',
 };
@@ -31,8 +35,11 @@ const legacyPathRedirects: Record<string, string> = {
 // Map screen types to URL paths
 export const screenToPathMap: Record<ScreenType, string> = {
   'globe': '/',
+  'search': '/search',
   'netrunner': '/netrunner',
-  'analyzer': '/analyzer',
+  'intelanalyzer': '/intelanalyzer',
+  'marketexchange': '/marketexchange',
+  'monitoring': '/monitoring',
   'nodeweb': '/nodeweb',
   'timeline': '/timeline',
   'casemanager': '/cases',
@@ -49,6 +56,8 @@ export const screenToPathMap: Record<ScreenType, string> = {
 /**
  * Custom hook to synchronize URL routes with ViewContext screens
  * This enables deep linking and browser history to work with our screen system
+ * 
+ * Uses a single source of truth approach to prevent circular updates
  */
 export const useRouteSync = () => {
   const location = useLocation();
@@ -56,8 +65,10 @@ export const useRouteSync = () => {
   const params = useParams();
   const { currentScreen, currentPage, navigateToScreen, navigateToPage, screenParams, setScreenParams } = useView();
   
-  // Use a ref to prevent circular updates between URL changes and ViewContext changes
-  const isUpdatingRef = useRef(false);
+  // Track the source of changes to prevent infinite loops
+  const lastUrlChangeRef = useRef<string>('');
+  const lastScreenChangeRef = useRef<ScreenType | null>(null);
+  const navigationSourceRef = useRef<'url' | 'view' | null>(null);
 
   // Extract the base path from the current pathname
   const getBasePath = (path: string): string => {
@@ -73,94 +84,121 @@ export const useRouteSync = () => {
     return path.substring(0, firstSlashIndex);
   };
 
-  // Handle route changes by updating ViewContext
+  // Single effect to handle all synchronization
   useEffect(() => {
-    if (isUpdatingRef.current) return;
-    
-    // Check for legacy path redirects
     const currentPath = location.pathname;
+    console.log('🔗 useRouteSync: State change detected', {
+      currentPath,
+      currentScreen,
+      lastUrl: lastUrlChangeRef.current,
+      lastScreen: lastScreenChangeRef.current,
+      navigationSource: navigationSourceRef.current
+    });
+
+    // Handle legacy redirects first
     if (legacyPathRedirects[currentPath]) {
+      console.log('🔗 useRouteSync: Legacy path redirect', { from: currentPath, to: legacyPathRedirects[currentPath] });
       navigate(legacyPathRedirects[currentPath] + location.search, { replace: true });
       return;
     }
-    
-    // Get the base path for mapping
-    const basePath = getBasePath(currentPath);
-    const matchingInfo = pathToScreenMap[basePath];
-    
-    if (matchingInfo) {
-      const { screen, page } = matchingInfo;
-      
-      // Check if we need to change the page and/or screen
-      const needsPageChange = page !== currentPage;
-      const needsScreenChange = screen !== currentScreen || needsPageChange;
-      
-      if (needsScreenChange) {
-        // Extract URL params and query params
-        const urlParams = new URLSearchParams(location.search);
-        const newParams = {
-          ...Object.fromEntries(urlParams.entries()),
-          ...params // Include route params
-        };
-        
-        // Prevent circular updates
-        isUpdatingRef.current = true;
-        
-        // Update the page and screen in ViewContext
-        if (needsPageChange) {
-          navigateToPage(page, screen, newParams);
-        } else {
-          navigateToScreen(screen, newParams);
-        }
-        
-        // Reset the update flag after a short delay
-        setTimeout(() => {
-          isUpdatingRef.current = false;
-        }, 50);
-      }
-    }
-  }, [location, currentScreen, currentPage, navigateToScreen, navigateToPage, params, navigate]);
 
-  // Handle ViewContext changes by updating the URL
-  useEffect(() => {
-    if (isUpdatingRef.current) return;
+    // Determine if this is a URL change or ViewContext change
+    const urlChanged = currentPath !== lastUrlChangeRef.current;
+    const screenChanged = currentScreen !== lastScreenChangeRef.current;
     
-    const currentPath = location.pathname;
-    const targetPath = screenToPathMap[currentScreen];
-    
-    // Check if the URL needs updating
-    const shouldUpdateUrl = targetPath && !currentPath.startsWith(targetPath);
-    
-    if (shouldUpdateUrl) {
-      // Convert screen params to URL query params
-      const queryParams = new URLSearchParams();
-      Object.entries(screenParams).forEach(([key, value]) => {
-        if (value !== undefined && value !== null && 
-            // Don't include route params in query string
-            !Object.keys(params).includes(key)) {
-          queryParams.append(key, String(value));
+    console.log('🔗 useRouteSync: Change analysis', {
+      urlChanged,
+      screenChanged,
+      shouldSyncFromUrl: urlChanged && !screenChanged,
+      shouldSyncFromView: screenChanged && !urlChanged
+    });
+
+    if (urlChanged && !screenChanged) {
+      // URL changed, need to update ViewContext
+      navigationSourceRef.current = 'url';
+      console.log('🔗 useRouteSync: Syncing ViewContext from URL change');
+      
+      const basePath = getBasePath(currentPath);
+      const matchingInfo = pathToScreenMap[basePath];
+      
+      if (matchingInfo) {
+        const { screen, page } = matchingInfo;
+        const needsPageChange = page !== currentPage;
+        const needsScreenChange = screen !== currentScreen || needsPageChange;
+        
+        if (needsScreenChange) {
+          // Extract URL params and query params
+          const urlParams = new URLSearchParams(location.search);
+          const newParams = {
+            ...Object.fromEntries(urlParams.entries()),
+            ...params
+          };
+          
+          console.log('🔗 useRouteSync: Updating ViewContext', { page, screen, params: newParams });
+          
+          if (needsPageChange) {
+            navigateToPage(page, screen, newParams);
+          } else {
+            navigateToScreen(screen, newParams);
+          }
         }
+      } else {
+        console.warn('🔗 useRouteSync: No mapping found for path', { currentPath, basePath });
+      }
+      
+      lastUrlChangeRef.current = currentPath;
+      
+    } else if (screenChanged && !urlChanged) {
+      // ViewContext changed, need to update URL
+      navigationSourceRef.current = 'view';
+      console.log('🔗 useRouteSync: Syncing URL from ViewContext change');
+      
+      const targetPath = screenToPathMap[currentScreen];
+      
+      if (targetPath && !currentPath.startsWith(targetPath)) {
+        // Convert screen params to URL query params
+        const queryParams = new URLSearchParams();
+        Object.entries(screenParams).forEach(([key, value]) => {
+          if (value !== undefined && value !== null && !Object.keys(params).includes(key)) {
+            queryParams.append(key, String(value));
+          }
+        });
+        
+        const queryString = queryParams.toString();
+        const url = queryString ? `${targetPath}?${queryString}` : targetPath;
+        
+        console.log('🔗 useRouteSync: Updating URL', { from: currentPath, to: url });
+        navigate(url, { replace: true });
+        lastUrlChangeRef.current = url.split('?')[0]; // Store path without query
+      }
+      
+      lastScreenChangeRef.current = currentScreen;
+      
+    } else if (urlChanged && screenChanged) {
+      // Both changed simultaneously - this shouldn't happen but handle gracefully
+      console.warn('🔗 useRouteSync: Both URL and screen changed simultaneously', {
+        urlFrom: lastUrlChangeRef.current,
+        urlTo: currentPath,
+        screenFrom: lastScreenChangeRef.current,
+        screenTo: currentScreen
       });
       
-      const queryString = queryParams.toString();
-      const url = queryString ? `${targetPath}?${queryString}` : targetPath;
-      
-      // Prevent circular updates
-      isUpdatingRef.current = true;
-      
-      // Update URL without triggering a full page reload
-      navigate(url, { replace: true });
-      
-      // Reset the update flag after a short delay
-      setTimeout(() => {
-        isUpdatingRef.current = false;
-      }, 50);
+      // Update our tracking refs to prevent further confusion
+      lastUrlChangeRef.current = currentPath;
+      lastScreenChangeRef.current = currentScreen;
     }
-  }, [currentScreen, screenParams, location.pathname, navigate, params]);
-  
-  // Handle dynamic parameters in the URL
+
+    // Reset navigation source after a brief delay
+    setTimeout(() => {
+      navigationSourceRef.current = null;
+    }, 50);
+
+  }, [location, currentScreen, currentPage, navigateToScreen, navigateToPage, params, navigate, screenParams]);
+
+  // Handle dynamic parameters separately to avoid interference
   useEffect(() => {
-    if (Object.keys(params).length > 0 && !isUpdatingRef.current) {
+    if (Object.keys(params).length > 0) {
+      console.log('🔗 useRouteSync: Setting dynamic params', params);
       setScreenParams(params);
     }
   }, [params, setScreenParams]);

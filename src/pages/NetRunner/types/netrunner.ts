@@ -76,10 +76,5 @@ export type RelationshipType =
 
 // Dashboard Mode
 export type DashboardMode = 
-  | 'search'        // Basic search mode
-  | 'advanced'      // Advanced search mode
   | 'powertools'    // Power tools mode
-  | 'bots'          // Bot automation mode
-  | 'analysis'      // Intel analysis mode
-  | 'marketplace'   // Intelligence Exchange mode
-  | 'monitoring';   // Active monitoring mode
+  | 'bots';         // Bot automation mode

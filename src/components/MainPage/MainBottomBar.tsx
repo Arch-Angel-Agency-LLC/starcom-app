@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ScreenType } from '../../context/ViewContext';
+import { useView } from '../../context/useView';
 import { useCollaboration } from '../../hooks/useUnifiedGlobalCommand';
 import { useFeatureFlag } from '../../utils/featureFlags';
 import styles from './MainBottomBar.module.css';
@@ -22,6 +23,7 @@ export const MainBottomBar: React.FC = () => {
   const aiSuggestionsEnabled = useFeatureFlag('aiSuggestionsEnabled');
   const navigate = useNavigate();
   const location = useLocation();
+  const { navigateToScreen } = useView();
   
   // Check if user has visited teams page to hide new user hints
   const hasVisitedTeams = localStorage.getItem('starcom-visited-teams');
@@ -73,21 +75,48 @@ export const MainBottomBar: React.FC = () => {
     
     // Intelligence tools
     { 
+      id: 'search', 
+      label: 'Search', 
+      screen: 'search',
+      path: '/search',
+      icon: '🔍',
+      tooltip: 'OSINT search capabilities',
+      category: 'intel'
+    },
+    { 
       id: 'netrunner', 
       label: 'NetRunner', 
       screen: 'netrunner',
       path: '/netrunner',
       icon: '🌐',
-      tooltip: 'Advanced intelligence gathering',
+      tooltip: 'Power tools and automation',
       category: 'intel'
     },
     { 
-      id: 'analyzer', 
-      label: 'Analyzer', 
-      screen: 'analyzer',
-      path: '/analyzer',
+      id: 'intelanalyzer', 
+      label: 'IntelAnalyzer', 
+      screen: 'intelanalyzer',
+      path: '/intelanalyzer',
       icon: '📈',
       tooltip: 'Analyze collected information',
+      category: 'intel'
+    },
+    { 
+      id: 'marketexchange', 
+      label: 'MarketExchange', 
+      screen: 'marketexchange',
+      path: '/marketexchange',
+      icon: '💱',
+      tooltip: 'Intelligence marketplace and trading',
+      category: 'intel'
+    },
+    { 
+      id: 'monitoring', 
+      label: 'Monitoring', 
+      screen: 'monitoring',
+      path: '/monitoring',
+      icon: '👁️',
+      tooltip: 'Continuous surveillance and monitoring',
       category: 'intel'
     },
     { 
@@ -137,16 +166,29 @@ export const MainBottomBar: React.FC = () => {
   }, [navigationItems]);
 
   const handleNavigation = useCallback((item: NavItem) => {
+    console.log('🔘 MainBottomBar: Navigation clicked', {
+      id: item.id,
+      screen: item.screen,
+      path: item.path,
+      currentLocation: location.pathname
+    });
+    
     // Track first visit to teams
     if (item.screen === 'teams') {
       localStorage.setItem('starcom-visited-teams', 'true');
       localStorage.setItem('starcom-hint-seen', 'true');
     }
     
-    // Use router navigation instead of directly setting ViewContext
-    // ViewContext will be updated by useRouteSync
-    navigate(item.path);
-  }, [navigate]);
+    // Try direct ViewContext navigation instead of URL navigation
+    console.log('🔘 MainBottomBar: Navigating directly to screen:', item.screen);
+    navigateToScreen(item.screen);
+    
+    // Also update URL to keep them in sync
+    if (location.pathname !== item.path) {
+      console.log('🔘 MainBottomBar: Updating URL to:', item.path);
+      navigate(item.path, { replace: true });
+    }
+  }, [navigateToScreen, navigate, location.pathname]);
 
   const isActive = useCallback((item: NavItem) => {
     // Check for exact match for Globe (homepage)

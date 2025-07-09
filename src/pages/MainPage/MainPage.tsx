@@ -13,6 +13,14 @@ const MainPage: React.FC = () => {
   const { currentScreen, screenParams, setScreenParams } = useView();
   const params = useParams();
   
+  // DIAGNOSTIC: Log current screen state
+  console.log('🏠 MainPage: Current state', { 
+    currentScreen, 
+    screenParams, 
+    urlParams: params,
+    pathname: window.location.pathname 
+  });
+  
   // Update screen params when route params change
   useEffect(() => {
     if (Object.keys(params).length > 0) {

@@ -44,11 +44,13 @@ The adapter system connects the NetRunner interface to actual tool implementatio
 
 The NetRunner interface supports several operational modes:
 
-1. **Power Tools Mode**: Direct access to individual OSINT tools
-2. **Bot Automation Mode**: Automated intelligence gathering using the BotRoster
-3. **Intel Analysis Mode**: Processing and analysis of collected intelligence
-4. **Marketplace Mode**: Trading of intelligence products
+1. **Search Mode**: Advanced multi-source search capabilities
+2. **Power Tools Mode**: Direct access to individual OSINT tools
+3. **Bot Automation Mode**: Automated intelligence gathering using the BotRoster
+4. **Marketplace Mode**: Trading of intelligence products via Intelligence Exchange
 5. **Monitoring Mode**: Continuous surveillance of specified targets
+
+Note: Intelligence analysis functionality has been moved to the dedicated Analyzer page, accessible via the main navigation.
 
 ## Development Guide
 
@@ -81,15 +83,7 @@ The Bot Automation component (integrated with BotRoster) allows users to automat
 - Process and filter intelligence data
 - Generate reports automatically
 
-### 3. Intel Analysis
-The Intel Analysis component (integrated with IntelAnalyzer) provides tools for processing raw data into structured intelligence. Features include:
-- Intelligence report creation and management
-- Entity extraction and relationship mapping
-- Verification and validation of intelligence
-- Classification and categorization of intelligence
-- Collaboration and sharing features
-
-### 4. Intelligence Exchange Marketplace
+### 3. Intelligence Exchange Marketplace
 The Intelligence Exchange Marketplace provides a platform for trading intelligence as a commodity within the Starcom ecosystem. Features include:
 - Listing and browsing intelligence reports
 - Buying and selling intelligence using tokens
@@ -97,7 +91,7 @@ The Intelligence Exchange Marketplace provides a platform for trading intelligen
 - Tracking market trends and analytics
 - Escrow system for secure transactions
 
-### 5. Monitoring System
+### 4. Monitoring System
 The Monitoring System allows for continuous intelligence gathering on specified targets. Features include:
 - Real-time monitoring of various sources
 - Alerting based on significance thresholds
