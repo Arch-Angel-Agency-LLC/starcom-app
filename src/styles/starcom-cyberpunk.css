@@ -1,0 +1,451 @@
+/* ================================================================
+   STARCOM UNIFIED CYBERPUNK DESIGN SYSTEM
+   Consolidated theme merging cyberpunk and RTS elements
+================================================================ */
+
+:root {
+  /* ============== CORE BRAND COLORS ============== */
+  
+  /* Primary Brand System */
+  --starcom-primary: #00d4ff;      /* Cyber cyan - main brand */
+  --starcom-secondary: #ff3366;    /* Alert red - secondary brand */
+  --starcom-accent: #33ff88;       /* NetRunner green - accent */
+  --starcom-energy: #88ff00;       /* Energy green - power states */
+  
+  /* ============== SURFACE SYSTEM ============== */
+  
+  /* Background Hierarchy - Dark Cyberpunk Base */
+  --surface-base: #0a1520;         /* Primary dark background */
+  --surface-elevated: #1a2635;     /* Panels and cards */
+  --surface-overlay: #2a3645;      /* Modals and overlays */
+  --surface-interactive: #3a4655;  /* Hover and active states */
+  
+  /* Panel System */
+  --panel-bg: rgba(26, 38, 53, 0.95);
+  --panel-border: rgba(0, 212, 255, 0.3);
+  --panel-border-active: rgba(0, 212, 255, 0.6);
+  --panel-glow: rgba(0, 212, 255, 0.2);
+  
+  /* ============== TEXT SYSTEM ============== */
+  
+  /* Text Hierarchy */
+  --text-primary: #e0f0ff;         /* Primary readable text */
+  --text-secondary: #b0d0f0;       /* Secondary information */
+  --text-muted: #80a0c0;           /* Subtle labels */
+  --text-inverse: #0a1520;         /* Dark text on light */
+  --text-brand: var(--starcom-primary);
+  
+  /* ============== STATUS COLORS ============== */
+  
+  /* Semantic Status System */
+  --status-success: var(--starcom-accent);     /* #33ff88 */
+  --status-warning: #ffa500;                   /* Orange warning */
+  --status-error: var(--starcom-secondary);    /* #ff3366 */
+  --status-info: var(--starcom-primary);       /* #00d4ff */
+  --status-energy: var(--starcom-energy);      /* #88ff00 */
+  
+  /* Specialized Status */
+  --threat-critical: #ff3838;
+  --threat-high: #ff6b35;
+  --threat-medium: #ffa500;
+  --threat-low: #33ff88;
+  --threat-unknown: #888;
+  
+  /* ============== TYPOGRAPHY SCALE ============== */
+  
+  /* Font Size System */
+  --text-xs: 0.75rem;      /* 12px */
+  --text-sm: 0.875rem;     /* 14px */
+  --text-base: 1rem;       /* 16px */
+  --text-lg: 1.125rem;     /* 18px */
+  --text-xl: 1.25rem;      /* 20px */
+  --text-2xl: 1.5rem;      /* 24px */
+  --text-3xl: 1.875rem;    /* 30px */
+  --text-4xl: 2.25rem;     /* 36px */
+  
+  /* Font Weights */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  
+  /* Line Heights */
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+  
+  /* Letter Spacing */
+  --letter-spacing-tight: -0.025em;
+  --letter-spacing-normal: 0;
+  --letter-spacing-wide: 0.025em;
+  --letter-spacing-wider: 0.05em;
+  
+  /* ============== SPACING SYSTEM ============== */
+  
+  /* Consistent Spacing Scale */
+  --space-1: 0.25rem;     /* 4px */
+  --space-2: 0.5rem;      /* 8px */
+  --space-3: 0.75rem;     /* 12px */
+  --space-4: 1rem;        /* 16px */
+  --space-6: 1.5rem;      /* 24px */
+  --space-8: 2rem;        /* 32px */
+  --space-12: 3rem;       /* 48px */
+  --space-16: 4rem;       /* 64px */
+  --space-20: 5rem;       /* 80px */
+  --space-24: 6rem;       /* 96px */
+  
+  /* ============== BORDER RADIUS ============== */
+  
+  /* Border Radius Scale */
+  --radius-none: 0;
+  --radius-sm: 0.125rem;   /* 2px */
+  --radius-md: 0.375rem;   /* 6px */
+  --radius-lg: 0.5rem;     /* 8px */
+  --radius-xl: 0.75rem;    /* 12px */
+  --radius-2xl: 1rem;      /* 16px */
+  --radius-full: 9999px;   /* Full round */
+  
+  /* ============== SHADOWS & GLOWS ============== */
+  
+  /* Shadow System */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.5);
+  
+  /* Cyberpunk Glow Effects */
+  --glow-sm: 0 0 10px;
+  --glow-md: 0 0 20px;
+  --glow-lg: 0 0 30px;
+  --glow-xl: 0 0 40px;
+  
+  /* Color-specific Glows */
+  --glow-cyan: var(--glow-md) rgba(0, 212, 255, 0.5);
+  --glow-green: var(--glow-md) rgba(51, 255, 136, 0.5);
+  --glow-red: var(--glow-md) rgba(255, 51, 102, 0.5);
+  --glow-energy: var(--glow-md) rgba(136, 255, 0, 0.5);
+  
+  /* ============== ANIMATION TIMING ============== */
+  
+  /* Transition System */
+  --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Specialized Transitions */
+  --transition-bounce: 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --transition-slide: 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --transition-dramatic: 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+  
+  /* ============== SCREEN IDENTITY SYSTEM ============== */
+  
+  /* Screen-Specific Theme Overrides */
+  --screen-primary: var(--starcom-primary);
+  --screen-accent: var(--starcom-accent);
+  --screen-glow: var(--glow-cyan);
+  
+  /* ============== Z-INDEX SYSTEM ============== */
+  
+  /* Layering System */
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+  --z-toast: 1080;
+  
+  /* ============== BREAKPOINTS ============== */
+  
+  /* Responsive Design System */
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+}
+
+/* ============================================================================
+   COMPONENT BASE STYLES
+   ============================================================================ */
+
+/* Panel Component Standard */
+.panel,
+.panel-base {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(10px);
+}
+
+.panel--interactive {
+  transition: all var(--transition-normal);
+  cursor: pointer;
+}
+
+.panel--interactive:hover {
+  border-color: var(--panel-border-active);
+  box-shadow: var(--shadow-lg), var(--glow-cyan);
+  transform: translateY(-2px);
+}
+
+.panel--glowing {
+  box-shadow: var(--shadow-lg), var(--screen-glow);
+  animation: pulse-glow 2s ease-in-out infinite alternate;
+}
+
+/* Button System */
+.btn,
+.button-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Aldrich', monospace;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  padding: var(--space-3) var(--space-6);
+  border: 2px solid transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+  text-decoration: none;
+}
+
+.btn--primary {
+  background: linear-gradient(135deg, var(--starcom-primary), var(--starcom-accent));
+  color: var(--surface-base);
+  border-color: var(--starcom-primary);
+}
+
+.btn--primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--glow-cyan);
+}
+
+.btn--secondary {
+  background: transparent;
+  color: var(--starcom-primary);
+  border-color: var(--starcom-primary);
+}
+
+.btn--secondary:hover {
+  background: var(--starcom-primary);
+  color: var(--surface-base);
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border-color: var(--panel-border);
+}
+
+.btn--ghost:hover {
+  color: var(--starcom-primary);
+  border-color: var(--starcom-primary);
+}
+
+/* Input System */
+.input,
+.input-base {
+  font-family: 'Aldrich', monospace;
+  font-size: var(--text-sm);
+  padding: var(--space-3);
+  background: var(--surface-elevated);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  transition: all var(--transition-fast);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--starcom-primary);
+  box-shadow: var(--glow-sm) var(--starcom-primary);
+}
+
+/* Typography Classes */
+.text-display {
+  font-family: 'Aldrich', monospace;
+  font-size: var(--text-4xl);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.text-heading {
+  font-family: 'Aldrich', monospace;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+}
+
+.text-subheading {
+  font-family: 'Aldrich', monospace;
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing-normal);
+}
+
+.text-body {
+  font-family: 'Aldrich', monospace;
+  font-size: var(--text-base);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing-normal);
+}
+
+.text-caption {
+  font-family: 'Aldrich', monospace;
+  font-size: var(--text-sm);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing-wider);
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+/* ============================================================================
+   SCREEN IDENTITY THEMES
+   ============================================================================ */
+
+/* Intel Analyzer Theme */
+.intel-screen,
+[data-screen="intel"] {
+  --screen-primary: var(--starcom-primary);
+  --screen-accent: #0099cc;
+  --screen-glow: var(--glow-cyan);
+}
+
+/* NetRunner Theme */
+.netrunner-screen,
+[data-screen="netrunner"] {
+  --screen-primary: var(--starcom-accent);
+  --screen-accent: #00ff44;
+  --screen-glow: var(--glow-green);
+}
+
+/* Teams Collaboration Theme */
+.teams-screen,
+[data-screen="teams"] {
+  --screen-primary: var(--starcom-secondary);
+  --screen-accent: #ff6699;
+  --screen-glow: var(--glow-red);
+}
+
+/* Globe Visualization Theme */
+.globe-screen,
+[data-screen="globe"] {
+  --screen-primary: var(--starcom-primary);
+  --screen-accent: var(--starcom-energy);
+  --screen-glow: var(--glow-cyan);
+}
+
+/* ============================================================================
+   UTILITY CLASSES
+   ============================================================================ */
+
+/* Layout Utilities */
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.flex-center { align-items: center; justify-content: center; }
+.flex-between { align-items: center; justify-content: space-between; }
+.flex-wrap { flex-wrap: wrap; }
+
+.grid { display: grid; }
+.grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+
+/* Spacing Utilities */
+.gap-1 { gap: var(--space-1); }
+.gap-2 { gap: var(--space-2); }
+.gap-3 { gap: var(--space-3); }
+.gap-4 { gap: var(--space-4); }
+.gap-6 { gap: var(--space-6); }
+.gap-8 { gap: var(--space-8); }
+
+.p-1 { padding: var(--space-1); }
+.p-2 { padding: var(--space-2); }
+.p-3 { padding: var(--space-3); }
+.p-4 { padding: var(--space-4); }
+.p-6 { padding: var(--space-6); }
+.p-8 { padding: var(--space-8); }
+
+.m-1 { margin: var(--space-1); }
+.m-2 { margin: var(--space-2); }
+.m-3 { margin: var(--space-3); }
+.m-4 { margin: var(--space-4); }
+.m-6 { margin: var(--space-6); }
+.m-8 { margin: var(--space-8); }
+
+/* Text Utilities */
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+.text-primary { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-muted { color: var(--text-muted); }
+.text-brand { color: var(--starcom-primary); }
+
+/* Animation Utilities */
+.transition { transition: all var(--transition-normal); }
+.transition-fast { transition: all var(--transition-fast); }
+.transition-slow { transition: all var(--transition-slow); }
+
+/* Cyberpunk Effects */
+.glow-cyan { box-shadow: var(--glow-cyan); }
+.glow-green { box-shadow: var(--glow-green); }
+.glow-red { box-shadow: var(--glow-red); }
+
+/* ============================================================================
+   ANIMATIONS
+   ============================================================================ */
+
+@keyframes pulse-glow {
+  from { box-shadow: var(--screen-glow); }
+  to { 
+    box-shadow: 
+      var(--screen-glow), 
+      var(--glow-lg) var(--screen-primary); 
+  }
+}
+
+@keyframes slide-in-right {
+  from { 
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to { 
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scale-in {
+  from { 
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to { 
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Apply animations */
+.animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite alternate; }
+.animate-slide-in { animation: slide-in-right 0.3s ease-out; }
+.animate-fade-in { animation: fade-in 0.3s ease-out; }
+.animate-scale-in { animation: scale-in 0.3s ease-out; }

@@ -1,0 +1,254 @@
+/* OSINT Dashboard Styles - Earth Alliance Cyber Command Theme */
+
+.osintDashboard {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(10, 15, 25, 0.95);
+  color: #00ccff;
+  font-family: 'Aldrich', 'Courier New', monospace;
+  overflow: hidden;
+}
+
+/* Command Bar Styles */
+.commandBar {
+  display: flex;
+  align-items: center;
+  height: 4rem;
+  padding: 0 1rem;
+  background-color: rgba(0, 40, 60, 0.7);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(0, 204, 255, 0.2);
+  box-shadow: 0 0 15px rgba(0, 204, 255, 0.1);
+  z-index: 10;
+}
+
+.logoSection {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-right: 1.5rem;
+}
+
+.logo {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: #00ccff;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.05rem;
+  text-transform: uppercase;
+  color: #00ccff;
+}
+
+.searchBar {
+  flex: 1;
+  max-width: 40rem;
+  margin: 0 1rem;
+}
+
+/* Mode Toggle Buttons */
+.modeToggle {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: 1rem;
+}
+
+.modeButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0;
+  background-color: rgba(0, 40, 60, 0.4);
+  border: 1px solid rgba(0, 204, 255, 0.1);
+  color: rgba(0, 204, 255, 0.7);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.modeButton:hover {
+  background-color: rgba(0, 60, 80, 0.6);
+  border-color: rgba(0, 204, 255, 0.3);
+  color: rgba(0, 204, 255, 0.9);
+}
+
+.activeMode {
+  background-color: rgba(0, 100, 130, 0.3);
+  border-color: rgba(0, 204, 255, 0.6);
+  color: #00ccff;
+  box-shadow: 0 0 10px rgba(0, 204, 255, 0.2);
+}
+
+.icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* Main Workspace */
+.workspace {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Status Bar */
+.statusBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 2rem;
+  padding: 0 1rem;
+  background-color: rgba(0, 30, 50, 0.8);
+  backdrop-filter: blur(8px);
+  border-top: 1px solid rgba(0, 204, 255, 0.2);
+  color: rgba(0, 204, 255, 0.7);
+  font-size: 0.75rem;
+  z-index: 10;
+}
+
+.statusItems {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.statusActive {
+  color: #00ff66;
+}
+
+/* Auth Popup */
+.authPopup {
+  padding: var(--space-xl);
+  background-color: rgba(10, 20, 30, 0.95);
+  border: 1px solid rgba(0, 204, 255, 0.3);
+  border-radius: 0;
+  box-shadow: 0 0 20px rgba(0, 204, 255, 0.2);
+  text-align: center;
+}
+
+.authPopup h2 {
+  color: #00ccff;
+  margin-bottom: 1rem;
+}
+
+.authPopup p {
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 1.5rem;
+}
+
+.authPopup button {
+  background-color: rgba(0, 100, 130, 0.4);
+  border: 1px solid rgba(0, 204, 255, 0.4);
+  color: #00ccff;
+  padding: 0.5rem 1rem;
+  border-radius: 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.authPopup button:hover {
+  background-color: rgba(0, 120, 150, 0.5);
+  border-color: rgba(0, 204, 255, 0.6);
+}
+
+/* Grid Layout */
+.panelContainer {
+  width: 100%;
+  height: 100%;
+  padding: 0.5rem;
+}
+
+.panel {
+  background-color: rgba(0, 30, 50, 0.7);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(0, 204, 255, 0.2);
+  border-radius: 0;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.panelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem;
+  background-color: rgba(0, 40, 60, 0.8);
+  border-bottom: 1px solid rgba(0, 204, 255, 0.2);
+}
+
+.panelTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #00ccff;
+}
+
+.panelControls {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.panelContent {
+  flex: 1;
+  overflow: auto;
+  padding: 0.75rem;
+}
+
+/* Animation for new panels */
+@keyframes panelFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.newPanel {
+  animation: panelFadeIn 0.3s ease-out;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .commandBar {
+    height: 3.5rem;
+  }
+  
+  .title {
+    font-size: 1rem;
+  }
+  
+  .statusBar {
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .logoSection {
+    margin-right: 0.75rem;
+  }
+  
+  .title {
+    display: none;
+  }
+  
+  .modeButton {
+    width: 2rem;
+    height: 2rem;
+  }
+  
+  .statusItems:nth-child(2) {
+    display: none;
+  }
+}

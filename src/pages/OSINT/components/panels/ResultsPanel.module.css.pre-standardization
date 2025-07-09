@@ -1,0 +1,374 @@
+.resultsPanel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  color: #e0e0e0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  padding: 8px 10px;
+  background-color: rgba(20, 27, 45, 0.8);
+  border-bottom: 1px solid rgba(65, 132, 228, 0.25);
+}
+
+.viewToggle {
+  display: flex;
+  margin-right: 12px;
+}
+
+.viewButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid rgba(65, 132, 228, 0.25);
+  border-radius: 3px;
+  color: #a0b4d8;
+  cursor: pointer;
+}
+
+.viewButton:first-child {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-right: none;
+}
+
+.viewButton:last-child {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.activeView {
+  background-color: rgba(65, 132, 228, 0.15);
+  color: #4184e4;
+}
+
+.filters {
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: thin;
+}
+
+.filters::-webkit-scrollbar {
+  height: 4px;
+}
+
+.filters::-webkit-scrollbar-track {
+  background: rgba(20, 27, 45, 0.5);
+}
+
+.filters::-webkit-scrollbar-thumb {
+  background-color: rgba(65, 132, 228, 0.3);
+  border-radius: 4px;
+}
+
+.filterButton {
+  padding: 4px 8px;
+  margin-right: 6px;
+  background: transparent;
+  border: 1px solid rgba(65, 132, 228, 0.25);
+  border-radius: 3px;
+  color: #a0b4d8;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.activeFilter {
+  background-color: rgba(65, 132, 228, 0.15);
+  color: #4184e4;
+  border-color: rgba(65, 132, 228, 0.4);
+}
+
+.moreFiltersButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: 1px solid rgba(65, 132, 228, 0.25);
+  border-radius: 3px;
+  color: #a0b4d8;
+  cursor: pointer;
+}
+
+.resultsContainer {
+  flex-grow: 1;
+  padding: 10px;
+  overflow-y: auto;
+  background-color: rgba(16, 20, 34, 0.7);
+}
+
+.resultsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.resultsTitle {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #e0e0e0;
+}
+
+.resultsCount {
+  font-size: 12px;
+  color: #a0b4d8;
+}
+
+.resultsList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.resultsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.resultItem {
+  display: flex;
+  padding: 10px;
+  background-color: rgba(20, 27, 45, 0.7);
+  border: 1px solid rgba(65, 132, 228, 0.15);
+  border-radius: 4px;
+}
+
+.resultIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin-right: 10px;
+  background-color: rgba(65, 132, 228, 0.15);
+  border-radius: 50%;
+  color: #4184e4;
+}
+
+.resultContent {
+  flex-grow: 1;
+}
+
+.resultHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.resultTitle {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #e0e0e0;
+}
+
+.resultConfidence {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 6px;
+  background-color: rgba(65, 132, 228, 0.15);
+  border-radius: 10px;
+  color: #4184e4;
+}
+
+.resultSubtitle {
+  margin: 0 0 6px 0;
+  font-size: 12px;
+  color: #bac8e0;
+}
+
+.resultMeta {
+  display: flex;
+  align-items: center;
+  font-size: 11px;
+}
+
+.resultSource {
+  color: #6ba5ff;
+  margin-right: 8px;
+}
+
+.resultTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.resultTag {
+  padding: 1px 6px;
+  background-color: rgba(30, 37, 54, 0.7);
+  border-radius: 10px;
+  color: #a0b4d8;
+}
+
+.resultActions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-left: 10px;
+}
+
+.actionButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: transparent;
+  border: 1px solid rgba(65, 132, 228, 0.25);
+  border-radius: 3px;
+  color: #a0b4d8;
+  cursor: pointer;
+}
+
+.actionButton:hover {
+  background-color: rgba(65, 132, 228, 0.15);
+  color: #4184e4;
+}
+
+.gridItem {
+  position: relative;
+  padding: 12px;
+  background-color: rgba(20, 27, 45, 0.7);
+  border: 1px solid rgba(65, 132, 228, 0.15);
+  border-radius: 4px;
+}
+
+.gridItemHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.gridItemTitle {
+  margin: 0 0 6px 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #e0e0e0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gridItemSubtitle {
+  margin: 0 0 6px 0;
+  font-size: 11px;
+  color: #bac8e0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gridItemSource {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 11px;
+  color: #6ba5ff;
+}
+
+.gridItemActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #a0b4d8;
+}
+
+.loadingSpinner {
+  width: 24px;
+  height: 24px;
+  margin-bottom: 12px;
+  border: 2px solid rgba(65, 132, 228, 0.25);
+  border-top: 2px solid #4184e4;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.noResults, .noQuery {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  color: #a0b4d8;
+  text-align: center;
+  font-size: 14px;
+}
+
+.errorWrapper {
+  margin: 16px;
+}
+
+/* Error message styles */
+.errorMessage {
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  margin: 10px 0;
+  background-color: rgba(187, 17, 34, 0.1);
+  border: 1px solid rgba(187, 17, 34, 0.25);
+  border-radius: 4px;
+  color: #ff6b7a;
+}
+
+.errorTitle {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.errorTitle svg {
+  margin-right: 8px;
+}
+
+.errorText {
+  margin: 0;
+  font-size: 13px;
+}
+
+.retryButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  margin-top: 10px;
+  background: rgba(65, 132, 228, 0.15);
+  border: 1px solid rgba(65, 132, 228, 0.3);
+  border-radius: 3px;
+  color: #4184e4;
+  font-size: 12px;
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+.retryButton:hover {
+  background: rgba(65, 132, 228, 0.25);
+}

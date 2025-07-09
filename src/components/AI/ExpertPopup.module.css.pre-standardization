@@ -1,0 +1,414 @@
+/* Expert Popup - Full-screen modal for advanced system administration */
+.expertPopup {
+  background: linear-gradient(145deg, rgba(0, 15, 40, 0.98) 0%, rgba(0, 25, 60, 0.95) 100%);
+  border: 2px solid rgba(255, 196, 0, 0.6);
+  border-radius: 12px;
+  width: 90vw;
+  max-width: 900px;
+  max-height: 85vh;
+  overflow: hidden;
+  box-shadow: 
+    0 0 30px rgba(255, 196, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  font-family: 'Orbitron', 'Courier New', monospace;
+  color: #ffffff;
+}
+
+.expertHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: rgba(255, 196, 0, 0.1);
+  border-bottom: 1px solid rgba(255, 196, 0, 0.3);
+}
+
+.expertTitle {
+  color: #ffcc00;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 0;
+  text-shadow: 0 0 8px rgba(255, 196, 0, 0.5);
+  letter-spacing: 1px;
+}
+
+.closeButton {
+  background: rgba(255, 0, 0, 0.2);
+  border: 1px solid rgba(255, 0, 0, 0.4);
+  color: #ff6666;
+  font-size: 1.2rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  font-weight: bold;
+}
+
+.closeButton:hover {
+  background: rgba(255, 0, 0, 0.4);
+  border-color: rgba(255, 0, 0, 0.6);
+  transform: scale(1.1);
+  box-shadow: 0 0 8px rgba(255, 0, 0, 0.3);
+}
+
+.expertTabNavigation {
+  display: flex;
+  background: rgba(0, 0, 0, 0.3);
+  border-bottom: 1px solid rgba(255, 196, 0, 0.2);
+}
+
+.expertSubTab {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #cccccc;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 3px solid transparent;
+  font-family: 'Orbitron', monospace;
+  letter-spacing: 0.5px;
+}
+
+.expertSubTab:hover {
+  background: rgba(255, 196, 0, 0.1);
+  color: #ffcc00;
+}
+
+.expertSubTab.active {
+  background: rgba(255, 196, 0, 0.2);
+  color: #ffcc00;
+  border-bottom-color: #ffcc00;
+  box-shadow: 0 -2px 8px rgba(255, 196, 0, 0.3);
+  text-shadow: 0 0 4px rgba(255, 196, 0, 0.5);
+}
+
+.expertContent {
+  padding: 20px;
+  max-height: 60vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 196, 0, 0.3) rgba(0, 0, 0, 0.1);
+}
+
+.expertContent::-webkit-scrollbar {
+  width: 8px;
+}
+
+.expertContent::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+
+.expertContent::-webkit-scrollbar-thumb {
+  background: rgba(255, 196, 0, 0.3);
+  border-radius: 4px;
+}
+
+.expertContent::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 196, 0, 0.5);
+}
+
+.expertSection {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 196, 0, 0.3);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.expertLabel {
+  font-size: 1rem;
+  color: #ffcc00;
+  font-weight: 700;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-shadow: 0 0 4px rgba(255, 196, 0, 0.5);
+}
+
+.expertDescription {
+  font-size: 0.8rem;
+  color: #cccccc;
+  margin: 12px 0 16px 0;
+  line-height: 1.5;
+  font-style: italic;
+  opacity: 0.9;
+}
+
+.expertActions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.expertButton {
+  background: linear-gradient(135deg, rgba(255, 196, 0, 0.8), rgba(255, 150, 0, 0.6));
+  border: 1px solid #ffcc00;
+  color: #000000;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: 'Orbitron', monospace;
+  min-width: 120px;
+}
+
+.expertButton:hover {
+  background: linear-gradient(135deg, #ffcc00, #ff9900);
+  box-shadow: 0 0 12px rgba(255, 196, 0, 0.5);
+  transform: translateY(-2px);
+}
+
+/* Command Builder Styles */
+.commandBuilder,
+.apiPayload {
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(0, 196, 255, 0.3);
+  color: #ffffff;
+  font-size: 0.75rem;
+  padding: 12px;
+  border-radius: 6px;
+  font-family: 'Courier New', monospace;
+  resize: vertical;
+  min-height: 120px;
+  width: 100%;
+  line-height: 1.4;
+}
+
+.commandBuilder:focus,
+.apiPayload:focus {
+  border-color: rgba(255, 196, 0, 0.5);
+  box-shadow: 0 0 8px rgba(255, 196, 0, 0.2);
+  outline: none;
+}
+
+/* Training Tab Styles */
+.trainingMetrics {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 16px 0;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 16px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 196, 0, 0.2);
+}
+
+.metricRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  font-size: 0.8rem;
+  border-bottom: 1px solid rgba(255, 196, 0, 0.1);
+}
+
+.metricRow:last-child {
+  border-bottom: none;
+}
+
+.metricInput {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 196, 0, 0.3);
+  color: #ffffff;
+  font-size: 0.75rem;
+  padding: 6px 10px;
+  border-radius: 4px;
+  width: 100px;
+  text-align: right;
+  font-family: 'Courier New', monospace;
+}
+
+.metricInput:focus {
+  border-color: rgba(255, 196, 0, 0.5);
+  box-shadow: 0 0 6px rgba(255, 196, 0, 0.2);
+  outline: none;
+}
+
+.metricValue {
+  color: #ffcc00;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+  text-shadow: 0 0 4px rgba(255, 196, 0, 0.3);
+}
+
+/* API Tab Styles */
+.apiControls {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.apiEndpoint,
+.apiMethod {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.apiEndpoint label,
+.apiMethod label {
+  font-size: 0.7rem;
+  color: #cccccc;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.endpointSelect,
+.methodSelect {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 196, 0, 0.3);
+  color: #ffffff;
+  font-size: 0.75rem;
+  padding: 8px 10px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+}
+
+.endpointSelect:focus,
+.methodSelect:focus {
+  border-color: rgba(255, 196, 0, 0.5);
+  box-shadow: 0 0 6px rgba(255, 196, 0, 0.2);
+  outline: none;
+}
+
+/* System Tab Styles */
+.systemMetrics {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 16px 0;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 16px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 196, 0, 0.2);
+}
+
+.systemRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  font-size: 0.8rem;
+  border-bottom: 1px solid rgba(255, 196, 0, 0.1);
+}
+
+.systemRow:last-child {
+  border-bottom: none;
+}
+
+.systemRow > span:first-child {
+  min-width: 120px;
+  color: #cccccc;
+  font-weight: 600;
+}
+
+.systemValue {
+  color: #ffcc00;
+  font-weight: 700;
+  min-width: 100px;
+  font-family: 'Courier New', monospace;
+  text-shadow: 0 0 4px rgba(255, 196, 0, 0.3);
+}
+
+.systemBar {
+  flex: 1;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 196, 0, 0.2);
+}
+
+.systemFill {
+  height: 100%;
+  background: linear-gradient(90deg, #00ff88, #ffcc00, #ff6666);
+  transition: width 0.3s ease;
+  border-radius: 3px;
+}
+
+.statusDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  box-shadow: 0 0 8px currentColor;
+  animation: statusPulse 2s infinite;
+  margin-left: auto;
+}
+
+@keyframes statusPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(0.9); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .expertPopup {
+    width: 95vw;
+    max-height: 90vh;
+  }
+  
+  .expertTabNavigation {
+    flex-wrap: wrap;
+  }
+  
+  .expertSubTab {
+    flex: 1 1 45%;
+    min-width: 120px;
+  }
+  
+  .expertActions {
+    flex-direction: column;
+  }
+  
+  .expertButton {
+    width: 100%;
+  }
+  
+  .apiControls {
+    flex-direction: column;
+  }
+  
+  .systemRow {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .systemBar {
+    width: 100%;
+    order: 3;
+  }
+}
+
+@media (max-width: 480px) {
+  .expertPopup {
+    width: 98vw;
+    max-height: 95vh;
+    border-radius: 6px;
+  }
+  
+  .expertHeader {
+    padding: 12px 16px;
+  }
+  
+  .expertTitle {
+    font-size: 1rem;
+  }
+  
+  .expertContent {
+    padding: 16px;
+  }
+}

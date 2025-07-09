@@ -1,8 +1,5 @@
-/* STARCOM CYBERPUNK THEME - Primary Design System */
-@import './cyberpunk-theme.css';
-
-/* Phase 4 RTS Gaming Theme - Secondary (for compatibility) */
-@import './rts-gaming-theme.css';
+/* STARCOM UNIFIED CYBERPUNK DESIGN SYSTEM */
+@import './starcom-cyberpunk.css';
 
 /* Load custom font with preload optimization */
 @font-face {

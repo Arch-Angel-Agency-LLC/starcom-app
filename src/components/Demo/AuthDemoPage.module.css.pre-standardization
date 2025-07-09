@@ -1,0 +1,340 @@
+/* AuthDemoPage styles */
+
+.demoPage {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Aldrich-Regular', monospace;
+  background: rgba(0, 5, 15, 0.95);
+  min-height: 100vh;
+  color: #ffffff;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(0, 196, 255, 0.3);
+}
+
+.header h1 {
+  color: #00c4ff;
+  margin: 0;
+  font-size: 2rem;
+}
+
+.currentStatus {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  color: #a0a0a0;
+}
+
+.statusInfo {
+  margin-bottom: 40px;
+}
+
+.statusCard {
+  background: rgba(0, 10, 20, 0.8);
+  border: 1px solid rgba(0, 196, 255, 0.3);
+  border-radius: 8px;
+  padding: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.statusCard h3 {
+  margin: 0 0 15px 0;
+  color: #00c4ff;
+}
+
+.statusGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.statusItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.label {
+  color: #a0a0a0;
+  font-size: 0.9rem;
+}
+
+.value {
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.value.success {
+  color: #00ff88;
+}
+
+.value.error {
+  color: #ff6b35;
+}
+
+.value.connected {
+  color: #00ff88;
+}
+
+.value.connecting {
+  color: #ff9900;
+}
+
+.value.idle {
+  color: #a0a0a0;
+}
+
+.demoSection {
+  margin-bottom: 40px;
+}
+
+.demoSection h2 {
+  color: #00c4ff;
+  margin-bottom: 30px;
+  font-size: 1.5rem;
+}
+
+.variantDemo {
+  margin-bottom: 40px;
+  padding: 20px;
+  background: rgba(0, 5, 10, 0.6);
+  border: 1px solid rgba(0, 196, 255, 0.2);
+  border-radius: 8px;
+}
+
+.variantDemo h3 {
+  color: #00c4ff;
+  margin: 0 0 8px 0;
+  font-size: 1.2rem;
+}
+
+.variantDemo p {
+  color: #a0a0a0;
+  margin: 0 0 15px 0;
+  font-size: 0.9rem;
+}
+
+.protectedAction {
+  background: linear-gradient(135deg, #00ff88 0%, #00cc66 100%);
+  color: #000;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: bold;
+}
+
+.protectedAction:hover {
+  background: linear-gradient(135deg, #00cc66 0%, #00ff88 100%);
+  box-shadow: 0 4px 8px rgba(0, 255, 136, 0.3);
+  transform: translateY(-1px);
+}
+
+.premiumFeature {
+  background: rgba(255, 215, 0, 0.1);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+}
+
+.premiumFeature h4 {
+  color: #ffd700;
+  margin: 0 0 10px 0;
+}
+
+.premiumFeature p {
+  color: #ffffff;
+  margin: 0 0 15px 0;
+}
+
+.premiumButton {
+  background: linear-gradient(135deg, #ffd700 0%, #ffb300 100%);
+  color: #000;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: bold;
+}
+
+.premiumButton:hover {
+  background: linear-gradient(135deg, #ffb300 0%, #ffd700 100%);
+  box-shadow: 0 4px 8px rgba(255, 215, 0, 0.3);
+  transform: translateY(-1px);
+}
+
+.blockchainSection {
+  background: rgba(138, 43, 226, 0.1);
+  border: 1px solid rgba(138, 43, 226, 0.3);
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+}
+
+.blockchainSection h4 {
+  color: #9370db;
+  margin: 0 0 10px 0;
+}
+
+.blockchainSection p {
+  color: #ffffff;
+  margin: 0 0 15px 0;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.blockchainAction {
+  background: rgba(138, 43, 226, 0.2);
+  border: 1px solid #9370db;
+  color: #9370db;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.blockchainAction:hover {
+  background: rgba(138, 43, 226, 0.3);
+  box-shadow: 0 0 6px rgba(147, 112, 219, 0.3);
+}
+
+.classifiedSection {
+  background: rgba(220, 20, 60, 0.1);
+  border: 1px solid rgba(220, 20, 60, 0.3);
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+}
+
+.classifiedSection h4 {
+  color: #dc143c;
+  margin: 0 0 10px 0;
+}
+
+.classifiedSection p {
+  color: #ffffff;
+  margin: 0 0 15px 0;
+}
+
+.classifiedButton {
+  background: linear-gradient(135deg, #dc143c 0%, #b91c3c 100%);
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: bold;
+}
+
+.classifiedButton:hover {
+  background: linear-gradient(135deg, #b91c3c 0%, #dc143c 100%);
+  box-shadow: 0 4px 8px rgba(220, 20, 60, 0.3);
+  transform: translateY(-1px);
+}
+
+.footer {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(0, 196, 255, 0.3);
+  text-align: center;
+}
+
+.footer p {
+  color: #a0a0a0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Enhanced demo styles */
+.subDemo {
+  margin-bottom: 20px;
+  padding: 15px;
+  background: rgba(0, 10, 30, 0.5);
+  border-radius: 6px;
+  border: 1px solid rgba(0, 196, 255, 0.2);
+}
+
+.subDemo h4 {
+  margin: 0 0 10px 0;
+  color: #00c4ff;
+  font-size: 1rem;
+}
+
+.publicContent,
+.authenticatedContent,
+.adminContent,
+.marketplaceContent {
+  padding: 15px;
+  border-radius: 6px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.publicContent {
+  background: rgba(0, 255, 0, 0.1);
+  border: 1px solid rgba(0, 255, 0, 0.3);
+  color: #00ff00;
+}
+
+.authenticatedContent {
+  background: rgba(0, 196, 255, 0.1);
+  border: 1px solid rgba(0, 196, 255, 0.3);
+  color: #00c4ff;
+}
+
+.adminContent {
+  background: rgba(255, 215, 0, 0.1);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  color: #ffd700;
+}
+
+.marketplaceContent {
+  background: rgba(138, 43, 226, 0.1);
+  border: 1px solid rgba(138, 43, 226, 0.3);
+  color: #ba55d3;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .demoPage {
+    padding: 15px;
+  }
+  
+  .header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  .statusGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .actionButtons {
+    flex-direction: column;
+    align-items: center;
+  }
+}

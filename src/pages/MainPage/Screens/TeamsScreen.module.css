@@ -1,4 +1,9 @@
 .teamsScreen {
+/* Teams Screen Identity */
+:local(.screen) {
+  --screen-primary: var(--starcom-secondary);
+  --screen-glow: var(--glow-red);
+}
   width: 100%;
   height: 100%;
   background-color: #0a1520;

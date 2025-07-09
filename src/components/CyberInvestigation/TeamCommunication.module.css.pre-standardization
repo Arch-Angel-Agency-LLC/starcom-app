@@ -1,0 +1,4 @@
+/* 
+ * Legacy styles have been removed since this component now uses DecentralizedCollabPanel
+ * We're using a simple wrapper for backward compatibility
+ */

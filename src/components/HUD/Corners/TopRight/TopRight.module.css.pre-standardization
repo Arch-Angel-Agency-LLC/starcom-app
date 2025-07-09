@@ -1,0 +1,7 @@
+/* Improved design for the TopRight component */
+.topRight {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #00C4FF;
+    }

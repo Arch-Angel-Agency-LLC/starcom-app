@@ -1,4 +1,9 @@
 /* TeamsContainer.module.css */
+/* Teams Screen Identity */
+:local(.screen) {
+  --screen-primary: var(--starcom-secondary);
+  --screen-glow: var(--glow-red);
+}
 .teamsContainer {
   display: flex;
   flex-direction: column;

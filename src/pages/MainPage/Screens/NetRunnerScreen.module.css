@@ -1,4 +1,9 @@
 /* NETRUNNER CYBERPUNK GREEN THEME */
+/* NetRunner Screen Identity */
+:local(.screen) {
+  --screen-primary: var(--starcom-accent);
+  --screen-glow: var(--glow-green);
+}
 .netRunnerScreen {
   width: 100%;
   height: 100%;
