@@ -5,9 +5,25 @@ import { useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
 import { IntelReportOverlayMarker } from '../interfaces/IntelReportOverlay';
 import { assetLoader } from '../utils/assetLoader';
+import DeploymentDebugger from '../utils/deploymentDebugger';
 
 // Import GLB asset using Vite's asset handling for static deployment compatibility
 import intelReportModelUrl from '../assets/models/intel_report-01d.glb?url';
+
+// Log the GLB URL resolution for debugging
+DeploymentDebugger.pathResolution(
+  intelReportModelUrl,
+  intelReportModelUrl, // With Vite imports, this is already the resolved URL
+  'Intel Report 3D Model'
+);
+
+// Run comprehensive diagnostics in production (Vercel)
+if (import.meta.env.PROD) {
+  // Wait for DOM to be ready
+  window.addEventListener('DOMContentLoaded', () => {
+    DeploymentDebugger.runComprehensiveDiagnostics(intelReportModelUrl);
+  });
+}
 
 // Default scale constant for Intel Report models
 const DEFAULT_INTEL_REPORT_SCALE = 4.0; // Make models visible and interactive
@@ -53,7 +69,35 @@ export const useIntelReport3DMarkers = (
   // Load the GLB model once using robust asset loader
   useEffect(() => {
     const loadModel = async () => {
+      // Log the model loading attempt with the debugging utility
+      DeploymentDebugger.assetLoading(
+        intelReportModelUrl,
+        '3D GLB Model',
+        'loading',
+        undefined,
+        { scale, useCase: 'Intel Report Markers' }
+      );
+      
       try {
+        // Explicitly log the absolute URL
+        const absoluteUrl = new URL(intelReportModelUrl, window.location.origin).href;
+        DeploymentDebugger.log(
+          `Attempting to load 3D model from: ${intelReportModelUrl} (resolved as ${absoluteUrl})`,
+          { modelUrl: intelReportModelUrl, absoluteUrl },
+          { category: DeploymentDebugger.categories.MODEL_LOADING }
+        );
+        
+        // Try to fetch the model URL directly to verify it exists
+        try {
+          await DeploymentDebugger.testUrlAccessibility(intelReportModelUrl, 'Intel Report 3D Model');
+        } catch (fetchError) {
+          DeploymentDebugger.log(
+            'Direct fetch test failed for model URL. Will still attempt to load through Three.js',
+            { fetchError },
+            { category: DeploymentDebugger.categories.ERRORS, level: 'warn' }
+          );
+        }
+        
         const model = await assetLoader.loadModel(intelReportModelUrl, {
           scale,
           fallbackColor: 0xff6b35,
@@ -63,9 +107,66 @@ export const useIntelReport3DMarkers = (
         });
         
         setGltfModel(model);
+        
+        // Log success
+        DeploymentDebugger.assetLoading(
+          intelReportModelUrl,
+          '3D GLB Model',
+          'success',
+          undefined,
+          { scale, modelDetails: { uuid: model?.uuid } }
+        );
+        
+        DeploymentDebugger.log(
+          'Intel Report 3D model loaded successfully',
+          { model },
+          { category: DeploymentDebugger.categories.MODEL_LOADING }
+        );
+        
         console.log('Intel Report 3D model loaded successfully');
       } catch (error) {
+        // Log detailed error information
+        DeploymentDebugger.assetLoading(
+          intelReportModelUrl,
+          '3D GLB Model',
+          'error',
+          error,
+          { scale, failureDetails: { attempt: 'primary' } }
+        );
+        
+        DeploymentDebugger.log(
+          'Error loading Intel Report 3D model',
+          { error, modelUrl: intelReportModelUrl },
+          { category: DeploymentDebugger.categories.ERRORS, level: 'error' }
+        );
+        
         console.error('Error loading Intel Report 3D model:', error);
+        
+        // Provide fallback suggestions in the console
+        DeploymentDebugger.log(
+          '🔍 GLB Model Loading Troubleshooting Guide',
+          {
+            suggestions: [
+              '1. Verify the model file exists in the public/models directory',
+              '2. Check that the file name and extension are correct (case sensitive)',
+              '3. Make sure the path in vercelignore is not excluding this file',
+              '4. Try moving the GLB file to /public at the root level',
+              '5. Check network tab for 404 errors on the GLB file',
+              '6. Verify MIME types configuration in Vercel for .glb files',
+            ],
+            possiblePaths: [
+              '/models/intel_report-01d.glb',
+              '/public/models/intel_report-01d.glb',
+              '/assets/models/intel_report-01d.glb',
+              '/src/assets/models/intel_report-01d.glb',
+            ]
+          },
+          { 
+            category: DeploymentDebugger.categories.ERRORS, 
+            level: 'error',
+            expanded: true
+          }
+        );
       }
     };
 
