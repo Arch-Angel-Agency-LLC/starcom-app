@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useFloatingPanels } from './FloatingPanelContext';
 import { useEcoNaturalSettings } from '../../../hooks/useEcoNaturalSettings';
 import { useFeatureFlag } from '../../../utils/featureFlags';
-import { NOAA_VISUALIZATIONS } from '../Bars/LeftSideBar/NOAAVisualizationConfig';
+import { NOAA_VISUALIZATIONS } from '../Bars/CyberCommandLeftSideBar/NOAAVisualizationConfig';
 import AuroraPanel from './panels/AuroraPanel';
 import SolarFlarePanel from './panels/SolarFlarePanel';
 

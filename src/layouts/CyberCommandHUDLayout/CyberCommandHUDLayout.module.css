@@ -1,0 +1,194 @@
+.cyberCommandHudLayout {
+  height: 100vh;
+  width: 100vw; /* Ensure full width of the viewport */
+  position: relative;
+  pointer-events: none; /* Allow clicks to pass through */
+}
+
+/* Special styling for embedded mode */
+.embeddedMode {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.hudLayout > div {
+  pointer-events: none; /* Allow clicks to pass through */
+}
+
+.topLeftCorner, .topRightCorner,
+.bottomLeftCorner, .bottomRightCorner {
+  position: absolute;
+  z-index: 10; /* Corners take priority for z-space */
+  background: rgba(0, 0, 0, 0); /* transparent background */
+  pointer-events: auto; /* Enable clicks on HUD components */
+  width: 20%;
+  height: 20%;
+}
+
+/* Adjust corner positions for embedded mode */
+.embeddedMode .topLeftCorner {
+  top: 0;
+  left: 0;
+  width: 15%;
+  height: 15%;
+}
+
+.embeddedMode .topRightCorner {
+  top: 5%;
+  right: 5%;
+  width: 80px;
+  height: 80px;
+}
+
+.embeddedMode .bottomLeftCorner {
+  bottom: 2%;
+  left: 3%;
+}
+
+.embeddedMode .bottomRightCorner {
+  bottom: 2%;
+  right: 5%;
+}
+
+.topLeftCorner {
+  top: 0;
+  left: 0;
+}
+
+.topRightCorner {
+  top: 10%;
+  right: 8%; /* Matches the RightSideBar width */
+  width: 120px;
+  height: 120px;
+}
+
+.bottomLeftCorner {
+  bottom: 3%;
+  left: 6%; /* Ensure it aligns with the left side */
+  pointer-events: auto; /* Enable clicks on HUD components */
+}
+
+.bottomRightCorner {
+  bottom: 3%;
+  right: 8%;
+  background: transparent;
+}
+
+.topBar {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.0); /* transparent background */
+  pointer-events: auto; /* Enable clicks on HUD components */
+  z-index: 3;
+  top: 0;
+  width: 100%;
+  height: 5%;
+  pointer-events: auto; /* Enable clicks on HUD components */
+}
+
+.leftSideBar, .rightSideBar {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.0); /* transparent background */
+  pointer-events: auto; /* Enable clicks on HUD components */
+}
+
+.leftSideBar {
+  position: absolute;
+  z-index: 1001; /* Match the LeftSideBar component z-index */
+  top: 0;
+  left: 0;
+  width: 128px; /* Match the actual LeftSideBar width */
+  bottom: 0; /* Stretch all the way to bottom - no BottomBar interference */
+}
+
+.rightSideBar {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: auto; /* Let the sidebar component control its own width */
+  z-index: 1000; /* Higher z-index for proper layering */
+  pointer-events: auto;
+}
+
+/* Adjust sidebars for embedded mode */
+.embeddedMode .leftSideBar {
+  width: 128px;
+}
+
+.embeddedMode .rightSideBar {
+  width: auto;
+}
+
+.center {
+  position: absolute;
+  top: 5%; /* Below TopBar */
+  left: 128px; /* Right of LeftSideBar (128px wide) */
+  right: 120px; /* Left of RightSideBar (120px wide) */
+  bottom: 0; /* Extend to bottom - no BottomBar */
+  overflow: hidden;
+  pointer-events: auto;
+  z-index: 1; /* Base layer */
+}
+
+/* Adjust center area for embedded mode */
+.embeddedMode .center {
+  top: 5%; /* Below TopBar */
+  left: 128px;
+  right: 120px;
+  bottom: 0; /* Extend to bottom - no embedded BottomBar */
+  position: absolute;
+}
+
+.embeddedCenter {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  top: 5% !important; /* Below TopBar */
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important; /* Extend to bottom */
+  width: 100% !important;
+  height: calc(100% - 5%) !important; /* Account for TopBar */
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 10, 30, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  backdrop-filter: blur(5px);
+  pointer-events: auto;
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 1200px) {
+  .center {
+    left: 110px; /* Maintain LeftSideBar width */
+    right: 100px; /* Smaller right margin on smaller screens */
+  }
+}
+
+@media (max-width: 768px) {
+  .leftSideBar {
+    width: 100px; /* Smaller LeftSideBar on mobile */
+  }
+  
+  .center {
+    top: 8%; /* More space for mobile top bar */
+    left: 100px; /* Match mobile LeftSideBar width */
+    right: 60px;
+    bottom: 0; /* Extend to bottom - no BottomBar */
+  }
+}

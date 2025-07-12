@@ -1,28 +1,27 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useView } from '../../context/useView';
+import { useEnhancedApplicationRouter } from '../../hooks/useEnhancedApplicationRouter';
+import WalletStatusMini from '../Auth/WalletStatusMini';
 import styles from './GlobalHeader.module.css';
+
+const wingCommanderLogo = '/assets/images/WingCommanderLogo-288x162.gif';
 
 interface GlobalHeaderProps {
   hasNotifications?: boolean;
-  teamName?: string;
-  userAvatar?: string;
 }
 
 // Simple search result type for demo
 interface SearchResult {
   id: string;
-  type: 'screen' | 'case' | 'report' | 'entity' | 'command';
+  type: 'app' | 'case' | 'report' | 'entity' | 'command';
   title: string;
   description: string;
   action?: () => void;
 }
 
 const GlobalHeader: React.FC<GlobalHeaderProps> = ({
-  hasNotifications = false,
-  teamName = 'Personal Workspace',
-  userAvatar
+  hasNotifications = false
 }) => {
-  const { navigateToScreen, navigateToPage } = useView();
+  const { navigateToApp } = useEnhancedApplicationRouter();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -36,35 +35,35 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({
     { id: 3, type: 'message', message: 'New message from Team Alpha', time: 'Yesterday' },
   ];
   
-  // Mock search results for demo
+  // Mock search results for demo - using Enhanced Application Router
   const mockSearchResults: SearchResult[] = [
     { 
-      id: 'globe', 
-      type: 'screen', 
-      title: 'Globe View', 
+      id: 'cybercommand', 
+      type: 'app', 
+      title: 'CyberCommand Globe', 
       description: 'Global threat visualization interface',
-      action: () => navigateToScreen('globe')
+      action: () => navigateToApp('cybercommand')
     },
     { 
       id: 'netrunner', 
-      type: 'screen', 
+      type: 'app', 
       title: 'NetRunner', 
       description: 'Advanced intelligence gathering tools',
-      action: () => navigateToScreen('netrunner')
+      action: () => navigateToApp('netrunner')
     },
     { 
-      id: 'settings', 
-      type: 'screen', 
-      title: 'Settings', 
-      description: 'Application configuration',
-      action: () => navigateToPage('settings')
+      id: 'intelanalyzer', 
+      type: 'app', 
+      title: 'IntelAnalyzer', 
+      description: 'Intelligence analysis and reporting',
+      action: () => navigateToApp('intelanalyzer')
     },
     { 
       id: 'case-123', 
       type: 'case', 
       title: 'Operation Firewall', 
       description: 'Active investigation: Network breach',
-      action: () => navigateToScreen('casemanager', { caseId: '123' })
+      action: () => navigateToApp('teamworkspace') // Navigate to team workspace for case management
     },
     { 
       id: 'cmd-search', 
@@ -90,6 +89,12 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({
     } else {
       setSearchResults([]);
     }
+  };
+  
+  // Simple settings handler for future implementation
+  const handleOpenSettings = () => {
+    console.log('Settings clicked - placeholder for future settings implementation');
+    // TODO: Implement general application settings
   };
   
   // Close search when clicking outside
@@ -145,8 +150,15 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({
   return (
     <header className={styles.globalHeader}>
       <div className={styles.logoSection}>
-        <div className={styles.logo}>STARCOM</div>
-        <div className={styles.version}>v2.5</div>
+        <img 
+          src={wingCommanderLogo} 
+          alt="Wing Commander Logo" 
+          className={styles.wingCommanderLogo} 
+        />
+        <div className={styles.textLogo}>
+          <div className={styles.logo}>STARCOM</div>
+          <div className={styles.version}>v2.5</div>
+        </div>
       </div>
       
       <div className={styles.searchSection}>
@@ -176,7 +188,7 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({
                   }}
                 >
                   <div className={styles.searchResultIcon}>
-                    {result.type === 'screen' ? '🖥️' : 
+                    {result.type === 'app' ? '🖥️' : 
                      result.type === 'case' ? '📁' : 
                      result.type === 'report' ? '📊' : 
                      result.type === 'entity' ? '👤' : '⌨️'}
@@ -194,11 +206,6 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({
       </div>
       
       <div className={styles.actionsSection}>
-        <div className={styles.teamInfo}>
-          <span className={styles.teamLabel}>Team:</span>
-          <span className={styles.teamName}>{teamName}</span>
-        </div>
-        
         <button 
           className={`${styles.iconButton} ${hasNotifications ? styles.hasNotifications : ''}`}
           onClick={() => setShowNotifications(!showNotifications)}
@@ -232,23 +239,15 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({
         
         <button 
           className={styles.iconButton}
-          onClick={() => navigateToScreen('teams')}
-          aria-label="Teams"
+          onClick={handleOpenSettings}
+          aria-label="Settings"
         >
-          👥
+          ⚙️
         </button>
         
-        <button 
-          className={styles.profileButton}
-          onClick={() => navigateToPage('settings', 'profile')}
-          aria-label="User profile"
-        >
-          {userAvatar ? (
-            <img src={userAvatar} alt="User avatar" className={styles.avatarImage} />
-          ) : (
-            <div className={styles.avatarPlaceholder}>U</div>
-          )}
-        </button>
+        <div className={styles.walletSection}>
+          <WalletStatusMini />
+        </div>
       </div>
     </header>
   );

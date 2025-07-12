@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import CompactNOAAControls from '../Bars/LeftSideBar/CompactNOAAControls';
-import { NOAA_VISUALIZATIONS } from '../Bars/LeftSideBar/NOAAVisualizationConfig';
+import CompactNOAAControls from '../Bars/CyberCommandLeftSideBar/CompactNOAAControls';
+import { NOAA_VISUALIZATIONS } from '../Bars/CyberCommandLeftSideBar/NOAAVisualizationConfig';
 import styles from './NOAAPopup.module.css';
 
 // AI-NOTE: Enhanced NOAA popup with progressive disclosure and improved UX

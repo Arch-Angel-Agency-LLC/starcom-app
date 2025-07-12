@@ -1,19 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { motion } from 'framer-motion';
-import { Search, Map, Network, Clock, Terminal, FileText, Shield, Eye, Command } from 'lucide-react';
+import { Search, Network, Shield, Eye } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { usePopup } from '../../components/Popup/PopupManager';
 import styles from './OSINTDashboard.module.css';
-
-// Panel components
-import { SearchPanel } from './components/panels/SearchPanel';
-import { ResultsPanel } from './components/panels/ResultsPanel';
-import { GraphPanel } from './components/panels/GraphPanel';
-import { TimelinePanel } from './components/panels/TimelinePanel';
-import { MapPanel } from './components/panels/MapPanel';
-import { BlockchainPanel } from './components/panels/BlockchainPanel';
-import { DarkWebPanel } from './components/panels/DarkWebPanel';
-import { OPSECPanel } from './components/panels/OPSECPanel';
 
 // OSINT components
 import { OSINTSearchBar } from './components/OSINTSearchBar';
@@ -22,6 +11,7 @@ import { OSINTToolbar } from './components/OSINTToolbar';
 import { CommandPalette } from './components/CommandPalette';
 import { ThreatIndicators } from './components/ThreatIndicators';
 import { InvestigationSelector } from './components/InvestigationSelector';
+import { ProviderConfigurationPanel } from './components/ProviderConfigurationPanel';
 
 // Types
 import { Panel, PanelType, Investigation, OSINTMode } from './types/osint';
@@ -42,11 +32,19 @@ const OSINTDashboard: React.FC = () => {
   const [activeMode, setActiveMode] = useState<OSINTMode>('search');
   const [activeInvestigation, setActiveInvestigation] = useState<Investigation | null>(null);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  const [isProviderConfigOpen, setIsProviderConfigOpen] = useState(false);
   const [panels, setPanels] = useState<Panel[]>([
+    // Left side - Search and Results (3 units wide)
     { id: 'search-1', type: 'search', position: { x: 0, y: 0, w: 3, h: 2 }, data: {}, locked: false },
     { id: 'results-1', type: 'results', position: { x: 0, y: 2, w: 3, h: 8 }, data: {}, locked: false },
-    { id: 'graph-1', type: 'graph', position: { x: 3, y: 0, w: 9, h: 6 }, data: {}, locked: false },
-    { id: 'timeline-1', type: 'timeline', position: { x: 3, y: 6, w: 9, h: 4 }, data: {}, locked: false },
+    
+    // Center - Graph and Timeline (6 units wide)
+    { id: 'graph-1', type: 'graph', position: { x: 3, y: 0, w: 6, h: 6 }, data: {}, locked: false },
+    { id: 'timeline-1', type: 'timeline', position: { x: 3, y: 6, w: 6, h: 4 }, data: {}, locked: false },
+    
+    // Right side - Intelligence Summary and Quick Actions (3 units wide)
+    { id: 'intelligence-summary-1', type: 'intelligence-summary', position: { x: 9, y: 0, w: 3, h: 6 }, data: {}, locked: false },
+    { id: 'quick-actions-1', type: 'quick-actions', position: { x: 9, y: 6, w: 3, h: 4 }, data: {}, locked: false },
   ]);
   
   // Load saved layout from localStorage if available
@@ -144,19 +142,34 @@ const OSINTDashboard: React.FC = () => {
     setActiveMode(mode);
   }, [isAuthenticated, showPopup]);
 
+  // Handle provider configuration
+  const handleOpenProviderConfig = useCallback(() => {
+    setIsProviderConfigOpen(true);
+  }, []);
+
+  const handleCloseProviderConfig = useCallback(() => {
+    setIsProviderConfigOpen(false);
+  }, []);
+
   // Create new investigation
   const handleCreateInvestigation = useCallback(() => {
-    // Check our Investigation type definition to ensure we create a valid object
-    const newInvestigation: Investigation = {
+    // Create a basic investigation object
+    const newInvestigation = {
       id: `inv-${Date.now()}`,
-      name: 'New Investigation',
+      title: 'New Investigation',
       description: 'Created ' + new Date().toLocaleString(),
-      created: new Date(),
-      modified: new Date(),
+      entities: [],
+      relationships: [],
+      timeline: [],
+      searches: [],
+      notes: [],
       tags: ['new'],
-      shared: [],
-      status: 'active'
-    };
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      owner: 'current-user',
+      collaborators: [],
+      status: 'active' as const
+    } as Investigation;
     
     setActiveInvestigation(newInvestigation);
     showPopup({
@@ -189,10 +202,17 @@ const OSINTDashboard: React.FC = () => {
         // Reset layout logic
         localStorage.removeItem('starcom-osint-layout');
         setPanels([
+          // Left side - Search and Results (3 units wide)
           { id: 'search-1', type: 'search', position: { x: 0, y: 0, w: 3, h: 2 }, data: {}, locked: false },
           { id: 'results-1', type: 'results', position: { x: 0, y: 2, w: 3, h: 8 }, data: {}, locked: false },
-          { id: 'graph-1', type: 'graph', position: { x: 3, y: 0, w: 9, h: 6 }, data: {}, locked: false },
-          { id: 'timeline-1', type: 'timeline', position: { x: 3, y: 6, w: 9, h: 4 }, data: {}, locked: false },
+          
+          // Center - Graph and Timeline (6 units wide)
+          { id: 'graph-1', type: 'graph', position: { x: 3, y: 0, w: 6, h: 6 }, data: {}, locked: false },
+          { id: 'timeline-1', type: 'timeline', position: { x: 3, y: 6, w: 6, h: 4 }, data: {}, locked: false },
+          
+          // Right side - Intelligence Summary and Quick Actions (3 units wide)
+          { id: 'intelligence-summary-1', type: 'intelligence-summary', position: { x: 9, y: 0, w: 3, h: 6 }, data: {}, locked: false },
+          { id: 'quick-actions-1', type: 'quick-actions', position: { x: 9, y: 6, w: 3, h: 4 }, data: {}, locked: false },
         ]);
         break;
       case 'new-investigation':
@@ -246,12 +266,16 @@ const OSINTDashboard: React.FC = () => {
       </div>
 
       {/* Toolbar */}
-      <OSINTToolbar onAddPanel={handleAddPanel} />
+      <OSINTToolbar 
+        onAddPanel={handleAddPanel}
+        onOpenSettings={handleOpenProviderConfig}
+      />
       
       {/* Investigation Selector */}
       <InvestigationSelector 
         activeInvestigation={activeInvestigation}
         onSelectInvestigation={setActiveInvestigation}
+        onCreateInvestigation={handleCreateInvestigation}
       />
 
       {/* Main Workspace */}
@@ -273,7 +297,7 @@ const OSINTDashboard: React.FC = () => {
       <div className={styles.statusBar}>
         <div className={styles.statusItems}>
           <span className={styles.statusActive}>● SECURE CONNECTION</span>
-          <span>Investigation: {activeInvestigation?.name || 'None'}</span>
+          <span>Investigation: {activeInvestigation?.title || 'None'}</span>
         </div>
         <div className={styles.statusItems}>
           <span>Entities: 0</span>
@@ -281,6 +305,16 @@ const OSINTDashboard: React.FC = () => {
           <span>Cache: {Math.floor(Math.random() * 100)}MB</span>
         </div>
       </div>
+      
+      {/* Provider Configuration Panel */}
+      <ProviderConfigurationPanel
+        isOpen={isProviderConfigOpen}
+        onClose={handleCloseProviderConfig}
+        onConfigChange={() => {
+          // Refresh any relevant data when config changes
+          console.log('Provider configuration updated');
+        }}
+      />
     </div>
   );
 };

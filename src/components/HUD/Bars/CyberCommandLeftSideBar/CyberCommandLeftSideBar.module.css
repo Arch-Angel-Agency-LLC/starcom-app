@@ -1,0 +1,96 @@
+.cyberCommandLeftSideBar {
+  background: linear-gradient(135deg, rgba(0, 10, 20, 0.95) 0%, rgba(0, 25, 50, 0.9) 100%);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(0, 196, 255, 0.3);
+  border-left: none; /* Remove left border to hug screen edge */
+  border-radius: 0 5px 5px 0; /* Only round right corners */
+  padding: 2px; /* Reduced padding for compact view */
+  box-shadow: 2px 0 20px rgba(0, 0, 0, 0.5); /* Improved shadow to match right sidebar */
+  color: #00C4FF; /* Neon Blue text */
+  font-family: 'Orbitron', Arial, sans-serif; /* Futuristic font */
+  width: 128px; /* Expanded width for better usability */
+  height: 100vh; /* Full viewport height - stretch to bottom */
+  position: fixed; /* Fixed position to establish dominance */
+  top: 0;
+  bottom: 0; /* Stretch all the way to bottom */
+  left: 0;
+  pointer-events: auto; /* Allow interaction */
+  overflow-x: hidden; /* Allow scrolling for compact content */
+  overflow-y: auto; /* Allow vertical scrolling if needed */
+  z-index: 1001; /* Higher than other elements to maintain dominance */
+  transition: background 0.3s ease; /* Smooth background transitions */
+  transform: translateZ(0); /* Force GPU acceleration */
+}
+
+.cyberCommandLeftSideBar:hover {
+  background: linear-gradient(135deg, rgba(0, 15, 30, 0.98) 0%, rgba(0, 35, 70, 0.95) 100%);
+  border-color: rgba(0, 196, 255, 0.6);
+}
+
+.header {
+  font-size: 24px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #00C4FF; /* Neon Blue */
+  text-shadow: 0 0 2px #00C4FF; /* Glow effect */
+  margin-bottom: 10px;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px; /* Reduced gap for compact layout */
+  width: 100%;
+}
+
+.text {
+  font-size: 14px;
+  color: #A0A0A0; /* Neutral Gray */
+}
+
+.tinyGlobePlaceholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 80px;
+  width: 80px;
+  background: rgba(0, 196, 255, 0.1);
+  border: 1px solid #00C4FF;
+  border-radius: 50%;
+  color: #00C4FF;
+  font-size: 10px;
+  text-align: center;
+  margin: 5px auto;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+
+.adaptiveSection {
+  width: 100%;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(0, 196, 255, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Responsive design for LeftSideBar */
+@media (max-width: 768px) {
+  .cyberCommandLeftSideBar {
+    width: 100px; /* Smaller width on mobile but still usable */
+  }
+  
+  .tinyGlobePlaceholder {
+    height: 60px;
+    width: 60px;
+    font-size: 8px;
+  }
+}

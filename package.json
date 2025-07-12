@@ -7,6 +7,7 @@
     "dev": "vite",
     "dev:clean": "rm -rf node_modules/.vite && VITE_ENTRY=index.html vite --force",
     "build": "NODE_OPTIONS='--max-old-space-size=8192' vite build",
+    "build:vercel": "NODE_OPTIONS='--max-old-space-size=8192' vite build --mode production",
     "build:strict": "NODE_OPTIONS='--max-old-space-size=8192' tsc -b && NODE_OPTIONS='--max-old-space-size=8192' vite build",
     "build:local": "NODE_OPTIONS='--max-old-space-size=8192' vite build",
     "build:check": "NODE_OPTIONS='--max-old-space-size=8192' tsc -b && NODE_OPTIONS='--max-old-space-size=8192' vite build",

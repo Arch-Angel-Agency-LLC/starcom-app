@@ -1,0 +1,324 @@
+/* Intelligence Summary Panel - Earth Alliance Cyber Command Styling */
+
+.intelligenceSummaryPanel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: rgba(0, 20, 35, 0.95);
+  border: 1px solid rgba(0, 204, 255, 0.2);
+  border-radius: 0.25rem;
+  font-family: var(--font-family-display);
+  color: var(--text-color-primary);
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background-color: rgba(0, 40, 60, 0.7);
+  border-bottom: 1px solid rgba(0, 204, 255, 0.2);
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05rem;
+  color: var(--accent-color);
+}
+
+.titleIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.lastUpdated {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.tabs {
+  display: flex;
+  background-color: rgba(0, 30, 50, 0.8);
+  border-bottom: 1px solid rgba(0, 204, 255, 0.1);
+}
+
+.tab {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  background-color: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 2px solid transparent;
+}
+
+.tab:hover {
+  background-color: rgba(0, 50, 80, 0.5);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.activeTab {
+  background-color: rgba(0, 60, 90, 0.4);
+  color: var(--accent-color) !important;
+  border-bottom-color: var(--accent-color);
+}
+
+.content {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+/* Overview Tab Styles */
+.overviewTab {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.statCard {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background-color: rgba(0, 40, 60, 0.4);
+  border: 1px solid rgba(0, 204, 255, 0.1);
+  border-radius: 0.25rem;
+  transition: all 0.2s ease;
+}
+
+.statCard:hover {
+  border-color: rgba(0, 204, 255, 0.3);
+  background-color: rgba(0, 50, 80, 0.5);
+}
+
+.statIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--accent-color);
+}
+
+.statInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.statNumber {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--accent-color);
+}
+
+.statLabel {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.05rem;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sectionTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--accent-color);
+  text-transform: uppercase;
+  letter-spacing: 0.05rem;
+  margin: 0;
+}
+
+.findingsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.findingItem {
+  padding: 0.75rem;
+  background-color: rgba(0, 30, 50, 0.6);
+  border: 1px solid rgba(0, 204, 255, 0.1);
+  border-radius: 0.25rem;
+  transition: all 0.2s ease;
+}
+
+.findingItem:hover {
+  border-color: rgba(0, 204, 255, 0.3);
+  background-color: rgba(0, 40, 60, 0.7);
+}
+
+.findingHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.findingTitle {
+  flex: 1;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-color-primary);
+}
+
+.relevanceScore {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--warning-color);
+  padding: 0.125rem 0.375rem;
+  background-color: rgba(255, 193, 7, 0.1);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  border-radius: 0.125rem;
+}
+
+.relevanceScore.verified {
+  color: var(--success-color);
+  background-color: rgba(40, 167, 69, 0.1);
+  border-color: rgba(40, 167, 69, 0.3);
+}
+
+.findingDetail {
+  margin: 0;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.4;
+}
+
+/* Threats Tab Styles */
+.threatsTab {
+  display: flex;
+  flex-direction: column;
+}
+
+.threatsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.threatItem {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background-color: rgba(0, 30, 50, 0.6);
+  border: 1px solid rgba(0, 204, 255, 0.1);
+  border-radius: 0.25rem;
+  transition: all 0.2s ease;
+}
+
+.threatItem:hover {
+  border-color: rgba(0, 204, 255, 0.3);
+  background-color: rgba(0, 40, 60, 0.7);
+}
+
+.threatIndicator {
+  width: 0.25rem;
+  border-radius: 0.125rem;
+  flex-shrink: 0;
+}
+
+.threatContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.threatHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.threatTitle {
+  flex: 1;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-color-primary);
+  line-height: 1.3;
+}
+
+.threatSource {
+  font-size: 0.7rem;
+  color: var(--accent-color);
+  background-color: rgba(0, 204, 255, 0.1);
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05rem;
+  white-space: nowrap;
+}
+
+.threatDescription {
+  margin: 0;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.4;
+}
+
+.threatFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.7rem;
+}
+
+.threatConfidence {
+  color: var(--warning-color);
+  font-weight: 600;
+}
+
+.threatTime {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Placeholder Styles */
+.placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.5);
+  gap: 1rem;
+}
+
+.placeholder svg {
+  color: rgba(0, 204, 255, 0.3);
+}
+
+.placeholder p {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.subtext {
+  font-size: 0.75rem !important;
+  font-weight: 400 !important;
+  color: rgba(255, 255, 255, 0.4) !important;
+}

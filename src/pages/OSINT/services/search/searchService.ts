@@ -2,12 +2,13 @@
  * OSINT Search Service
  * 
  * Provides universal search functionality across all OSINT data sources.
- * Orchestrates queries to different search providers and consolidates results.
+ * Enhanced to integrate with NetRunner's unified API configuration for real intelligence gathering.
  */
 
 import { osintApi, ApiResponse } from '../api/osintApi';
 import osintEndpoints from '../api/endpoints';
 import { SearchQuery, SearchResult } from '../../types/osint';
+import { enhancedSearchService } from './enhancedSearchService';
 
 /**
  * Search provider configuration
@@ -22,7 +23,7 @@ interface SearchProviderConfig {
 }
 
 /**
- * Available search providers
+ * Available search providers (for backward compatibility)
  */
 const searchProviders: SearchProviderConfig[] = [
   {
@@ -60,10 +61,12 @@ const searchProviders: SearchProviderConfig[] = [
 ];
 
 /**
- * Search service for OSINT operations
+ * Enhanced Search service for OSINT operations
+ * Now uses the enhanced search service that integrates NetRunner adapters
  */
 class SearchService {
   private providers: SearchProviderConfig[];
+  private useEnhancedSearch: boolean = true;
   
   constructor(providers: SearchProviderConfig[] = searchProviders) {
     this.providers = providers;
@@ -71,13 +74,33 @@ class SearchService {
   
   /**
    * Execute a universal search across all enabled providers
+   * Now routes through enhanced search service for real API integration
    */
   async search(query: SearchQuery): Promise<SearchResult[]> {
     // For empty queries, return empty results
     if (!query.text.trim()) {
       return [];
     }
-    
+
+    // Use enhanced search service if available and enabled
+    if (this.useEnhancedSearch) {
+      try {
+        console.log('🔍 Using enhanced search service with real API integration');
+        return await enhancedSearchService.search(query);
+      } catch (error) {
+        console.warn('Enhanced search failed, falling back to legacy search:', error);
+        // Fall back to legacy search on error
+      }
+    }
+
+    // Legacy search implementation (for fallback)
+    return this.legacySearch(query);
+  }
+
+  /**
+   * Legacy search implementation (maintained for fallback)
+   */
+  private async legacySearch(query: SearchQuery): Promise<SearchResult[]> {
     // Determine which providers to use based on filters and authentication
     const enabledProviders = this.providers.filter(provider => {
       // Skip disabled providers
@@ -110,7 +133,7 @@ class SearchService {
     try {
       // Execute searches in parallel
       const searchPromises = enabledProviders.map(provider => 
-        osintApi.post<SearchResult[]>(provider.endpoint, query, {
+        osintApi.post<SearchResult[]>(provider.endpoint, { ...query } as Record<string, unknown>, {
           requiresAuth: provider.requiresAuth
         }).catch(error => {
           console.error(`Error searching provider ${provider.id}:`, error);
@@ -201,6 +224,34 @@ class SearchService {
       console.error('Error fetching search history:', error);
       throw error; // Re-throw to be handled by the hook
     }
+  }
+
+  /**
+   * Enable or disable enhanced search
+   */
+  setEnhancedSearch(enabled: boolean): void {
+    this.useEnhancedSearch = enabled;
+  }
+
+  /**
+   * Check if enhanced search is enabled
+   */
+  isEnhancedSearchEnabled(): boolean {
+    return this.useEnhancedSearch;
+  }
+
+  /**
+   * Get enhanced search service providers
+   */
+  getEnhancedProviders() {
+    return enhancedSearchService.getProviders();
+  }
+
+  /**
+   * Get enhanced search service real API providers
+   */
+  getRealApiProviders() {
+    return enhancedSearchService.getRealApiProviders();
   }
   
   /**
