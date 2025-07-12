@@ -1,319 +1,346 @@
 /**
- * NetRunner Center View - Website Code Analysis Interface
+ * NetRunner Center View - Advanced OSINT Analysis Interface
  * 
- * Specialized web view for reviewing website code from scanning websites.
- * Comprehensive website analysis interface with vulnerability scanning and OSINT data extraction.
+ * Military-grade command center for comprehensive intelligence operations.
+ * Multi-tab interface supporting website scanning, OSINT crawling, and intelligence correlation.
  * 
  * @author GitHub Copilot
- * @date July 11, 2025
+ * @date July 12, 2025
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Typography,
   TextField,
   Button,
   LinearProgress,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
   Tabs,
   Tab,
   Card,
   CardContent,
   Chip,
   IconButton,
-  Tooltip
+  Tooltip,
+  Alert,
+  Paper,
+  Divider,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemIcon
 } from '@mui/material';
 import {
   Globe,
   Search,
-  Code,
   Shield,
   AlertTriangle,
   CheckCircle,
   XCircle,
-  ChevronDown,
-  Download,
-  Copy,
-  Eye,
-  Database,
   Target,
-  Activity
+  Activity,
+  Radar,
+  Brain,
+  Network,
+  Lock,
+  Zap,
+  FileText,
+  ExternalLink,
+  Clock,
+  Users,
+  Mail,
+  Bug
 } from 'lucide-react';
 import { websiteScanner, type ScanResult } from '../../services/WebsiteScanner';
+import { advancedOSINTCrawler, type CrawlResult } from '../../services/AdvancedOSINTCrawler';
 
 interface NetRunnerCenterViewProps {
   width: string;
   height: string;
 }
 
-interface WebsiteData {
-  url: string;
-  title: string;
-  status: 'scanning' | 'completed' | 'error';
+// Enhanced interface definitions for military-grade operations
+interface OperationStatus {
+  type: 'idle' | 'scanning' | 'crawling' | 'analyzing' | 'completed' | 'error';
   progress: number;
-  sourceCode: string;
-  vulnerabilities: Vulnerability[];
-  osintData: OSINTData;
-  metadata: WebsiteMetadata;
+  currentTask: string;
+  startTime?: number;
+  estimatedCompletion?: number;
 }
 
-interface Vulnerability {
+interface TargetIntelligence {
+  url: string;
+  domain: string;
+  classification: 'unclassified' | 'confidential' | 'secret' | 'top-secret';
+  threatLevel: 'low' | 'medium' | 'high' | 'critical';
+  lastUpdated: number;
+  scanData?: ScanResult;
+  crawlData?: CrawlResult;
+  analysisData?: IntelligenceAnalysis;
+}
+
+interface IntelligenceAnalysis {
+  riskScore: number;
+  vulnerabilityCount: number;
+  exposedData: string[];
+  correlatedThreats: ThreatCorrelation[];
+  recommendations: ActionableRecommendation[];
+}
+
+interface ThreatCorrelation {
   id: string;
-  title: string;
   type: string;
-  severity: 'low' | 'medium' | 'high' | 'critical';
+  confidence: number;
   description: string;
-  location: string;
-  impact: string;
-  recommendation: string;
+  sources: string[];
 }
 
-interface OSINTData {
-  emails: string[];
-  socialMedia: string[];
-  technologies: string[];
-  serverInfo: string[];
-  subdomains: string[];
-}
-
-interface WebsiteMetadata {
-  ip: string;
-  server: string;
-  lastModified: string;
-  size: string;
-  responseTime: number;
-  headers: { [key: string]: string };
+interface ActionableRecommendation {
+  priority: 'low' | 'medium' | 'high' | 'critical';
+  action: string;
+  rationale: string;
+  estimatedEffort: string;
 }
 
 const NetRunnerCenterView: React.FC<NetRunnerCenterViewProps> = ({
   width,
   height
 }) => {
+  // Enhanced state management for multi-operation interface
   const [targetUrl, setTargetUrl] = useState('https://example.com');
   const [currentTab, setCurrentTab] = useState(0);
-  const [websiteData, setWebsiteData] = useState<WebsiteData | null>(null);
+  const [operationStatus, setOperationStatus] = useState<OperationStatus>({
+    type: 'idle',
+    progress: 0,
+    currentTask: 'Ready for operations'
+  });
+  const [targetIntelligence, setTargetIntelligence] = useState<TargetIntelligence | null>(null);
+  const [scanResults, setScanResults] = useState<ScanResult | null>(null);
+  const [crawlResults, setCrawlResults] = useState<CrawlResult | null>(null);
 
-  // Mock website analysis
-  useEffect(() => {
-    if (websiteData?.status === 'scanning') {
-      const interval = setInterval(() => {
-        setWebsiteData(prev => {
-          if (!prev) return null;
-          
-          const newProgress = Math.min(100, prev.progress + Math.random() * 15);
-          
-          if (newProgress >= 100) {
-            return {
-              ...prev,
-              status: 'completed',
-              progress: 100,
-              sourceCode: `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Example Website</title>
-    <script src="vulnerable-lib.js"></script>
-</head>
-<body>
-    <div id="app">
-        <form action="/login" method="post">
-            <!-- Potential XSS vulnerability -->
-            <input type="text" name="username" value="<?php echo $_GET['user']; ?>">
-            <input type="password" name="password">
-            <button type="submit">Login</button>
-        </form>
-    </div>
-    <script>
-        // Insecure direct object reference
-        var userId = location.search.split('id=')[1];
-        fetch('/api/user/' + userId);
-    </script>
-</body>
-</html>`,
-              vulnerabilities: [
-                {
-                  id: 'xss-001',
-                  type: 'Cross-Site Scripting (XSS)',
-                  severity: 'high',
-                  description: 'Reflected XSS vulnerability in user parameter',
-                  location: 'Line 9: input value attribute',
-                  recommendation: 'Sanitize user input and use proper output encoding'
-                },
-                {
-                  id: 'idor-001',
-                  type: 'Insecure Direct Object Reference',
-                  severity: 'medium',
-                  description: 'Direct access to user data via URL parameter',
-                  location: 'Line 15-16: JavaScript userId handling',
-                  recommendation: 'Implement proper access controls and validation'
-                },
-                {
-                  id: 'lib-001',
-                  type: 'Vulnerable Dependencies',
-                  severity: 'critical',
-                  description: 'Outdated JavaScript library with known vulnerabilities',
-                  location: 'Line 6: vulnerable-lib.js',
-                  recommendation: 'Update to latest secure version'
-                }
-              ],
-              osintData: {
-                emails: ['admin@example.com', 'contact@example.com', 'security@example.com'],
-                socialMedia: ['@examplecorp', 'facebook.com/example', 'linkedin.com/company/example'],
-                technologies: ['Apache/2.4.41', 'PHP/7.4.3', 'MySQL', 'WordPress 5.8'],
-                serverInfo: ['Server: Apache/2.4.41', 'X-Powered-By: PHP/7.4.3', 'Set-Cookie: PHPSESSID'],
-                subdomains: ['www.example.com', 'mail.example.com', 'ftp.example.com', 'api.example.com']
-              },
-              metadata: {
-                ip: '93.184.216.34',
-                server: 'Apache/2.4.41 (Ubuntu)',
-                lastModified: '2024-01-15T10:30:00Z',
-                size: '2.4 KB',
-                responseTime: 245,
-                headers: {
-                  'Content-Type': 'text/html; charset=UTF-8',
-                  'Server': 'Apache/2.4.41 (Ubuntu)',
-                  'Last-Modified': 'Mon, 15 Jan 2024 10:30:00 GMT',
-                  'X-Frame-Options': 'DENY',
-                  'X-Content-Type-Options': 'nosniff'
-                }
-              }
-            };
-          }
-          
-          return { ...prev, progress: newProgress };
-        });
-      }, 500);
-
-      return () => clearInterval(interval);
-    }
-  }, [websiteData?.status]);
-
-  const startScan = async () => {
+  // Enhanced scanning with intelligence correlation
+  const initiateScanning = async () => {
     if (!targetUrl.trim()) {
-      alert('Please enter a valid URL');
       return;
     }
 
-    // Ensure URL has protocol
-    let formattedUrl = targetUrl.trim();
-    if (!formattedUrl.startsWith('http://') && !formattedUrl.startsWith('https://')) {
-      formattedUrl = 'https://' + formattedUrl;
-    }
-
-    setWebsiteData({
-      url: formattedUrl,
-      title: 'Scanning...',
-      status: 'scanning',
-      progress: 0,
-      sourceCode: '',
-      vulnerabilities: [],
-      osintData: {
-        emails: [],
-        socialMedia: [],
-        technologies: [],
-        serverInfo: [],
-        subdomains: []
-      },
-      metadata: {
-        ip: '',
-        server: '',
-        lastModified: '',
-        size: '',
-        responseTime: 0,
-        headers: {}
-      }
-    });
-
     try {
-      await performWebsiteScan(formattedUrl);
-    } catch (error) {
-      console.error('Scan failed:', error);
-      setWebsiteData(prev => prev ? {
+      setOperationStatus({
+        type: 'scanning',
+        progress: 0,
+        currentTask: 'Initializing reconnaissance scan...',
+        startTime: Date.now()
+      });
+
+      // Start website scanner
+      setOperationStatus(prev => ({
         ...prev,
-        status: 'error',
-        title: 'Scan Failed'
-      } : null);
+        progress: 20,
+        currentTask: 'Performing vulnerability assessment...'
+      }));
+
+      const scanResult = await websiteScanner.scanWebsite(targetUrl);
+      setScanResults(scanResult);
+
+      setOperationStatus(prev => ({
+        ...prev,
+        progress: 60,
+        currentTask: 'Extracting OSINT intelligence...'
+      }));
+
+      // Start OSINT crawler if available
+      let crawlResult: CrawlResult | null = null;
+      try {
+        crawlResult = await advancedOSINTCrawler.startAdvancedCrawl(targetUrl, {
+          maxDepth: 2,
+          maxUrls: 50,
+          includeWayback: true,
+          includeGitHub: true
+        });
+        setCrawlResults(crawlResult);
+      } catch (error) {
+        console.warn('OSINT crawler not available:', error);
+      }
+
+      setOperationStatus(prev => ({
+        ...prev,
+        progress: 85,
+        currentTask: 'Correlating intelligence data...'
+      }));
+
+      // Create comprehensive intelligence report
+      const intelligence: TargetIntelligence = {
+        url: targetUrl,
+        domain: new URL(targetUrl).hostname,
+        classification: 'unclassified',
+        threatLevel: calculateThreatLevel(scanResult, crawlResult),
+        lastUpdated: Date.now(),
+        scanData: scanResult,
+        crawlData: crawlResult || undefined,
+        analysisData: {
+          riskScore: calculateRiskScore(scanResult),
+          vulnerabilityCount: scanResult.vulnerabilities?.length || 0,
+          exposedData: extractExposedData(scanResult, crawlResult),
+          correlatedThreats: [],
+          recommendations: generateRecommendations(scanResult, crawlResult)
+        }
+      };
+
+      setTargetIntelligence(intelligence);
+
+      setOperationStatus({
+        type: 'completed',
+        progress: 100,
+        currentTask: 'Intelligence analysis complete',
+        estimatedCompletion: Date.now()
+      });
+
+    } catch (error) {
+      setOperationStatus({
+        type: 'error',
+        progress: 0,
+        currentTask: `Operation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      });
     }
   };
 
-  const performWebsiteScan = async (url: string) => {
+  // Enhanced OSINT crawling operation
+  const initiateOSINTCrawling = async () => {
+    if (!targetUrl.trim()) {
+      return;
+    }
+
     try {
-      // Use the production-ready website scanner service
-      const result = await websiteScanner.scanWebsite(url, (progress, status) => {
-        setWebsiteData(prev => prev ? {
-          ...prev,
-          progress,
-          title: status || prev.title
-        } : null);
+      setOperationStatus({
+        type: 'crawling',
+        progress: 0,
+        currentTask: 'Initializing deep reconnaissance...',
+        startTime: Date.now()
       });
 
-      // Convert the ScanResult to our component's data format
-      setWebsiteData({
-        url: result.url,
-        title: result.title,
-        status: result.status,
-        progress: result.progress,
-        sourceCode: result.sourceCode,
-        vulnerabilities: result.vulnerabilities.map(vuln => ({
-          id: vuln.id,
-          title: vuln.title,
-          type: vuln.type,
-          severity: vuln.severity,
-          description: vuln.description,
-          location: vuln.location,
-          impact: vuln.impact,
-          recommendation: vuln.recommendation
-        })),
-        osintData: {
-          emails: result.osintData.emails,
-          socialMedia: result.osintData.socialMedia,
-          technologies: result.osintData.technologies.map(tech => tech.name),
-          serverInfo: result.osintData.serverInfo,
-          subdomains: result.osintData.subdomains
-        },
-        metadata: {
-          ip: result.metadata.ip || 'N/A',
-          server: result.metadata.server || 'Unknown',
-          lastModified: result.metadata.lastModified || 'Unknown',
-          size: result.metadata.size || 'Unknown',
-          responseTime: result.metadata.responseTime,
-          headers: result.metadata.headers
-        }
+      const crawlResult = await advancedOSINTCrawler.startAdvancedCrawl(targetUrl, {
+        maxDepth: 3,
+        maxUrls: 100,
+        includeWayback: true,
+        includeGitHub: true,
+        includeDirectoryBruteforce: true
+      });
+      setCrawlResults(crawlResult);
+
+      setOperationStatus({
+        type: 'completed',
+        progress: 100,
+        currentTask: 'OSINT crawling complete'
       });
 
     } catch (error) {
-      console.error('Website scan failed:', error);
-      setWebsiteData(prev => prev ? {
-        ...prev,
-        status: 'error',
-        title: 'Scan Failed - ' + (error as Error).message
-      } : null);
+      setOperationStatus({
+        type: 'error',
+        progress: 0,
+        currentTask: `OSINT operation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      });
+    }
+  };
+
+  // Helper functions for intelligence analysis
+  const calculateThreatLevel = (scanResult: ScanResult, crawlResult: CrawlResult | null): 'low' | 'medium' | 'high' | 'critical' => {
+    const criticalVulns = scanResult.vulnerabilities?.filter(v => v.severity === 'critical').length || 0;
+    const highVulns = scanResult.vulnerabilities?.filter(v => v.severity === 'high').length || 0;
+    const sensitiveData = crawlResult?.discoveredUrls?.length || 0;
+
+    if (criticalVulns > 0) return 'critical';
+    if (highVulns > 2 || sensitiveData > 50) return 'high';
+    if (highVulns > 0 || sensitiveData > 20) return 'medium';
+    return 'low';
+  };
+
+  const calculateRiskScore = (scanResult: ScanResult): number => {
+    const vulnWeights = { critical: 10, high: 5, medium: 2, low: 1 };
+    let score = 0;
+    
+    scanResult.vulnerabilities?.forEach(vuln => {
+      score += vulnWeights[vuln.severity as keyof typeof vulnWeights] || 0;
+    });
+
+    return Math.min(100, score);
+  };
+
+  const extractExposedData = (scanResult: ScanResult, crawlResult: CrawlResult | null): string[] => {
+    const exposed: string[] = [];
+    
+    if (scanResult.osintData?.emails) {
+      exposed.push(...scanResult.osintData.emails);
+    }
+    
+    if (crawlResult?.discoveredUrls) {
+      exposed.push(`${crawlResult.discoveredUrls.length} URLs discovered`);
+    }
+
+    return [...new Set(exposed)];
+  };
+
+  const generateRecommendations = (scanResult: ScanResult, crawlResult: CrawlResult | null): ActionableRecommendation[] => {
+    const recommendations: ActionableRecommendation[] = [];
+
+    if (scanResult.vulnerabilities && scanResult.vulnerabilities.length > 0) {
+      recommendations.push({
+        priority: 'high',
+        action: 'Address identified vulnerabilities',
+        rationale: `${scanResult.vulnerabilities.length} security issues detected`,
+        estimatedEffort: '2-4 hours'
+      });
+    }
+
+    if (crawlResult?.discoveredUrls && crawlResult.discoveredUrls.length > 10) {
+      recommendations.push({
+        priority: 'medium',
+        action: 'Review discovered endpoints',
+        rationale: 'Multiple URLs discovered during reconnaissance',
+        estimatedEffort: '1-2 hours'
+      });
+    }
+
+    return recommendations;
+  };
+
+  const getThreatLevelColor = (level: string) => {
+    switch (level) {
+      case 'critical': return '#ff4444';
+      case 'high': return '#ff8800';
+      case 'medium': return '#ffaa00';
+      case 'low': return '#00ff88';
+      default: return '#888888';
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'completed': return '#00ff88';
+      case 'scanning': 
+      case 'crawling':
+      case 'analyzing': return '#00aaff';
+      case 'error': return '#ff4444';
+      default: return '#888888';
     }
   };
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case 'critical': return '#ff0000';
-      case 'high': return '#ff4444';
+      case 'critical': return '#ff4444';
+      case 'high': return '#ff8800';
       case 'medium': return '#ffaa00';
-      case 'low': return '#ffff00';
-      default: return '#666';
+      case 'low': return '#88ff88';
+      default: return '#888888';
     }
   };
 
-  const getSeverityIcon = (severity: string) => {
-    switch (severity) {
-      case 'critical': return <XCircle size={16} />;
-      case 'high': return <AlertTriangle size={16} />;
-      case 'medium': return <AlertTriangle size={16} />;
-      case 'low': return <CheckCircle size={16} />;
-      default: return <Activity size={16} />;
-    }
-  };
+  const tabLabels = [
+    'Mission Control',
+    'Vulnerability Assessment',
+    'OSINT Intelligence',
+    'Threat Analysis',
+    'Action Items'
+  ];
 
   return (
     <Box
@@ -322,434 +349,492 @@ const NetRunnerCenterView: React.FC<NetRunnerCenterViewProps> = ({
         height,
         backgroundColor: '#000000',
         backgroundImage: `
-          linear-gradient(45deg, rgba(0, 245, 255, 0.03) 0%, transparent 50%),
-          radial-gradient(circle at 70% 30%, rgba(139, 92, 246, 0.04) 0%, transparent 40%)
+          radial-gradient(circle at 20% 80%, rgba(0, 245, 255, 0.1) 0%, transparent 50%),
+          radial-gradient(circle at 80% 20%, rgba(255, 136, 0, 0.1) 0%, transparent 50%)
         `,
-        border: `2px solid transparent`,
-        borderImage: `linear-gradient(45deg, 
-          rgba(0, 245, 255, 0.6) 0%, 
-          rgba(139, 92, 246, 0.4) 50%, 
-          rgba(0, 255, 136, 0.6) 100%
-        ) 1`,
+        color: '#ffffff',
+        fontFamily: 'Aldrich, monospace',
+        overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
-        overflow: 'hidden',
-        position: 'relative',
-        boxShadow: `
-          0 0 30px rgba(0, 245, 255, 0.15),
-          inset 0 0 30px rgba(0, 0, 0, 0.5)
-        `,
-        '&::before': {
-          content: '""',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: `
-            repeating-linear-gradient(
-              0deg,
-              transparent,
-              transparent 3px,
-              rgba(0, 245, 255, 0.02) 3px,
-              rgba(0, 245, 255, 0.02) 6px
-            )
-          `,
-          pointerEvents: 'none',
-          zIndex: 1
-        }
+        border: '1px solid rgba(0, 245, 255, 0.3)',
+        position: 'relative'
       }}
     >
-      {/* Header */}
+      {/* Header with Target Input and Controls */}
       <Box
         sx={{
           padding: 2,
-          borderBottom: `2px solid rgba(0, 245, 255, 0.3)`,
-          backgroundColor: 'rgba(0, 245, 255, 0.08)',
-          position: 'relative',
-          zIndex: 2,
-          boxShadow: '0 2px 15px rgba(0, 0, 0, 0.4)'
+          borderBottom: '1px solid rgba(0, 245, 255, 0.3)',
+          backgroundColor: 'rgba(0, 0, 0, 0.8)'
         }}
       >
         <Typography
           variant="h6"
           sx={{
             color: '#00f5ff',
-            fontFamily: '"Orbitron", monospace',
-            fontSize: '16px',
-            fontWeight: 900,
-            textAlign: 'center',
-            textShadow: '0 0 15px rgba(0, 245, 255, 0.6)',
-            letterSpacing: '2px',
-            textTransform: 'uppercase'
+            marginBottom: 2,
+            fontFamily: 'Aldrich, monospace',
+            textTransform: 'uppercase',
+            letterSpacing: '0.1em'
           }}
         >
-          ▓█ WEBSITE CODE ANALYSIS █▓
-        </Typography>
-        <Typography
-          variant="caption"
-          sx={{
-            color: 'rgba(0, 245, 255, 0.9)',
-            display: 'block',
-            textAlign: 'center',
-            fontSize: '10px',
-            fontWeight: 600,
-            letterSpacing: '1px',
-            marginTop: '4px',
-            textShadow: '0 0 8px rgba(0, 245, 255, 0.4)'
-          }}
-        >
-          ▓ DEEP WEB INTELLIGENCE SCANNER ▓
-        </Typography>
-      </Box>
-
-      {/* Current Website Display */}
-      <Box sx={{ padding: 2, borderBottom: '1px solid rgba(0, 245, 255, 0.2)', position: 'relative', zIndex: 2 }}>
-        <Typography
-          variant="h6"
-          sx={{
-            color: '#ccc',
-            fontSize: '16px',
-            fontWeight: 700,
-            textAlign: 'center',
-            mb: 2
-          }}
-        >
-          WEBSITE CODE ANALYSIS INTERFACE
+          <Target size={20} style={{ marginRight: 8, verticalAlign: 'middle' }} />
+          NetRunner Intelligence Center
         </Typography>
 
-        {/* Target Input */}
-        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-          <Globe size={20} color="#00f5ff" />
+        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', marginBottom: 2 }}>
           <TextField
             fullWidth
             variant="outlined"
-            placeholder="Enter target URL..."
+            label="Target URL"
             value={targetUrl}
             onChange={(e) => setTargetUrl(e.target.value)}
             sx={{
               '& .MuiOutlinedInput-root': {
-                backgroundColor: '#1a1a1a',
-                color: '#ccc',
-                fontSize: '14px',
-                '& fieldset': { borderColor: '#333' },
-                '&:hover fieldset': { borderColor: '#00f5ff' },
-                '&.Mui-focused fieldset': { borderColor: '#00f5ff' }
+                color: '#ffffff',
+                borderColor: 'rgba(0, 245, 255, 0.5)',
+                '& fieldset': {
+                  borderColor: 'rgba(0, 245, 255, 0.5)'
+                },
+                '&:hover fieldset': {
+                  borderColor: 'rgba(0, 245, 255, 0.8)'
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: '#00f5ff'
+                }
+              },
+              '& .MuiInputLabel-root': {
+                color: 'rgba(0, 245, 255, 0.7)'
               }
             }}
           />
           <Button
             variant="contained"
-            startIcon={<Search size={16} />}
-            onClick={startScan}
-            disabled={websiteData?.status === 'scanning'}
+            onClick={initiateScanning}
+            disabled={operationStatus.type === 'scanning' || operationStatus.type === 'crawling'}
             sx={{
-              backgroundColor: '#00f5ff',
-              color: '#000',
-              '&:hover': { backgroundColor: '#00d4d4' },
-              '&:disabled': { backgroundColor: '#333', color: '#666' }
-            }}
-          >
-            Scan
-          </Button>
-        </Box>
-      </Box>
-
-      {/* Scanning Progress */}
-      {websiteData?.status === 'scanning' && (
-        <Box sx={{ padding: 2, borderBottom: '1px solid #333' }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-            <Typography variant="body2" sx={{ color: '#ccc' }}>
-              Scanning: {websiteData.url}
-            </Typography>
-            <Typography variant="body2" sx={{ color: '#00ff88' }}>
-              {Math.round(websiteData.progress)}%
-            </Typography>
-          </Box>
-          <LinearProgress
-            variant="determinate"
-            value={websiteData.progress}
-            sx={{
-              height: 8,
-              borderRadius: 4,
-              backgroundColor: '#333',
-              '& .MuiLinearProgress-bar': {
-                backgroundColor: '#00ff88',
-                borderRadius: 4
+              backgroundColor: '#ff8800',
+              color: '#000000',
+              fontFamily: 'Aldrich, monospace',
+              fontWeight: 'bold',
+              minWidth: 120,
+              '&:hover': {
+                backgroundColor: '#ffaa00'
+              },
+              '&:disabled': {
+                backgroundColor: 'rgba(255, 136, 0, 0.3)'
               }
             }}
-          />
+            startIcon={<Radar size={16} />}
+          >
+            SCAN
+          </Button>
+          <Button
+            variant="outlined"
+            onClick={initiateOSINTCrawling}
+            disabled={operationStatus.type === 'scanning' || operationStatus.type === 'crawling'}
+            sx={{
+              borderColor: '#00f5ff',
+              color: '#00f5ff',
+              fontFamily: 'Aldrich, monospace',
+              minWidth: 120,
+              '&:hover': {
+                borderColor: '#00aaff',
+                backgroundColor: 'rgba(0, 245, 255, 0.1)'
+              },
+              '&:disabled': {
+                borderColor: 'rgba(0, 245, 255, 0.3)',
+                color: 'rgba(0, 245, 255, 0.3)'
+              }
+            }}
+            startIcon={<Search size={16} />}
+          >
+            OSINT
+          </Button>
         </Box>
-      )}
 
-      {/* Results Tabs */}
-      {websiteData?.status === 'completed' && (
-        <>
-          <Box sx={{ borderBottom: '1px solid #333' }}>
-            <Tabs
-              value={currentTab}
-              onChange={(_, newValue) => setCurrentTab(newValue)}
+        {/* Operation Status */}
+        {operationStatus.type !== 'idle' && (
+          <Box sx={{ marginBottom: 1 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 1 }}>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: getStatusColor(operationStatus.type),
+                  fontFamily: 'Aldrich, monospace',
+                  fontSize: '0.9em'
+                }}
+              >
+                <Activity size={14} style={{ marginRight: 6, verticalAlign: 'middle' }} />
+                {operationStatus.currentTask}
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: getStatusColor(operationStatus.type),
+                  fontFamily: 'Aldrich, monospace'
+                }}
+              >
+                {operationStatus.progress}%
+              </Typography>
+            </Box>
+            <LinearProgress
+              variant="determinate"
+              value={operationStatus.progress}
               sx={{
-                '& .MuiTab-root': {
-                  color: '#666',
-                  '&.Mui-selected': { color: '#00f5ff' }
-                },
-                '& .MuiTabs-indicator': { backgroundColor: '#00f5ff' }
+                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                '& .MuiLinearProgress-bar': {
+                  backgroundColor: getStatusColor(operationStatus.type)
+                }
               }}
-            >
-              <Tab icon={<Code size={16} />} label="Source Code" />
-              <Tab icon={<Shield size={16} />} label="Vulnerabilities" />
-              <Tab icon={<Target size={16} />} label="OSINT Data" />
-              <Tab icon={<Database size={16} />} label="Metadata" />
-            </Tabs>
+            />
           </Box>
+        )}
+      </Box>
 
-          <Box sx={{ flex: 1, overflow: 'auto', padding: 2 }}>
-            {/* Source Code Tab */}
-            {currentTab === 0 && (
-              <Card sx={{ backgroundColor: '#1a1a1a', border: '1px solid #333' }}>
-                <CardContent>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                    <Typography variant="h6" sx={{ color: '#00f5ff' }}>
-                      Source Code Analysis
-                    </Typography>
-                    <Box sx={{ display: 'flex', gap: 1 }}>
-                      <Tooltip title="Copy Code">
-                        <IconButton size="small" sx={{ color: '#00f5ff' }}>
-                          <Copy size={16} />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Download">
-                        <IconButton size="small" sx={{ color: '#00f5ff' }}>
-                          <Download size={16} />
-                        </IconButton>
-                      </Tooltip>
-                    </Box>
-                  </Box>
-                  <Box
+      {/* Tabs */}
+      <Tabs
+        value={currentTab}
+        onChange={(_, newValue) => setCurrentTab(newValue)}
+        sx={{
+          borderBottom: '1px solid rgba(0, 245, 255, 0.3)',
+          backgroundColor: 'rgba(0, 0, 0, 0.6)',
+          '& .MuiTab-root': {
+            color: 'rgba(0, 245, 255, 0.7)',
+            fontFamily: 'Aldrich, monospace',
+            fontSize: '0.8em',
+            textTransform: 'uppercase',
+            '&.Mui-selected': {
+              color: '#00f5ff'
+            }
+          },
+          '& .MuiTabs-indicator': {
+            backgroundColor: '#ff8800'
+          }
+        }}
+      >
+        {tabLabels.map((label, index) => (
+          <Tab key={index} label={label} />
+        ))}
+      </Tabs>
+
+      {/* Tab Content */}
+      <Box sx={{ flex: 1, overflow: 'auto', padding: 2 }}>
+        {currentTab === 0 && (
+          <Box>
+            <Typography variant="h6" sx={{ color: '#00f5ff', marginBottom: 2 }}>
+              Mission Overview
+            </Typography>
+            
+            {targetIntelligence ? (
+              <Paper
+                sx={{
+                  backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                  border: '1px solid rgba(0, 245, 255, 0.3)',
+                  padding: 2,
+                  marginBottom: 2
+                }}
+              >
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
+                  <Typography variant="h6" sx={{ color: '#ffffff' }}>
+                    {targetIntelligence.domain}
+                  </Typography>
+                  <Chip
+                    label={targetIntelligence.threatLevel.toUpperCase()}
                     sx={{
-                      backgroundColor: '#0a0a0a',
-                      border: '1px solid #333',
-                      borderRadius: 1,
-                      padding: 2,
-                      overflow: 'auto',
-                      maxHeight: '400px'
+                      backgroundColor: getThreatLevelColor(targetIntelligence.threatLevel),
+                      color: '#000000',
+                      fontWeight: 'bold'
                     }}
-                  >
-                    <Typography
-                      component="pre"
-                      sx={{
-                        color: '#ccc',
-                        fontSize: '12px',
-                        fontFamily: '"Monaco", "Menlo", monospace',
-                        whiteSpace: 'pre-wrap',
-                        margin: 0
-                      }}
-                    >
-                      {websiteData.sourceCode}
-                    </Typography>
-                  </Box>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Vulnerabilities Tab */}
-            {currentTab === 1 && (
-              <Box>
-                <Typography variant="h6" sx={{ color: '#ff4444', mb: 2 }}>
-                  Security Vulnerabilities ({websiteData.vulnerabilities.length})
-                </Typography>
+                  />
+                </Box>
                 
-                {websiteData.vulnerabilities.map((vuln) => (
-                  <Accordion
-                    key={vuln.id}
+                <Divider sx={{ backgroundColor: 'rgba(0, 245, 255, 0.2)', marginY: 2 }} />
+                
+                <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 2 }}>
+                  <Box>
+                    <Typography variant="body2" sx={{ color: '#00f5ff', marginBottom: 1 }}>
+                      Risk Score
+                    </Typography>
+                    <Typography variant="h5" sx={{ color: '#ff8800' }}>
+                      {targetIntelligence.analysisData?.riskScore || 0}
+                    </Typography>
+                  </Box>
+                  
+                  <Box>
+                    <Typography variant="body2" sx={{ color: '#00f5ff', marginBottom: 1 }}>
+                      Vulnerabilities
+                    </Typography>
+                    <Typography variant="h5" sx={{ color: '#ff4444' }}>
+                      {targetIntelligence.analysisData?.vulnerabilityCount || 0}
+                    </Typography>
+                  </Box>
+                  
+                  <Box>
+                    <Typography variant="body2" sx={{ color: '#00f5ff', marginBottom: 1 }}>
+                      Exposed Data
+                    </Typography>
+                    <Typography variant="h5" sx={{ color: '#ffaa00' }}>
+                      {targetIntelligence.analysisData?.exposedData.length || 0}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Paper>
+            ) : (
+              <Alert
+                severity="info"
+                sx={{
+                  backgroundColor: 'rgba(0, 170, 255, 0.1)',
+                  color: '#00aaff',
+                  border: '1px solid rgba(0, 170, 255, 0.3)',
+                  '& .MuiAlert-icon': {
+                    color: '#00aaff'
+                  }
+                }}
+              >
+                Initiate a scan to begin intelligence gathering operations.
+              </Alert>
+            )}
+          </Box>
+        )}
+
+        {currentTab === 1 && (
+          <Box>
+            <Typography variant="h6" sx={{ color: '#00f5ff', marginBottom: 2 }}>
+              Vulnerability Assessment
+            </Typography>
+            
+            {scanResults?.vulnerabilities ? (
+              <List>
+                {scanResults.vulnerabilities.map((vuln, index) => (
+                  <ListItem
+                    key={index}
                     sx={{
-                      backgroundColor: '#1a1a1a',
-                      border: `1px solid ${getSeverityColor(vuln.severity)}`,
-                      mb: 1,
-                      '&:before': { display: 'none' }
+                      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                      border: '1px solid rgba(255, 68, 68, 0.3)',
+                      marginBottom: 1,
+                      borderRadius: 1
                     }}
                   >
-                    <AccordionSummary expandIcon={<ChevronDown style={{ color: '#00f5ff' }} />}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
-                        {getSeverityIcon(vuln.severity)}
-                        <Box sx={{ flex: 1 }}>
-                          <Typography variant="body1" sx={{ color: '#ccc', fontWeight: 600 }}>
+                    <ListItemIcon>
+                      <Bug color={getSeverityColor(vuln.severity)} size={20} />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <Typography sx={{ color: '#ffffff' }}>
                             {vuln.type}
                           </Typography>
                           <Chip
                             label={vuln.severity.toUpperCase()}
                             size="small"
                             sx={{
-                              backgroundColor: `${getSeverityColor(vuln.severity)}20`,
-                              color: getSeverityColor(vuln.severity),
-                              fontSize: '10px'
+                              backgroundColor: getSeverityColor(vuln.severity),
+                              color: '#000000'
                             }}
                           />
                         </Box>
-                      </Box>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                        <Box>
-                          <Typography variant="caption" sx={{ color: '#666' }}>Description:</Typography>
-                          <Typography variant="body2" sx={{ color: '#ccc' }}>{vuln.description}</Typography>
-                        </Box>
-                        <Box>
-                          <Typography variant="caption" sx={{ color: '#666' }}>Location:</Typography>
-                          <Typography variant="body2" sx={{ color: '#ffaa00' }}>{vuln.location}</Typography>
-                        </Box>
-                        <Box>
-                          <Typography variant="caption" sx={{ color: '#666' }}>Recommendation:</Typography>
-                          <Typography variant="body2" sx={{ color: '#00ff88' }}>{vuln.recommendation}</Typography>
-                        </Box>
-                      </Box>
-                    </AccordionDetails>
-                  </Accordion>
+                      }
+                      secondary={
+                        <Typography sx={{ color: '#cccccc', marginTop: 1 }}>
+                          {vuln.description}
+                        </Typography>
+                      }
+                    />
+                  </ListItem>
                 ))}
-              </Box>
-            )}
-
-            {/* OSINT Data Tab */}
-            {currentTab === 2 && (
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                <Typography variant="h6" sx={{ color: '#ffaa00' }}>
-                  OSINT Intelligence Data
-                </Typography>
-
-                <Card sx={{ backgroundColor: '#1a1a1a', border: '1px solid #333' }}>
-                  <CardContent>
-                    <Typography variant="h6" sx={{ color: '#00f5ff', mb: 1 }}>Email Addresses</Typography>
-                    {websiteData.osintData.emails.map((email, index) => (
-                      <Chip
-                        key={index}
-                        label={email}
-                        size="small"
-                        sx={{ mr: 1, mb: 1, backgroundColor: '#333', color: '#ccc' }}
-                      />
-                    ))}
-                  </CardContent>
-                </Card>
-
-                <Card sx={{ backgroundColor: '#1a1a1a', border: '1px solid #333' }}>
-                  <CardContent>
-                    <Typography variant="h6" sx={{ color: '#00f5ff', mb: 1 }}>Social Media</Typography>
-                    {websiteData.osintData.socialMedia.map((social, index) => (
-                      <Chip
-                        key={index}
-                        label={social}
-                        size="small"
-                        sx={{ mr: 1, mb: 1, backgroundColor: '#333', color: '#ccc' }}
-                      />
-                    ))}
-                  </CardContent>
-                </Card>
-
-                <Card sx={{ backgroundColor: '#1a1a1a', border: '1px solid #333' }}>
-                  <CardContent>
-                    <Typography variant="h6" sx={{ color: '#00f5ff', mb: 1 }}>Technologies</Typography>
-                    {websiteData.osintData.technologies.map((tech, index) => (
-                      <Chip
-                        key={index}
-                        label={tech}
-                        size="small"
-                        sx={{ mr: 1, mb: 1, backgroundColor: '#333', color: '#ccc' }}
-                      />
-                    ))}
-                  </CardContent>
-                </Card>
-
-                <Card sx={{ backgroundColor: '#1a1a1a', border: '1px solid #333' }}>
-                  <CardContent>
-                    <Typography variant="h6" sx={{ color: '#00f5ff', mb: 1 }}>Subdomains</Typography>
-                    {websiteData.osintData.subdomains.map((subdomain, index) => (
-                      <Chip
-                        key={index}
-                        label={subdomain}
-                        size="small"
-                        sx={{ mr: 1, mb: 1, backgroundColor: '#333', color: '#ccc' }}
-                      />
-                    ))}
-                  </CardContent>
-                </Card>
-              </Box>
-            )}
-
-            {/* Metadata Tab */}
-            {currentTab === 3 && (
-              <Card sx={{ backgroundColor: '#1a1a1a', border: '1px solid #333' }}>
-                <CardContent>
-                  <Typography variant="h6" sx={{ color: '#8b5cf6', mb: 2 }}>
-                    Website Metadata
-                  </Typography>
-                  
-                  <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
-                    <Box>
-                      <Typography variant="caption" sx={{ color: '#666' }}>IP Address:</Typography>
-                      <Typography variant="body2" sx={{ color: '#ccc' }}>{websiteData.metadata.ip}</Typography>
-                    </Box>
-                    <Box>
-                      <Typography variant="caption" sx={{ color: '#666' }}>Server:</Typography>
-                      <Typography variant="body2" sx={{ color: '#ccc' }}>{websiteData.metadata.server}</Typography>
-                    </Box>
-                    <Box>
-                      <Typography variant="caption" sx={{ color: '#666' }}>Response Time:</Typography>
-                      <Typography variant="body2" sx={{ color: '#ccc' }}>{websiteData.metadata.responseTime}ms</Typography>
-                    </Box>
-                    <Box>
-                      <Typography variant="caption" sx={{ color: '#666' }}>Size:</Typography>
-                      <Typography variant="body2" sx={{ color: '#ccc' }}>{websiteData.metadata.size}</Typography>
-                    </Box>
-                  </Box>
-
-                  <Typography variant="h6" sx={{ color: '#8b5cf6', mt: 2, mb: 1 }}>
-                    HTTP Headers
-                  </Typography>
-                  <Box
-                    sx={{
-                      backgroundColor: '#0a0a0a',
-                      border: '1px solid #333',
-                      borderRadius: 1,
-                      padding: 1,
-                      fontFamily: 'monospace',
-                      fontSize: '12px'
-                    }}
-                  >
-                    {Object.entries(websiteData.metadata.headers).map(([key, value]) => (
-                      <Box key={key} sx={{ mb: 0.5 }}>
-                        <Typography component="span" sx={{ color: '#00f5ff' }}>{key}:</Typography>{' '}
-                        <Typography component="span" sx={{ color: '#ccc' }}>{value}</Typography>
-                      </Box>
-                    ))}
-                  </Box>
-                </CardContent>
-              </Card>
+              </List>
+            ) : (
+              <Alert
+                severity="warning"
+                sx={{
+                  backgroundColor: 'rgba(255, 170, 0, 0.1)',
+                  color: '#ffaa00',
+                  border: '1px solid rgba(255, 170, 0, 0.3)'
+                }}
+              >
+                No vulnerability data available. Run a scan to assess security status.
+              </Alert>
             )}
           </Box>
-        </>
-      )}
+        )}
 
-      {/* Initial State */}
-      {!websiteData && (
-        <Box
-          sx={{
-            flex: 1,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexDirection: 'column',
-            gap: 2
-          }}
-        >
-          <Eye size={64} color="#333" />
-          <Typography variant="h6" sx={{ color: '#666' }}>
-            Enter a target URL to begin website analysis
-          </Typography>
-          <Typography variant="body2" sx={{ color: '#666', textAlign: 'center', maxWidth: 400 }}>
-            Comprehensive OSINT scanning, vulnerability assessment, and code analysis
-          </Typography>
-        </Box>
-      )}
+        {currentTab === 2 && (
+          <Box>
+            <Typography variant="h6" sx={{ color: '#00f5ff', marginBottom: 2 }}>
+              OSINT Intelligence
+            </Typography>
+            
+            {scanResults?.osintData ? (
+              <Box sx={{ display: 'grid', gap: 2 }}>
+                {scanResults.osintData.emails && scanResults.osintData.emails.length > 0 && (
+                  <Card sx={{ backgroundColor: 'rgba(0, 0, 0, 0.7)', border: '1px solid rgba(0, 245, 255, 0.3)' }}>
+                    <CardContent>
+                      <Typography variant="h6" sx={{ color: '#00f5ff', marginBottom: 1 }}>
+                        <Mail size={16} style={{ marginRight: 8, verticalAlign: 'middle' }} />
+                        Email Addresses
+                      </Typography>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                        {scanResults.osintData.emails.map((email, index) => (
+                          <Chip
+                            key={index}
+                            label={email}
+                            size="small"
+                            sx={{ backgroundColor: 'rgba(0, 245, 255, 0.2)', color: '#ffffff' }}
+                          />
+                        ))}
+                      </Box>
+                    </CardContent>
+                  </Card>
+                )}
+                
+                {scanResults.osintData.technologies && scanResults.osintData.technologies.length > 0 && (
+                  <Card sx={{ backgroundColor: 'rgba(0, 0, 0, 0.7)', border: '1px solid rgba(0, 245, 255, 0.3)' }}>
+                    <CardContent>
+                      <Typography variant="h6" sx={{ color: '#00f5ff', marginBottom: 1 }}>
+                        <Zap size={16} style={{ marginRight: 8, verticalAlign: 'middle' }} />
+                        Technologies
+                      </Typography>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                        {scanResults.osintData.technologies.map((tech, index) => (
+                          <Chip
+                            key={index}
+                            label={`${tech.name}${tech.version ? ` ${tech.version}` : ''}`}
+                            size="small"
+                            sx={{ backgroundColor: 'rgba(255, 136, 0, 0.2)', color: '#ffffff' }}
+                          />
+                        ))}
+                      </Box>
+                    </CardContent>
+                  </Card>
+                )}
+              </Box>
+            ) : (
+              <Alert
+                severity="info"
+                sx={{
+                  backgroundColor: 'rgba(0, 170, 255, 0.1)',
+                  color: '#00aaff',
+                  border: '1px solid rgba(0, 170, 255, 0.3)'
+                }}
+              >
+                No OSINT data available. Run a scan to collect intelligence.
+              </Alert>
+            )}
+          </Box>
+        )}
+
+        {currentTab === 3 && (
+          <Box>
+            <Typography variant="h6" sx={{ color: '#00f5ff', marginBottom: 2 }}>
+              Threat Analysis
+            </Typography>
+            
+            {targetIntelligence ? (
+              <Box>
+                <Typography variant="body1" sx={{ color: '#ffffff', marginBottom: 2 }}>
+                  Comprehensive threat analysis for <strong>{targetIntelligence.domain}</strong>
+                </Typography>
+                
+                <Paper
+                  sx={{
+                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                    border: '1px solid rgba(255, 68, 68, 0.3)',
+                    padding: 2
+                  }}
+                >
+                  <Typography variant="h6" sx={{ color: '#ff4444', marginBottom: 1 }}>
+                    <Shield size={16} style={{ marginRight: 8, verticalAlign: 'middle' }} />
+                    Threat Level: {targetIntelligence.threatLevel.toUpperCase()}
+                  </Typography>
+                  
+                  <Typography variant="body2" sx={{ color: '#cccccc' }}>
+                    Risk assessment based on vulnerability count, exposure level, and threat indicators.
+                  </Typography>
+                </Paper>
+              </Box>
+            ) : (
+              <Alert
+                severity="warning"
+                sx={{
+                  backgroundColor: 'rgba(255, 170, 0, 0.1)',
+                  color: '#ffaa00',
+                  border: '1px solid rgba(255, 170, 0, 0.3)'
+                }}
+              >
+                No threat analysis available. Complete a scan to generate threat assessment.
+              </Alert>
+            )}
+          </Box>
+        )}
+
+        {currentTab === 4 && (
+          <Box>
+            <Typography variant="h6" sx={{ color: '#00f5ff', marginBottom: 2 }}>
+              Action Items
+            </Typography>
+            
+            {targetIntelligence?.analysisData?.recommendations ? (
+              <List>
+                {targetIntelligence.analysisData.recommendations.map((rec, index) => (
+                  <ListItem
+                    key={index}
+                    sx={{
+                      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                      border: '1px solid rgba(0, 245, 255, 0.3)',
+                      marginBottom: 1,
+                      borderRadius: 1
+                    }}
+                  >
+                    <ListItemIcon>
+                      <CheckCircle color={getThreatLevelColor(rec.priority)} size={20} />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <Typography sx={{ color: '#ffffff' }}>
+                            {rec.action}
+                          </Typography>
+                          <Chip
+                            label={rec.priority.toUpperCase()}
+                            size="small"
+                            sx={{
+                              backgroundColor: getThreatLevelColor(rec.priority),
+                              color: '#000000'
+                            }}
+                          />
+                        </Box>
+                      }
+                      secondary={
+                        <Box sx={{ marginTop: 1 }}>
+                          <Typography sx={{ color: '#cccccc', marginBottom: 0.5 }}>
+                            {rec.rationale}
+                          </Typography>
+                          <Typography sx={{ color: '#888888', fontSize: '0.8em' }}>
+                            Estimated effort: {rec.estimatedEffort}
+                          </Typography>
+                        </Box>
+                      }
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            ) : (
+              <Alert
+                severity="info"
+                sx={{
+                  backgroundColor: 'rgba(0, 170, 255, 0.1)',
+                  color: '#00aaff',
+                  border: '1px solid rgba(0, 170, 255, 0.3)'
+                }}
+              >
+                No action items available. Complete intelligence analysis to generate recommendations.
+              </Alert>
+            )}
+          </Box>
+        )}
+      </Box>
     </Box>
   );
 };
