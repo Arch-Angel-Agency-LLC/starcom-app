@@ -1,450 +1,225 @@
 /**
- * NetRunner Top Bar
+ * NetRunner Top Bar - Real-time Debug Logs
  * 
- * Main navigation and control bar for the NetRunner Control Station.
- * Includes view navigation, global search, sidebar controls, and status indicators.
+ * Displays real-time debug logs and system status.
+ * Expandable to full screen for detailed log analysis.
  * 
  * @author GitHub Copilot
- * @date July 10, 2025
+ * @date July 11, 2025
  */
 
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
-  AppBar,
-  Toolbar,
-  Typography,
   Box,
+  Typography,
   IconButton,
-  TextField,
-  InputAdornment,
-  Chip,
-  Badge,
-  Tooltip,
-  Menu,
-  MenuItem,
-  Alert,
-  Snackbar,
-  Divider
+  Tooltip
 } from '@mui/material';
 import {
-  Search,
-  Settings,
-  Bell,
-  Menu as MenuIcon,
-  Grid3X3,
+  Maximize2,
+  Minimize2,
   Terminal,
-  Bot,
-  GitBranch,
-  Shield,
   Activity,
-  Database,
-  Zap
+  AlertCircle,
+  CheckCircle,
+  XCircle
 } from 'lucide-react';
 
-import { LoggerFactory } from '../../services/logging';
+interface LogEntry {
+  id: string;
+  timestamp: Date;
+  level: 'info' | 'warning' | 'error' | 'success';
+  message: string;
+  source: string;
+}
 
 interface NetRunnerTopBarProps {
   height: number;
-  activeView: string;
-  onViewChange: (view: string) => void;
-  onSidebarToggle: (side: 'left' | 'right') => void;
-  globalSearch: string;
-  onGlobalSearch: (query: string) => void;
-  onSearchExecute: (query?: string) => Promise<void>;
-  leftSidebarOpen: boolean;
-  rightSidebarOpen: boolean;
-  searchResults: unknown[];
-  isSearching: boolean;
-  errorState: {
-    hasError: boolean;
-    message: string;
-    severity: 'error' | 'warning' | 'info';
-  };
-  onErrorDismiss: () => void;
-}
-
-interface NavButton {
-  id: string;
-  label: string;
-  icon: React.ComponentType;
-  description: string;
-  color: string;
+  isExpanded: boolean;
+  onToggleExpand: () => void;
 }
 
 const NetRunnerTopBar: React.FC<NetRunnerTopBarProps> = ({
   height,
-  activeView,
-  onViewChange,
-  onSidebarToggle,
-  globalSearch,
-  onGlobalSearch,
-  onSearchExecute,
-  leftSidebarOpen,
-  rightSidebarOpen,
-  searchResults,
-  isSearching,
-  errorState,
-  onErrorDismiss
+  isExpanded,
+  onToggleExpand
 }) => {
-  const logger = useMemo(() => LoggerFactory.getLogger('NetRunnerTopBar'), []);
-  
-  const [notificationMenu, setNotificationMenu] = useState<HTMLElement | null>(null);
-  const [settingsMenu, setSettingsMenu] = useState<HTMLElement | null>(null);
+  const [logs, setLogs] = useState<LogEntry[]>([]);
+  const logsEndRef = useRef<HTMLDivElement>(null);
 
-  // Navigation Buttons Configuration
-  const navButtons: NavButton[] = [
-    {
-      id: 'dashboard',
-      label: 'Dashboard',
-      icon: Grid3X3,
-      description: 'Main dashboard overview',
-      color: '#00f5ff'
-    },
-    {
-      id: 'powertools',
-      label: 'Power Tools',
-      icon: Terminal,
-      description: 'OSINT tool collection',
-      color: '#8b5cf6'
-    },
-    {
-      id: 'botroster',
-      label: 'Bot Roster',
-      icon: Bot,
-      description: 'Automated collection bots',
-      color: '#00ff88'
-    },
-    {
-      id: 'workflows',
-      label: 'Workflows',
-      icon: GitBranch,
-      description: 'Automated workflows',
-      color: '#ff8c00'
-    },
-    {
-      id: 'aiagent',
-      label: 'AI Agent',
-      icon: Zap,
-      description: 'AI-powered automation',
-      color: '#ff0066'
-    },
-    {
-      id: 'osintgearch',
-      label: 'OSINT Search',
-      icon: Search,
-      description: 'Multi-source search',
-      color: '#00f5ff'
-    },
-    {
-      id: 'intelligence',
-      label: 'Intelligence',
-      icon: Shield,
-      description: 'Intelligence analysis',
-      color: '#8b5cf6'
-    },
-    {
-      id: 'monitoring',
-      label: 'Monitoring',
-      icon: Activity,
-      description: 'System monitoring',
-      color: '#00ff88'
+  // Mock real-time logs
+  useEffect(() => {
+    const generateLog = () => {
+      const sources = ['ShodanAdapter', 'CensysAdapter', 'VirusTotalAdapter', 'NetRunnerEngine', 'WorkflowScheduler'];
+      const levels: LogEntry['level'][] = ['info', 'warning', 'error', 'success'];
+      const messages = [
+        'Scanning IP range 192.168.1.0/24',
+        'API rate limit approaching',
+        'Failed to connect to target',
+        'Domain scan completed successfully',
+        'Vulnerability detected: CVE-2023-1234',
+        'Bot deployment successful',
+        'Workflow execution started',
+        'Data extraction complete'
+      ];
+
+      const newLog: LogEntry = {
+        id: Date.now().toString(),
+        timestamp: new Date(),
+        level: levels[Math.floor(Math.random() * levels.length)],
+        message: messages[Math.floor(Math.random() * messages.length)],
+        source: sources[Math.floor(Math.random() * sources.length)]
+      };
+
+      setLogs(prev => [...prev.slice(-49), newLog]); // Keep last 50 logs
+    };
+
+    const interval = setInterval(generateLog, 2000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Auto-scroll to bottom
+  useEffect(() => {
+    logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [logs]);
+
+  const getLogIcon = (level: LogEntry['level']) => {
+    switch (level) {
+      case 'error': return <XCircle size={16} color="#ff4444" />;
+      case 'warning': return <AlertCircle size={16} color="#ffaa00" />;
+      case 'success': return <CheckCircle size={16} color="#00ff88" />;
+      default: return <Activity size={16} color="#00f5ff" />;
     }
-  ];
+  };
 
-  // Search Handler
-  const handleSearchChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    const query = event.target.value;
-    onGlobalSearch(query);
-    logger.debug('Global search query changed', { query });
-  }, [onGlobalSearch, logger]);
-
-  // Navigation Handler
-  const handleNavigation = useCallback((viewId: string) => {
-    onViewChange(viewId);
-    logger.info('Navigation action', { from: activeView, to: viewId });
-  }, [onViewChange, activeView, logger]);
-
-  // Menu Handlers
-  const handleNotificationClick = useCallback((event: React.MouseEvent<HTMLElement>) => {
-    setNotificationMenu(event.currentTarget);
-  }, []);
-
-  const handleSettingsClick = useCallback((event: React.MouseEvent<HTMLElement>) => {
-    setSettingsMenu(event.currentTarget);
-  }, []);
-
-  const handleMenuClose = useCallback(() => {
-    setNotificationMenu(null);
-    setSettingsMenu(null);
-  }, []);
+  const getLogColor = (level: LogEntry['level']) => {
+    switch (level) {
+      case 'error': return '#ff4444';
+      case 'warning': return '#ffaa00';
+      case 'success': return '#00ff88';
+      default: return '#00f5ff';
+    }
+  };
 
   return (
-    <>
-      <AppBar
-        position="static"
-        elevation={0}
+    <Box
+      sx={{
+        height: isExpanded ? '100vh' : height,
+        width: '100%',
+        backgroundColor: '#0a0a0a',
+        border: '1px solid #333',
+        borderRadius: isExpanded ? 0 : '8px',
+        position: isExpanded ? 'fixed' : 'relative',
+        top: isExpanded ? 0 : 'auto',
+        left: isExpanded ? 0 : 'auto',
+        zIndex: isExpanded ? 9999 : 1,
+        display: 'flex',
+        flexDirection: 'column'
+      }}
+    >
+      {/* Header */}
+      <Box
         sx={{
-          height,
-          backgroundColor: '#1a1a1a',
-          borderBottom: '1px solid #404040',
-          '& .MuiToolbar-root': {
-            minHeight: height,
-            paddingX: 2
-          }
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '8px 16px',
+          borderBottom: '1px solid #333',
+          backgroundColor: '#111'
         }}
       >
-        <Toolbar>
-          {/* Logo and Title */}
-          <Box sx={{ display: 'flex', alignItems: 'center', mr: 3 }}>
-            <IconButton
-              onClick={() => onSidebarToggle('left')}
-              sx={{ 
-                color: leftSidebarOpen ? '#00f5ff' : '#b0b0b0',
-                mr: 1
-              }}
-            >
-              <MenuIcon />
-            </IconButton>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Terminal size={18} color="#00f5ff" />
+          <Typography
+            variant="h6"
+            sx={{
+              color: '#00f5ff',
+              fontFamily: 'monospace',
+              fontSize: '14px',
+              fontWeight: 600
+            }}
+          >
+            NetRunner Debug Console
+          </Typography>
+        </Box>
+        
+        <Tooltip title={isExpanded ? "Minimize" : "Expand to Full Screen"}>
+          <IconButton
+            onClick={onToggleExpand}
+            sx={{
+              color: '#00f5ff',
+              '&:hover': { backgroundColor: 'rgba(0, 245, 255, 0.1)' }
+            }}
+          >
+            {isExpanded ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
+          </IconButton>
+        </Tooltip>
+      </Box>
+
+      {/* Logs Container */}
+      <Box
+        sx={{
+          flex: 1,
+          overflow: 'auto',
+          padding: '8px',
+          fontFamily: 'monospace',
+          fontSize: '12px',
+          backgroundColor: '#0a0a0a'
+        }}
+      >
+        {logs.map((log) => (
+          <Box
+            key={log.id}
+            sx={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: 1,
+              marginBottom: '4px',
+              padding: '4px 8px',
+              borderRadius: '4px',
+              '&:hover': { backgroundColor: 'rgba(0, 245, 255, 0.05)' }
+            }}
+          >
+            {getLogIcon(log.level)}
             <Typography
-              variant="h6"
+              component="span"
               sx={{
-                fontFamily: 'Aldrich, monospace',
-                color: '#00f5ff',
-                fontWeight: 'bold',
-                textShadow: '0 0 10px #00f5ff'
+                color: '#666',
+                minWidth: '80px',
+                fontSize: '11px'
               }}
             >
-              NETRUNNER
+              {log.timestamp.toLocaleTimeString()}
             </Typography>
-            <Chip
-              label="v3.0"
-              size="small"
+            <Typography
+              component="span"
               sx={{
-                ml: 1,
-                backgroundColor: '#8b5cf6',
-                color: '#ffffff',
-                fontSize: '0.7rem'
-              }}
-            />
-          </Box>
-
-          {/* Navigation Buttons */}
-          <Box sx={{ display: 'flex', gap: 1, mr: 3 }}>
-            {navButtons.map((button) => {
-              const IconComponent = button.icon;
-              const isActive = activeView === button.id;
-              
-              return (
-                <Tooltip key={button.id} title={button.description}>
-                  <IconButton
-                    onClick={() => handleNavigation(button.id)}
-                    sx={{
-                      color: isActive ? button.color : '#b0b0b0',
-                      backgroundColor: isActive ? 'rgba(0, 245, 255, 0.1)' : 'transparent',
-                      border: isActive ? `1px solid ${button.color}` : '1px solid transparent',
-                      borderRadius: 1,
-                      padding: '8px 12px',
-                      transition: 'all 0.2s ease',
-                      '&:hover': {
-                        backgroundColor: `rgba(${button.color.replace('#', '')}, 0.1)`,
-                        color: button.color
-                      }
-                    }}
-                  >
-                  <IconComponent />
-                  </IconButton>
-                </Tooltip>
-              );
-            })}
-          </Box>
-
-          {/* Global Search */}
-          <Box sx={{ flexGrow: 1, maxWidth: 400, mr: 3 }}>
-            <TextField
-              fullWidth
-              placeholder="Global OSINT Search..."
-              value={globalSearch}
-              onChange={handleSearchChange}
-              onKeyPress={(e) => e.key === 'Enter' && onSearchExecute()}
-              size="small"
-              disabled={isSearching}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Search color="#00f5ff" />
-                  </InputAdornment>
-                ),
-                sx: {
-                  backgroundColor: '#2d2d2d',
-                  border: '1px solid #404040',
-                  borderRadius: 1,
-                  color: '#ffffff',
-                  '& .MuiOutlinedInput-notchedOutline': {
-                    border: 'none'
-                  },
-                  '&:hover': {
-                    borderColor: '#00f5ff'
-                  },
-                  '&.Mui-focused': {
-                    borderColor: '#00f5ff',
-                    boxShadow: '0 0 10px rgba(0, 245, 255, 0.3)'
-                  }
-                }
-              }}
-            />
-            {searchResults.length > 0 && (
-              <Typography 
-                variant="caption" 
-                sx={{ 
-                  color: '#00ff88', 
-                  display: 'block',
-                  mt: 0.5 
-                }}
-              >
-                {searchResults.length} results found
-              </Typography>
-            )}
-          </Box>
-
-          {/* Status Indicators */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            {/* Active Tools Indicator */}
-            <Tooltip title="Active Tools">
-              <Badge badgeContent={3} color="primary">
-                <IconButton sx={{ color: '#00ff88' }}>
-                  <Terminal />
-                </IconButton>
-              </Badge>
-            </Tooltip>
-
-            {/* Active Bots Indicator */}
-            <Tooltip title="Running Bots">
-              <Badge badgeContent={2} color="secondary">
-                <IconButton sx={{ color: '#ff8c00' }}>
-                  <Bot />
-                </IconButton>
-              </Badge>
-            </Tooltip>
-
-            {/* System Status */}
-            <Tooltip title="System Status">
-              <IconButton sx={{ color: '#00ff88' }}>
-                <Activity />
-              </IconButton>
-            </Tooltip>
-
-            <Divider orientation="vertical" flexItem sx={{ bgcolor: '#404040', mx: 1 }} />
-
-            {/* Notifications */}
-            <Tooltip title="Notifications">
-              <Badge badgeContent={5} color="error">
-                <IconButton
-                  onClick={handleNotificationClick}
-                  sx={{ color: '#b0b0b0' }}
-                >
-                  <Bell />
-                </IconButton>
-              </Badge>
-            </Tooltip>
-
-            {/* Settings */}
-            <Tooltip title="Settings">
-              <IconButton
-                onClick={handleSettingsClick}
-                sx={{ color: '#b0b0b0' }}
-              >
-                <Settings />
-              </IconButton>
-            </Tooltip>
-
-            {/* Right Sidebar Toggle */}
-            <IconButton
-              onClick={() => onSidebarToggle('right')}
-              sx={{ 
-                color: rightSidebarOpen ? '#00f5ff' : '#b0b0b0',
-                ml: 1
+                color: getLogColor(log.level),
+                minWidth: '100px',
+                fontSize: '11px',
+                fontWeight: 600
               }}
             >
-              <Database />
-            </IconButton>
+              [{log.source}]
+            </Typography>
+            <Typography
+              component="span"
+              sx={{
+                color: '#ccc',
+                flex: 1,
+                fontSize: '11px'
+              }}
+            >
+              {log.message}
+            </Typography>
           </Box>
-        </Toolbar>
-      </AppBar>
-
-      {/* Notification Menu */}
-      <Menu
-        anchorEl={notificationMenu}
-        open={Boolean(notificationMenu)}
-        onClose={handleMenuClose}
-        disablePortal={true}
-        PaperProps={{
-          sx: {
-            backgroundColor: '#1a1a1a',
-            border: '1px solid #404040',
-            minWidth: 300
-          }
-        }}
-      >
-        <MenuItem sx={{ color: '#ffffff' }}>
-          <Typography variant="body2">New OSINT data available</Typography>
-        </MenuItem>
-        <MenuItem sx={{ color: '#ffffff' }}>
-          <Typography variant="body2">Bot #1 completed task</Typography>
-        </MenuItem>
-        <MenuItem sx={{ color: '#ffffff' }}>
-          <Typography variant="body2">Workflow execution finished</Typography>
-        </MenuItem>
-      </Menu>
-
-      {/* Settings Menu */}
-      <Menu
-        anchorEl={settingsMenu}
-        open={Boolean(settingsMenu)}
-        onClose={handleMenuClose}
-        disablePortal={true}
-        PaperProps={{
-          sx: {
-            backgroundColor: '#1a1a1a',
-            border: '1px solid #404040',
-            minWidth: 200
-          }
-        }}
-      >
-        <MenuItem sx={{ color: '#ffffff' }}>
-          <Typography variant="body2">Preferences</Typography>
-        </MenuItem>
-        <MenuItem sx={{ color: '#ffffff' }}>
-          <Typography variant="body2">API Keys</Typography>
-        </MenuItem>
-        <MenuItem sx={{ color: '#ffffff' }}>
-          <Typography variant="body2">Export Data</Typography>
-        </MenuItem>
-        <MenuItem sx={{ color: '#ffffff' }}>
-          <Typography variant="body2">About</Typography>
-        </MenuItem>
-      </Menu>
-
-      {/* Error Snackbar */}
-      <Snackbar
-        open={errorState.hasError}
-        autoHideDuration={6000}
-        onClose={onErrorDismiss}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert
-          onClose={onErrorDismiss}
-          severity={errorState.severity}
-          sx={{
-            backgroundColor: errorState.severity === 'error' ? '#ff0066' : 
-                           errorState.severity === 'warning' ? '#ff8c00' : '#00f5ff',
-            color: '#ffffff'
-          }}
-        >
-          {errorState.message}
-        </Alert>
-      </Snackbar>
-    </>
+        ))}
+        <div ref={logsEndRef} />
+      </Box>
+    </Box>
   );
 };
 
 export default NetRunnerTopBar;
+
+
