@@ -1,8 +1,6 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import MainPage from '../pages/MainPage/MainPage';
-import SettingsPage from '../pages/SettingsPage/SettingsPage';
-import IntelReportsPage from '../pages/IntelReportsPage';
 import ProtectedRoute from './ProtectedRoute';
 import TokenGatedPage from '../components/Auth/TokenGatedPage';
 import AuthDemoPage from '../components/Demo/AuthDemoPage';
@@ -10,6 +8,7 @@ import UXFlowIntegrationTest from '../components/Testing/UXFlowIntegrationTest';
 import CyberInvestigationMVP from '../components/CyberInvestigation/CyberInvestigationMVP';
 import IPFSNostrIntegrationDemo from '../components/Demo/IPFSNostrIntegrationDemo';
 import ChatDemoPage from '../pages/Demo/ChatDemoPage';
+import EnhancedApplicationDemo from '../pages/Demo/EnhancedApplicationDemo';
 
 // Standalone page imports
 import TeamWorkspace from '../pages/Teams/TeamWorkspace';
@@ -56,16 +55,6 @@ const AppRoutes: React.FC = () => (
       <Route path="bots/:botId" element={null} />
     </Route>
     
-    {/* Settings Routes - Also using nested routes */}
-    <Route path="/settings" element={<SettingsPage />}>
-      <Route index element={<Navigate to="/settings/profile" replace />} />
-      <Route path="profile" element={null} />
-      <Route path="appearance" element={null} />
-      <Route path="security" element={null} />
-      <Route path="notifications" element={null} />
-      <Route path="advanced" element={null} />
-    </Route>
-    
     {/* Legacy and Standalone Routes - These use their own components */}
     <Route path="/team/:teamId" element={
       <ProtectedRoute>
@@ -99,25 +88,11 @@ const AppRoutes: React.FC = () => (
       </ProtectedRoute>
     } />
     
-    <Route path="/intel/:reportId" element={
-      <ProtectedRoute>
-        <BaseLayout>
-          <IntelReportsPage />
-        </BaseLayout>
-      </ProtectedRoute>
-    } />
-    
     <Route path="/team/:teamId/new-report" element={
       <ProtectedRoute>
         <BaseLayout>
           <NewReportPage />
         </BaseLayout>
-      </ProtectedRoute>
-    } />
-    
-    <Route path="/intelreports" element={
-      <ProtectedRoute>
-        <IntelReportsPage />
       </ProtectedRoute>
     } />
     
@@ -135,6 +110,7 @@ const AppRoutes: React.FC = () => (
     
     {/* Demo and test routes */}
     <Route path="/auth-demo" element={<AuthDemoPage />} />
+    <Route path="/enhanced-app-demo" element={<EnhancedApplicationDemo />} />
     <Route path="/ipfs-nostr-demo" element={<IPFSNostrIntegrationDemo />} />
     <Route path="/chat-demo" element={<ChatDemoPage />} />
     <Route path="/test-ui" element={<UXFlowIntegrationTest />} />

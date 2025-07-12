@@ -1,0 +1,123 @@
+# Vercel deployment ignore file
+# This file excludes files and directories from Vercel deployment
+# to stay under the 15,000 file limit
+
+# Backup directories (major culprits)
+backup/
+backup_logs/
+starcom-mk2-backup/
+
+# Node modules (should be excluded anyway)
+node_modules/
+**/node_modules/
+
+# Build outputs and dependencies
+target/
+dist/
+dist-ssr/
+build/
+out/
+
+# Development and test files
+test-results/
+tests/
+playwright-report/
+coverage/
+.cache/
+.npm/
+.yarn/
+
+# Documentation and scripts (not needed for deployment)
+docs/
+scripts/
+*.sh
+*.md
+!README.md
+
+# Asset development files (exclude development assets, keep production ones)
+asset development/
+
+# Exclude asset files from development directories only
+asset development/**/*.psd
+asset development/**/*.ai
+asset development/**/*.svg
+asset development/**/*.png
+asset development/**/*.jpg
+asset development/**/*.jpeg
+asset development/**/*.gif
+asset development/**/*.ico
+asset development/**/*.glb
+
+# Exclude root-level asset files (not in public or src directories)
+/*.svg
+/*.png
+/*.jpg
+/*.jpeg
+/*.gif
+/*.ico
+/*.glb
+
+# Configuration files that aren't needed for deployment
+*.config.js
+*.config.ts
+*.config.cjs
+*.config.mjs
+!vite.config.*
+!next.config.*
+!tailwind.config.*
+!postcss.config.*
+# Keep all TypeScript config files - they're needed for Vite build
+# tsconfig.*.json
+# !tsconfig.json
+eslint.config.js
+vitest.config.ts
+
+# Log files
+*.log
+*.log.*
+backup_verify_log.txt
+
+# Development database files
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+data/
+
+# Git files
+.git/
+.gitignore
+.gitmodules
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+*.tmp
+*.temp
+
+# Environment files (should be configured in Vercel dashboard)
+.env
+.env.*
+!.env.example
+
+# Rust specific
+Cargo.lock
+**/*.rs.bk
+
+# Contracts (if not needed for frontend)
+contracts/
+
+# Any other large asset directories (exclude only asset model directories, not src/models)
+/models/
+public/models/*.glb
+public/models/*.gltf
+asset development/models/
+stock/

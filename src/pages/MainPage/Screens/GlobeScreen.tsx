@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import styles from './GlobeScreen.module.css';
-import HUDLayout from '../../../layouts/HUDLayout/HUDLayout';
+import CyberCommandHUDLayout from '../../../layouts/CyberCommandHUDLayout/CyberCommandHUDLayout';
 
 // Globe screen that displays the 3D globe visualization
 const GlobeScreen: React.FC = () => {
@@ -9,7 +9,7 @@ const GlobeScreen: React.FC = () => {
   return (
     <div className={styles.globeScreen}>
       <div className={styles.hudContainer} ref={containerRef}>
-        <HUDLayout isEmbedded={true} />
+        <CyberCommandHUDLayout isEmbedded={true} />
       </div>
     </div>
   );

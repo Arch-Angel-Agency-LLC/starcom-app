@@ -4,7 +4,7 @@ import { OperationMode } from '../../../context/UnifiedGlobalCommandContext';
 import styles from './MegaCategoryPanel.module.css';
 
 // Import existing NOAA integration for EcoNatural -> PLANETARY migration
-import CompactNOAAControls from '../Bars/LeftSideBar/CompactNOAAControls';
+import CompactNOAAControls from '../Bars/CyberCommandLeftSideBar/CompactNOAAControls';
 
 interface MegaCategoryPanelProps {
   isCollapsed?: boolean;

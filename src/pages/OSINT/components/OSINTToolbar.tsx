@@ -1,6 +1,7 @@
 import React from 'react';
 import { Plus, Save, Download, Upload, Share2, Settings } from 'lucide-react';
 import { useAuth } from '../../../hooks/useAuth';
+import { ProviderStatusIndicator } from './ProviderStatusIndicator';
 import styles from './OSINTToolbar.module.css';
 
 export interface OSINTToolbarProps {
@@ -106,6 +107,12 @@ export const OSINTToolbar: React.FC<OSINTToolbarProps> = ({
           <Upload className={styles.buttonIcon} />
           <span className={styles.buttonText}>Import</span>
         </button>
+      </div>
+      
+      <div className={styles.toolbarGroup}>
+        <div className={styles.statusIndicatorWrapper}>
+          <ProviderStatusIndicator compact={true} />
+        </div>
       </div>
       
       <div className={styles.toolbarGroup}>

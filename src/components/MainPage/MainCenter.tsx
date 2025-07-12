@@ -1,5 +1,5 @@
 import React from 'react';
-import { useView } from '../../context/useView';
+import { useEnhancedApplicationRouter } from '../../hooks/useEnhancedApplicationRouter';
 import styles from './MainCenter.module.css';
 
 interface MainCenterProps {
@@ -7,15 +7,15 @@ interface MainCenterProps {
 }
 
 const MainCenter: React.FC<MainCenterProps> = ({ children }) => {
-  const { currentScreen } = useView();
+  const { currentApp } = useEnhancedApplicationRouter();
   
   return (
     <main 
       className={styles.mainCenter}
-      data-current-screen={currentScreen}
+      data-current-app={currentApp || 'none'}
       aria-live="polite"
     >
-      {/* Screen transition container */}
+      {/* Application content container */}
       <div className={styles.screenContainer}>
         {children}
       </div>

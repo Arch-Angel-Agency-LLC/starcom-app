@@ -14,6 +14,7 @@ import { GlobalGlobeContextMenuProvider } from "./context/GlobalGlobeContextMenu
 import { RightSideBarProvider } from "./context/RightSideBarContext";
 import { ViewProvider } from "./context/ViewContext";
 import { SecureChatProvider } from "./communication/context/SecureChatContext";
+import { EnhancedApplicationRouterProvider } from "./components/Router/EnhancedApplicationRouter";
 import RouteSynchronizer from "./components/Navigation/RouteSynchronizer";
 import SettingsInitializer from "./components/SettingsInitializer";
 import SettingsStatusIndicator from "./components/SettingsStatusIndicator";
@@ -75,9 +76,11 @@ const App: React.FC = () => (
                             <RightSideBarProvider>
                               <ViewProvider>
                                 <SecureChatProvider>
-                                  <div data-testid="app-root">
-                                    <AppContent />
-                                  </div>
+                                  <EnhancedApplicationRouterProvider>
+                                    <div data-testid="app-root">
+                                      <AppContent />
+                                    </div>
+                                  </EnhancedApplicationRouterProvider>
                                 </SecureChatProvider>
                               </ViewProvider>
                             </RightSideBarProvider>

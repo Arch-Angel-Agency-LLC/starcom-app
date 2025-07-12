@@ -1,223 +1,175 @@
 import React, { useCallback, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ScreenType } from '../../context/ViewContext';
-import { useView } from '../../context/useView';
-import { useCollaboration } from '../../hooks/useUnifiedGlobalCommand';
-import { useFeatureFlag } from '../../utils/featureFlags';
+import { useEnhancedApplicationRouter } from '../../hooks/useEnhancedApplicationRouter';
+import { ApplicationId } from '../Router/EnhancedApplicationRouter';
 import styles from './MainBottomBar.module.css';
 
 interface NavItem {
-  id: string;
+  id: ApplicationId;
   label: string;
-  screen: ScreenType;
-  path: string;
+  icon: string;
   tooltip: string;
-  icon?: string;
+  category: 'primary' | 'intel' | 'collab' | 'special';
   isHighlighted?: boolean;
   status?: 'connected' | 'available' | 'active';
-  category?: 'intel' | 'collab' | 'tools';
 }
 
-export const MainBottomBar: React.FC = () => {
-  const { isConnected } = useCollaboration();
-  const aiSuggestionsEnabled = useFeatureFlag('aiSuggestionsEnabled');
+const MainBottomBar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { navigateToScreen } = useView();
+  const { 
+    currentApp, 
+    navigateToApp, 
+    getAllApplications 
+  } = useEnhancedApplicationRouter();
   
-  // Check if user has visited teams page to hide new user hints
-  const hasVisitedTeams = localStorage.getItem('starcom-visited-teams');
+  // Get all registered applications from the Enhanced Application Router
+  const allApplications = getAllApplications();
 
-  // Organize navigation items by category for better structure
+  // Enhanced navigation items based on our Phase 2 application structure
   const navigationItems: NavItem[] = useMemo(() => [
-    // Globe
+    // Primary - CyberCommand Globe (protected, navigate via URL)
     { 
-      id: 'globe', 
+      id: 'cybercommand', 
       label: 'Globe', 
-      screen: 'globe',
-      path: '/',
       icon: '🌍',
-      tooltip: 'Global threat visualization',
-      category: 'tools'
+      tooltip: 'Global threat visualization with 3D interface',
+      category: 'primary'
     },
     
-    // Collaboration tools
-    { 
-      id: 'teams', 
-      label: 'Teams', 
-      screen: 'teams',
-      path: '/teams',
-      icon: '👥',
-      tooltip: isConnected ? 'Team collaboration (Connected)' : 'Join or manage cyber teams', 
-      isHighlighted: !hasVisitedTeams || isConnected,
-      status: isConnected ? 'connected' : 'available',
-      category: 'collab'
-    },
-    { 
-      id: 'aiagent', 
-      label: 'AI Agent', 
-      screen: 'aiagent',
-      path: '/aiagent',
-      icon: '🧠',
-      tooltip: aiSuggestionsEnabled ? 'AI Assistant & Autonomous Operations (Active)' : 'AI Assistant & Autonomous Operations',
-      status: aiSuggestionsEnabled ? 'active' : 'available',
-      category: 'collab'
-    },
-    { 
-      id: 'botroster', 
-      label: 'Bot Roster', 
-      screen: 'botroster',
-      path: '/bots',
-      icon: '🤖',
-      tooltip: 'AI agents and automation',
-      category: 'collab'
-    },
-    
-    // Intelligence tools
-    { 
-      id: 'search', 
-      label: 'Search', 
-      screen: 'search',
-      path: '/search',
-      icon: '🔍',
-      tooltip: 'OSINT search capabilities',
-      category: 'intel'
-    },
+    // The 7 Core Applications from Phase 2
     { 
       id: 'netrunner', 
       label: 'NetRunner', 
-      screen: 'netrunner',
-      path: '/netrunner',
-      icon: '🌐',
-      tooltip: 'Power tools and automation',
+      icon: '🕵️',
+      tooltip: 'Advanced investigation tools and OSINT operations',
       category: 'intel'
     },
     { 
       id: 'intelanalyzer', 
       label: 'IntelAnalyzer', 
-      screen: 'intelanalyzer',
-      path: '/intelanalyzer',
-      icon: '📈',
-      tooltip: 'Analyze collected information',
+      icon: '📊',
+      tooltip: 'Intelligence analysis and data processing',
       category: 'intel'
     },
     { 
-      id: 'marketexchange', 
-      label: 'MarketExchange', 
-      screen: 'marketexchange',
-      path: '/marketexchange',
-      icon: '💱',
-      tooltip: 'Intelligence marketplace and trading',
-      category: 'intel'
-    },
-    { 
-      id: 'monitoring', 
-      label: 'Monitoring', 
-      screen: 'monitoring',
-      path: '/monitoring',
-      icon: '👁️',
-      tooltip: 'Continuous surveillance and monitoring',
+      id: 'timemap', 
+      label: 'TimeMap', 
+      icon: '🗓️',
+      tooltip: 'Temporal analysis and timeline management',
       category: 'intel'
     },
     { 
       id: 'nodeweb', 
-      label: 'Node Web', 
-      screen: 'nodeweb',
-      path: '/nodeweb',
+      label: 'IntelWeb', 
       icon: '🕸️',
-      tooltip: 'Network topology and connections',
+      tooltip: 'Intelligence connections and relationship mapping',
       category: 'intel'
     },
     { 
-      id: 'timeline', 
-      label: 'Timeline', 
-      screen: 'timeline',
-      path: '/timeline',
-      icon: '📅',
-      tooltip: 'Chronological event analysis',
-      category: 'intel'
+      id: 'teamworkspace', 
+      label: 'CollabCenter', 
+      icon: '👥',
+      tooltip: 'Intelligence operations collaboration and project management',
+      category: 'collab'
     },
     { 
-      id: 'casemanager', 
-      label: 'Case Manager', 
-      screen: 'casemanager',
-      path: '/cases',
-      icon: '📁',
-      tooltip: 'Case management and intelligence reports',
-      category: 'intel'
+      id: 'marketexchange', 
+      label: 'MarketExchange', 
+      icon: '💰',
+      tooltip: 'Economic analysis and market intelligence',
+      category: 'special'
     }
-  ], [isConnected, aiSuggestionsEnabled, hasVisitedTeams]);
+  ], []);
 
-  // Group navigation items by category
+  // Group navigation items by category for organized display
   const groupedNavItems = useMemo(() => {
     const groups: Record<string, NavItem[]> = {
-      tools: [],
+      primary: [],
+      intel: [],
       collab: [],
-      intel: []
+      special: []
     };
     
     navigationItems.forEach(item => {
-      if (item.category) {
-        groups[item.category].push(item);
-      }
+      groups[item.category].push(item);
     });
     
     return groups;
   }, [navigationItems]);
 
+  // Check if an application is currently active
+  const isActive = useCallback((item: NavItem) => {
+    if (item.id === 'cybercommand') {
+      return location.pathname === '/' || location.pathname === '/globe';
+    }
+    return currentApp === item.id;
+  }, [currentApp, location.pathname]);
+
+  // Handle navigation
   const handleNavigation = useCallback((item: NavItem) => {
     console.log('🔘 MainBottomBar: Navigation clicked', {
-      id: item.id,
-      screen: item.screen,
-      path: item.path,
-      currentLocation: location.pathname
+      item: item.id,
+      label: item.label,
+      category: item.category,
+      currentApp: currentApp
     });
-    
-    // Track first visit to teams
-    if (item.screen === 'teams') {
-      localStorage.setItem('starcom-visited-teams', 'true');
-      localStorage.setItem('starcom-hint-seen', 'true');
-    }
-    
-    // Try direct ViewContext navigation instead of URL navigation
-    console.log('🔘 MainBottomBar: Navigating directly to screen:', item.screen);
-    navigateToScreen(item.screen);
-    
-    // Also update URL to keep them in sync
-    if (location.pathname !== item.path) {
-      console.log('🔘 MainBottomBar: Updating URL to:', item.path);
-      navigate(item.path, { replace: true });
-    }
-  }, [navigateToScreen, navigate, location.pathname]);
 
-  const isActive = useCallback((item: NavItem) => {
-    // Check for exact match for Globe (homepage)
-    if (item.path === '/' && location.pathname === '/') {
-      return true;
+    // Use the Enhanced Application Router for ALL applications, including CyberCommand
+    const applicationConfig = allApplications.find(app => app.id === item.id);
+    if (applicationConfig) {
+      console.log('🔘 MainBottomBar: Navigating to application:', {
+        appId: item.id,
+        mode: applicationConfig.defaultMode
+      });
+      
+      // Navigate to the application using the Enhanced Application Router
+      navigateToApp(item.id, applicationConfig.defaultMode);
+      
+      // Also update the URL for consistency (especially for CyberCommand/Globe)
+      if (item.id === 'cybercommand') {
+        navigate('/', { replace: true });
+      }
+    } else {
+      console.warn('🔘 MainBottomBar: Application not found in registry:', item.id);
     }
-    
-    // For other routes, check if the current path starts with the item's path
-    // This handles cases like '/netrunner/search-term' still highlighting the NetRunner tab
-    if (item.path !== '/') {
-      return location.pathname.startsWith(item.path);
-    }
-    
-    return false;
-  }, [location.pathname]);
+  }, [navigate, navigateToApp, allApplications, currentApp]);
 
   return (
     <nav className={styles.mainBottomBar} aria-label="Main Navigation">
       <div className={styles.leftSection}>
         <div className={styles.navigationContainer}>
-          {/* Tools section */}
+          {/* Primary section - CyberCommand Globe */}
           <div className={styles.navGroup}>
-            {groupedNavItems.tools.map((item) => (
+            {groupedNavItems.primary.map((item) => (
               <button
                 key={item.id}
                 className={`
                   ${styles.navButton} 
-                  ${item.isHighlighted ? styles.highlighted : ''} 
                   ${isActive(item) ? styles.active : ''} 
+                  ${item.isHighlighted ? styles.highlighted : ''}
+                `}
+                onClick={() => handleNavigation(item)}
+                title={item.tooltip}
+                aria-label={item.label}
+                aria-current={isActive(item) ? 'page' : undefined}
+              >
+                <span className={styles.icon}>{item.icon}</span>
+                <span className={styles.label}>{item.label}</span>
+              </button>
+            ))}
+          </div>
+          
+          {/* Intelligence section */}
+          <div className={styles.navGroup}>
+            <div className={styles.navGroupLabel}>Intelligence</div>
+            {groupedNavItems.intel.map((item) => (
+              <button
+                key={item.id}
+                className={`
+                  ${styles.navButton} 
+                  ${isActive(item) ? styles.active : ''} 
+                  ${item.isHighlighted ? styles.highlighted : ''}
                   ${item.status === 'connected' ? styles.connected : ''} 
                   ${item.status === 'active' ? styles.aiActive : ''}
                 `}
@@ -242,8 +194,8 @@ export const MainBottomBar: React.FC = () => {
                 key={item.id}
                 className={`
                   ${styles.navButton} 
-                  ${item.isHighlighted ? styles.highlighted : ''} 
                   ${isActive(item) ? styles.active : ''} 
+                  ${item.isHighlighted ? styles.highlighted : ''}
                   ${item.status === 'connected' ? styles.connected : ''} 
                   ${item.status === 'active' ? styles.aiActive : ''}
                 `}
@@ -260,16 +212,16 @@ export const MainBottomBar: React.FC = () => {
             ))}
           </div>
           
-          {/* Intelligence section */}
+          {/* Special section */}
           <div className={styles.navGroup}>
-            <div className={styles.navGroupLabel}>Intelligence</div>
-            {groupedNavItems.intel.map((item) => (
+            <div className={styles.navGroupLabel}>Exchange</div>
+            {groupedNavItems.special.map((item) => (
               <button
                 key={item.id}
                 className={`
                   ${styles.navButton} 
-                  ${item.isHighlighted ? styles.highlighted : ''} 
                   ${isActive(item) ? styles.active : ''} 
+                  ${item.isHighlighted ? styles.highlighted : ''}
                   ${item.status === 'connected' ? styles.connected : ''} 
                   ${item.status === 'active' ? styles.aiActive : ''}
                 `}
@@ -290,13 +242,11 @@ export const MainBottomBar: React.FC = () => {
       
       <div className={styles.rightSection}>
         <div className={styles.helpText}>
-          Press <kbd className={styles.kbd}>Ctrl+K</kbd> for quick access
+          Enhanced Application Router v2.0
         </div>
-        {!hasVisitedTeams && (
-          <div className={styles.newUserBadge}>
-            <span className={styles.pulse}>●</span> New? Press Ctrl+K
-          </div>
-        )}
+        <div className={styles.newUserBadge}>
+          <span className={styles.pulse}>●</span> {allApplications.length} apps ready
+        </div>
       </div>
     </nav>
   );

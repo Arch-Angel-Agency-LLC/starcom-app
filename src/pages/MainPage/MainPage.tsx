@@ -1,32 +1,34 @@
 import React, { useEffect } from 'react';
-import { Outlet, useParams } from 'react-router-dom';
+import { Outlet, useParams, useLocation } from 'react-router-dom';
 import styles from './MainPage.module.css';
 import GlobalHeader from '../../components/MainPage/GlobalHeader';
-import MarqueeTopBar from '../../components/MainPage/MarqueeTopBar';
+import MainMarqueeTopBar from '../../components/MainPage/MainMarqueeTopBar';
 import MainBottomBar from '../../components/MainPage/MainBottomBar';
 import MainCenter from '../../components/MainPage/MainCenter';
-import ScreenLoader from '../../components/MainPage/ScreenLoader';
-import { useView } from '../../context/useView';
+import { ApplicationRenderer } from '../../components/Router/ApplicationRenderer';
+import { useEnhancedApplicationRouter } from '../../hooks/useEnhancedApplicationRouter';
 import { SecureChatManager } from '../../components/SecureChat';
 
 const MainPage: React.FC = () => {
-  const { currentScreen, screenParams, setScreenParams } = useView();
+  const { currentApp, context, navigateToApp } = useEnhancedApplicationRouter();
   const params = useParams();
+  const location = useLocation();
   
-  // DIAGNOSTIC: Log current screen state
-  console.log('🏠 MainPage: Current state', { 
-    currentScreen, 
-    screenParams, 
-    urlParams: params,
-    pathname: window.location.pathname 
-  });
-  
-  // Update screen params when route params change
+  // Auto-navigate to CyberCommand when visiting the root URL
   useEffect(() => {
-    if (Object.keys(params).length > 0) {
-      setScreenParams({...screenParams, ...params});
+    if (location.pathname === '/' && !currentApp) {
+      console.log('🏠 MainPage: Auto-navigating to CyberCommand Globe on root URL');
+      navigateToApp('cybercommand', 'standalone');
     }
-  }, [params, setScreenParams, screenParams]);
+  }, [location.pathname, currentApp, navigateToApp]);
+  
+  // DIAGNOSTIC: Log current application state
+  console.log('🏠 MainPage: Enhanced Router state', { 
+    currentApp, 
+    context,
+    urlParams: params,
+    pathname: location.pathname 
+  });
   
   return (
     <div className={styles.mainPage}>
@@ -34,11 +36,11 @@ const MainPage: React.FC = () => {
       <GlobalHeader hasNotifications={true} />
       
       {/* Marquee bar with current view title and status indicators */}
-      <MarqueeTopBar />
+      <MainMarqueeTopBar />
       
-      {/* Main content area - contains the active screen */}
+      {/* Main content area - contains the active application */}
       <MainCenter>
-        <ScreenLoader screenType={currentScreen} params={screenParams} />
+        <ApplicationRenderer />
         <Outlet /> {/* This will render any nested route content */}
       </MainCenter>
       

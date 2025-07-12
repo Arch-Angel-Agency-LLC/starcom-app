@@ -1,11 +1,9 @@
 import React from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import WalletStatusMini from '../Auth/WalletStatusMini';
+import { Link, useLocation } from 'react-router-dom';
 import styles from './TopBarNavigation.module.css';
 
 const TopBarNavigation: React.FC = () => {
   const location = useLocation();
-  const navigate = useNavigate();
 
   const navigationItems = [
     { path: '/teams', label: 'Teams', icon: '👥' },
@@ -18,17 +16,14 @@ const TopBarNavigation: React.FC = () => {
     <nav className={styles.topNav}>
       {/* Logo/Brand */}
       <div className={styles.brand}>
-        <button 
-          onClick={() => navigate('/')}
-          className={styles.logoButton}
-        >
+        <Link to="/" className={styles.logoButton}>
           <img 
             src="/assets/images/WingCommanderLogo-288x162.gif" 
             alt="Starcom Logo"
             className={styles.logo}
           />
           <span className={styles.brandText}>STARCOM</span>
-        </button>
+        </Link>
       </div>
 
       {/* Main Navigation */}
@@ -48,18 +43,6 @@ const TopBarNavigation: React.FC = () => {
             <span className={styles.navLabel}>{item.label}</span>
           </Link>
         ))}
-      </div>
-
-      {/* User Actions */}
-      <div className={styles.userActions}>
-        <WalletStatusMini />
-        <button 
-          className={styles.settingsButton}
-          onClick={() => navigate('/settings')}
-          title="Settings"
-        >
-          ⚙️
-        </button>
       </div>
     </nav>
   );

@@ -1,0 +1,268 @@
+/* ApplicationRenderer.css */
+
+.application-renderer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* No Application State */
+.application-renderer.no-app {
+  justify-content: center;
+  align-items: center;
+  background: var(--bg-secondary, #1a1a1a);
+  color: var(--text-primary, #ffffff);
+}
+
+.no-app-message {
+  text-align: center;
+  padding: 2rem;
+}
+
+.no-app-message h2 {
+  margin: 0 0 1rem 0;
+  font-size: 1.5rem;
+  color: var(--text-secondary, #cccccc);
+}
+
+.no-app-message p {
+  margin: 0;
+  color: var(--text-muted, #888888);
+}
+
+/* Error States */
+.application-renderer.app-error,
+.application-renderer.mode-error {
+  justify-content: center;
+  align-items: center;
+  background: var(--bg-secondary, #1a1a1a);
+  color: var(--text-primary, #ffffff);
+}
+
+.app-error-message,
+.mode-error-message {
+  text-align: center;
+  padding: 2rem;
+  border: 2px solid var(--error-color, #ff4444);
+  border-radius: 8px;
+  background: var(--error-bg, rgba(255, 68, 68, 0.1));
+}
+
+.app-error-message h2,
+.mode-error-message h2 {
+  margin: 0 0 1rem 0;
+  font-size: 1.5rem;
+  color: var(--error-color, #ff4444);
+}
+
+.app-error-message p,
+.mode-error-message p {
+  margin: 0;
+  color: var(--text-muted, #cccccc);
+}
+
+/* Standalone Mode */
+.application-renderer.standalone {
+  background: var(--bg-primary, #000000);
+  color: var(--text-primary, #ffffff);
+}
+
+/* CyberCommand specific styling - no header, full height */
+.application-renderer.standalone.cybercommand-app {
+  background: transparent; /* Let CyberCommand handle its own background */
+}
+
+.application-renderer.standalone.cybercommand-app .application-content {
+  height: 100vh; /* Full viewport height for CyberCommand */
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.application-header {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border-color, #333333);
+  background: var(--bg-secondary, #1a1a1a);
+  flex-shrink: 0;
+}
+
+.app-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.app-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.app-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary, #ffffff);
+}
+
+.app-description {
+  margin: 0.25rem 0 0 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary, #cccccc);
+}
+
+.application-content {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Modal Mode */
+.application-renderer.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modal-container {
+  background: var(--bg-primary, #000000);
+  border: 1px solid var(--border-color, #333333);
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  max-width: 90vw;
+  max-height: 90vh;
+  width: 800px;
+  height: 600px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modal-header {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border-color, #333333);
+  background: var(--bg-secondary, #1a1a1a);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.modal-header .app-info {
+  gap: 0.75rem;
+}
+
+.modal-header .app-title {
+  font-size: 1.25rem;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: var(--text-secondary, #cccccc);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.modal-close:hover {
+  background: var(--bg-tertiary, #333333);
+  color: var(--text-primary, #ffffff);
+}
+
+.modal-content {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Embedded Mode */
+.application-renderer.embedded {
+  background: transparent;
+}
+
+/* Application-specific styling */
+.netrunner-app {
+  --app-primary: #00ff41;
+  --app-secondary: #008f23;
+  --app-accent: #00aa2e;
+}
+
+/* NetRunner specific layout fixes for embedded mode */
+.netrunner-app .application-content {
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+}
+
+.netrunner-app .application-header {
+  flex-shrink: 0;
+}
+
+.intelanalyzer-app {
+  --app-primary: #4fc3f7;
+  --app-secondary: #0288d1;
+  --app-accent: #0277bd;
+}
+
+.timemap-app {
+  --app-primary: #ff9800;
+  --app-secondary: #f57c00;
+  --app-accent: #ef6c00;
+}
+
+.nodeweb-app {
+  --app-primary: #e91e63;
+  --app-secondary: #c2185b;
+  --app-accent: #ad1457;
+}
+
+.teamworkspace-app {
+  --app-primary: #9c27b0;
+  --app-secondary: #7b1fa2;
+  --app-accent: #6a1b9a;
+}
+
+.marketexchange-app {
+  --app-primary: #ffeb3b;
+  --app-secondary: #fbc02d;
+  --app-accent: #f9a825;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .modal-container {
+    width: 95vw;
+    height: 85vh;
+  }
+  
+  .application-header {
+    padding: 0.75rem 1rem;
+  }
+  
+  .app-title {
+    font-size: 1.25rem;
+  }
+  
+  .app-info {
+    gap: 0.75rem;
+  }
+  
+  .app-icon {
+    font-size: 1.5rem;
+  }
+}

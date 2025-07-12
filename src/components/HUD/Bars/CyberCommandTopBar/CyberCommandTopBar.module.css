@@ -1,0 +1,164 @@
+/* src/components/HUD/TopBar.module.css */
+.topBar {
+    position: absolute;
+    top: 0;
+    left: 128px; /* Respect LeftSideBar width (128px) */
+    right: 120px; /* Leave space for RightSideBar (120px wide) */
+    height: 48px;
+    background: linear-gradient(90deg, #0f172a88 0%, #164e6388 100%);
+    color: #e0f2fe;
+    display: flex;
+    flex-direction: row; /* Ensure items are aligned horizontally */
+    align-items: center;
+    gap: 0;
+    justify-content: flex-start;
+    font-size: 18px; /* Slightly increase font size for readability */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6); /* Add a subtle shadow for depth */
+    pointer-events: auto !important; /* Ensure TopBar is always interactive */
+    z-index: 20; /* Lower than LeftSideBar to respect its dominance */
+    border-bottom: 2px solid #0891b2;
+  }
+
+  .marqueeSection {
+    flex: 1;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .logo {
+    height: 24px;
+    width: auto;
+    margin-left: 16px;
+    margin-right: 16px;
+    opacity: 0.9;
+  }
+  
+  .section {
+    display: flex;
+    align-items: center;
+  }
+  
+  .label {
+    font-weight: bold;
+    margin-right: 5px;
+  }
+  
+  .threat {
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  
+  /* Dynamic Threat Level Colors */
+  .threat.low { background: green; }
+  .threat.medium { background: orange; }
+  .threat.high { background: red; }
+  
+  .intel, .market, .cyber, .time {
+    font-weight: bold;
+  }
+
+  .controlSection {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-right: 12px;
+  }
+
+  .settingsButton {
+    margin-right: 6px;
+    margin-bottom: 4px;
+    padding-top: 12px;
+    padding-right: 12px;
+    padding-left: 12px;
+    padding-bottom: 6px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #0369a1 60%, #0ea5e9 100%);
+    color: #e0f2fe;
+    border: none;
+    box-shadow: 0 2px 8px #0ea5e9;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    outline: none;
+    max-width: 36px;
+    max-height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(8, 145, 178, 0.2);
+    border: 1px solid #0891b2;
+    border-radius: 6px;
+    padding: 6px 8px;
+    color: #e0f2fe;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s ease;
+    min-width: 32px;
+    height: 32px;
+  }
+  .settingsButton:hover, .settingsButton:focus {
+    background: #0ea5e9;
+    color: #0f172a;
+    box-shadow: 0 0 0 3px #38bdf8;
+    background: rgba(8, 145, 178, 0.4);
+    border-color: #06b6d4;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .settingsButton:active {
+    transform: translateY(0);
+    background: rgba(8, 145, 178, 0.6);
+  }
+
+  .settingsButton:focus {
+    outline: 2px solid #06b6d4;
+    outline-offset: 2px;
+  }
+
+  .resourceSection {
+    display: flex;
+    align-items: center;
+    gap: 5px; /* Add spacing between the label and the value */
+    flex-wrap: wrap; /* Allow wrapping if the content overflows */
+    flex: 1; /* Allow resource sections to take up equal space */
+    justify-content: flex-start; /* Align content to the start */
+  }
+
+  .resourceSection span {
+    white-space: nowrap; /* Prevent text from wrapping */
+  }
+
+  .error {
+    color: red;
+    font-weight: bold;
+    font-size: 14px; /* Slightly smaller font for error messages */
+  }
+
+  @media (max-width: 900px) {
+    .topBar {
+      flex-direction: column; /* Stack items vertically on smaller screens */
+      height: auto;
+      padding: 8px 4px;
+      font-size: 16px;
+      left: 110px; /* Maintain LeftSideBar respect */
+      right: 100px; /* Smaller right margin on smaller screens */
+    }
+    .logoSection {
+      margin-right: 0; /* Remove extra margin in stacked layout */
+      margin-bottom: 4px;
+    }
+    .marqueeSection {
+      margin-right: 0;
+      margin-bottom: 4px;
+      height: 36px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .topBar {
+      left: 100px; /* Match mobile LeftSideBar width */
+      right: 60px;
+    }
+  }

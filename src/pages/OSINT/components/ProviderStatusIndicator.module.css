@@ -1,0 +1,241 @@
+/* Provider Status Indicator Styles */
+/* Earth Alliance themed status indicator for OSINT providers */
+
+.container {
+  background: linear-gradient(145deg, #0a0f1c 0%, #1a2332 100%);
+  border: 1px solid #00d4ff;
+  border-radius: 8px;
+  padding: 16px;
+  color: #ffffff;
+  font-family: 'Orbitron', monospace;
+  box-shadow: 0 4px 16px rgba(0, 212, 255, 0.1);
+}
+
+.compactContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.summaryBadge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 212, 255, 0.1);
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  border-radius: 16px;
+  padding: 4px 12px;
+  font-size: 12px;
+  color: #00d4ff;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #00d4ff;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.summary {
+  font-size: 12px;
+  color: #a0a9b8;
+}
+
+.refreshButton {
+  background: transparent;
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  border-radius: 4px;
+  padding: 4px 8px;
+  color: #00d4ff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.refreshButton:hover:not(:disabled) {
+  background: rgba(0, 212, 255, 0.1);
+  border-color: #00d4ff;
+}
+
+.refreshButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.providerList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.providerItem {
+  background: rgba(26, 35, 50, 0.6);
+  border: 1px solid rgba(0, 212, 255, 0.1);
+  border-radius: 6px;
+  padding: 12px;
+  transition: all 0.2s ease;
+}
+
+.providerItem.clickable {
+  cursor: pointer;
+}
+
+.providerItem.clickable:hover {
+  border-color: rgba(0, 212, 255, 0.3);
+  background: rgba(26, 35, 50, 0.8);
+}
+
+.providerInfo {
+  margin-bottom: 8px;
+}
+
+.providerHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.providerIcon {
+  font-size: 16px;
+  min-width: 20px;
+}
+
+.providerName {
+  font-weight: 500;
+  color: #ffffff;
+  flex: 1;
+}
+
+.providerStatus {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.statusText {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.statusIconConnected {
+  color: #00ff88;
+}
+
+.statusIconMock {
+  color: #ffaa00;
+}
+
+.statusIconError {
+  color: #ff4444;
+}
+
+.statusIconDisabled {
+  color: #666666;
+}
+
+.statusIconUnknown {
+  color: #999999;
+}
+
+.providerDescription {
+  font-size: 12px;
+  color: #a0a9b8;
+  margin-left: 28px;
+}
+
+.errorMessage {
+  font-size: 11px;
+  color: #ff6b6b;
+  margin-left: 28px;
+  margin-top: 4px;
+  padding: 4px 8px;
+  background: rgba(255, 107, 107, 0.1);
+  border-radius: 3px;
+}
+
+.providerMetrics {
+  font-size: 11px;
+  color: #666;
+  text-align: right;
+}
+
+.lastCheck {
+  opacity: 0.7;
+}
+
+.footer {
+  padding-top: 12px;
+  border-top: 1px solid rgba(0, 212, 255, 0.2);
+}
+
+.integrationStatus {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.integrationLabel {
+  color: #a0a9b8;
+}
+
+.integrationValue {
+  font-weight: 500;
+  color: #00d4ff;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .container {
+    padding: 12px;
+  }
+  
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .headerActions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .providerHeader {
+    flex-wrap: wrap;
+  }
+  
+  .providerStatus {
+    margin-left: auto;
+  }
+}

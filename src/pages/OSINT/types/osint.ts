@@ -17,7 +17,9 @@ export type PanelType =
   | 'darkweb'     // Dark web monitoring
   | 'opsec'       // Operational security
   | 'console'     // Command console
-  | 'notes';      // Investigation notes
+  | 'notes'       // Investigation notes
+  | 'intelligence-summary' // Real-time intelligence analysis
+  | 'quick-actions';  // Quick action shortcuts
 
 // Panel Position & Size
 export interface PanelPosition {
@@ -32,7 +34,7 @@ export interface Panel {
   id: string;               // Unique identifier
   type: PanelType;          // Panel type
   position: PanelPosition;  // Layout position and size
-  data: Record<string, any>; // Panel-specific data
+  data: Record<string, unknown>; // Panel-specific data
   locked: boolean;          // Whether panel can be moved/resized
 }
 
@@ -81,19 +83,6 @@ export type EntityType =
 
 // Investigation Status
 export type InvestigationStatus = 'active' | 'archived' | 'pending';
-
-// Investigation Definition
-export interface Investigation {
-  id: string;
-  name: string;
-  description: string;
-  created: Date;
-  modified: Date;
-  tags: string[];
-  shared: string[];
-  status: InvestigationStatus;
-  panels?: Panel[];
-}
 
 // Relationship Types
 export type RelationshipType =

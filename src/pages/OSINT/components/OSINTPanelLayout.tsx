@@ -14,6 +14,8 @@ import MapPanel from './panels/MapPanel';
 import BlockchainPanel from './panels/BlockchainPanel';
 import DarkWebPanel from './panels/DarkWebPanel';
 import OPSECPanel from './panels/OPSECPanel';
+import IntelligenceSummaryPanel from './panels/IntelligenceSummaryPanel';
+import QuickActionsPanel from './panels/QuickActionsPanel';
 
 // Import types
 import { Panel, PanelType } from '../types/osint';
@@ -26,18 +28,20 @@ interface OSINTPanelLayoutProps {
   className?: string;
 }
 
-// Map of panel types to components
-const panelComponents: Record<PanelType, React.ComponentType<any>> = {
-  search: SearchPanel,
-  results: ResultsPanel,
-  graph: GraphPanel,
-  timeline: TimelinePanel,
-  map: MapPanel,
-  blockchain: BlockchainPanel,
-  darkweb: DarkWebPanel,
-  opsec: OPSECPanel,
+// Map of panel types to components  
+const panelComponents: Record<PanelType, React.ComponentType<{ data: Record<string, unknown>; panelId: string; [key: string]: unknown }>> = {
+  search: SearchPanel as React.ComponentType<{ data: Record<string, unknown>; panelId: string; [key: string]: unknown }>,
+  results: ResultsPanel as React.ComponentType<{ data: Record<string, unknown>; panelId: string; [key: string]: unknown }>,
+  graph: GraphPanel as React.ComponentType<{ data: Record<string, unknown>; panelId: string; [key: string]: unknown }>,
+  timeline: TimelinePanel as React.ComponentType<{ data: Record<string, unknown>; panelId: string; [key: string]: unknown }>,
+  map: MapPanel as React.ComponentType<{ data: Record<string, unknown>; panelId: string; [key: string]: unknown }>,
+  blockchain: BlockchainPanel as React.ComponentType<{ data: Record<string, unknown>; panelId: string; [key: string]: unknown }>,
+  darkweb: DarkWebPanel as React.ComponentType<{ data: Record<string, unknown>; panelId: string; [key: string]: unknown }>,
+  opsec: OPSECPanel as React.ComponentType<{ data: Record<string, unknown>; panelId: string; [key: string]: unknown }>,
   console: () => <div>Console Panel</div>,
-  notes: () => <div>Notes Panel</div>
+  notes: () => <div>Notes Panel</div>,
+  'intelligence-summary': IntelligenceSummaryPanel as React.ComponentType<{ data: Record<string, unknown>; panelId: string; [key: string]: unknown }>,
+  'quick-actions': QuickActionsPanel as React.ComponentType<{ data: Record<string, unknown>; panelId: string; [key: string]: unknown }>
 };
 
 // Map of panel types to titles
@@ -48,10 +52,12 @@ const panelTitles: Record<PanelType, string> = {
   timeline: 'Timeline Analysis',
   map: 'Geospatial Intelligence',
   blockchain: 'Blockchain Analysis',
-  darkweb: 'Dark Web Monitor',
-  opsec: 'OPSEC Shield',
+  darkweb: 'Dark Web Monitoring',
+  opsec: 'Operational Security',
   console: 'Command Console',
-  notes: 'Investigation Notes'
+  notes: 'Investigation Notes',
+  'intelligence-summary': 'Intelligence Summary',
+  'quick-actions': 'Quick Actions'
 };
 
 /**
@@ -77,12 +83,12 @@ export const OSINTPanelLayout: React.FC<OSINTPanelLayoutProps> = ({
   };
   
   // Handle layout changes from react-grid-layout
-  const handleLayoutChange = (layout: any) => {
+  const handleLayoutChange = (layout: { x: number; y: number; w: number; h: number; i: string }[]) => {
     if (!onLayoutChange) return;
     
     // Update panel positions based on new layout
     const updatedPanels = panels.map(panel => {
-      const layoutItem = layout.find((item: any) => item.i === panel.id);
+      const layoutItem = layout.find((item: { x: number; y: number; w: number; h: number; i: string }) => item.i === panel.id);
       if (!layoutItem) return panel;
       
       return {
