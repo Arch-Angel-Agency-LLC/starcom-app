@@ -11,16 +11,10 @@ import { TheHarvesterAdapter } from './TheHarvesterAdapter';
 import { IntelAnalyzerAdapter } from './IntelAnalyzerAdapter';
 import { apiConfigManager } from '../../../../shared/config/ApiConfigManager';
 
-// Production adapters - available but need interface compatibility fixes
-// import { ShodanAdapter as ShodanAdapterProd } from './ShodanAdapterProd';
-// import { VirusTotalAdapter as VirusTotalAdapterProd } from './VirusTotalAdapterProd';
-// import { CensysAdapter as CensysAdapterProd } from './CensysAdapterProd';
-// import { TheHarvesterAdapterProd } from './TheHarvesterAdapterProd';
-
-// Environment-based adapter selection with unified config
-const USE_PRODUCTION_ADAPTERS = apiConfigManager.shouldUseRealApis() ||
-                                (process.env.NODE_ENV === 'production' && 
-                                 process.env.NETRUNNER_USE_PROD_ADAPTERS === 'true');
+// Environment-based adapter configuration
+const USE_PRODUCTION_APIS = apiConfigManager.shouldUseRealApis() ||
+                           (process.env.NODE_ENV === 'production' && 
+                            process.env.NETRUNNER_USE_PROD_ADAPTERS === 'true');
 
 // Map of tool IDs to their adapters
 const adapterRegistry = new Map<string, ToolAdapter>();
@@ -52,25 +46,13 @@ export const initializeAdapters = async (): Promise<void> => {
   // Select adapters based on configuration and availability
   const adapters: ToolAdapter[] = [];
   
-  // Add Shodan adapter - use production version if enabled and API key available
-  if (USE_PRODUCTION_ADAPTERS && apiConfigManager.isProviderEnabled('shodan')) {
-    try {
-      // Note: Production adapters need compatibility fixes - using mock for now
-      console.log('Production Shodan adapter available but using mock version for compatibility');
-      adapters.push(new ShodanAdapter());
-    } catch (error) {
-      console.warn('Failed to load production Shodan adapter, falling back to mock', error);
-      adapters.push(new ShodanAdapter());
-    }
-  } else {
-    adapters.push(new ShodanAdapter());
-  }
-
-  // Add other adapters (production versions available but need compatibility fixes)
+  // Add adapters with unified configuration
+  // Note: All adapters now support both mock and production modes internally
+  adapters.push(new ShodanAdapter());
   adapters.push(new TheHarvesterAdapter());
   adapters.push(new IntelAnalyzerAdapter());
   
-  console.log(`Initializing ${USE_PRODUCTION_ADAPTERS ? 'production' : 'mock'} adapters`);
+  console.log(`Initializing adapters with ${USE_PRODUCTION_APIS ? 'production' : 'mock'} API mode`);
   console.log(`API Config: Real APIs ${apiConfigManager.shouldUseRealApis() ? 'enabled' : 'disabled'}`);
   
   // Initialize and register each adapter

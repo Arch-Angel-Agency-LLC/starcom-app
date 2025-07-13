@@ -70,6 +70,7 @@
     "@metaplex-foundation/mpl-token-metadata": "^3.4.0",
     "@metaplex-foundation/umi": "^1.2.0",
     "@metaplex-foundation/umi-bundle-defaults": "^1.2.0",
+    "@mui/icons-material": "^7.2.0",
     "@mui/material": "^7.2.0",
     "@multiformats/multiaddr": "^12.4.1",
     "@noble/curves": "^1.9.2",

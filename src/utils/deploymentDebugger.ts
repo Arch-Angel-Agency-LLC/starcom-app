@@ -5,7 +5,11 @@
  * This utility provides enhanced visibility into assets, imports, and runtime issues
  * specifically for production environments like Vercel. It creates detailed diagnostic
  * logs in the console that can help identify issues that only appear in production.
+ * 
+ * Now controlled by feature flags to reduce noise in production.
  */
+
+import { featureFlagManager } from './featureFlags';
 
 // Standardized console output with categories
 const DEBUG_CATEGORIES = {
@@ -41,13 +45,13 @@ const ENV = {
 // Configuration for the debugger
 const CONFIG = {
   // Set this to true to enable verbose debugging in production
-  enableInProduction: true,
+  enableInProduction: false, // Changed to false - now controlled by feature flags
   // Minimum log level to display
   minLevel: 'info',
   // Maximum depth for object serialization
   maxDepth: 5,
   // Should logging be forced even in production?
-  forceLogging: true,
+  forceLogging: false, // Changed to false - now controlled by feature flags
   // Version tag to track which deployment version is running
   versionTag: '3d-assets-debugging-1.0',
 };
@@ -120,11 +124,30 @@ export function debugLog(
     ignoreProductionSetting = false,
   } = options;
 
+  // Check feature flags first
+  const isDeploymentDebugEnabled = featureFlagManager.getFlag('deploymentDebugLoggingEnabled');
+  const isAssetDebugEnabled = featureFlagManager.getFlag('assetDebugLoggingEnabled');
+  
+  // Determine if this log should be shown based on category and feature flags
+  let shouldLog = false;
+  
+  if (category.includes('ASSET') || category.includes('MODEL')) {
+    shouldLog = isAssetDebugEnabled;
+  } else {
+    shouldLog = isDeploymentDebugEnabled;
+  }
+  
+  // Skip logging if feature flags are disabled and not forced
+  if (!shouldLog && !ignoreProductionSetting) {
+    return;
+  }
+
   // Skip logging in production unless specifically enabled
   if (
     ENV.isProduction &&
     !CONFIG.enableInProduction &&
-    !ignoreProductionSetting
+    !ignoreProductionSetting &&
+    !shouldLog
   ) {
     return;
   }

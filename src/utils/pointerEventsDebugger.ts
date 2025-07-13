@@ -5,6 +5,8 @@
  * AI-NOTE: This utility helps debug pointer events issues where views appear but can't be interacted with
  */
 
+import { conditionalLog } from './featureFlags';
+
 export interface PointerEventsIssue {
   element: HTMLElement;
   computedStyle: CSSStyleDeclaration;
@@ -197,111 +199,102 @@ export function createPointerEventsOverlay(): HTMLElement {
  * Log pointer events information for debugging
  */
 export function logPointerEventsDebug(): void {
-  if (import.meta.env.DEV) {
-    const issues = findPointerEventsIssues();
-    
-    console.group('🎯 Pointer Events Debug');
-    console.log('Found', issues.length, 'potential issues');
-    
-    if (issues.length > 0) {
-      console.group('📋 Issues Found:');
-      issues.forEach((issue, index) => {
-        console.group(`${index + 1}. ${issue.priority.toUpperCase()} - ${issue.issue}`);
-        console.log('Element:', issue.element);
-        console.log('Solution:', issue.solution);
-        console.log('Current pointer-events:', issue.computedStyle.pointerEvents);
-        console.log('Current z-index:', issue.computedStyle.zIndex);
-        console.groupEnd();
-      });
-      console.groupEnd();
-    }
-    
-    console.log('💡 Run fixPointerEventsIssues() to attempt automatic fixes');
-    console.groupEnd();
+  const issues = findPointerEventsIssues();
+  
+  conditionalLog.pointerEvents('🎯 Pointer Events Debug');
+  conditionalLog.pointerEvents('Found', issues.length, 'potential issues');
+  
+  if (issues.length > 0) {
+    conditionalLog.pointerEvents('📋 Issues Found:');
+    issues.forEach((issue, index) => {
+      conditionalLog.pointerEvents(`${index + 1}. ${issue.priority.toUpperCase()} - ${issue.issue}`);
+      conditionalLog.pointerEvents('Element:', issue.element);
+      conditionalLog.pointerEvents('Solution:', issue.solution);
+      conditionalLog.pointerEvents('Current pointer-events:', issue.computedStyle.pointerEvents);
+      conditionalLog.pointerEvents('Current z-index:', issue.computedStyle.zIndex);
+    });
   }
+  
+  conditionalLog.pointerEvents('💡 Run fixPointerEventsIssues() to attempt automatic fixes');
 }
 
 /**
  * Monitor pointer events in real-time
  */
 export function startPointerEventsMonitoring(): void {
-  if (import.meta.env.DEV) {
-    let isMonitoring = false;
+  let isMonitoring = false;
+  
+  const handleMouseMove = (event: MouseEvent) => {
+    if (!isMonitoring) return;
     
-    const handleMouseMove = (event: MouseEvent) => {
-      if (!isMonitoring) return;
+    const issues = debugPointerEventsAtPoint(event.clientX, event.clientY);
+    if (issues.length > 0) {
+      conditionalLog.pointerEvents('⚠️ Pointer events issues at cursor position:', issues);
+    }
+  };
+  
+  const handleKeyDown = (event: KeyboardEvent) => {
+    // Toggle monitoring with Ctrl+Shift+P
+    if (event.ctrlKey && event.shiftKey && event.key === 'P') {
+      isMonitoring = !isMonitoring;
+      conditionalLog.pointerEvents(isMonitoring ? '🔍 Pointer events monitoring ON' : '⏹️ Pointer events monitoring OFF');
       
-      const issues = debugPointerEventsAtPoint(event.clientX, event.clientY);
-      if (issues.length > 0) {
-        console.warn('⚠️ Pointer events issues at cursor position:', issues);
+      if (isMonitoring) {
+        createPointerEventsOverlay();
       }
-    };
-    
-    const handleKeyDown = (event: KeyboardEvent) => {
-      // Toggle monitoring with Ctrl+Shift+P
-      if (event.ctrlKey && event.shiftKey && event.key === 'P') {
-        isMonitoring = !isMonitoring;
-        console.log(isMonitoring ? '🔍 Pointer events monitoring ON' : '⏹️ Pointer events monitoring OFF');
-        
-        if (isMonitoring) {
-          createPointerEventsOverlay();
-        }
-      }
-    };
-    
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('keydown', handleKeyDown);
-    
-    console.log('🔍 Pointer Events Monitoring initialized');
-    console.log('💡 Press Ctrl+Shift+P to toggle real-time monitoring');
-  }
+    }
+  };
+  
+  document.addEventListener('mousemove', handleMouseMove);
+  document.addEventListener('keydown', handleKeyDown);
+  
+  conditionalLog.pointerEvents('🔍 Pointer Events Monitoring initialized');
+  conditionalLog.pointerEvents('💡 Press Ctrl+Shift+P to toggle real-time monitoring');
 }
 
 /**
  * Initialize pointer events debugging
  */
 export function initPointerEventsDebugging(): void {
-  if (import.meta.env.DEV) {
-    // Add global debugging functions
-    (window as Window & typeof globalThis & {
-      debugPointerEvents?: () => PointerEventsIssue[];
-      fixPointerEvents?: () => void;
-      showPointerEventsOverlay?: () => HTMLElement;
-    }).debugPointerEvents = () => {
-      logPointerEventsDebug();
-      return findPointerEventsIssues();
-    };
-    
-    (window as Window & typeof globalThis & {
-      debugPointerEvents?: () => PointerEventsIssue[];
-      fixPointerEvents?: () => void;
-      showPointerEventsOverlay?: () => HTMLElement;
-    }).fixPointerEvents = () => {
-      fixPointerEventsIssues();
-      logPointerEventsDebug();
-    };
-    
-    (window as Window & typeof globalThis & {
-      debugPointerEvents?: () => PointerEventsIssue[];
-      fixPointerEvents?: () => void;
-      showPointerEventsOverlay?: () => HTMLElement;
-    }).showPointerEventsOverlay = () => {
-      return createPointerEventsOverlay();
-    };
-    
-    // Start monitoring
-    startPointerEventsMonitoring();
-    
-    // Auto-check after 3 seconds
-    setTimeout(() => {
-      logPointerEventsDebug();
-    }, 3000);
-    
-    console.log('🎯 Pointer Events Debugging initialized');
-    console.log('💡 Available commands:');
-    console.log('  - debugPointerEvents() - Check for issues');
-    console.log('  - fixPointerEvents() - Attempt automatic fixes');
-    console.log('  - showPointerEventsOverlay() - Show visual overlay');
-    console.log('  - Ctrl+Shift+P - Toggle real-time monitoring');
-  }
+  // Add global debugging functions
+  (window as Window & typeof globalThis & {
+    debugPointerEvents?: () => PointerEventsIssue[];
+    fixPointerEvents?: () => void;
+    showPointerEventsOverlay?: () => HTMLElement;
+  }).debugPointerEvents = () => {
+    logPointerEventsDebug();
+    return findPointerEventsIssues();
+  };
+  
+  (window as Window & typeof globalThis & {
+    debugPointerEvents?: () => PointerEventsIssue[];
+    fixPointerEvents?: () => void;
+    showPointerEventsOverlay?: () => HTMLElement;
+  }).fixPointerEvents = () => {
+    fixPointerEventsIssues();
+    logPointerEventsDebug();
+  };
+  
+  (window as Window & typeof globalThis & {
+    debugPointerEvents?: () => PointerEventsIssue[];
+    fixPointerEvents?: () => void;
+    showPointerEventsOverlay?: () => HTMLElement;
+  }).showPointerEventsOverlay = () => {
+    return createPointerEventsOverlay();
+  };
+  
+  // Start monitoring
+  startPointerEventsMonitoring();
+  
+  // Auto-check after 3 seconds
+  setTimeout(() => {
+    logPointerEventsDebug();
+  }, 3000);
+  
+  conditionalLog.pointerEvents('🎯 Pointer Events Debugging initialized');
+  conditionalLog.pointerEvents('💡 Available commands:');
+  conditionalLog.pointerEvents('  - debugPointerEvents() - Check for issues');
+  conditionalLog.pointerEvents('  - fixPointerEvents() - Attempt automatic fixes');
+  conditionalLog.pointerEvents('  - showPointerEventsOverlay() - Show visual overlay');
+  conditionalLog.pointerEvents('  - Ctrl+Shift+P - Toggle real-time monitoring');
 }

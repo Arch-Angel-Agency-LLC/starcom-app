@@ -3,7 +3,6 @@ import react from '@vitejs/plugin-react-swc';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import path from 'path';
-import fs from 'fs';
 
 // Define directories to exclude from Vite processing
 const EXCLUDED_DIRS = [
@@ -13,8 +12,24 @@ const EXCLUDED_DIRS = [
   'ai-security-relaynode'
 ];
 
-export default defineConfig({
+export default defineConfig(({ mode }) => {
+  // Environment-specific configuration
+  const isProduction = mode === 'production';
+  const isDevelopment = mode === 'development';
+  
+  return {
   assetsInclude: ['**/*.glb', '**/*.gltf'], // Include 3D model files as assets
+  define: {
+    global: 'globalThis',
+    'process.env': {},
+    // Environment variables for feature flag defaults
+    __STARCOM_PROD__: isProduction,
+    __STARCOM_DEV__: isDevelopment,
+    // Disable verbose logging in production by default
+    __VERBOSE_LOGGING_DEFAULT__: !isProduction,
+    __ASSET_DEBUG_DEFAULT__: isDevelopment,
+    __DEPLOYMENT_DEBUG_DEFAULT__: isDevelopment,
+  },
   plugins: [
     react(), 
     tsconfigPaths(),
@@ -62,10 +77,7 @@ export default defineConfig({
       },
     },
   ],
-  define: {
-    global: 'globalThis',
-    'process.env': {},
-  },
+
   css: {
     postcss: './postcss.config.cjs',
     devSourcemap: false, // Disable CSS source maps in development
@@ -164,4 +176,5 @@ export default defineConfig({
       vm: 'vm-browserify',
     },
   },
+  };
 });

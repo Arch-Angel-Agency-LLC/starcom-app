@@ -33,7 +33,7 @@ interface UseEnhancedEIADataReturn {
 export const useEnhancedEIAData = (
   options: UseEnhancedEIADataOptions = {}
 ): UseEnhancedEIADataReturn => {
-  const serviceRef = useRef<EnhancedEIAService>(new EnhancedEIAService());
+  const serviceRef = useRef<EnhancedEIAService>(EnhancedEIAService.getInstance());
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   
   // Merge options with defaults only once

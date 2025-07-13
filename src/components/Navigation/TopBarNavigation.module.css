@@ -38,7 +38,7 @@
 .brandText {
   font-size: 1.5rem;
   font-weight: bold;
-  font-family: 'Courier New', monospace;
+  font-family: 'Aldrich', 'Aldrich-Regular', monospace;
   letter-spacing: 2px;
 }
 
@@ -58,7 +58,7 @@
   border: 1px solid transparent;
   border-radius: 6px;
   transition: all 0.3s ease;
-  font-family: 'Courier New', monospace;
+  font-family: 'Aldrich', 'Aldrich-Regular', monospace;
   font-weight: 500;
 }
 

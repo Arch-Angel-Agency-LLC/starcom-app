@@ -1,6 +1,10 @@
 /* STARCOM UNIFIED CYBERPUNK DESIGN SYSTEM */
 @import './starcom-cyberpunk.css';
 
+/* Google Fonts imports for complementary fonts to Aldrich */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&display=swap');
+
 /* Load custom font with preload optimization */
 @font-face {
   font-family: 'Aldrich-Regular';

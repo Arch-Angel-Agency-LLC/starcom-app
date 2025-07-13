@@ -10,6 +10,7 @@
 import { CyberTeam, IntelPackage, CyberInvestigation } from '../types/cyberInvestigation';
 import { secureStorage } from '../security/storage/SecureStorageManager';
 import { SOCOMPQCryptoService } from './crypto/SOCOMPQCryptoService';
+import { conditionalLog } from '../utils/featureFlags';
 
 // Advanced Cybersecurity Interfaces
 interface DIDIdentity {
@@ -173,8 +174,8 @@ export class IPFSService {
   
   constructor() {
     // For browser compatibility, use mock implementation
-    console.log('IPFS Service initialized with SOCOM/NIST cybersecurity compliance');
-    console.log('Active security measures: PQC, DID, OTK, TSS, dMPC');
+    conditionalLog.serviceInit('IPFS Service initialized with SOCOM/NIST cybersecurity compliance');
+    conditionalLog.serviceInit('Active security measures: PQC, DID, OTK, TSS, dMPC');
     this.isAvailable = false; // Will be true when real IPFS is available
     
     // Initialize advanced security components
@@ -195,34 +196,34 @@ export class IPFSService {
    */
   private async initializeSecurityFramework(): Promise<void> {
     try {
-      console.log('🔐 Initializing Advanced Cybersecurity Framework...');
+      conditionalLog.securityVerbose('🔐 Initializing Advanced Cybersecurity Framework...');
       
       // Initialize Post-Quantum Cryptography
       if (IPFS_CONFIG.PQC_ENCRYPTION_REQUIRED) {
-        console.log('✅ PQC (Post-Quantum Cryptography) - ML-KEM-768 + ML-DSA-65');
+        conditionalLog.securityVerbose('✅ PQC (Post-Quantum Cryptography) - ML-KEM-768 + ML-DSA-65');
       }
       
       // Initialize Decentralized Identity Registry
       if (IPFS_CONFIG.DID_VERIFICATION_REQUIRED) {
-        console.log('✅ DID (Decentralized Identity) - Self-sovereign identity verification');
+        conditionalLog.securityVerbose('✅ DID (Decentralized Identity) - Self-sovereign identity verification');
       }
       
       // Initialize One-Time Key Management
       if (IPFS_CONFIG.OTK_FORWARD_SECRECY) {
-        console.log('✅ OTK (One-Time Keys) - Forward secrecy protection');
+        conditionalLog.securityVerbose('✅ OTK (One-Time Keys) - Forward secrecy protection');
       }
       
       // Initialize Threshold Signature Scheme
       if (IPFS_CONFIG.TSS_DISTRIBUTED_SIGNING) {
-        console.log('✅ TSS (Threshold Signatures) - Distributed signing protocol');
+        conditionalLog.securityVerbose('✅ TSS (Threshold Signatures) - Distributed signing protocol');
       }
       
       // Initialize Secure Multi-Party Computation
       if (IPFS_CONFIG.DMPC_SECURE_COMPUTATION) {
-        console.log('✅ dMPC (Distributed Multi-Party Computation) - Privacy-preserving computation');
+        conditionalLog.securityVerbose('✅ dMPC (Distributed Multi-Party Computation) - Privacy-preserving computation');
       }
       
-      console.log('🛡️ Security Framework Initialized - SOCOM/NIST Compliant');
+      conditionalLog.securityVerbose('🛡️ Security Framework Initialized - SOCOM/NIST Compliant');
     } catch (error) {
       console.error('❌ Security Framework Initialization Failed:', error);
     }
@@ -244,7 +245,7 @@ export class IPFSService {
         }
       }
       
-      console.log('IPFS Service health check passed');
+      conditionalLog.serviceInit('IPFS Service health check passed');
     } catch (error) {
       console.error('IPFS Service health check failed:', error);
       this.failureCount++;

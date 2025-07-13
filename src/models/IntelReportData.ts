@@ -1,11 +1,17 @@
 // Unified Intelligence Report Data Model
-// This model serves as the single source of truth for all intel report data
+// This model serves as the single source of truth for all intelligence report data
 // across blockchain, UI, and service layers
+
+import { PrimaryIntelSource } from './Intel/Sources';
+import { ClassificationLevel } from './Intel/Classification';
 
 /**
  * Core Intelligence Report Data Structure
  * This interface represents the complete data model for intelligence reports
- * across all layers of the application
+ * across all layers of the application.
+ * 
+ * Note: This is a "Report" which contains processed intelligence, not raw intel.
+ * For raw intel data, see the Intel interface in ./intelligence/Intel.ts
  */
 export interface IntelReportData {
   // Unique identifier (account public key or generated ID)
@@ -19,6 +25,12 @@ export interface IntelReportData {
   longitude: number;
   timestamp: number;
   author: string; // Wallet address (base58)
+  
+  // Intelligence-specific fields
+  classification?: ClassificationLevel;
+  sources?: PrimaryIntelSource[]; // What types of intel sources contributed
+  confidence?: number; // 0-100 confidence in the report
+  priority?: 'ROUTINE' | 'PRIORITY' | 'IMMEDIATE';
   
   // Blockchain metadata (available after submission)
   pubkey?: string; // Solana account public key (base58)
