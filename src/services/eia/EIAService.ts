@@ -47,16 +47,32 @@ export class SecurityPolicyViolationError extends Error {
 }
 
 export class EnhancedEIAService {
+  private static instance: EnhancedEIAService | null = null;
   private provider: EnhancedEIAProvider;
   private cache: Map<string, { data: EIADataPoint; timestamp: number }> = new Map();
   private securityPolicy: SecurityPolicy;
   private requestCounts: Map<string, { count: number; windowStart: number }> = new Map();
   private auditLog: Array<{timestamp: Date, action: string, userId?: string, details: Record<string, unknown>}> = [];
+  private complianceInterval: NodeJS.Timeout | null = null;
   
-  constructor() {
+  private constructor() {
     this.provider = new EnhancedEIAProvider();
     this.securityPolicy = this.loadSecurityPolicy();
     this.startComplianceMonitoring();
+  }
+
+  public static getInstance(): EnhancedEIAService {
+    if (!EnhancedEIAService.instance) {
+      EnhancedEIAService.instance = new EnhancedEIAService();
+    }
+    return EnhancedEIAService.instance;
+  }
+
+  public static destroy(): void {
+    if (EnhancedEIAService.instance) {
+      EnhancedEIAService.instance.stopComplianceMonitoring();
+      EnhancedEIAService.instance = null;
+    }
   }
 
   private loadSecurityPolicy(): SecurityPolicy {
@@ -82,11 +98,22 @@ export class EnhancedEIAService {
   }
 
   private startComplianceMonitoring(): void {
-    // Start background compliance monitoring
-    setInterval(() => {
+    // Start background compliance monitoring only if not already running
+    if (this.complianceInterval) {
+      clearInterval(this.complianceInterval);
+    }
+    
+    this.complianceInterval = setInterval(() => {
       this.performComplianceCheck();
       this.cleanupExpiredData();
     }, 300000); // Check every 5 minutes
+  }
+
+  private stopComplianceMonitoring(): void {
+    if (this.complianceInterval) {
+      clearInterval(this.complianceInterval);
+      this.complianceInterval = null;
+    }
   }
 
   async enforceSecurityPolicy(action: string, userId?: string, seriesId?: string): Promise<void> {
@@ -210,8 +237,10 @@ export class EnhancedEIAService {
       this.auditLog = this.auditLog.slice(-5000);
     }
 
-    // Log to console for debugging
-    console.log('📋 EIA Audit:', auditEntry);
+    // Log to console for debugging (only in development)
+    if (process.env.NODE_ENV === 'development' && process.env.EIA_DEBUG_AUDIT === 'true') {
+      console.log('📋 EIA Audit:', auditEntry);
+    }
   }
 
   async performComplianceCheck(): Promise<ComplianceReport> {
@@ -350,7 +379,7 @@ export class EnhancedEIAService {
 
   // Legacy compatibility methods
   static async getLatestOilPrice(): Promise<number> {
-    const service = new EnhancedEIAService();
+    const service = EnhancedEIAService.getInstance();
     const dataPoint = await service.getSeries('PET.RWTC.W');
     return dataPoint.value;
   }

@@ -1,640 +1,393 @@
 /**
- * NetRunner Left Sidebar - AI Agent Commander
+ * NetRunner Left Sidebar - Tools & Navigation
  * 
- * A Square view of a NetRunnerAIAgentCommander that can autonomously control the entire interface.
- * Features autonomou        <Tooltip title="AI Agent Commander">
-          <IconButton
-            onClick={onToggle}
-            sx={{ 
-              color: '#00ff88',
-              mb: 2,
-              border: '2px solid #00ff88',
-              borderRadius: '8px',
-              backgroundColor: 'rgba(0, 255, 136, 0.1)',
-              boxShadow: '0 0 15px rgba(0, 255, 136, 0.4)',
-              transition: 'all 0.3s ease',
-              '&:hover': {
-                backgroundColor: 'rgba(0, 255, 136, 0.2)',
-                boxShadow: '0 0 25px rgba(0, 255, 136, 0.6)',
-                transform: 'scale(1.05)'
-              }
-            }}
-          >
-            <Brain />
-          </IconButton>
-        </Tooltip>icators and real-time AI agent status monitoring.
+ * Clean sidebar for tool access and navigation with prominent AI Agent.
+ * Ready for real tool integration.
  * 
  * @author GitHub Copilot
- * @date July 11, 2025
+ * @date July 12, 2025
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Typography,
   Avatar,
-  LinearProgress,
   IconButton,
-  Tooltip,
-  Card,
-  CardContent
+  Tooltip
 } from '@mui/material';
 import {
-  Bot,
   Brain,
   Activity,
+  Plus,
+  Edit,
+  Trash2,
+  Zap,
+  Terminal,
+  Search,
+  Shield,
   Target,
+  Code,
+  Database,
+  Network,
+  Lock,
   Eye,
-  Settings,
-  Play,
-  Pause,
-  RotateCcw
+  Settings
 } from 'lucide-react';
 
 interface NetRunnerLeftSideBarProps {
   open: boolean;
   width: number;
-  onToggle: () => void;
-}
-
-interface AIAgentState {
-  id: string;
-  name: string;
-  status: 'active' | 'idle' | 'learning' | 'analyzing' | 'controlling';
-  autonomyLevel: number; // 0-100
-  currentTask: string;
-  tasksCompleted: number;
-  successRate: number;
-  lastActivity: Date;
-  capabilities: string[];
-  controllingModules: string[];
 }
 
 const NetRunnerLeftSideBar: React.FC<NetRunnerLeftSideBarProps> = ({
   open,
-  width,
-  onToggle
+  width
 }) => {
-  const [aiAgent, setAiAgent] = useState<AIAgentState>({
-    id: 'netrunner-ai-001',
-    name: 'NetRunner AI Commander',
-    status: 'controlling',
-    autonomyLevel: 87,
-    currentTask: 'Coordinating multi-vector OSINT scan across 247 targets',
-    tasksCompleted: 1247,
-    successRate: 94.7,
-    lastActivity: new Date(),
-    capabilities: [
-      'Autonomous OSINT Coordination',
-      'Real-time Threat Assessment', 
-      'Adaptive Tool Selection',
-      'Multi-target Analysis',
-      'Risk Evaluation',
-      'Resource Optimization'
-    ],
-    controllingModules: [
-      'Scanning Engine',
-      'Bot Management',
-      'Tool Orchestration',
-      'Data Analysis',
-      'Workflow Control'
-    ]
-  });
+  // State for managing script/powertool selection
+  const [selectedTool, setSelectedTool] = useState<string | null>(null);
 
-  const [activityLog, setActivityLog] = useState<string[]>([]);
+  // Calculate AI Agent square size based on sidebar width
+  const aiAgentSize = open ? Math.min(width - 32, 200) : 40;
 
-  // Simulate AI agent activity
-  useEffect(() => {
-    const activities = [
-      'Initiated port scan on 192.168.1.0/24',
-      'Detected anomalous traffic pattern',
-      'Optimized scanning parameters for stealth',
-      'Coordinated bot deployment strategy',
-      'Analyzed vulnerability correlation',
-      'Adjusted threat assessment algorithms',
-      'Prioritized high-value targets',
-      'Synchronized tool execution timing'
-    ];
+  // Scripts and PowerTools configuration
+  const scriptsAndTools = [
+    { id: 'scan', name: 'Port Scanner', icon: Target, category: 'network' },
+    { id: 'enum', name: 'Enumeration', icon: Search, category: 'recon' },
+    { id: 'exploit', name: 'Exploit Kit', icon: Zap, category: 'exploit' },
+    { id: 'stealth', name: 'Stealth Mode', icon: Eye, category: 'stealth' },
+    { id: 'crypto', name: 'Crypto Tools', icon: Lock, category: 'crypto' },
+    { id: 'db', name: 'DB Access', icon: Database, category: 'data' },
+    { id: 'net', name: 'Network Tools', icon: Network, category: 'network' },
+    { id: 'code', name: 'Code Exec', icon: Code, category: 'exec' },
+    { id: 'shell', name: 'Shell Access', icon: Terminal, category: 'access' },
+    { id: 'shield', name: 'Defense', icon: Shield, category: 'defense' },
+    { id: 'config', name: 'Config', icon: Settings, category: 'config' }
+  ];
 
-    const interval = setInterval(() => {
-      const activity = activities[Math.floor(Math.random() * activities.length)];
-      setActivityLog(prev => [...prev.slice(-4), activity]);
-      
-      setAiAgent(prev => ({
-        ...prev,
-        lastActivity: new Date(),
-        tasksCompleted: prev.tasksCompleted + Math.floor(Math.random() * 3),
-        autonomyLevel: Math.max(75, Math.min(100, prev.autonomyLevel + (Math.random() - 0.5) * 10))
-      }));
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active': return '#00ff88';
-      case 'controlling': return '#8b5cf6';
-      case 'analyzing': return '#00f5ff';
-      case 'learning': return '#ffaa00';
-      case 'idle': return '#666';
-      default: return '#666';
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'active': return <Activity size={14} />;
-      case 'controlling': return <Bot size={14} />;
-      case 'analyzing': return <Brain size={14} />;
-      case 'learning': return <Target size={14} />;
-      case 'idle': return <Eye size={14} />;
-      default: return <Bot size={14} />;
-    }
-  };
-
-  if (!open) {
-    return (
+  return (
+    <Box
+      sx={{
+        width: `${width}px`,
+        height: '100%',
+        backgroundColor: '#000000',
+        borderRight: '1px solid #00f5ff',
+        display: 'flex',
+        flexDirection: 'column',
+        transition: 'width 0.3s ease',
+        fontFamily: "'Aldrich', 'Courier New', monospace"
+      }}
+    >
+      {/* AI Agent Square */}
       <Box
         sx={{
-          width: 60,
-          height: '100vh',
-          backgroundColor: '#000000',
-          backgroundImage: `
-            linear-gradient(45deg, rgba(0, 255, 136, 0.08) 0%, transparent 70%),
-            radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.06) 0%, transparent 50%)
-          `,
-          borderRight: `2px solid rgba(0, 255, 136, 0.6)`,
+          p: 0.75,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          paddingTop: 2,
-          position: 'relative',
-          boxShadow: `
-            inset -2px 0 15px rgba(0, 255, 136, 0.2),
-            2px 0 20px rgba(0, 0, 0, 0.6)
-          `,
-          '&::before': {
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: `
-              repeating-linear-gradient(
-                0deg,
-                transparent,
-                transparent 8px,
-                rgba(0, 255, 136, 0.04) 8px,
-                rgba(0, 255, 136, 0.04) 16px
-              )
-            `,
-            pointerEvents: 'none'
-          }
+          borderBottom: '1px solid #00f5ff',
+          backgroundColor: '#0a0a0a'
         }}
       >
-        <Tooltip title="AI Agent Commander">
-          <IconButton
-            onClick={onToggle}
-            sx={{ 
-              color: '#8b5cf6',
-              mb: 2,
-              border: '2px solid #8b5cf6',
-              borderRadius: '8px'
+        <Box
+          sx={{
+            width: aiAgentSize,
+            height: aiAgentSize,
+            backgroundColor: '#000000',
+            border: '2px solid #00ff88',
+            borderRadius: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            position: 'relative',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            '&:hover': {
+              borderColor: '#00f5ff',
+              backgroundColor: '#0a0a0a'
+            }
+          }}
+        >
+          {/* AI Agent Avatar/Icon */}
+          <Avatar
+            sx={{
+              width: open ? 48 : 20,
+              height: open ? 48 : 20,
+              backgroundColor: 'rgba(0, 255, 136, 0.15)',
+              border: '1px solid #00ff88',
+              borderRadius: 0,
+              mb: open ? 0.5 : 0
             }}
           >
-            <Bot />
-          </IconButton>
-        </Tooltip>
+            <Brain size={open ? 24 : 14} color="#00ff88" />
+          </Avatar>
 
-        {/* Compact AI Status */}
-        <Avatar
-          sx={{
-            width: 40,
-            height: 40,
-            backgroundColor: getStatusColor(aiAgent.status),
-            color: '#000',
-            fontSize: '20px',
-            mb: 1
-          }}
-        >
-          🤖
-        </Avatar>
+          {/* AI Agent Status - Only show when expanded */}
+          {open && (
+            <>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: '#00ff88',
+                  fontFamily: "'Aldrich', monospace",
+                  fontSize: '0.6rem',
+                  letterSpacing: '0.05em',
+                  textAlign: 'center',
+                  mb: 0.25
+                }}
+              >
+                AI_AGENT
+              </Typography>
+              
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
+                <Activity size={10} color="#00ff88" />
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: '#00ff88',
+                    fontFamily: "'Courier New', monospace",
+                    fontSize: '0.6rem'
+                  }}
+                >
+                  ACTIVE
+                </Typography>
+              </Box>
 
-        <Typography
-          variant="caption"
-          sx={{
-            color: getStatusColor(aiAgent.status),
-            fontSize: '10px',
-            textAlign: 'center',
-            writingMode: 'vertical-rl',
-            textOrientation: 'mixed'
-          }}
-        >
-          {Math.round(aiAgent.autonomyLevel)}%
-        </Typography>
-
-        {/* Activity indicators */}
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, alignItems: 'center', mt: 2 }}>
-          {aiAgent.status === 'active' && (
-            <Box
-              sx={{
-                width: 12,
-                height: 12,
-                borderRadius: '50%',
-                backgroundColor: '#00ff88',
-                border: '2px solid rgba(0, 255, 136, 0.5)',
-                boxShadow: '0 0 15px rgba(0, 255, 136, 0.8)',
-                animation: 'pulse 1.2s infinite',
-                position: 'relative',
-                '&::after': {
-                  content: '""',
+              {/* Status Indicator */}
+              <Box
+                sx={{
                   position: 'absolute',
-                  top: '50%',
-                  left: '50%',
-                  transform: 'translate(-50%, -50%)',
-                  width: '4px',
-                  height: '4px',
+                  top: 8,
+                  right: 8,
+                  width: 12,
+                  height: 12,
+                  backgroundColor: '#00ff88',
                   borderRadius: '50%',
-                  backgroundColor: '#ffffff',
-                  animation: 'pulse 0.6s infinite'
-                }
-              }}
-            />
+                  boxShadow: '0 0 10px rgba(0, 255, 136, 0.8)',
+                  '@keyframes pulse': {
+                    '0%': {
+                      opacity: 1,
+                      transform: 'scale(1)'
+                    },
+                    '50%': {
+                      opacity: 0.7,
+                      transform: 'scale(1.1)'
+                    },
+                    '100%': {
+                      opacity: 1,
+                      transform: 'scale(1)'
+                    }
+                  },
+                  animation: 'pulse 2s infinite'
+                }}
+              />
+            </>
           )}
-          {aiAgent.autonomyLevel > 70 && (
+
+          {/* Collapsed view indicator */}
+          {!open && (
             <Box
               sx={{
+                position: 'absolute',
+                top: 4,
+                right: 4,
                 width: 8,
                 height: 8,
+                backgroundColor: '#00ff88',
                 borderRadius: '50%',
-                backgroundColor: '#ff4444',
-                border: '1px solid rgba(255, 68, 68, 0.5)',
-                boxShadow: '0 0 10px rgba(255, 68, 68, 0.6)',
+                boxShadow: '0 0 8px rgba(0, 255, 136, 0.8)',
+                '@keyframes pulse': {
+                  '0%': {
+                    opacity: 1,
+                    transform: 'scale(1)'
+                  },
+                  '50%': {
+                    opacity: 0.7,
+                    transform: 'scale(1.1)'
+                  },
+                  '100%': {
+                    opacity: 1,
+                    transform: 'scale(1)'
+                  }
+                },
                 animation: 'pulse 2s infinite'
               }}
             />
           )}
         </Box>
-      </Box>
-    );
-  }
 
-  return (
-    <Box
-      sx={{
-        width,
-        height: '100vh',
-        backgroundColor: '#000000',
-        backgroundImage: `
-          linear-gradient(135deg, rgba(0, 255, 136, 0.05) 0%, transparent 50%),
-          radial-gradient(circle at 30% 70%, rgba(0, 245, 255, 0.08) 0%, transparent 40%)
-        `,
-        borderRight: `2px solid transparent`,
-        borderImage: `linear-gradient(180deg, 
-          rgba(0, 255, 136, 0.8) 0%, 
-          rgba(0, 245, 255, 0.6) 50%, 
-          rgba(139, 92, 246, 0.4) 100%
-        ) 1`,
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden',
-        position: 'relative',
-        boxShadow: `
-          inset -2px 0 8px rgba(0, 255, 136, 0.15),
-          2px 0 20px rgba(0, 0, 0, 0.5)
-        `,
-        '&::before': {
-          content: '""',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: `
-            repeating-linear-gradient(
-              90deg,
-              transparent,
-              transparent 1px,
-              rgba(0, 255, 136, 0.02) 1px,
-              rgba(0, 255, 136, 0.02) 2px
-            )
-          `,
-          pointerEvents: 'none',
-          zIndex: 1
-        }
-      }}
-    >
-      {/* Header */}
-      <Box
-        sx={{
-          padding: 2,
-          borderBottom: `1px solid rgba(0, 255, 136, 0.3)`,
-          backgroundColor: 'rgba(0, 255, 136, 0.05)',
-          position: 'relative',
-          zIndex: 2,
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)'
-        }}
-      >
-        <Typography
-          variant="h6"
-          sx={{
-            color: '#00ff88',
-            fontFamily: '"Orbitron", monospace',
-            fontSize: '16px',
-            fontWeight: 900,
-            textAlign: 'center',
-            textShadow: '0 0 10px rgba(0, 255, 136, 0.5)',
-            letterSpacing: '2px',
-            textTransform: 'uppercase'
-          }}
-        >
-          █ AI AGENT COMMANDER █
-        </Typography>
-        <Typography
-          variant="caption"
-          sx={{
-            color: 'rgba(0, 255, 136, 0.8)',
-            display: 'block',
-            textAlign: 'center',
-            fontSize: '10px',
-            fontWeight: 600,
-            letterSpacing: '1px',
-            marginTop: '4px',
-            textShadow: '0 0 5px rgba(0, 255, 136, 0.3)'
-          }}
-        >
-          ▓ AUTONOMOUS CONTROL INTERFACE ▓
-        </Typography>
+        {/* AI Agent Name - Only when expanded */}
+        {open && (
+          <Typography
+            variant="caption"
+            sx={{
+              color: '#ffffff',
+              mt: 1,
+              textAlign: 'center',
+              fontSize: '0.75rem'
+            }}
+          >
+            Neural Commander
+          </Typography>
+        )}
       </Box>
 
-      {/* AI Agent Square View - 120x120px as requested */}
-      <Box sx={{ 
-        padding: 2, 
-        borderBottom: `1px solid rgba(0, 255, 136, 0.2)`,
-        backgroundColor: 'rgba(0, 0, 0, 0.3)',
-        position: 'relative',
-        zIndex: 2
-      }}>
-        <Card
-          sx={{
-            backgroundColor: '#000000',
-            border: `2px solid ${getStatusColor(aiAgent.status)}`,
-            borderRadius: 2,
-            boxShadow: `
-              0 0 20px ${getStatusColor(aiAgent.status)}40,
-              inset 0 0 20px rgba(0, 0, 0, 0.8)
-            `,
-            position: 'relative',
-            overflow: 'hidden',
-            '&::before': {
-              content: '""',
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: `
-                linear-gradient(45deg, 
-                  transparent 30%, 
-                  ${getStatusColor(aiAgent.status)}20 50%, 
-                  transparent 70%
-                )
-              `,
-              animation: aiAgent.status === 'active' ? 'pulse 2s infinite' : 'none'
-            }
-          }}
-        >
-          <CardContent sx={{ padding: '16px !important' }}>
-            {/* Agent Avatar - Square 120x120px */}
-            <Box
+      {/* Scripts & PowerTools Section */}
+      <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        {/* Section Header */}
+        {open && (
+          <Box
+            sx={{
+              p: 0.75,
+              pb: 0.5,
+              borderBottom: '1px solid #00f5ff',
+              backgroundColor: '#0a0a0a'
+            }}
+          >
+            <Typography
+              variant="subtitle2"
               sx={{
-                display: 'flex',
-                justifyContent: 'center',
-                mb: 2
+                color: '#00f5ff',
+                fontFamily: "'Aldrich', monospace",
+                fontSize: '0.65rem',
+                letterSpacing: '0.05em',
+                textTransform: 'uppercase',
+                mb: 0.25
               }}
             >
-              <Avatar
-                sx={{
-                  width: 120,
-                  height: 120,
-                  backgroundColor: `${getStatusColor(aiAgent.status)}20`,
-                  border: `3px solid ${getStatusColor(aiAgent.status)}`,
-                  fontSize: '48px',
-                  borderRadius: 2
-                }}
-              >
-                🤖
-              </Avatar>
-            </Box>
+              SCRIPTS_&_POWERTOOLS
+            </Typography>
+          </Box>
+        )}
 
-            {/* Agent Status */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-              {getStatusIcon(aiAgent.status)}
-              <Typography
-                variant="h6"
-                sx={{
-                  color: getStatusColor(aiAgent.status),
-                  fontSize: '14px',
-                  fontWeight: 600,
-                  textTransform: 'uppercase'
-                }}
-              >
-                {aiAgent.status}
-              </Typography>
-            </Box>
-
-            {/* Autonomy Level */}
-            <Box sx={{ mb: 2 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                <Typography variant="caption" sx={{ color: '#ccc', fontSize: '12px' }}>
-                  Autonomy Level
-                </Typography>
-                <Typography 
-                  variant="caption" 
-                  sx={{ 
-                    color: getStatusColor(aiAgent.status),
-                    fontSize: '12px',
-                    fontWeight: 600
+        {/* Tools Grid */}
+        <Box sx={{ flex: 1, overflow: 'auto', p: open ? 0.5 : 0.25 }}>
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: open ? 'repeat(2, 1fr)' : '1fr',
+              gap: open ? 0.5 : 0.25
+            }}
+          >
+            {scriptsAndTools.map((tool) => (
+              <Tooltip title={tool.name} placement="right" key={tool.id}>
+                <IconButton
+                  onClick={() => setSelectedTool(selectedTool === tool.id ? null : tool.id)}
+                  sx={{
+                    width: open ? 'auto' : 28,
+                    height: open ? 'auto' : 28,
+                    minWidth: open ? 36 : 28,
+                    minHeight: open ? 36 : 28,
+                    backgroundColor: selectedTool === tool.id ? 'rgba(0, 245, 255, 0.15)' : '#0a0a0a',
+                    border: '1px solid',
+                    borderColor: selectedTool === tool.id ? '#00f5ff' : '#333333',
+                    borderRadius: 0,
+                    color: selectedTool === tool.id ? '#00f5ff' : '#ffffff',
+                    display: 'flex',
+                    flexDirection: open ? 'column' : 'row',
+                    gap: open ? 0.25 : 0,
+                    transition: 'all 0.1s ease',
+                    '&:hover': {
+                      borderColor: '#00f5ff',
+                      backgroundColor: 'rgba(0, 245, 255, 0.1)'
+                    }
                   }}
                 >
-                  {Math.round(aiAgent.autonomyLevel)}%
-                </Typography>
-              </Box>
-              <LinearProgress
-                variant="determinate"
-                value={aiAgent.autonomyLevel}
-                sx={{
-                  height: 8,
-                  borderRadius: 4,
-                  backgroundColor: '#333',
-                  '& .MuiLinearProgress-bar': {
-                    backgroundColor: getStatusColor(aiAgent.status),
-                    borderRadius: 4
-                  }
-                }}
-              />
-            </Box>
-
-            {/* Current Task */}
-            <Box
-              sx={{
-                backgroundColor: '#0a0a0a',
-                border: '1px solid #333',
-                borderRadius: 1,
-                padding: 1,
-                mb: 2
-              }}
-            >
-              <Typography
-                variant="caption"
-                sx={{
-                  color: '#00ff88',
-                  fontSize: '10px',
-                  fontFamily: '"Monaco", "Menlo", monospace'
-                }}
-              >
-                {aiAgent.currentTask}
-              </Typography>
-            </Box>
-
-            {/* Control Actions */}
-            <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-              <Tooltip title="Pause AI Control">
-                <IconButton size="small" sx={{ color: '#ffaa00' }}>
-                  <Pause size={14} />
+                  <tool.icon size={open ? 16 : 14} />
+                  {open && (
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        fontSize: '0.55rem',
+                        textAlign: 'center',
+                        lineHeight: 1,
+                        color: 'inherit',
+                        fontFamily: "'Courier New', monospace"
+                      }}
+                    >
+                      {tool.name.split(' ')[0].toUpperCase()}
+                    </Typography>
+                  )}
                 </IconButton>
               </Tooltip>
-              <Tooltip title="Resume AI Control">
-                <IconButton size="small" sx={{ color: '#00ff88' }}>
-                  <Play size={14} />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Reset AI State">
-                <IconButton size="small" sx={{ color: '#00f5ff' }}>
-                  <RotateCcw size={14} />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="AI Settings">
-                <IconButton size="small" sx={{ color: '#8b5cf6' }}>
-                  <Settings size={14} />
-                </IconButton>
-              </Tooltip>
-            </Box>
+            ))}
+          </Box>
+        </Box>
 
-            {/* Stats */}
-            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, mb: 2 }}>
-              <Box>
-                <Typography variant="caption" sx={{ color: '#666', fontSize: '10px' }}>
-                  Tasks
-                </Typography>
-                <Typography variant="body2" sx={{ color: '#ccc', fontSize: '12px', fontWeight: 600 }}>
-                  {aiAgent.tasksCompleted.toLocaleString()}
-                </Typography>
-              </Box>
-              <Box>
-                <Typography variant="caption" sx={{ color: '#666', fontSize: '10px' }}>
-                  Success
-                </Typography>
-                <Typography variant="body2" sx={{ color: '#00ff88', fontSize: '12px', fontWeight: 600 }}>
-                  {aiAgent.successRate}%
-                </Typography>
-              </Box>
-            </Box>
-          </CardContent>
-        </Card>
-      </Box>
-
-      {/* Controlling Modules */}
-      <Box sx={{ padding: 2, borderBottom: '1px solid #333' }}>
-        <Typography
-          variant="h6"
+        {/* Management Bar */}
+        <Box
           sx={{
-            color: '#8b5cf6',
-            fontSize: '14px',
-            fontWeight: 600,
-            mb: 1
+            borderTop: '1px solid #00f5ff',
+            p: 0.5,
+            display: 'flex',
+            justifyContent: 'space-around',
+            gap: 0.25,
+            backgroundColor: '#0a0a0a'
           }}
         >
-          AUTONOMOUS CONTROL
-        </Typography>
-        
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-          {aiAgent.controllingModules.map((module, index) => (
-            <Box
-              key={index}
+          <Tooltip title="Add Script/Tool">
+            <IconButton
+              size="small"
               sx={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 1,
-                padding: 1,
-                backgroundColor: '#1a1a1a',
-                borderRadius: 1,
-                border: '1px solid #333'
+                color: '#00ff88',
+                border: '1px solid #00ff88',
+                borderRadius: '6px',
+                minWidth: open ? 32 : 28,
+                minHeight: open ? 32 : 28,
+                '&:hover': {
+                  backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                  transform: 'scale(1.1)'
+                }
               }}
             >
-              <Box
-                sx={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: '50%',
-                  backgroundColor: '#00ff88',
-                  animation: 'pulse 2s infinite'
-                }}
-              />
-              <Typography
-                variant="caption"
-                sx={{
-                  color: '#ccc',
-                  fontSize: '11px'
-                }}
-              >
-                {module}
-              </Typography>
-            </Box>
-          ))}
-        </Box>
-      </Box>
+              <Plus size={open ? 16 : 14} />
+            </IconButton>
+          </Tooltip>
 
-      {/* Recent Activity */}
-      <Box sx={{ flex: 1, padding: 2, overflow: 'auto' }}>
-        <Typography
-          variant="h6"
-          sx={{
-            color: '#8b5cf6',
-            fontSize: '14px',
-            fontWeight: 600,
-            mb: 1
-          }}
-        >
-          RECENT ACTIVITY
-        </Typography>
-        
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-          {activityLog.map((activity, index) => (
-            <Box
-              key={index}
+          <Tooltip title="Edit Selected">
+            <IconButton
+              size="small"
+              disabled={!selectedTool}
               sx={{
-                padding: 1,
-                backgroundColor: '#1a1a1a',
-                borderRadius: 1,
-                border: '1px solid #333'
+                color: selectedTool ? '#ffaa00' : '#555555',
+                border: '1px solid',
+                borderColor: selectedTool ? '#ffaa00' : '#555555',
+                borderRadius: '6px',
+                minWidth: open ? 32 : 28,
+                minHeight: open ? 32 : 28,
+                '&:hover': {
+                  backgroundColor: selectedTool ? 'rgba(255, 170, 0, 0.1)' : 'transparent',
+                  transform: selectedTool ? 'scale(1.1)' : 'none'
+                }
               }}
             >
-              <Typography
-                variant="caption"
-                sx={{
-                  color: '#b0b0b0',
-                  fontSize: '10px',
-                  fontFamily: '"Monaco", "Menlo", monospace'
-                }}
-              >
-                {activity}
-              </Typography>
-            </Box>
-          ))}
+              <Edit size={open ? 16 : 14} />
+            </IconButton>
+          </Tooltip>
+
+          <Tooltip title="Remove Selected">
+            <IconButton
+              size="small"
+              disabled={!selectedTool}
+              sx={{
+                color: selectedTool ? '#ff4444' : '#555555',
+                border: '1px solid',
+                borderColor: selectedTool ? '#ff4444' : '#555555',
+                borderRadius: '6px',
+                minWidth: open ? 32 : 28,
+                minHeight: open ? 32 : 28,
+                '&:hover': {
+                  backgroundColor: selectedTool ? 'rgba(255, 68, 68, 0.1)' : 'transparent',
+                  transform: selectedTool ? 'scale(1.1)' : 'none'
+                }
+              }}
+            >
+              <Trash2 size={open ? 16 : 14} />
+            </IconButton>
+          </Tooltip>
         </Box>
+
       </Box>
     </Box>
   );

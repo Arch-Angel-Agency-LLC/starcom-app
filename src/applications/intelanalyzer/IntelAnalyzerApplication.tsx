@@ -1,451 +1,212 @@
-import React, { useState } from 'react';
-import { Box, Typography, Tabs, Tab, Grid, Card, CardContent, Button, Chip } from '@mui/material';
-import { FileText, BarChart3, Map, TrendingUp } from 'lucide-react';
+/**
+ * Intel Analyzer Application
+ * 
+ * Completely redesigned interface focused on Intel → IntelReport transformation
+ * Uses the new IntelFusion service to convert raw intel into structured reports
+ */
 
-// Types
-interface IntelReport {
-  id: string;
-  title: string;
-  content: string;
-  author: string;
-  category: string;
-  tags: string[];
-  latitude?: number;
-  longitude?: number;
-  createdAt: Date;
-  updatedAt: Date;
-  classification: 'UNCLASSIFIED' | 'CONFIDENTIAL' | 'SECRET' | 'TOP_SECRET';
-  status: 'DRAFT' | 'SUBMITTED' | 'REVIEWED' | 'APPROVED' | 'ARCHIVED';
-  confidence: number;
-  sources: string[];
-}
+import React, { useState, useEffect } from 'react';
+import { Box, Container, Typography, Alert, CircularProgress } from '@mui/material';
+import { useAuth } from '../../hooks/useAuth';
 
-interface AnalysisMetric {
-  label: string;
-  value: number;
-  trend: 'up' | 'down' | 'stable';
-  unit?: string;
-}
+// Import our new Intel Transformation components
+import { IntelTransformationDashboard } from '../../components/IntelAnalyzer/IntelTransformationDashboard';
 
-interface IntelAnalyzerTab {
-  id: string;
-  label: string;
-  icon: React.ComponentType;
-  component: React.ComponentType;
+// Error boundary for Intel operations
+import { IntelReports3DErrorBoundary } from '../../components/IntelReports3D/Core/IntelReports3DErrorBoundary';
+
+interface IntelAnalyzerState {
+  loading: boolean;
+  error: string | null;
+  intelSystemReady: boolean;
+  userHasAccess: boolean;
 }
 
 /**
- * Consolidated IntelAnalyzer Application
+ * Main Intel Analyzer Application
  * 
- * Combines:
- * - Intelligence report management
- * - Analysis tools and workflows
- * - Data visualization and mapping
- * - Collaborative analysis features
- * - Report generation and export
+ * This is the Intel → IntelReport transformation interface that:
+ * 1. Provides search and filtering for raw Intel data
+ * 2. Enables fusion of multiple Intel sources into comprehensive reports
+ * 3. Uses the IntelFusionService for sophisticated transformation logic
+ * 4. Maintains proper security classifications and source attribution
  */
-const IntelAnalyzerApp: React.FC = () => {
-  const [activeTab, setActiveTab] = useState(0);
-  const [reports, setReports] = useState<IntelReport[]>([]);
-  const [selectedReport, setSelectedReport] = useState<IntelReport | null>(null);
+const IntelAnalyzerApplication: React.FC = () => {
+  const { isAuthenticated, user, isLoading: authLoading } = useAuth();
+  const [appState, setAppState] = useState<IntelAnalyzerState>({
+    loading: true,
+    error: null,
+    intelSystemReady: false,
+    userHasAccess: false
+  });
 
-  // Mock data for demonstration
-  React.useEffect(() => {
-    const mockReports: IntelReport[] = [
-      {
-        id: '1',
-        title: 'Cyber Threat Intelligence Report #2024-001',
-        content: 'Comprehensive analysis of emerging cyber threats...',
-        author: 'Agent Smith',
-        category: 'CYBER',
-        tags: ['malware', 'APT', 'critical'],
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        classification: 'CONFIDENTIAL',
-        status: 'APPROVED',
-        confidence: 95,
-        sources: ['OSINT', 'Technical Analysis', 'Human Intelligence']
-      },
-      {
-        id: '2',
-        title: 'Geopolitical Analysis: Regional Stability',
-        content: 'Analysis of regional political stability factors...',
-        author: 'Analyst Jones',
-        category: 'GEOINT',
-        tags: ['geopolitical', 'stability', 'monitoring'],
-        latitude: 40.7128,
-        longitude: -74.0060,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        classification: 'SECRET',
-        status: 'REVIEWED',
-        confidence: 87,
-        sources: ['Satellite Imagery', 'Communications Intelligence', 'Open Sources']
+  // Initialize Intel transformation system
+  useEffect(() => {
+    const initializeIntelTransformationSystem = async () => {
+      if (!isAuthenticated || !user) {
+        setAppState(prev => ({
+          ...prev,
+          loading: false,
+          userHasAccess: false,
+          error: 'Authentication required for Intel Transformation access'
+        }));
+        return;
       }
-    ];
-    setReports(mockReports);
-  }, []);
 
-  // Reports Dashboard Panel
-  const ReportsPanel: React.FC = () => (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h5" gutterBottom sx={{ color: '#00ff00', fontFamily: 'monospace' }}>
-        📊 Intelligence Reports Dashboard
-      </Typography>
-      
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={8}>
-          <Card sx={{ bgcolor: 'rgba(0, 255, 0, 0.1)', border: '1px solid #00ff00' }}>
-            <CardContent>
-              <Typography variant="h6" sx={{ color: '#00ff00', mb: 2 }}>
-                Active Intelligence Reports
-              </Typography>
-              
-              {reports.map((report) => (
-                <Box 
-                  key={report.id} 
-                  sx={{ 
-                    mb: 2, 
-                    p: 2, 
-                    border: '1px solid rgba(0, 255, 0, 0.3)',
-                    cursor: 'pointer',
-                    '&:hover': { bgcolor: 'rgba(0, 255, 0, 0.05)' }
-                  }}
-                  onClick={() => setSelectedReport(report)}
-                >
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', mb: 1 }}>
-                    <Typography variant="subtitle1" sx={{ color: '#00ff00' }}>
-                      {report.title}
-                    </Typography>
-                    <Chip 
-                      label={report.classification} 
-                      size="small" 
-                      sx={{ 
-                        bgcolor: report.classification === 'TOP_SECRET' ? '#ff0000' : 
-                               report.classification === 'SECRET' ? '#ff8800' :
-                               report.classification === 'CONFIDENTIAL' ? '#ffff00' : '#00ff00',
-                        color: '#000',
-                        fontWeight: 'bold'
-                      }}
-                    />
-                  </Box>
-                  
-                  <Typography variant="body2" sx={{ color: '#ccc', mb: 1 }}>
-                    {report.content.substring(0, 100)}...
-                  </Typography>
-                  
-                  <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 1 }}>
-                    {report.tags.map((tag) => (
-                      <Chip 
-                        key={tag} 
-                        label={tag} 
-                        size="small" 
-                        variant="outlined"
-                        sx={{ color: '#888', borderColor: '#888' }}
-                      />
-                    ))}
-                  </Box>
-                  
-                  <Typography variant="caption" sx={{ color: '#888' }}>
-                    Author: {report.author} | Status: {report.status} | Confidence: {report.confidence}%
-                  </Typography>
-                </Box>
-              ))}
-              
-              <Button 
-                variant="outlined" 
-                sx={{ mt: 2, color: '#00ff00', borderColor: '#00ff00' }}
-                onClick={() => {/* Add new report logic */}}
-              >
-                + Create New Report
-              </Button>
-            </CardContent>
-          </Card>
-        </Grid>
+      try {
+        // TODO: When UnifiedUserService is implemented, check user Intel permissions here
+        // const hasIntelAccess = await userService.checkIntelTransformationAccess(user.id);
         
-        <Grid item xs={12} md={4}>
-          <Card sx={{ bgcolor: 'rgba(0, 255, 0, 0.1)', border: '1px solid #00ff00', mb: 3 }}>
-            <CardContent>
-              <Typography variant="h6" sx={{ color: '#00ff00', mb: 2 }}>
-                Intelligence Summary
-              </Typography>
-              <Box sx={{ fontFamily: 'monospace', fontSize: '0.9rem' }}>
-                <div style={{ marginBottom: '8px' }}>Total Reports: {reports.length}</div>
-                <div style={{ marginBottom: '8px' }}>Pending Review: {reports.filter(r => r.status === 'SUBMITTED').length}</div>
-                <div style={{ marginBottom: '8px' }}>Approved: {reports.filter(r => r.status === 'APPROVED').length}</div>
-                <div style={{ marginBottom: '8px' }}>Classification Levels: {new Set(reports.map(r => r.classification)).size}</div>
-              </Box>
-            </CardContent>
-          </Card>
-          
-          {selectedReport && (
-            <Card sx={{ bgcolor: 'rgba(0, 255, 0, 0.1)', border: '1px solid #00ff00' }}>
-              <CardContent>
-                <Typography variant="h6" sx={{ color: '#00ff00', mb: 2 }}>
-                  Report Details
-                </Typography>
-                <Box sx={{ fontFamily: 'monospace', fontSize: '0.9rem' }}>
-                  <div style={{ marginBottom: '8px' }}>ID: {selectedReport.id}</div>
-                  <div style={{ marginBottom: '8px' }}>Category: {selectedReport.category}</div>
-                  <div style={{ marginBottom: '8px' }}>Sources: {selectedReport.sources.length}</div>
-                  <div style={{ marginBottom: '8px' }}>Created: {selectedReport.createdAt.toLocaleDateString()}</div>
-                  {selectedReport.latitude && selectedReport.longitude && (
-                    <div style={{ marginBottom: '8px' }}>
-                      Location: {selectedReport.latitude.toFixed(4)}, {selectedReport.longitude.toFixed(4)}
-                    </div>
-                  )}
-                </Box>
-                
-                <Box sx={{ mt: 2, display: 'flex', gap: 1, flexDirection: 'column' }}>
-                  <Button 
-                    size="small" 
-                    variant="outlined"
-                    sx={{ color: '#00ff00', borderColor: '#00ff00' }}
-                    onClick={() => {/* Add analyze functionality */}}
-                  >
-                    Analyze Report
-                  </Button>
-                  <Button 
-                    size="small" 
-                    variant="outlined"
-                    sx={{ color: '#00ff00', borderColor: '#00ff00' }}
-                    onClick={() => {/* Add edit functionality */}}
-                  >
-                    Edit Report
-                  </Button>
-                </Box>
-              </CardContent>
-            </Card>
-          )}
-        </Grid>
-      </Grid>
-    </Box>
-  );
+        // For now, assume authenticated users have access
+        // This will be replaced with proper permission checking
+        const hasIntelAccess = true;
 
-  // Analysis Tools Panel
-  const AnalysisPanel: React.FC = () => {
-    const metrics: AnalysisMetric[] = [
-      { label: 'Threat Level', value: 75, trend: 'up', unit: '%' },
-      { label: 'Source Reliability', value: 92, trend: 'stable', unit: '%' },
-      { label: 'Data Completeness', value: 68, trend: 'up', unit: '%' },
-      { label: 'Confidence Score', value: 87, trend: 'down', unit: '%' }
-    ];
+        if (!hasIntelAccess) {
+          setAppState(prev => ({
+            ...prev,
+            loading: false,
+            userHasAccess: false,
+            error: 'Insufficient permissions for Intel Transformation access'
+          }));
+          return;
+        }
 
+        // TODO: Initialize Intel services when unified services are ready
+        // await intelTransformationService.initialize(user);
+        
+        setAppState({
+          loading: false,
+          error: null,
+          intelSystemReady: true,
+          userHasAccess: true
+        });
+
+      } catch (error) {
+        setAppState(prev => ({
+          ...prev,
+          loading: false,
+          error: `Failed to initialize Intel Transformation system: ${error instanceof Error ? error.message : 'Unknown error'}`
+        }));
+      }
+    };
+
+    if (!authLoading) {
+      initializeIntelTransformationSystem();
+    }
+  }, [isAuthenticated, user, authLoading]);
+
+  // Loading state
+  if (authLoading || appState.loading) {
     return (
-      <Box sx={{ p: 3 }}>
-        <Typography variant="h5" gutterBottom sx={{ color: '#00ff00', fontFamily: 'monospace' }}>
-          🔬 Intelligence Analysis Tools
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+        <CircularProgress sx={{ color: '#00ff00' }} />
+        <Typography variant="h6" sx={{ ml: 2, color: '#00ff00', fontFamily: 'monospace' }}>
+          🔍 Initializing Intel Transformation System...
         </Typography>
-        
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={6}>
-            <Card sx={{ bgcolor: 'rgba(0, 255, 0, 0.1)', border: '1px solid #00ff00' }}>
-              <CardContent>
-                <Typography variant="h6" sx={{ color: '#00ff00', mb: 2 }}>
-                  Analysis Metrics
-                </Typography>
-                
-                {metrics.map((metric) => (
-                  <Box key={metric.label} sx={{ mb: 2 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                      <Typography variant="body2" sx={{ color: '#ccc' }}>
-                        {metric.label}
-                      </Typography>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Typography variant="body2" sx={{ color: '#00ff00' }}>
-                          {metric.value}{metric.unit}
-                        </Typography>
-                        <TrendingUp 
-                          size={16} 
-                          style={{ 
-                            color: metric.trend === 'up' ? '#00ff00' : 
-                                   metric.trend === 'down' ? '#ff0000' : '#888',
-                            transform: metric.trend === 'down' ? 'rotate(180deg)' : 'none'
-                          }} 
-                        />
-                      </Box>
-                    </Box>
-                    <Box sx={{ 
-                      width: '100%', 
-                      height: '8px', 
-                      bgcolor: 'rgba(0, 0, 0, 0.3)', 
-                      borderRadius: '4px' 
-                    }}>
-                      <Box sx={{ 
-                        width: `${metric.value}%`, 
-                        height: '100%', 
-                        bgcolor: '#00ff00', 
-                        borderRadius: '4px' 
-                      }} />
-                    </Box>
-                  </Box>
-                ))}
-              </CardContent>
-            </Card>
-          </Grid>
-          
-          <Grid item xs={12} md={6}>
-            <Card sx={{ bgcolor: 'rgba(0, 255, 0, 0.1)', border: '1px solid #00ff00' }}>
-              <CardContent>
-                <Typography variant="h6" sx={{ color: '#00ff00', mb: 2 }}>
-                  Analysis Tools
-                </Typography>
-                
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                  <Button 
-                    variant="outlined" 
-                    sx={{ color: '#00ff00', borderColor: '#00ff00', justifyContent: 'flex-start' }}
-                  >
-                    📊 Pattern Recognition Analysis
-                  </Button>
-                  <Button 
-                    variant="outlined" 
-                    sx={{ color: '#00ff00', borderColor: '#00ff00', justifyContent: 'flex-start' }}
-                  >
-                    🎯 Threat Assessment Matrix
-                  </Button>
-                  <Button 
-                    variant="outlined" 
-                    sx={{ color: '#00ff00', borderColor: '#00ff00', justifyContent: 'flex-start' }}
-                  >
-                    🔗 Link Analysis & Correlation
-                  </Button>
-                  <Button 
-                    variant="outlined" 
-                    sx={{ color: '#00ff00', borderColor: '#00ff00', justifyContent: 'flex-start' }}
-                  >
-                    📈 Trend Prediction Model
-                  </Button>
-                  <Button 
-                    variant="outlined" 
-                    sx={{ color: '#00ff00', borderColor: '#00ff00', justifyContent: 'flex-start' }}
-                  >
-                    🌐 Geographic Intelligence Mapping
-                  </Button>
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
       </Box>
     );
-  };
+  }
 
-  // Visualization Panel
-  const VisualizationPanel: React.FC = () => (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h5" gutterBottom sx={{ color: '#00ff00', fontFamily: 'monospace' }}>
-        📈 Intelligence Visualization
-      </Typography>
-      
-      <Grid container spacing={3}>
-        <Grid item xs={12}>
-          <Card sx={{ bgcolor: 'rgba(0, 255, 0, 0.1)', border: '1px solid #00ff00' }}>
-            <CardContent>
-              <Typography variant="h6" sx={{ color: '#00ff00', mb: 2 }}>
-                Intelligence Data Visualization
-              </Typography>
-              
-              <Box sx={{ 
-                height: '400px', 
-                bgcolor: 'rgba(0, 0, 0, 0.7)', 
-                border: '1px solid #00ff00',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontFamily: 'monospace'
-              }}>
-                <Typography sx={{ color: '#888' }}>
-                  [Interactive visualization charts and maps will be implemented here]
-                </Typography>
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
-    </Box>
-  );
+  // Authentication required
+  if (!isAuthenticated) {
+    return (
+      <Container maxWidth="md" sx={{ mt: 4 }}>
+        <Alert severity="warning">
+          <Typography variant="h6">Authentication Required</Typography>
+          <Typography>
+            Please connect your wallet to access the Intel Transformation system.
+            This system converts raw intelligence data into structured intelligence reports.
+          </Typography>
+        </Alert>
+      </Container>
+    );
+  }
 
-  // Define tabs for the consolidated IntelAnalyzer interface
-  const tabs: IntelAnalyzerTab[] = [
-    {
-      id: 'reports',
-      label: 'Reports',
-      icon: FileText,
-      component: ReportsPanel
-    },
-    {
-      id: 'analysis',
-      label: 'Analysis',
-      icon: BarChart3,
-      component: AnalysisPanel
-    },
-    {
-      id: 'visualization',
-      label: 'Visualization',
-      icon: Map,
-      component: VisualizationPanel
-    }
-  ];
+  // Permission denied
+  if (!appState.userHasAccess) {
+    return (
+      <Container maxWidth="md" sx={{ mt: 4 }}>
+        <Alert severity="error">
+          <Typography variant="h6">Access Denied</Typography>
+          <Typography>
+            {appState.error || 'You do not have permission to access the Intel Transformation system.'}
+          </Typography>
+          <Typography sx={{ mt: 1, fontSize: '0.875rem' }}>
+            The Intel Transformation system requires special clearance to convert raw intel into intelligence reports.
+          </Typography>
+        </Alert>
+      </Container>
+    );
+  }
 
-  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
-    setActiveTab(newValue);
-  };
+  // Error state
+  if (appState.error) {
+    return (
+      <Container maxWidth="md" sx={{ mt: 4 }}>
+        <Alert severity="error">
+          <Typography variant="h6">Intel Transformation System Error</Typography>
+          <Typography>{appState.error}</Typography>
+          <Typography sx={{ mt: 1, fontSize: '0.875rem' }}>
+            The Intel → Report transformation service is currently unavailable.
+          </Typography>
+        </Alert>
+      </Container>
+    );
+  }
 
-  const ActiveComponent = tabs[activeTab]?.component || ReportsPanel;
-
+  // Main application interface - Intel Transformation Dashboard
   return (
-    <Box sx={{ 
-      height: '100vh', 
-      bgcolor: '#000', 
-      color: '#00ff00',
-      overflow: 'hidden'
-    }}>
-      {/* Header */}
-
-
-      {/* Tab Navigation */}
-      <Box sx={{ borderBottom: '1px solid #00ff00' }}>
-        <Tabs 
-          value={activeTab} 
-          onChange={handleTabChange}
-          sx={{
-            '& .MuiTab-root': {
-              color: '#888',
+    <IntelReports3DErrorBoundary>
+      <Box sx={{ 
+        minHeight: '100vh',
+        backgroundColor: '#0a0a0a',
+        color: '#00ff00'
+      }}>
+        {/* Header */}
+        <Container maxWidth="xl" sx={{ py: 2 }}>
+          <Typography 
+            variant="h4" 
+            sx={{ 
+              mb: 1,
               fontFamily: 'monospace',
-              '&.Mui-selected': {
-                color: '#00ff00'
-              }
-            },
-            '& .MuiTabs-indicator': {
-              backgroundColor: '#00ff00'
-            }
-          }}
-        >
-          {tabs.map((tab, index) => {
-            const IconComponent = tab.icon;
-            return (
-              <Tab 
-                key={tab.id}
-                label={
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <IconComponent size={16} />
-                    {tab.label}
-                  </Box>
-                }
-                value={index}
-              />
-            );
-          })}
-        </Tabs>
-      </Box>
+              color: '#00ff00',
+              textAlign: 'center'
+            }}
+          >
+            🧠 STARCOM INTEL TRANSFORMATION CENTER
+          </Typography>
+          <Typography 
+            variant="subtitle1" 
+            sx={{ 
+              mb: 3,
+              color: '#888',
+              textAlign: 'center',
+              fontStyle: 'italic'
+            }}
+          >
+            "Converting Raw Intelligence into Actionable Intelligence Reports"
+          </Typography>
+        </Container>
 
-      {/* Main Content Area */}
-      <Box sx={{ height: 'calc(100vh - 140px)', overflow: 'auto' }}>
-        <ActiveComponent />
+        {/* Main Transformation Dashboard */}
+        <IntelTransformationDashboard />
+
+        {/* Footer */}
+        <Container maxWidth="xl" sx={{ py: 2, mt: 4 }}>
+          <Typography 
+            variant="body2" 
+            sx={{ 
+              color: '#666',
+              textAlign: 'center',
+              fontFamily: 'monospace'
+            }}
+          >
+            CLASSIFICATION: UNCLASS // Intel Transformation System v2.0 // Powered by IntelFusion Service
+          </Typography>
+        </Container>
       </Box>
-    </Box>
+    </IntelReports3DErrorBoundary>
   );
 };
 
-export default IntelAnalyzerApp;
+export default IntelAnalyzerApplication;

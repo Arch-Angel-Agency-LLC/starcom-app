@@ -57,6 +57,9 @@ Welcome to the Earth Alliance Starcom platform documentation - designed for effi
 ### **Historical Archive**
 - **[Project Reports](./project-reports/)** - Phase reports, status updates, analysis
 - **[Archived Documentation](./archived/)** - Legacy docs and deprecated content
+- **[Reports](./reports/)** - Completion reports and project outcomes
+- **[UI Improvements](./ui-improvements/)** - Design system and styling documentation
+- **[Development](./development/)** - Development configuration and fix documentation
 
 ---
 
@@ -109,8 +112,9 @@ This Earth Alliance documentation structure is maintained through:
 - Artifact-driven development patterns for resistance operations
 - SOCOM security baseline with decentralized enhancements
 
-*Last Updated: June 25, 2025*  
+*Last Updated: July 12, 2025*  
 *AI-NOTE: Documentation optimized for Earth Alliance resistance operations against transnational crime syndicate. SOCOM standards provide security baseline only.*
+*RECENT UPDATE: Root-level markdown files have been organized into appropriate docs/ subdirectories for better navigation and maintenance.*
 
 ---
 

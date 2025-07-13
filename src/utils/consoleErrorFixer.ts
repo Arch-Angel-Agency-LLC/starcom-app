@@ -5,6 +5,8 @@
  * AI-NOTE: This utility addresses the most common console error patterns found in the Starcom dApp
  */
 
+import { conditionalLog } from './featureFlags';
+
 export interface ConsoleErrorPattern {
   pattern: RegExp;
   errorType: 'warning' | 'error' | 'info';
@@ -236,18 +238,16 @@ export function safeConsoleCall(fn: () => void, fallback?: () => void) {
  * Initialize console error monitoring in development
  */
 export function initConsoleErrorMonitoring() {
-  if (import.meta.env.DEV) {
-    ConsoleErrorMonitor.getInstance();
-    
-    // Show error help after 5 seconds
-    setTimeout(() => {
-      showConsoleErrorHelp();
-    }, 5000);
+  ConsoleErrorMonitor.getInstance();
+  
+  // Show error help after 5 seconds
+  setTimeout(() => {
+    showConsoleErrorHelp();
+  }, 5000);
 
-    // Add global function for manual error checking
-    (window as Window & typeof globalThis & { showStarcomErrors?: () => void }).showStarcomErrors = () => showConsoleErrorHelp();
-    
-    console.log('🛠️ Starcom Console Error Monitoring Active');
-    console.log('💡 Type "showStarcomErrors()" in console to see error analysis');
-  }
+  // Add global function for manual error checking
+  (window as Window & typeof globalThis & { showStarcomErrors?: () => void }).showStarcomErrors = () => showConsoleErrorHelp();
+  
+  conditionalLog.errorMonitoring('🛠️ Starcom Console Error Monitoring Active');
+  conditionalLog.errorMonitoring('💡 Type "showStarcomErrors()" in console to see error analysis');
 }

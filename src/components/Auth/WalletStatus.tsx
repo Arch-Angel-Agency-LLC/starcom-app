@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import Modal from '../Shared/Modal';
 import Snackbar from '../Shared/Snackbar';
@@ -30,23 +30,23 @@ const WalletStatus: React.FC<WalletStatusProps> = ({ sessionWarningThreshold = 5
     setError, // Add setError to context destructure
   } = useAuth();
 
-  const [snackbarOpen, setSnackbarOpen] = React.useState(false);
-  const [snackbarMessage, setSnackbarMessage] = React.useState('');
-  const [snackbarType, setSnackbarType] = React.useState<'success' | 'info' | 'error'>('info');
-  const [sessionExpiry, setSessionExpiry] = React.useState<number | null>(null);
-  const [showSessionWarning, setShowSessionWarning] = React.useState(false);
-  const [showDisconnectConfirm, setShowDisconnectConfirm] = React.useState(false);
-  const [showSwitchNetworkConfirm, setShowSwitchNetworkConfirm] = React.useState(false);
-  const authButtonRef = React.useRef<HTMLButtonElement>(null);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarType, setSnackbarType] = useState<'success' | 'info' | 'error'>('info');
+  const [sessionExpiry, setSessionExpiry] = useState<number | null>(null);
+  const [showSessionWarning, setShowSessionWarning] = useState(false);
+  const [showDisconnectConfirm, setShowDisconnectConfirm] = useState(false);
+  const [showSwitchNetworkConfirm, setShowSwitchNetworkConfirm] = useState(false);
+  const authButtonRef = useRef<HTMLButtonElement>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (connectionStatus === 'connected' && isAuthenticated && !isSessionValid) {
       authButtonRef.current?.focus();
     }
   }, [connectionStatus, isAuthenticated, isSessionValid]);
 
   // Show snackbar on successful connect/auth/disconnect
-  React.useEffect(() => {
+  useEffect(() => {
     if (connectionStatus === 'connected' && isAuthenticated && !error) {
       setSnackbarMessage('Wallet connected!');
       setSnackbarType('success');
@@ -55,7 +55,7 @@ const WalletStatus: React.FC<WalletStatusProps> = ({ sessionWarningThreshold = 5
   }, [connectionStatus, isAuthenticated, error]);
 
   // Show snackbar on error
-  React.useEffect(() => {
+  useEffect(() => {
     if (error) {
       setSnackbarMessage(error);
       setSnackbarType('error');
@@ -64,7 +64,7 @@ const WalletStatus: React.FC<WalletStatusProps> = ({ sessionWarningThreshold = 5
   }, [error]);
 
   // Show snackbar on disconnect
-  React.useEffect(() => {
+  useEffect(() => {
     if (connectionStatus === 'disconnected' && !isAuthenticated) {
       setSnackbarMessage('Wallet disconnected.');
       setSnackbarType('info');
@@ -73,7 +73,7 @@ const WalletStatus: React.FC<WalletStatusProps> = ({ sessionWarningThreshold = 5
   }, [connectionStatus, isAuthenticated]);
 
   // Show snackbar on successful authentication
-  React.useEffect(() => {
+  useEffect(() => {
     if (isAuthenticated && isSessionValid) {
       setSnackbarMessage('Authenticated!');
       setSnackbarType('success');
@@ -82,7 +82,7 @@ const WalletStatus: React.FC<WalletStatusProps> = ({ sessionWarningThreshold = 5
   }, [isAuthenticated, isSessionValid]);
 
   // Extract session expiry from localStorage
-  React.useEffect(() => {
+  useEffect(() => {
     if (isAuthenticated) {
       const auth = JSON.parse(localStorage.getItem('auth') || '{}');
       if (auth.expiry) setSessionExpiry(auth.expiry);

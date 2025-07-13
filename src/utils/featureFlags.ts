@@ -51,6 +51,18 @@ export interface FeatureFlags {
   
   // Development & Testing Features
   uiTestingDiagnosticsEnabled: boolean;
+  
+  // Logging Control Features
+  verboseLoggingEnabled: boolean;
+  assetDebugLoggingEnabled: boolean;
+  deploymentDebugLoggingEnabled: boolean;
+  securityVerboseLoggingEnabled: boolean;
+  serviceInitLoggingEnabled: boolean;
+  performanceLoggingEnabled: boolean;
+  assetRetryLoggingEnabled: boolean;
+  networkDebugLoggingEnabled: boolean;
+  pointerEventsDebugEnabled: boolean;
+  consoleErrorMonitoringEnabled: boolean;
 }
 
 // Default feature flag configuration
@@ -104,6 +116,18 @@ const DEFAULT_FEATURE_FLAGS: FeatureFlags = {
   
   // Development & Testing - Off by default for clean production experience
   uiTestingDiagnosticsEnabled: false, // Enable AI agent testing UI and diagnostics
+  
+  // Logging Control - Environment-aware defaults
+  verboseLoggingEnabled: !import.meta.env.PROD,
+  assetDebugLoggingEnabled: import.meta.env.DEV,
+  deploymentDebugLoggingEnabled: import.meta.env.DEV,
+  securityVerboseLoggingEnabled: import.meta.env.DEV,
+  serviceInitLoggingEnabled: import.meta.env.DEV,
+  performanceLoggingEnabled: import.meta.env.DEV,
+  assetRetryLoggingEnabled: import.meta.env.DEV,
+  networkDebugLoggingEnabled: import.meta.env.DEV,
+  pointerEventsDebugEnabled: import.meta.env.DEV,
+  consoleErrorMonitoringEnabled: import.meta.env.DEV,
 };
 
 // Feature flag storage key
@@ -270,5 +294,90 @@ export const useFeatureFlag = (flagName: keyof FeatureFlags): boolean => {
 
   return flagValue;
 };
+
+// Logging helper functions that respect feature flags
+export const conditionalLog = {
+  verbose: (message: string, ...args: unknown[]) => {
+    if (featureFlagManager.getFlag('verboseLoggingEnabled')) {
+      console.log(message, ...args);
+    }
+  },
+  
+  assetDebug: (message: string, ...args: unknown[]) => {
+    if (featureFlagManager.getFlag('assetDebugLoggingEnabled')) {
+      console.log(message, ...args);
+    }
+  },
+  
+  deploymentDebug: (message: string, ...args: unknown[]) => {
+    if (featureFlagManager.getFlag('deploymentDebugLoggingEnabled')) {
+      console.log(message, ...args);
+    }
+  },
+  
+  securityVerbose: (message: string, ...args: unknown[]) => {
+    if (featureFlagManager.getFlag('securityVerboseLoggingEnabled')) {
+      console.log(message, ...args);
+    }
+  },
+  
+  serviceInit: (message: string, ...args: unknown[]) => {
+    if (featureFlagManager.getFlag('serviceInitLoggingEnabled')) {
+      console.log(message, ...args);
+    }
+  },
+  
+  performance: (message: string, ...args: unknown[]) => {
+    if (featureFlagManager.getFlag('performanceLoggingEnabled')) {
+      console.log(message, ...args);
+    }
+  },
+  
+  assetRetry: (message: string, ...args: unknown[]) => {
+    if (featureFlagManager.getFlag('assetRetryLoggingEnabled')) {
+      console.log(message, ...args);
+    }
+  },
+  
+  networkDebug: (message: string, ...args: unknown[]) => {
+    if (featureFlagManager.getFlag('networkDebugLoggingEnabled')) {
+      console.log(message, ...args);
+    }
+  },
+  
+  pointerEvents: (message: string, ...args: unknown[]) => {
+    if (featureFlagManager.getFlag('pointerEventsDebugEnabled')) {
+      console.log(message, ...args);
+    }
+  },
+  
+  errorMonitoring: (message: string, ...args: unknown[]) => {
+    if (featureFlagManager.getFlag('consoleErrorMonitoringEnabled')) {
+      console.log(message, ...args);
+    }
+  },
+};
+
+// Helper to check if any logging is enabled
+export const isAnyLoggingEnabled = (): boolean => {
+  const flags = featureFlagManager.getAllFlags();
+  return flags.verboseLoggingEnabled ||
+         flags.assetDebugLoggingEnabled ||
+         flags.deploymentDebugLoggingEnabled ||
+         flags.securityVerboseLoggingEnabled ||
+         flags.serviceInitLoggingEnabled ||
+         flags.performanceLoggingEnabled ||
+         flags.assetRetryLoggingEnabled ||
+         flags.networkDebugLoggingEnabled ||
+         flags.pointerEventsDebugEnabled ||
+         flags.consoleErrorMonitoringEnabled;
+};
+
+// Environment-aware logging announcement (only in development)
+if (import.meta.env.DEV) {
+  console.log('🏁 Starcom logging feature flags initialized');
+  console.log('📝 Logging disabled by default in production builds');
+  console.log('🛠️ Use window.__STARCOM_FEATURES to control flags');
+}
 
 export default featureFlagManager;

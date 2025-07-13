@@ -12,6 +12,7 @@
 
 import ipfsService, { IPFSUploadResult } from './IPFSService';
 import { IntelPackage, CyberTeam, CyberInvestigation, Evidence } from '../types/cyberInvestigation';
+import { conditionalLog } from '../utils/featureFlags';
 
 // Event listener type for RelayNode events
 type EventListener = (data: RelayNodeEvent) => void;
@@ -140,7 +141,7 @@ export class RelayNodeIPFSService implements EventEmitter {
    */
   private async initializeRelayNodeConnection(): Promise<void> {
     try {
-      console.log('🔍 Detecting AI Security RelayNode...');
+      conditionalLog.networkDebug('🔍 Detecting AI Security RelayNode...');
       
       const response = await fetch(`${this.relayNodeEndpoint}/api/capabilities`, {
         method: 'GET',
@@ -168,7 +169,7 @@ export class RelayNodeIPFSService implements EventEmitter {
         return;
       }
     } catch {
-      console.log('ℹ️ No local AI Security RelayNode detected, using fallback IPFS');
+      conditionalLog.networkDebug('ℹ️ No local AI Security RelayNode detected, using fallback IPFS');
     }
 
     this.isRelayNodeAvailable = false;

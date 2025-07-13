@@ -6,6 +6,8 @@
  * found in the Starcom dApp without introducing new TypeScript issues.
  */
 
+import { conditionalLog } from './featureFlags';
+
 // Safe property access
 export function safeProp<T extends Record<string, unknown>>(
   obj: T | null | undefined, 
@@ -166,31 +168,27 @@ export const ErrorPatternFixes = {
 
 // Development-only error monitoring
 export function setupErrorMonitoring(): void {
-  if (import.meta.env.DEV) {
-    // Track unhandled promise rejections
-    window.addEventListener('unhandledrejection', (event) => {
-      console.group('🚨 Unhandled Promise Rejection');
-      console.error('Reason:', event.reason);
-      console.trace('Stack trace:');
-      console.groupEnd();
-    });
+  // Track unhandled promise rejections
+  window.addEventListener('unhandledrejection', (event) => {
+    conditionalLog.errorMonitoring('🚨 Unhandled Promise Rejection');
+    conditionalLog.errorMonitoring('Reason:', event.reason);
+    console.trace('Stack trace:');
+  });
 
-    // Track general errors
-    window.addEventListener('error', (event) => {
-      console.group('🚨 Unhandled Error');
-      console.error('Message:', event.message);
-      console.error('File:', event.filename);
-      console.error('Line:', event.lineno);
-      console.error('Column:', event.colno);
-      console.groupEnd();
-    });
+  // Track general errors
+  window.addEventListener('error', (event) => {
+    conditionalLog.errorMonitoring('🚨 Unhandled Error');
+    conditionalLog.errorMonitoring('Message:', event.message);
+    conditionalLog.errorMonitoring('File:', event.filename);
+    conditionalLog.errorMonitoring('Line:', event.lineno);
+    conditionalLog.errorMonitoring('Column:', event.colno);
+  });
 
-    console.log('🛡️ Starcom Error Monitoring Active');
-  }
+  conditionalLog.errorMonitoring('🛡️ Starcom Error Monitoring Active');
 }
 
 // Initialize all error handling
 export function initializeErrorHandling(): void {
   setupErrorMonitoring();
-  console.log('✅ Starcom Console Error Handling Initialized');
+  conditionalLog.errorMonitoring('✅ Starcom Console Error Handling Initialized');
 }

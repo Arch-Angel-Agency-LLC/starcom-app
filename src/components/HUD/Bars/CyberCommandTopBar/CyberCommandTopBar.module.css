@@ -12,6 +12,7 @@
     align-items: center;
     gap: 0;
     justify-content: flex-start;
+    font-family: 'Aldrich', 'Aldrich-Regular', monospace;
     font-size: 18px; /* Slightly increase font size for readability */
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6); /* Add a subtle shadow for depth */
     pointer-events: auto !important; /* Ensure TopBar is always interactive */

@@ -1,45 +1,53 @@
 /**
- * NetRunner Bottom Bar - BotRoster
+ * NetRunner Bottom Bar - Bot Roster
  * 
- * BotRoster that is scrollable horizontally.
- * Displays active NetRunner bots and automation agents with real-time status.
+ * Horizontal scrolling bot roster with autonomous bots that can be controlled by AI Agent.
+ * Supports default Starcom bots and user-created custom bots.
  * 
  * @author GitHub Copilot
- * @date July 10, 2025
+ * @date July 12, 2025
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Typography,
-  Card,
-  CardContent,
-  Avatar,
-  Chip,
   IconButton,
   Tooltip,
-  LinearProgress,
-  Button
+  Avatar,
+  Chip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Button,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Card,
+  CardContent
 } from '@mui/material';
 import {
-  Bot,
+  ChevronUp,
+  ChevronDown,
+  Plus,
   Play,
   Pause,
   Settings,
-  Activity,
-  Wifi,
-  WifiOff,
+  Trash2,
+  Bot,
+  Zap,
+  Globe,
   Shield,
   Search,
-  Zap,
-  Brain,
-  Eye,
-  Lock,
-  Globe,
   Database,
-  Plus,
-  ChevronLeft,
-  ChevronRight
+  Code,
+  Activity,
+  Clock,
+  CheckCircle,
+  AlertTriangle
 } from 'lucide-react';
 
 interface NetRunnerBottomBarProps {
@@ -48,21 +56,19 @@ interface NetRunnerBottomBarProps {
   onToggle: () => void;
 }
 
-interface NetRunnerBot {
+interface BotInstance {
   id: string;
   name: string;
-  type: 'scanner' | 'analyzer' | 'monitor' | 'extractor' | 'ai-agent' | 'guardian';
-  status: 'online' | 'offline' | 'running' | 'paused' | 'error';
-  avatar: string;
+  type: 'default' | 'custom';
+  category: string;
+  status: 'active' | 'paused' | 'idle' | 'error';
+  icon: React.ComponentType<{ size?: number | string; color?: string }>;
   description: string;
-  lastActivity: Date;
-  uptime: number;
   tasksCompleted: number;
-  currentTask?: string;
-  icon: React.ComponentType;
-  color: string;
+  uptime: string;
+  autonomyLevel: number; // 0-100
+  aiControlled: boolean;
   capabilities: string[];
-  priority: 'low' | 'medium' | 'high' | 'critical';
 }
 
 const NetRunnerBottomBar: React.FC<NetRunnerBottomBarProps> = ({
@@ -70,608 +76,580 @@ const NetRunnerBottomBar: React.FC<NetRunnerBottomBarProps> = ({
   height,
   onToggle
 }) => {
-  const [bots, setBots] = useState<NetRunnerBot[]>([
+  const [selectedBot, setSelectedBot] = useState<string | null>(null);
+  const [createBotOpen, setCreateBotOpen] = useState(false);
+  const [newBotName, setNewBotName] = useState('');
+  const [newBotCategory, setNewBotCategory] = useState('');
+  const [newBotDescription, setNewBotDescription] = useState('');
+
+  // Default Starcom bots + user created bots
+  const [bots, setBots] = useState<BotInstance[]>([
     {
-      id: 'recon-alpha',
-      name: 'Recon Alpha',
-      type: 'scanner',
-      status: 'running',
-      avatar: '🔍',
-      description: 'Advanced reconnaissance and network discovery bot',
-      lastActivity: new Date(),
-      uptime: 3600000,
-      tasksCompleted: 47,
-      currentTask: 'Scanning subnet 192.168.1.0/24',
-      icon: Search,
-      color: '#00f5ff',
-      capabilities: ['port-scan', 'service-enum', 'os-detect'],
-      priority: 'high'
-    },
-    {
-      id: 'intel-bravo',
-      name: 'Intel Bravo',
-      type: 'analyzer',
-      status: 'online',
-      avatar: '🧠',
-      description: 'Intelligence analysis and pattern recognition specialist',
-      lastActivity: new Date(Date.now() - 120000),
-      uptime: 7200000,
-      tasksCompleted: 23,
-      icon: Brain,
-      color: '#8b5cf6',
-      capabilities: ['threat-analysis', 'pattern-match', 'correlation'],
-      priority: 'medium'
-    },
-    {
-      id: 'guardian-charlie',
-      name: 'Guardian Charlie',
-      type: 'guardian',
-      status: 'online',
-      avatar: '🛡️',
-      description: 'Security monitoring and threat detection guardian',
-      lastActivity: new Date(Date.now() - 30000),
-      uptime: 14400000,
-      tasksCompleted: 156,
-      icon: Shield,
-      color: '#00ff88',
-      capabilities: ['intrusion-detect', 'anomaly-analysis', 'auto-response'],
-      priority: 'critical'
-    },
-    {
-      id: 'extractor-delta',
-      name: 'Extractor Delta',
-      type: 'extractor',
-      status: 'running',
-      avatar: '⚡',
-      description: 'Data extraction and OSINT collection specialist',
-      lastActivity: new Date(),
-      uptime: 1800000,
-      tasksCompleted: 89,
-      currentTask: 'Extracting metadata from social profiles',
-      icon: Zap,
-      color: '#ffaa00',
-      capabilities: ['web-scraping', 'metadata-extract', 'social-osint'],
-      priority: 'high'
-    },
-    {
-      id: 'ai-echo',
-      name: 'AI Echo',
-      type: 'ai-agent',
-      status: 'running',
-      avatar: '🤖',
-      description: 'Autonomous AI agent for complex decision making',
-      lastActivity: new Date(),
-      uptime: 10800000,
-      tasksCompleted: 34,
-      currentTask: 'Analyzing threat vectors and risk assessment',
-      icon: Bot,
-      color: '#ff6b35',
-      capabilities: ['decision-making', 'learning', 'adaptation', 'coordination'],
-      priority: 'critical'
-    },
-    {
-      id: 'monitor-foxtrot',
-      name: 'Monitor Foxtrot',
-      type: 'monitor',
-      status: 'online',
-      avatar: '👁️',
-      description: 'Continuous monitoring and surveillance bot',
-      lastActivity: new Date(Date.now() - 45000),
-      uptime: 21600000,
-      tasksCompleted: 278,
-      icon: Eye,
-      color: '#ff4081',
-      capabilities: ['real-time-monitor', 'alert-system', 'log-analysis'],
-      priority: 'medium'
-    },
-    {
-      id: 'crypto-golf',
-      name: 'Crypto Golf',
-      type: 'analyzer',
-      status: 'paused',
-      avatar: '🔐',
-      description: 'Cryptographic analysis and security assessment bot',
-      lastActivity: new Date(Date.now() - 300000),
-      uptime: 5400000,
-      tasksCompleted: 12,
-      icon: Lock,
-      color: '#9c27b0',
-      capabilities: ['crypto-analysis', 'ssl-check', 'cert-validation'],
-      priority: 'low'
-    },
-    {
-      id: 'web-hunter',
-      name: 'Web Hunter',
-      type: 'scanner',
-      status: 'running',
-      avatar: '🌐',
-      description: 'Web application scanner and vulnerability detector',
-      lastActivity: new Date(),
-      uptime: 900000,
-      tasksCompleted: 67,
-      currentTask: 'Scanning web applications for vulnerabilities',
+      id: 'spider-01',
+      name: 'WebSpider Alpha',
+      type: 'default',
+      category: 'crawler',
+      status: 'active',
       icon: Globe,
-      color: '#2196f3',
-      capabilities: ['web-scan', 'vuln-detect', 'payload-test'],
-      priority: 'high'
+      description: 'Advanced web crawling and data extraction',
+      tasksCompleted: 1247,
+      uptime: '72h 34m',
+      autonomyLevel: 85,
+      aiControlled: true,
+      capabilities: ['Deep Crawling', 'JS Rendering', 'Data Mining']
     },
     {
-      id: 'data-miner',
-      name: 'Data Miner',
-      type: 'extractor',
-      status: 'offline',
-      avatar: '💾',
-      description: 'Database analysis and information extraction bot',
-      lastActivity: new Date(Date.now() - 1800000),
-      uptime: 0,
-      tasksCompleted: 145,
+      id: 'recon-02',
+      name: 'ReconBot Beta',
+      type: 'default',
+      category: 'reconnaissance',
+      status: 'active',
+      icon: Search,
+      description: 'OSINT reconnaissance and intelligence gathering',
+      tasksCompleted: 892,
+      uptime: '48h 12m',
+      autonomyLevel: 92,
+      aiControlled: true,
+      capabilities: ['Port Scanning', 'Service Detection', 'Vuln Assessment']
+    },
+    {
+      id: 'exploit-03',
+      name: 'ExploitBot Gamma',
+      type: 'default',
+      category: 'security',
+      status: 'paused',
+      icon: Shield,
+      description: 'Automated security testing and exploitation',
+      tasksCompleted: 156,
+      uptime: '12h 45m',
+      autonomyLevel: 78,
+      aiControlled: false,
+      capabilities: ['Exploit Testing', 'Payload Delivery', 'Post-Exploitation']
+    },
+    {
+      id: 'data-04',
+      name: 'DataMiner Delta',
+      type: 'default',
+      category: 'data',
+      status: 'idle',
       icon: Database,
-      color: '#607d8b',
-      capabilities: ['db-analysis', 'data-mine', 'info-extract'],
-      priority: 'low'
+      description: 'Big data processing and correlation engine',
+      tasksCompleted: 2341,
+      uptime: '120h 18m',
+      autonomyLevel: 67,
+      aiControlled: true,
+      capabilities: ['Data Processing', 'Pattern Recognition', 'Correlation']
+    },
+    {
+      id: 'custom-01',
+      name: 'Custom Scraper',
+      type: 'custom',
+      category: 'scraping',
+      status: 'error',
+      icon: Code,
+      description: 'User-created custom scraping bot',
+      tasksCompleted: 23,
+      uptime: '2h 15m',
+      autonomyLevel: 45,
+      aiControlled: false,
+      capabilities: ['Custom Scripts', 'API Integration']
     }
   ]);
 
-  const [scrollPosition, setScrollPosition] = useState(0);
-  const cardWidth = 280;
-  const visibleCards = Math.floor((window.innerWidth - 100) / cardWidth);
-
-  const getStatusColor = (status: string) => {
+  const getBotStatusColor = (status: BotInstance['status']) => {
     switch (status) {
-      case 'online': return '#00ff88';
-      case 'offline': return '#666';
-      case 'running': return '#00f5ff';
+      case 'active': return '#00ff88';
       case 'paused': return '#ffaa00';
+      case 'idle': return '#888888';
       case 'error': return '#ff4444';
-      default: return '#666';
+      default: return '#ffffff';
     }
   };
 
-  const getStatusIcon = (status: string) => {
+  const getBotStatusIcon = (status: BotInstance['status']) => {
     switch (status) {
-      case 'online': return <Wifi size={12} />;
-      case 'offline': return <WifiOff size={12} />;
-      case 'running': return <Activity size={12} />;
+      case 'active': return <Activity size={12} />;
       case 'paused': return <Pause size={12} />;
-      case 'error': return <WifiOff size={12} />;
-      default: return <Wifi size={12} />;
+      case 'idle': return <Clock size={12} />;
+      case 'error': return <AlertTriangle size={12} />;
+      default: return <CheckCircle size={12} />;
     }
   };
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'critical': return '#ff4444';
-      case 'high': return '#ff8800';
-      case 'medium': return '#ffaa00';
-      case 'low': return '#666';
-      default: return '#666';
-    }
+  const handleCreateBot = () => {
+    if (!newBotName || !newBotCategory) return;
+
+    const newBot: BotInstance = {
+      id: `custom-${Date.now()}`,
+      name: newBotName,
+      type: 'custom',
+      category: newBotCategory,
+      status: 'idle',
+      icon: Bot,
+      description: newBotDescription || 'Custom user-created bot',
+      tasksCompleted: 0,
+      uptime: '0h 0m',
+      autonomyLevel: 50,
+      aiControlled: false,
+      capabilities: ['Custom Logic']
+    };
+
+    setBots([...bots, newBot]);
+    setCreateBotOpen(false);
+    setNewBotName('');
+    setNewBotCategory('');
+    setNewBotDescription('');
   };
 
-  const formatUptime = (ms: number) => {
-    const hours = Math.floor(ms / 3600000);
-    const minutes = Math.floor((ms % 3600000) / 60000);
-    if (hours > 0) {
-      return `${hours}h ${minutes}m`;
-    }
-    return `${minutes}m`;
-  };
-
-  const handleBotAction = useCallback((botId: string, action: 'start' | 'pause' | 'stop') => {
-    setBots(prev => prev.map(bot => {
+  const toggleBotStatus = (botId: string) => {
+    setBots(bots.map(bot => {
       if (bot.id === botId) {
-        switch (action) {
-          case 'start':
-            return { ...bot, status: 'running', lastActivity: new Date() };
-          case 'pause':
-            return { ...bot, status: 'paused' };
-          case 'stop':
-            return { ...bot, status: 'offline', uptime: 0 };
-          default:
-            return bot;
-        }
+        const newStatus = bot.status === 'active' ? 'paused' : 
+                         bot.status === 'paused' ? 'active' : 'active';
+        return { ...bot, status: newStatus };
       }
       return bot;
     }));
-  }, []);
-
-  const scrollLeft = () => {
-    setScrollPosition(prev => Math.max(0, prev - cardWidth));
   };
-
-  const scrollRight = () => {
-    setScrollPosition(prev => Math.min((bots.length - visibleCards) * cardWidth, prev + cardWidth));
-  };
-
-  if (!open) {
-    return (
-      <Box
-        sx={{
-          height: 40,
-          width: '100%',
-          backgroundColor: '#0a0a0a',
-          borderTop: '1px solid #333',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          paddingX: 2,
-          cursor: 'pointer'
-        }}
-        onClick={onToggle}
-      >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Typography
-            variant="caption"
-            sx={{
-              color: '#8b5cf6',
-              fontSize: '12px',
-              fontWeight: 600
-            }}
-          >
-            BOTROSTER
-          </Typography>
-          
-          {/* Mini status indicators */}
-          <Box sx={{ display: 'flex', gap: 1 }}>
-            {bots.slice(0, 6).map((bot) => (
-              <Box
-                key={bot.id}
-                sx={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: '50%',
-                  backgroundColor: getStatusColor(bot.status),
-                  animation: bot.status === 'running' ? 'pulse 2s infinite' : 'none'
-                }}
-              />
-            ))}
-          </Box>
-        </Box>
-
-        <Typography
-          variant="caption"
-          sx={{
-            color: '#666',
-            fontSize: '11px'
-          }}
-        >
-          {bots.filter(bot => bot.status === 'running').length} running • {bots.filter(bot => bot.status === 'online').length} online
-        </Typography>
-      </Box>
-    );
-  }
 
   return (
     <Box
       sx={{
-        height,
+        height: `${height}px`,
         width: '100%',
-        backgroundColor: '#0a0a0a',
-        borderTop: '1px solid #333',
+        backgroundColor: '#000000',
+        borderTop: '1px solid #00f5ff',
         display: 'flex',
-        flexDirection: 'column'
+        transition: 'height 0.3s ease',
+        overflow: 'hidden',
+        fontFamily: "'Aldrich', 'Courier New', monospace"
       }}
     >
-      {/* Header */}
+      {/* Left Control Panel */}
       <Box
         sx={{
-          height: 40,
+          width: '48px',
+          backgroundColor: '#0a0a0a',
+          borderRight: '1px solid #00f5ff',
           display: 'flex',
+          flexDirection: 'column',
           alignItems: 'center',
-          justifyContent: 'space-between',
-          paddingX: 2,
-          borderBottom: '1px solid #333',
-          backgroundColor: '#111'
+          py: 0.5,
+          gap: 0.5
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Typography
-            variant="h6"
-            sx={{
-              color: '#8b5cf6',
-              fontFamily: '"Orbitron", monospace',
-              fontSize: '14px',
-              fontWeight: 700
+        {/* Expand/Collapse Toggle */}
+        <Tooltip title={open ? "Collapse Bot Roster" : "Expand Bot Roster"}>
+          <IconButton
+            onClick={onToggle}
+            size="small"
+            sx={{ 
+              color: '#ffffff',
+              p: 0.25,
+              '&:hover': { color: '#00f5ff' }
             }}
           >
-            BOTROSTER ({bots.length})
-          </Typography>
-          
-          <Button
+            {open ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
+          </IconButton>
+        </Tooltip>
+
+        {/* Create Bot Button */}
+        <Tooltip title="Create New Bot">
+          <IconButton
+            onClick={() => setCreateBotOpen(true)}
             size="small"
-            variant="outlined"
-            startIcon={<Plus size={12} />}
             sx={{
-              borderColor: '#8b5cf6',
-              color: '#8b5cf6',
-              fontSize: '10px',
-              minWidth: 'auto',
-              padding: '4px 8px',
+              color: '#00ff88',
+              border: '1px solid #00ff88',
+              borderRadius: 0,
+              p: 0.25,
+              minWidth: 20,
+              minHeight: 20,
               '&:hover': {
-                borderColor: '#a855f7',
-                backgroundColor: 'rgba(139, 92, 246, 0.1)'
+                backgroundColor: 'rgba(0, 255, 136, 0.1)'
               }
             }}
           >
-            Deploy Bot
-          </Button>
-        </Box>
+            <Plus size={12} />
+          </IconButton>
+        </Tooltip>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Typography
-            variant="caption"
-            sx={{
-              color: '#00ff88',
-              fontSize: '11px'
+        {/* Bot Management */}
+        <Tooltip title="Bot Settings">
+          <IconButton
+            size="small"
+            sx={{ 
+              color: '#aaaaaa',
+              p: 0.25,
+              '&:hover': { color: '#ffffff' }
             }}
           >
-            {bots.filter(bot => bot.status === 'running').length} ACTIVE
-          </Typography>
-          
-          <Typography
-            variant="caption"
-            sx={{
-              color: '#666',
-              cursor: 'pointer'
-            }}
-            onClick={onToggle}
-          >
-            Collapse
-          </Typography>
-        </Box>
+            <Settings size={12} />
+          </IconButton>
+        </Tooltip>
       </Box>
 
-      {/* Bot Roster Content */}
-      <Box
-        sx={{
-          flex: 1,
-          display: 'flex',
-          alignItems: 'center',
-          position: 'relative',
-          overflow: 'hidden'
-        }}
-      >
-        {/* Scroll Left Button */}
-        {scrollPosition > 0 && (
-          <IconButton
-            onClick={scrollLeft}
-            sx={{
-              position: 'absolute',
-              left: 8,
-              zIndex: 2,
-              backgroundColor: 'rgba(139, 92, 246, 0.8)',
-              color: '#fff',
-              '&:hover': { backgroundColor: 'rgba(139, 92, 246, 1)' }
-            }}
-          >
-            <ChevronLeft />
-          </IconButton>
-        )}
-
-        {/* Bot Cards Container */}
+      {/* Bot Roster - Horizontal Scroll */}
+      <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        {/* Header */}
         <Box
           sx={{
+            height: '24px',
             display: 'flex',
-            gap: 2,
-            padding: '16px',
-            transform: `translateX(-${scrollPosition}px)`,
-            transition: 'transform 0.3s ease',
-            width: 'max-content'
+            alignItems: 'center',
+            px: 0.75,
+            backgroundColor: '#0a0a0a',
+            borderBottom: '1px solid #00f5ff'
           }}
         >
-          {bots.map((bot) => {
-            return (
-              <Card
-                key={bot.id}
-                sx={{
-                  minWidth: cardWidth - 16,
-                  maxWidth: cardWidth - 16,
-                  backgroundColor: '#1a1a1a',
-                  border: `1px solid ${bot.color}`,
-                  position: 'relative',
-                  overflow: 'visible'
-                }}
-              >
-                <CardContent sx={{ padding: '12px !important' }}>
-                  {/* Bot Header */}
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                    <Avatar
+          <Typography variant="caption" sx={{ 
+            color: '#00f5ff',
+            fontFamily: "'Aldrich', monospace",
+            fontSize: '0.65rem',
+            letterSpacing: '0.05em',
+            textTransform: 'uppercase'
+          }}>
+            BOT_ROSTER ({bots.length}_ACTIVE)
+          </Typography>
+          <Box sx={{ ml: 'auto', display: 'flex', gap: 0.25 }}>
+            <Chip
+              label={`${bots.filter(b => b.status === 'active').length}_RUN`}
+              size="small"
+              sx={{
+                backgroundColor: 'rgba(0, 255, 136, 0.15)',
+                color: '#00ff88',
+                fontFamily: "'Courier New', monospace",
+                fontSize: '0.6rem',
+                height: 16,
+                borderRadius: 0,
+                '& .MuiChip-label': { px: 0.5, py: 0 }
+              }}
+            />
+            <Chip
+              label={`${bots.filter(b => b.aiControlled).length}_AI`}
+              size="small"
+              sx={{
+                backgroundColor: 'rgba(0, 245, 255, 0.15)',
+                color: '#00f5ff',
+                fontFamily: "'Courier New', monospace",
+                fontSize: '0.6rem',
+                height: 16,
+                borderRadius: 0,
+                '& .MuiChip-label': { px: 0.5, py: 0 }
+              }}
+            />
+          </Box>
+        </Box>
+
+        {/* Bot Cards - Horizontal Scroll */}
+        <Box
+          sx={{
+            flex: 1,
+            display: 'flex',
+            overflowX: 'auto',
+            overflowY: 'hidden',
+            gap: 0.5,
+            p: 0.5,
+            '&::-webkit-scrollbar': {
+              height: '3px'
+            },
+            '&::-webkit-scrollbar-track': {
+              backgroundColor: '#000000'
+            },
+            '&::-webkit-scrollbar-thumb': {
+              backgroundColor: '#00f5ff',
+              borderRadius: 0
+            }
+          }}
+        >
+          {bots.map((bot) => (
+            <Card
+              key={bot.id}
+              sx={{
+                minWidth: open ? '200px' : '80px',
+                maxWidth: open ? '200px' : '80px',
+                height: open ? '80px' : '40px',
+                backgroundColor: selectedBot === bot.id ? 'rgba(0, 245, 255, 0.1)' : '#0a0a0a',
+                border: '1px solid',
+                borderColor: selectedBot === bot.id ? '#00f5ff' : '#333333',
+                borderRadius: 0,
+                cursor: 'pointer',
+                transition: 'all 0.1s ease',
+                '&:hover': {
+                  borderColor: '#00f5ff',
+                  backgroundColor: 'rgba(0, 245, 255, 0.05)'
+                }
+              }}
+              onClick={() => setSelectedBot(selectedBot === bot.id ? null : bot.id)}
+            >
+              <CardContent sx={{ p: 0.5, height: '100%', display: 'flex', flexDirection: 'column' }}>
+                {/* Bot Header */}
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.25 }}>
+                  <Avatar
+                    sx={{
+                      width: open ? 24 : 16,
+                      height: open ? 24 : 16,
+                      backgroundColor: `${getBotStatusColor(bot.status)}15`,
+                      border: `1px solid ${getBotStatusColor(bot.status)}`,
+                      borderRadius: 0
+                    }}
+                  >
+                    <bot.icon size={open ? 12 : 8} color={getBotStatusColor(bot.status)} />
+                  </Avatar>
+                  <Box sx={{ ml: 0.5, flex: 1, minWidth: 0 }}>
+                    <Typography
+                      variant="caption"
                       sx={{
-                        width: 32,
-                        height: 32,
-                        backgroundColor: `${bot.color}20`,
-                        border: `2px solid ${bot.color}`,
-                        fontSize: '14px'
+                        color: '#ffffff',
+                        fontFamily: "'Aldrich', monospace",
+                        fontSize: open ? '0.65rem' : '0.55rem',
+                        lineHeight: 1,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        letterSpacing: '0.02em',
+                        textTransform: 'uppercase'
                       }}
                     >
-                      {bot.avatar}
-                    </Avatar>
-                    
-                    <Box sx={{ flex: 1 }}>
+                      {bot.name}
+                    </Typography>
+                    {open && (
                       <Typography
-                        variant="h6"
+                        variant="caption"
                         sx={{
-                          color: '#ccc',
-                          fontSize: '13px',
-                          fontWeight: 600,
-                          lineHeight: 1.2
+                          color: '#aaaaaa',
+                          fontFamily: "'Courier New', monospace",
+                          fontSize: '0.55rem',
+                          lineHeight: 1
                         }}
                       >
-                        {bot.name}
+                        {bot.category.toUpperCase()}
                       </Typography>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Chip
-                          label={bot.type}
-                          size="small"
+                    )}
+                  </Box>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
+                    <Box sx={{ color: getBotStatusColor(bot.status) }}>
+                      {getBotStatusIcon(bot.status)}
+                    </Box>
+                    {bot.aiControlled && (
+                      <Tooltip title="AI Controlled">
+                        <Box sx={{ color: '#00f5ff' }}>
+                          <Zap size={8} />
+                        </Box>
+                      </Tooltip>
+                    )}
+                  </Box>
+                </Box>
+
+                {/* Bot Stats - Only when expanded */}
+                {open && (
+                  <>
+                    <Box sx={{ mb: 0.5 }}>
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color: '#aaaaaa',
+                          fontFamily: "'Courier New', monospace",
+                          fontSize: '0.55rem',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap'
+                        }}
+                      >
+                        {bot.description.toUpperCase()}
+                      </Typography>
+                    </Box>
+                    
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                      <Typography variant="caption" sx={{ 
+                        color: '#00ff88', 
+                        fontFamily: "'Courier New', monospace",
+                        fontSize: '0.55rem' 
+                      }}>
+                        T:{bot.tasksCompleted}
+                      </Typography>
+                      <Typography variant="caption" sx={{ 
+                        color: '#ffaa00', 
+                        fontFamily: "'Courier New', monospace",
+                        fontSize: '0.55rem' 
+                      }}>
+                        UP:{bot.uptime}
+                      </Typography>
+                    </Box>
+
+                    {/* Autonomy Level Bar */}
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <Typography variant="caption" sx={{ 
+                        color: '#aaaaaa', 
+                        fontFamily: "'Aldrich', monospace",
+                        fontSize: '0.5rem' 
+                      }}>
+                        AUTO:
+                      </Typography>
+                      <Box
+                        sx={{
+                          flex: 1,
+                          height: 2,
+                          backgroundColor: '#333333',
+                          borderRadius: 0,
+                          overflow: 'hidden'
+                        }}
+                      >
+                        <Box
                           sx={{
-                            backgroundColor: `${bot.color}20`,
-                            color: bot.color,
-                            fontSize: '8px',
-                            height: '16px'
-                          }}
-                        />
-                        <Chip
-                          label={bot.priority}
-                          size="small"
-                          sx={{
-                            backgroundColor: `${getPriorityColor(bot.priority)}20`,
-                            color: getPriorityColor(bot.priority),
-                            fontSize: '8px',
-                            height: '16px'
+                            width: `${bot.autonomyLevel}%`,
+                            height: '100%',
+                            backgroundColor: '#00f5ff',
+                            transition: 'width 0.3s ease'
                           }}
                         />
                       </Box>
-                    </Box>
-
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                      {getStatusIcon(bot.status)}
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          color: getStatusColor(bot.status),
-                          fontSize: '10px',
-                          fontWeight: 600,
-                          textTransform: 'uppercase'
-                        }}
-                      >
-                        {bot.status}
+                      <Typography variant="caption" sx={{ color: '#00f5ff', fontSize: '0.6rem' }}>
+                        {bot.autonomyLevel}%
                       </Typography>
                     </Box>
-                  </Box>
+                  </>
+                )}
 
-                  {/* Description */}
-                  <Typography
-                    variant="body2"
+                {/* Control Buttons - Bottom */}
+                <Box sx={{ mt: 'auto', display: 'flex', justifyContent: 'space-between', gap: 1 }}>
+                  <IconButton
+                    size="small"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleBotStatus(bot.id);
+                    }}
                     sx={{
-                      color: '#b0b0b0',
-                      fontSize: '11px',
-                      mb: 1,
-                      lineHeight: 1.3
+                      color: bot.status === 'active' ? '#ffaa00' : '#00ff88',
+                      minWidth: open ? 24 : 20,
+                      minHeight: open ? 24 : 20
                     }}
                   >
-                    {bot.description}
-                  </Typography>
-
-                  {/* Current Task */}
-                  {bot.currentTask && (
-                    <Box
-                      sx={{
-                        backgroundColor: '#0a0a0a',
-                        border: '1px solid #333',
-                        borderRadius: 1,
-                        padding: 0.5,
-                        mb: 1
-                      }}
-                    >
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          color: '#00ff88',
-                          fontSize: '9px',
-                          fontFamily: '"Monaco", "Menlo", monospace'
-                        }}
-                      >
-                        {bot.currentTask}
-                      </Typography>
-                    </Box>
-                  )}
-
-                  {/* Progress Bar for Running Bots */}
-                  {bot.status === 'running' && (
-                    <LinearProgress
-                      sx={{
-                        height: 3,
-                        borderRadius: 1.5,
-                        backgroundColor: '#333',
-                        mb: 1,
-                        '& .MuiLinearProgress-bar': {
-                          backgroundColor: bot.color,
-                          borderRadius: 1.5
-                        }
-                      }}
-                    />
-                  )}
-
-                  {/* Bot Stats */}
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                    <Typography variant="caption" sx={{ color: '#666', fontSize: '9px' }}>
-                      {bot.tasksCompleted} tasks
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: '#666', fontSize: '9px' }}>
-                      {bot.status !== 'offline' ? formatUptime(bot.uptime) : 'Offline'}
-                    </Typography>
-                  </Box>
-
-                  {/* Bot Controls */}
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Box sx={{ display: 'flex', gap: 0.5 }}>
-                      {bot.status === 'offline' && (
-                        <Tooltip title="Start Bot">
-                          <IconButton
-                            size="small"
-                            onClick={() => handleBotAction(bot.id, 'start')}
-                            sx={{ color: '#00ff88' }}
-                          >
-                            <Play size={10} />
-                          </IconButton>
-                        </Tooltip>
-                      )}
-                      {(bot.status === 'running' || bot.status === 'online') && (
-                        <Tooltip title="Pause Bot">
-                          <IconButton
-                            size="small"
-                            onClick={() => handleBotAction(bot.id, 'pause')}
-                            sx={{ color: '#ffaa00' }}
-                          >
-                            <Pause size={10} />
-                          </IconButton>
-                        </Tooltip>
-                      )}
-                      {bot.status !== 'offline' && (
-                        <Tooltip title="Stop Bot">
-                          <IconButton
-                            size="small"
-                            onClick={() => handleBotAction(bot.id, 'stop')}
-                            sx={{ color: '#ff4444' }}
-                          >
-                            <WifiOff size={10} />
-                          </IconButton>
-                        </Tooltip>
-                      )}
-                    </Box>
-
-                    <Tooltip title="Bot Settings">
+                    {bot.status === 'active' ? <Pause size={12} /> : <Play size={12} />}
+                  </IconButton>
+                  
+                  {open && (
+                    <>
                       <IconButton
                         size="small"
-                        sx={{ color: '#00f5ff' }}
+                        sx={{ color: '#aaaaaa', minWidth: 24, minHeight: 24 }}
                       >
-                        <Settings size={10} />
+                        <Settings size={12} />
                       </IconButton>
-                    </Tooltip>
-                  </Box>
-                </CardContent>
-              </Card>
-            );
-          })}
+                      
+                      {bot.type === 'custom' && (
+                        <IconButton
+                          size="small"
+                          sx={{ color: '#ff4444', minWidth: 24, minHeight: 24 }}
+                        >
+                          <Trash2 size={12} />
+                        </IconButton>
+                      )}
+                    </>
+                  )}
+                </Box>
+              </CardContent>
+            </Card>
+          ))}
         </Box>
+      </Box>
 
-        {/* Scroll Right Button */}
-        {scrollPosition < (bots.length - visibleCards) * cardWidth && (
-          <IconButton
-            onClick={scrollRight}
+      {/* Create Bot Dialog */}
+      <Dialog
+        open={createBotOpen}
+        onClose={() => setCreateBotOpen(false)}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            backgroundColor: '#1a1a1a',
+            border: '1px solid #333333',
+            color: '#ffffff'
+          }
+        }}
+      >
+        <DialogTitle sx={{ color: '#00f5ff' }}>
+          Create New Bot
+        </DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+            <TextField
+              label="Bot Name"
+              value={newBotName}
+              onChange={(e) => setNewBotName(e.target.value)}
+              variant="outlined"
+              fullWidth
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  color: '#ffffff',
+                  '& fieldset': { borderColor: '#333333' },
+                  '&:hover fieldset': { borderColor: '#555555' },
+                  '&.Mui-focused fieldset': { borderColor: '#00f5ff' }
+                },
+                '& .MuiInputLabel-root': { color: '#aaaaaa' }
+              }}
+            />
+            
+            <FormControl fullWidth>
+              <InputLabel sx={{ color: '#aaaaaa' }}>Category</InputLabel>
+              <Select
+                value={newBotCategory}
+                onChange={(e) => setNewBotCategory(e.target.value)}
+                sx={{
+                  color: '#ffffff',
+                  '& .MuiOutlinedInput-notchedOutline': { borderColor: '#333333' },
+                  '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#555555' },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#00f5ff' }
+                }}
+              >
+                <MenuItem value="crawler">Web Crawler</MenuItem>
+                <MenuItem value="scraper">Data Scraper</MenuItem>
+                <MenuItem value="scanner">Security Scanner</MenuItem>
+                <MenuItem value="recon">Reconnaissance</MenuItem>
+                <MenuItem value="automation">Automation</MenuItem>
+                <MenuItem value="custom">Custom</MenuItem>
+              </Select>
+            </FormControl>
+
+            <TextField
+              label="Description"
+              value={newBotDescription}
+              onChange={(e) => setNewBotDescription(e.target.value)}
+              variant="outlined"
+              fullWidth
+              multiline
+              rows={3}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  color: '#ffffff',
+                  '& fieldset': { borderColor: '#333333' },
+                  '&:hover fieldset': { borderColor: '#555555' },
+                  '&.Mui-focused fieldset': { borderColor: '#00f5ff' }
+                },
+                '& .MuiInputLabel-root': { color: '#aaaaaa' }
+              }}
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => setCreateBotOpen(false)}
+            sx={{ color: '#aaaaaa' }}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleCreateBot}
             sx={{
-              position: 'absolute',
-              right: 8,
-              zIndex: 2,
-              backgroundColor: 'rgba(139, 92, 246, 0.8)',
-              color: '#fff',
-              '&:hover': { backgroundColor: 'rgba(139, 92, 246, 1)' }
+              backgroundColor: '#00ff88',
+              color: '#000000',
+              '&:hover': { backgroundColor: '#00dd77' }
             }}
           >
-            <ChevronRight />
-          </IconButton>
-        )}
-      </Box>
+            Create Bot
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

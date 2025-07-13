@@ -55,11 +55,16 @@
 .marqueeIcon {
   margin-right: 0.5rem;
   font-size: 1.2em;
+  font-family: 'Orbitron', 'Aldrich-Regular', monospace;
+  font-weight: 600;
 }
 
 .marqueeValue {
   margin-left: 0.5rem;
   font-weight: bold;
+  font-family: 'Rajdhani', 'Aldrich-Regular', sans-serif;
+  font-size: 1.1em;
+  letter-spacing: 0.5px;
 }
 
 .marqueeEmpty {

@@ -157,7 +157,7 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({
         />
         <div className={styles.textLogo}>
           <div className={styles.logo}>STARCOM</div>
-          <div className={styles.version}>v2.5</div>
+          <div className={styles.version}>Earth Alliance</div>
         </div>
       </div>
       

@@ -5,7 +5,6 @@ import { WASMProvider, useWASM } from "./context/WASMContext";
 import { DashboardProvider } from "./context/DashboardContext";
 import { GlobeProvider } from "./context/GlobeContext.tsx";
 import { VisualizationModeProvider } from "./context/VisualizationModeContext";
-import { UnifiedAuthProvider as AuthProvider } from "./security/context/AuthContext";
 import { MarketplaceProvider } from "./context/MarketplaceContext";
 import { SpaceWeatherProvider } from "./context/SpaceWeatherContext";
 import { UnifiedGlobalCommandProvider } from "./context/UnifiedGlobalCommandContext";
@@ -62,8 +61,7 @@ const AppContent: React.FC = () => {
 const App: React.FC = () => (
   <QueryClientProvider client={queryClient}>
     <PreloaderManager minimumDisplayTime={2500}>
-      <AuthProvider>
-        <AuthErrorBoundary>
+      <AuthErrorBoundary>
           <WASMProvider>
             <DashboardProvider>
               <VisualizationModeProvider>
@@ -94,7 +92,6 @@ const App: React.FC = () => (
             </DashboardProvider>
           </WASMProvider>
         </AuthErrorBoundary>
-      </AuthProvider>
     </PreloaderManager>
   </QueryClientProvider>
 );
