@@ -9,21 +9,21 @@ const VisualizationModeControls: React.FC = () => {
     <div className={styles.container}>
       <div className={styles.sectionTitle}>Visualization Mode</div>
       
-      {/* Primary Mode Buttons */}
+      {/* Primary Mode Buttons - CyberCommand first as default */}
       <div className={styles.primaryModeContainer}>
-        <button 
-          className={`${styles.primaryButton} ${visualizationMode.mode === 'EcoNatural' ? styles.active : ''}`}
-          onClick={() => setPrimaryMode('EcoNatural')}
-          title="Eco Natural"
-        >
-          🌎 Eco Natural
-        </button>
         <button 
           className={`${styles.primaryButton} ${visualizationMode.mode === 'CyberCommand' ? styles.active : ''}`}
           onClick={() => setPrimaryMode('CyberCommand')}
           title="Cyber Command"
         >
           📑 Cyber Command
+        </button>
+        <button 
+          className={`${styles.primaryButton} ${visualizationMode.mode === 'EcoNatural' ? styles.active : ''}`}
+          onClick={() => setPrimaryMode('EcoNatural')}
+          title="Eco Natural"
+        >
+          🌎 Eco Natural
         </button>
         <button 
           className={`${styles.primaryButton} ${visualizationMode.mode === 'GeoPolitical' ? styles.active : ''}`}
@@ -36,7 +36,7 @@ const VisualizationModeControls: React.FC = () => {
       
       {/* Secondary Mode Buttons */}
       <div className={styles.secondaryModeContainer}>
-        {/* CyberCommand submodes */}
+        {/* CyberCommand submodes - 5 globe-appropriate cyber intelligence modes */}
         {visualizationMode.mode === 'CyberCommand' && (
           <>
             <button 
@@ -44,26 +44,40 @@ const VisualizationModeControls: React.FC = () => {
               onClick={() => setVisualizationMode({ mode: 'CyberCommand', subMode: 'IntelReports' })}
               title="Intel Reports"
             >
-              📑 Intel Reports
+              📑
             </button>
             <button 
-              className={`${styles.secondaryButton} ${visualizationMode.subMode === 'Timelines' ? styles.active : ''}`}
-              onClick={() => setVisualizationMode({ mode: 'CyberCommand', subMode: 'Timelines' })}
-              title="Timelines"
+              className={`${styles.secondaryButton} ${visualizationMode.subMode === 'NetworkInfrastructure' ? styles.active : ''}`}
+              onClick={() => setVisualizationMode({ mode: 'CyberCommand', subMode: 'NetworkInfrastructure' })}
+              title="Network Infrastructure"
             >
-              ⏱️ Timelines
+              🌐
             </button>
             <button 
-              className={`${styles.secondaryButton} ${visualizationMode.subMode === 'CrisisZones' ? styles.active : ''}`}
-              onClick={() => setVisualizationMode({ mode: 'CyberCommand', subMode: 'CrisisZones' })}
-              title="Crisis Zones"
+              className={`${styles.secondaryButton} ${visualizationMode.subMode === 'CyberThreats' ? styles.active : ''}`}
+              onClick={() => setVisualizationMode({ mode: 'CyberCommand', subMode: 'CyberThreats' })}
+              title="Cyber Threat Zones"
             >
-              🚨 Crisis Zones
+              🔒
+            </button>
+            <button 
+              className={`${styles.secondaryButton} ${visualizationMode.subMode === 'CommHubs' ? styles.active : ''}`}
+              onClick={() => setVisualizationMode({ mode: 'CyberCommand', subMode: 'CommHubs' })}
+              title="Communication Hubs"
+            >
+              � Comm Hubs
+            </button>
+            <button 
+              className={`${styles.secondaryButton} ${visualizationMode.subMode === 'CyberAttacks' ? styles.active : ''}`}
+              onClick={() => setVisualizationMode({ mode: 'CyberCommand', subMode: 'CyberAttacks' })}
+              title="Cyber Attacks"
+            >
+              ⚡
             </button>
           </>
         )}
         
-        {/* GeoPolitical submodes */}
+        {/* GeoPolitical submodes - Icons only for space efficiency */}
         {visualizationMode.mode === 'GeoPolitical' && (
           <>
             <button 
@@ -71,26 +85,26 @@ const VisualizationModeControls: React.FC = () => {
               onClick={() => setVisualizationMode({ mode: 'GeoPolitical', subMode: 'NationalTerritories' })}
               title="National Territories"
             >
-              🗺️ National Territories
+              🗺️
             </button>
             <button 
               className={`${styles.secondaryButton} ${visualizationMode.subMode === 'DiplomaticEvents' ? styles.active : ''}`}
               onClick={() => setVisualizationMode({ mode: 'GeoPolitical', subMode: 'DiplomaticEvents' })}
               title="Diplomatic Events"
             >
-              🤝 Diplomatic Events
+              🤝
             </button>
             <button 
               className={`${styles.secondaryButton} ${visualizationMode.subMode === 'ResourceZones' ? styles.active : ''}`}
               onClick={() => setVisualizationMode({ mode: 'GeoPolitical', subMode: 'ResourceZones' })}
               title="Resource Zones"
             >
-              💎 Resource Zones
+              💎
             </button>
           </>
         )}
         
-        {/* EcoNatural submodes */}
+        {/* EcoNatural submodes - Icons only for space efficiency */}
         {visualizationMode.mode === 'EcoNatural' && (
           <>
             <button 
@@ -98,21 +112,21 @@ const VisualizationModeControls: React.FC = () => {
               onClick={() => setVisualizationMode({ mode: 'EcoNatural', subMode: 'SpaceWeather' })}
               title="Space Weather"
             >
-              🌎 Space Weather
+              🌎
             </button>
             <button 
               className={`${styles.secondaryButton} ${visualizationMode.subMode === 'EcologicalDisasters' ? styles.active : ''}`}
               onClick={() => setVisualizationMode({ mode: 'EcoNatural', subMode: 'EcologicalDisasters' })}
               title="Ecological Disasters"
             >
-              🌪️ Ecological Disasters
+              🌪️
             </button>
             <button 
               className={`${styles.secondaryButton} ${visualizationMode.subMode === 'EarthWeather' ? styles.active : ''}`}
               onClick={() => setVisualizationMode({ mode: 'EcoNatural', subMode: 'EarthWeather' })}
               title="Earth Weather"
             >
-              🌤️ Earth Weather
+              🌤️
             </button>
           </>
         )}

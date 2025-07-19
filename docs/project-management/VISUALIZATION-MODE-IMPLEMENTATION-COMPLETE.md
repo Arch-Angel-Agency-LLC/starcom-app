@@ -42,8 +42,10 @@ Successfully implemented visualization mode respect in the Starcom app so that s
 
 ### CyberCommand Mode
 - **IntelReports**: Shows 3D Intel Report models on globe + Intel Reports status in RightSideBar
-- **Timelines**: Shows timeline-based visualizations (settings panel ready)
-- **CrisisZones**: Shows crisis zone overlays (settings panel ready)
+- **NetworkInfrastructure**: Shows global internet infrastructure, data centers, submarine cables
+- **CyberThreats**: Shows cyber threat zones, malware origins, botnet command centers
+- **CommHubs**: Shows satellite ground stations, communication towers, SIGINT facilities
+- **CyberAttacks**: Shows real-time cyber attacks, attack vectors, target analysis
 
 ### EcoNatural Mode
 - **SpaceWeather**: Shows NOAA Electric Field data + NOAA status in RightSideBar

@@ -3,13 +3,13 @@ import { settingsStorage } from '../utils/settingsStorage';
 
 // Extend VisualizationMode to include sub-modes
 export type VisualizationMode =
-  | { mode: 'CyberCommand'; subMode: 'IntelReports' | 'Timelines' | 'CrisisZones' }
+  | { mode: 'CyberCommand'; subMode: 'IntelReports' | 'NetworkInfrastructure' | 'CyberThreats' | 'CommHubs' | 'CyberAttacks' }
   | { mode: 'GeoPolitical'; subMode: 'NationalTerritories' | 'DiplomaticEvents' | 'ResourceZones' }
   | { mode: 'EcoNatural'; subMode: 'SpaceWeather' | 'EcologicalDisasters' | 'EarthWeather' };
 
 // Interface for tracking last selected submode for each primary mode
 interface LastSelectedSubmodes {
-  CyberCommand: 'IntelReports' | 'Timelines' | 'CrisisZones';
+  CyberCommand: 'IntelReports' | 'NetworkInfrastructure' | 'CyberThreats' | 'CommHubs' | 'CyberAttacks';
   GeoPolitical: 'NationalTerritories' | 'DiplomaticEvents' | 'ResourceZones';
   EcoNatural: 'SpaceWeather' | 'EcologicalDisasters' | 'EarthWeather';
 }
