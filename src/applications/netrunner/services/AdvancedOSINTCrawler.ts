@@ -324,7 +324,6 @@ export class AdvancedOSINTCrawler {
    */
   private async performDirectoryBruteforce(targetUrl: string, result: CrawlResult): Promise<void> {
     const baseUrl = new URL(targetUrl).origin;
-    const domain = new URL(targetUrl).hostname;
     
     // Test common directories
     for (const dir of this.commonDirectories) {

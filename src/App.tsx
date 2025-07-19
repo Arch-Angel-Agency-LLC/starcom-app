@@ -19,17 +19,24 @@ import SettingsInitializer from "./components/SettingsInitializer";
 import SettingsStatusIndicator from "./components/SettingsStatusIndicator";
 import PreloaderManager from "./components/Preloader/PreloaderManager";
 import WalletDiagnostic from "./components/Debug/WalletDiagnostic";
+import DebugControlPanel from "./components/Debug/DebugControlPanel";
+import { useDebugPanel } from "./hooks/useDebugPanel";
 import { initConsoleErrorMonitoring } from "./utils/consoleErrorFixer";
 import { initializeErrorHandling } from "./utils/consoleErrorResolver";
 import { initPointerEventsDebugging } from "./utils/pointerEventsDebugger";
+import { debugLogger, DebugCategory } from "./utils/debugLogger";
 import "./styles/globals.css";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AuthErrorBoundary from './components/Auth/AuthErrorBoundary';
+
+// Component loading debug
+debugLogger.info(DebugCategory.COMPONENT_LOAD, 'App.tsx loaded - main application entry point');
 
 const queryClient = new QueryClient();
 
 const AppContent: React.FC = () => {
   const { fetchFromMiniServer, wasmReady } = useWASM();
+  const { isVisible, closePanel } = useDebugPanel();
 
   useEffect(() => {
     // Initialize console error monitoring in development
@@ -54,6 +61,8 @@ const AppContent: React.FC = () => {
       <SettingsStatusIndicator />
       {/* Wallet Diagnostics - Only shown when feature flag is enabled */}
       <WalletDiagnostic />
+      {/* Debug Control Panel - Toggle with Ctrl+Shift+D */}
+      <DebugControlPanel isVisible={isVisible} onClose={closePanel} />
     </>
   );
 };

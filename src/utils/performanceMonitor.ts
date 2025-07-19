@@ -104,11 +104,25 @@ export class SimplePerformanceMonitor {
       this.completedMetrics.shift();
     }
   }
-      return result;
-    } catch (error) {
-      this.endTiming(id);
-      throw error;
-    }
+
+  /**
+   * Wrap function with timing
+   */
+  wrapWithTiming<T extends (...args: unknown[]) => unknown>(
+    fn: T,
+    name: string
+  ): T {
+    return ((...args: Parameters<T>) => {
+      const id = this.startTiming(name);
+      try {
+        const result = fn(...args);
+        this.endTiming(id);
+        return result;
+      } catch (error) {
+        this.endTiming(id);
+        throw error;
+      }
+    }) as T;
   }
 
   /**

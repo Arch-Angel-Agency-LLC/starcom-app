@@ -236,6 +236,3 @@ class OperationTracker {
 
 // Create singleton instance
 export const operationTracker = new OperationTracker();
-
-// Create singleton instance
-export const operationTracker = new OperationTracker();

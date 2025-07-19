@@ -28,7 +28,6 @@ import {
   AccordionButton,
   AccordionPanel,
   AccordionIcon,
-  Tooltip,
 } from '@chakra-ui/react';
 import { ChatProviderType } from '../../lib/chat/ChatProviderFactory';
 
@@ -141,7 +140,7 @@ const ChatSystemDemo = () => {
       try {
         await chat.joinChannel(globalChannelId);
         addLog('Joined global chat', 'success');
-      } catch (error) {
+      } catch (_error) {
         // If joining fails, create the channel
         addLog('Global chat does not exist, creating...', 'info');
         await chat.createChannel('Global Chat', 'global', []);
@@ -186,7 +185,7 @@ const ChatSystemDemo = () => {
       
       try {
         await chat.joinChannel(dmChannelId);
-      } catch (error) {
+      } catch (_error) {
         await chat.createChannel(`DM with ${dmTarget}`, 'direct', [demoUser, dmTarget]);
         await chat.joinChannel(dmChannelId);
       }

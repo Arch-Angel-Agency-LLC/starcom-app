@@ -11,6 +11,9 @@
 // Logging services
 export * from './logging';
 
+// API services
+export * from './api';
+
 // Error handling services  
 export * from './error';
 

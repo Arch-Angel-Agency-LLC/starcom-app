@@ -1,3 +1,15 @@
+/* Updated compact container for new modular design */
+.compactContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  padding: 8px;
+  gap: 12px;
+  overflow: hidden;
+}
+
+/* Legacy styles preserved for other submodes */
 .spaceWeatherSettings {
   font-size: 11px; /* Improved readability while staying compact */
   color: #B8E6FF; /* Better contrast than #00C4FF on dark backgrounds */

@@ -1,12 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useEcoNaturalSettings } from '../../../../hooks/useEcoNaturalSettings';
 import { useSettingsValidation } from '../../../../utils/uiSettingsReflection';
-import { usePopup } from '../../../Popup/PopupManager';
-import NOAAPopup from '../../Popups/NOAAPopup';
+import CompactSpaceWeatherControls from './CompactSpaceWeatherControlsMock';
 import styles from './SpaceWeatherSettings.module.css';
 
 // AI-NOTE: EcoNatural visualization settings panel for all natural/environmental data
-// Integrates with comprehensive EcoNatural settings and provides user controls for all submodes
+// Redesigned with compact, modular controls optimized for 100px width sidebar
 
 interface SpaceWeatherSettingsProps {
   subMode: 'SpaceWeather' | 'EcologicalDisasters' | 'EarthWeather';
@@ -20,7 +19,8 @@ const SpaceWeatherSettings: React.FC<SpaceWeatherSettingsProps> = ({ subMode }) 
     updateEarthWeather 
   } = useEcoNaturalSettings();
 
-  const { showPopup } = usePopup();
+  // State for the old NOAA popup (to be removed)
+  const [showNOAAPopup, setShowNOAAPopup] = useState(false);
 
   // Validate that UI state reflects persistent settings
   // Note: Simplified validation to avoid type mismatches
@@ -34,13 +34,29 @@ const SpaceWeatherSettings: React.FC<SpaceWeatherSettingsProps> = ({ subMode }) 
     forecastRange: config.earthWeather?.forecastRange
   });
 
+  // Handler for opening NOAA popup (temporary)
   const openNOAAPopup = () => {
-    showPopup({
-      component: NOAAPopup,
-      backdrop: true,
-      zIndex: 3000
-    });
+    setShowNOAAPopup(true);
   };
+
+  // FOR ALL SUBMODES: Use compact controls
+  return (
+    <div className={styles.compactContainer}>
+      <div className={styles.subModeTitle}>{subMode}</div>
+      <CompactSpaceWeatherControls subMode={subMode} />
+      
+      {/* Temporary old popup for compatibility */}
+      {showNOAAPopup && (
+        <div className={styles.popup}>
+          <div className={styles.popupContent}>
+            <h3>NOAA Controls (Legacy)</h3>
+            <p>Use the new compact controls above instead.</p>
+            <button onClick={() => setShowNOAAPopup(false)}>Close</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 
   const renderSpaceWeatherSettings = () => (
     <div className={styles.spaceWeatherSettings}>

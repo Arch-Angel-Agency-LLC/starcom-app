@@ -3,6 +3,7 @@
  * 
  * This orchestrator manages the interaction between in-memory storage and
  * persistent storage, handling transactions, caching, and synchronization.
+ * Enhanced to support new Intel architecture integration.
  */
 
 import { 
@@ -12,7 +13,32 @@ import {
   PersistenceOptions,
   IntelQueryOptions
 } from '../types/intelDataModels';
+// Enhanced imports for new Intel architecture support
+import { Intel, Intelligence } from '../../../models/Intel/Intel';
 import { intelDataStore } from '../store/intelDataStore';
+
+/**
+ * Processing step type compatible with existing IntelEntity structure
+ */
+type ProcessingStep = {
+  stage: 'collection' | 'processing' | 'analysis' | 'visualization';
+  timestamp: number;
+  processor: string;
+  transformationType: string;
+  sourceIds: string[];
+  confidence: number;
+};
+
+/**
+ * Simplified lineage structure for storage tracking
+ */
+interface LineageResult {
+  entityId: string;
+  steps: ProcessingStep[];
+  totalSteps: number;
+  processingDuration: number;
+  qualityScore: number;
+}
 import { indexedDBAdapter } from './indexedDBAdapter';
 import { cacheManager } from './cacheManager';
 import { enhancedEventEmitter } from '../events/enhancedEventEmitter';
@@ -779,6 +805,191 @@ export class StorageOrchestrator {
     } catch (error) {
       console.warn('Error estimating data size:', error);
       return 0;
+    }
+  }
+
+  // === NEW INTEL ARCHITECTURE SUPPORT ===
+  
+  /**
+   * Store raw Intel data from new architecture (simplified for Phase 2)
+   */
+  async storeRawData(data: any, options?: PersistenceOptions): Promise<StorageResult<any>> {
+    const operationId = operationTracker.startOperation('storeRawData');
+    
+    try {
+      // Transform to compatible entity format for storage
+      const entity: BaseEntity = {
+        id: data.id,
+        type: 'rawdata',
+        createdAt: new Date(data.timestamp).toISOString(),
+        updatedAt: new Date().toISOString(),
+        createdBy: data.collectedBy,
+        metadata: {
+          originalData: data,
+          source: data.source,
+          classification: data.classification,
+          reliability: data.reliability,
+          verified: data.verified
+        },
+        tags: data.tags || []
+      };
+      
+      return await this.storeEntity(entity, options);
+    } catch (error) {
+      console.error('Error storing RawData:', error);
+      return {
+        success: false,
+        error: (error as Error).message
+      };
+    } finally {
+      operationTracker.endOperation(operationId);
+    }
+  }
+  
+  /**
+   * Store Intelligence data from new architecture
+   */
+  async storeIntelligence(intel: Intelligence, options?: PersistenceOptions): Promise<StorageResult<Intelligence>> {
+    const operationId = operationTracker.startOperation('storeIntelligence');
+    
+    try {
+      // Transform to compatible entity format for storage
+      const entity: BaseEntity = {
+        id: intel.id,
+        type: 'intelligence',
+        createdAt: new Date(intel.timestamp).toISOString(),
+        updatedAt: new Date().toISOString(),
+        createdBy: intel.collectedBy,
+        metadata: {
+          originalIntelligence: intel,
+          source: intel.source,
+          classification: intel.classification,
+          reliability: intel.reliability,
+          confidence: intel.confidence,
+          implications: intel.implications,
+          recommendations: intel.recommendations,
+          derivedFrom: intel.derivedFrom
+        },
+        tags: intel.tags || []
+      };
+      
+      const result = await this.storeEntity(entity, options);
+      
+      if (result.success && result.data) {
+        // Return the original Intelligence object with stored metadata
+        return {
+          success: true,
+          data: intel as Intelligence
+        };
+      }
+      
+      return {
+        success: false,
+        error: 'Failed to store Intelligence entity'
+      };
+    } catch (error) {
+      console.error('Error storing Intelligence:', error);
+      return {
+        success: false,
+        error: (error as Error).message
+      };
+    } finally {
+      operationTracker.endOperation(operationId);
+    }
+  }
+  
+  /**
+   * Store Intel data with automatic transformation
+   */
+  async storeIntel(intel: Intel, options?: PersistenceOptions): Promise<StorageResult<Intel>> {
+    const operationId = operationTracker.startOperation('storeIntel');
+    
+    try {
+      // Transform Intel to compatible entity format
+      const entity: BaseEntity = {
+        id: intel.id,
+        type: 'intel',
+        createdAt: new Date(intel.timestamp).toISOString(),
+        updatedAt: new Date().toISOString(),
+        createdBy: intel.collectedBy,
+        metadata: {
+          originalIntel: intel,
+          source: intel.source,
+          classification: intel.classification,
+          reliability: intel.reliability,
+          verified: intel.verified,
+          data: intel.data
+        },
+        tags: intel.tags || []
+      };
+      
+      const result = await this.storeEntity(entity, options);
+      
+      if (result.success && result.data) {
+        return {
+          success: true,
+          data: intel as Intel
+        };
+      }
+      
+      return {
+        success: false,
+        error: 'Failed to store Intel entity'
+      };
+    } catch (error) {
+      console.error('Error storing Intel:', error);
+      return {
+        success: false,
+        error: (error as Error).message
+      };
+    } finally {
+      operationTracker.endOperation(operationId);
+    }
+  }
+  
+  /**
+   * Batch store Intel objects for NetRunner integration
+   */
+  async batchStoreIntel(intelArray: Intel[], options?: PersistenceOptions): Promise<StorageResult<Intel[]>> {
+    const operationId = operationTracker.startOperation('batchStoreIntel');
+    
+    try {
+      const results: Intel[] = [];
+      const errorMessages: string[] = [];
+      
+      // Process in batches to avoid overwhelming the system
+      const batchSize = 50;
+      for (let i = 0; i < intelArray.length; i += batchSize) {
+        const batch = intelArray.slice(i, i + batchSize);
+        
+        const batchPromises = batch.map(async (intel) => {
+          const result = await this.storeIntel(intel, options);
+          if (result.success && result.data) {
+            results.push(result.data);
+          } else if (result.error) {
+            errorMessages.push(`Error storing ${intel.id}: ${result.error}`);
+          }
+        });
+        
+        await Promise.all(batchPromises);
+      }
+      
+      if (errorMessages.length > 0) {
+        console.warn(`Batch store completed with ${errorMessages.length} errors`);
+      }
+      
+      return {
+        success: true,
+        data: results
+      };
+    } catch (error) {
+      console.error('Error in batch store Intel:', error);
+      return {
+        success: false,
+        error: (error as Error).message
+      };
+    } finally {
+      operationTracker.endOperation(operationId);
     }
   }
 }

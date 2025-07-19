@@ -1,0 +1,250 @@
+/* AdvancedNOAATabbed.module.css - Tabbed popup for NOAA dataset controls */
+
+.popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.container {
+  position: relative;
+  width: 400px;
+  max-width: 90vw;
+  height: 500px;
+  max-height: 80vh;
+  background: rgba(0, 20, 40, 0.95);
+  border: 2px solid rgba(0, 255, 255, 0.3);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+  background: rgba(0, 30, 60, 0.8);
+}
+
+.title {
+  margin: 0;
+  color: #00ffff;
+  font-size: 16px;
+  font-weight: bold;
+  font-family: 'Courier New', monospace;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  color: #ff6666;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.closeButton:hover {
+  background: rgba(255, 102, 102, 0.2);
+}
+
+/* Tab Navigation */
+.tabNav {
+  display: flex;
+  border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+  background: rgba(0, 15, 30, 0.8);
+}
+
+.tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 10px 8px;
+  background: none;
+  border: none;
+  color: rgba(0, 255, 255, 0.6);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab:hover {
+  background: rgba(0, 255, 255, 0.1);
+  color: rgba(0, 255, 255, 0.8);
+}
+
+.activeTab {
+  background: rgba(0, 255, 255, 0.2) !important;
+  color: #00ffff !important;
+  border-bottom: 2px solid #00ffff;
+}
+
+.tabLabel {
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Search */
+.searchSection {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(0, 255, 255, 0.1);
+}
+
+.searchInput {
+  width: 100%;
+  padding: 8px 12px;
+  background: rgba(0, 30, 60, 0.6);
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  border-radius: 4px;
+  color: #ffffff;
+  font-size: 12px;
+  font-family: 'Courier New', monospace;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: rgba(0, 255, 255, 0.6);
+  background: rgba(0, 40, 80, 0.8);
+}
+
+.searchInput::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* Dataset List */
+.datasetList {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.datasetItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(0, 20, 40, 0.4);
+  border: 1px solid rgba(0, 255, 255, 0.1);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.datasetItem:hover {
+  background: rgba(0, 40, 80, 0.6);
+  border-color: rgba(0, 255, 255, 0.3);
+}
+
+.checkbox {
+  margin: 0;
+  accent-color: #00ffff;
+}
+
+.datasetIcon {
+  font-size: 14px;
+  width: 16px;
+  text-align: center;
+}
+
+.datasetLabel {
+  flex: 1;
+  color: #ffffff;
+  font-size: 11px;
+  font-family: 'Courier New', monospace;
+  font-weight: 500;
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid rgba(0, 255, 255, 0.2);
+  background: rgba(0, 30, 60, 0.8);
+}
+
+.refreshButton {
+  flex: 1;
+  padding: 8px 12px;
+  background: rgba(255, 165, 0, 0.2);
+  border: 1px solid rgba(255, 165, 0, 0.4);
+  border-radius: 4px;
+  color: #ffaa00;
+  font-size: 11px;
+  font-family: 'Courier New', monospace;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.refreshButton:hover:not(:disabled) {
+  background: rgba(255, 165, 0, 0.3);
+  border-color: rgba(255, 165, 0, 0.6);
+}
+
+.refreshButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.applyButton {
+  flex: 1;
+  padding: 8px 12px;
+  background: rgba(0, 255, 0, 0.2);
+  border: 1px solid rgba(0, 255, 0, 0.4);
+  border-radius: 4px;
+  color: #00ff00;
+  font-size: 11px;
+  font-family: 'Courier New', monospace;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.applyButton:hover {
+  background: rgba(0, 255, 0, 0.3);
+  border-color: rgba(0, 255, 0, 0.6);
+}
+
+/* Scrollbar styling */
+.datasetList::-webkit-scrollbar {
+  width: 6px;
+}
+
+.datasetList::-webkit-scrollbar-track {
+  background: rgba(0, 20, 40, 0.3);
+  border-radius: 3px;
+}
+
+.datasetList::-webkit-scrollbar-thumb {
+  background: rgba(0, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+.datasetList::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 255, 255, 0.5);
+}

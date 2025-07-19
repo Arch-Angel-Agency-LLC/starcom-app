@@ -63,6 +63,19 @@ export interface FeatureFlags {
   networkDebugLoggingEnabled: boolean;
   pointerEventsDebugEnabled: boolean;
   consoleErrorMonitoringEnabled: boolean;
+  
+  // Auth & Wallet Debugging
+  authDebugLoggingEnabled: boolean;
+  walletStateLoggingEnabled: boolean;
+  siwsDebugLoggingEnabled: boolean;
+  authTimelineLoggingEnabled: boolean;
+  
+  // 3D Asset Debugging
+  threeDAssetLoggingEnabled: boolean;
+  intelReportLoggingEnabled: boolean;
+  
+  // Component Loading Debugging
+  componentLoadLoggingEnabled: boolean;
 }
 
 // Default feature flag configuration
@@ -128,6 +141,19 @@ const DEFAULT_FEATURE_FLAGS: FeatureFlags = {
   networkDebugLoggingEnabled: import.meta.env.DEV,
   pointerEventsDebugEnabled: import.meta.env.DEV,
   consoleErrorMonitoringEnabled: import.meta.env.DEV,
+  
+  // Auth & Wallet Debugging - Reduced noise by default
+  authDebugLoggingEnabled: false, // Off by default - enable when debugging auth issues
+  walletStateLoggingEnabled: false, // Off by default - enable when debugging wallet issues  
+  siwsDebugLoggingEnabled: false, // Off by default - enable when debugging SIWS
+  authTimelineLoggingEnabled: false, // Off by default - enable for detailed auth flow analysis
+  
+  // 3D Asset Debugging - Off by default in production to reduce noise
+  threeDAssetLoggingEnabled: false, // Explicitly disabled by default
+  intelReportLoggingEnabled: false, // Explicitly disabled by default
+  
+  // Component Loading Debugging - Off by default in production
+  componentLoadLoggingEnabled: import.meta.env.DEV,
 };
 
 // Feature flag storage key

@@ -5,8 +5,16 @@ import { settingsStorage } from '../utils/settingsStorage';
 // Used by SpaceWeatherSettings and other EcoNatural components
 
 export interface EcoNaturalConfig {
-  // Space Weather settings (existing)
+  // Space Weather settings (updated for new compact design)
   spaceWeather: {
+    // New preset-based configuration
+    preset?: 'quiet' | 'moderate' | 'storm' | 'extreme';
+    
+    // New simplified category toggles
+    showSolarActivity?: boolean;
+    showRadiation?: boolean;
+    
+    // Existing fields (preserved for compatibility)
     showElectricFields: boolean;
     showGemagneticIndex: boolean;
     showAlerts: boolean;
@@ -108,6 +116,12 @@ export interface EcoNaturalConfig {
 
 const defaultConfig: EcoNaturalConfig = {
   spaceWeather: {
+    // New preset-based defaults
+    preset: 'moderate',
+    showSolarActivity: true,
+    showRadiation: false,
+    
+    // Existing defaults (preserved)
     showElectricFields: true,
     showGemagneticIndex: false,
     showAlerts: true,

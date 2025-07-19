@@ -6,7 +6,7 @@
  */
 
 import { v4 as uuidv4 } from 'uuid';
-import { Workflow, WorkflowSchedule, WorkflowEngine } from './WorkflowEngine';
+import { WorkflowSchedule, WorkflowEngine } from './WorkflowEngine';
 
 // Scheduled job
 export interface ScheduledJob {

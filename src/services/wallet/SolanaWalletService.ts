@@ -1,5 +1,8 @@
 import { Connection, PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js';
 
+// 🚨🚨🚨 SOLANA WALLET SERVICE DEBUGGING
+console.log('🔍 SolanaWalletService.ts loaded - will monitor wallet service calls');
+
 /**
  * SolanaWalletService - Core service for interacting with Solana wallets
  * Provides balance checking, transaction utilities, and connection management
@@ -9,6 +12,7 @@ export class SolanaWalletService {
   private endpoint: string;
 
   constructor(endpoint: string = 'https://api.devnet.solana.com') {
+    console.log('🔍 SolanaWalletService constructor called:', { endpoint });
     this.endpoint = endpoint;
     this.connection = new Connection(endpoint, 'confirmed');
   }

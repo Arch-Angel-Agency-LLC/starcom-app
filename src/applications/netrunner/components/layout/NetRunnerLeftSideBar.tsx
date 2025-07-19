@@ -8,32 +8,32 @@
  * @date July 12, 2025
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
   Avatar,
   IconButton,
-  Tooltip
+  Tooltip,
+  Tabs,
+  Tab,
+  CircularProgress
 } from '@mui/material';
 import {
   Brain,
   Activity,
-  Plus,
-  Edit,
-  Trash2,
-  Zap,
-  Terminal,
-  Search,
-  Shield,
-  Target,
-  Code,
-  Database,
-  Network,
-  Lock,
-  Eye,
-  Settings
+  FileText,
+  Wrench,
+  GitBranch,
+  Play
 } from 'lucide-react';
+
+// Import NetRunner PowerTools
+import { netRunnerPowerTools } from '../../tools/NetRunnerPowerTools';
+
+// Import Scripts Engine
+import { NetRunnerScriptsUIService, UIEventData } from '../../scripts/engine/NetRunnerScriptsUIService';
+import { ScriptDefinition } from '../../scripts/types/ScriptTypes';
 
 interface NetRunnerLeftSideBarProps {
   open: boolean;
@@ -44,26 +44,93 @@ const NetRunnerLeftSideBar: React.FC<NetRunnerLeftSideBarProps> = ({
   open,
   width
 }) => {
-  // State for managing script/powertool selection
-  const [selectedTool, setSelectedTool] = useState<string | null>(null);
+  // State for managing tab selection and PowerTools
+  const [activeTab, setActiveTab] = useState(0);
+  const [selectedPowerTools, setSelectedPowerTools] = useState<string[]>([]);
+  
+  // Scripts Engine state
+  const [scriptsService] = useState(() => NetRunnerScriptsUIService.getInstance());
+  const [_availableScripts, setAvailableScripts] = useState<ScriptDefinition[]>([]);
+  const [executingScripts, setExecutingScripts] = useState<Set<string>>(new Set());
+
+  // Initialize Scripts Engine
+  useEffect(() => {
+    const updateScriptsState = () => {
+      const uiState = scriptsService.getUIState();
+      setAvailableScripts(uiState.availableScripts);
+      setExecutingScripts(uiState.executingScripts);
+    };
+
+    // Initial load
+    updateScriptsState();
+
+    // Listen for script execution events
+    const handleExecutionStarted = (data: UIEventData) => {
+      if (data.scriptId) {
+        setExecutingScripts(prev => new Set([...prev, data.scriptId!]));
+      }
+    };
+
+    const handleExecutionCompleted = (data: UIEventData) => {
+      if (data.scriptId) {
+        setExecutingScripts(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(data.scriptId!);
+          return newSet;
+        });
+      }
+    };
+
+    scriptsService.addEventListener('execution-started', handleExecutionStarted);
+    scriptsService.addEventListener('execution-completed', handleExecutionCompleted);
+    scriptsService.addEventListener('execution-failed', handleExecutionCompleted);
+
+    return () => {
+      scriptsService.removeEventListener('execution-started', handleExecutionStarted);
+      scriptsService.removeEventListener('execution-completed', handleExecutionCompleted);
+      scriptsService.removeEventListener('execution-failed', handleExecutionCompleted);
+    };
+  }, [scriptsService]);
+
+  // Get default scripts for display
+  const defaultScripts = scriptsService.getDefaultScripts();
+
+  // Handle script execution
+  const handleExecuteScript = async (scriptId: string, scriptName: string) => {
+    console.log(`[NetRunnerSidebar] Executing script: ${scriptName} (${scriptId})`);
+    
+    // For now, create mock OSINT data
+    // In real implementation, this would come from the active scan
+    const mockOSINTData = {
+      emails: ['test@example.com'],
+      socialMedia: ['@example'],
+      technologies: [{ name: 'nginx', category: 'framework' as const, confidence: 0.9 }],
+      serverInfo: ['nginx/1.18.0'],
+      subdomains: ['www.example.com'],
+      certificates: [],
+      dns: []
+    };
+
+    try {
+      const result = await scriptsService.executeScript({
+        scriptId,
+        targetUrl: 'https://example.com',
+        osintData: mockOSINTData,
+        configuration: {}
+      });
+
+      if (result.success) {
+        console.log(`[NetRunnerSidebar] Script executed successfully: ${scriptName}`);
+      } else {
+        console.error(`[NetRunnerSidebar] Script execution failed: ${scriptName}`, result.error);
+      }
+    } catch (error) {
+      console.error(`[NetRunnerSidebar] Script execution error: ${scriptName}`, error);
+    }
+  };
 
   // Calculate AI Agent square size based on sidebar width
   const aiAgentSize = open ? Math.min(width - 32, 200) : 40;
-
-  // Scripts and PowerTools configuration
-  const scriptsAndTools = [
-    { id: 'scan', name: 'Port Scanner', icon: Target, category: 'network' },
-    { id: 'enum', name: 'Enumeration', icon: Search, category: 'recon' },
-    { id: 'exploit', name: 'Exploit Kit', icon: Zap, category: 'exploit' },
-    { id: 'stealth', name: 'Stealth Mode', icon: Eye, category: 'stealth' },
-    { id: 'crypto', name: 'Crypto Tools', icon: Lock, category: 'crypto' },
-    { id: 'db', name: 'DB Access', icon: Database, category: 'data' },
-    { id: 'net', name: 'Network Tools', icon: Network, category: 'network' },
-    { id: 'code', name: 'Code Exec', icon: Code, category: 'exec' },
-    { id: 'shell', name: 'Shell Access', icon: Terminal, category: 'access' },
-    { id: 'shield', name: 'Defense', icon: Shield, category: 'defense' },
-    { id: 'config', name: 'Config', icon: Settings, category: 'config' }
-  ];
 
   return (
     <Box
@@ -231,22 +298,13 @@ const NetRunnerLeftSideBar: React.FC<NetRunnerLeftSideBarProps> = ({
             Neural Commander
           </Typography>
         )}
-      </Box>
-
-      {/* Scripts & PowerTools Section */}
+      </Box>      {/* Scripts & PowerTools Section */}
       <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         {/* Section Header */}
         {open && (
-          <Box
-            sx={{
-              p: 0.75,
-              pb: 0.5,
-              borderBottom: '1px solid #00f5ff',
-              backgroundColor: '#0a0a0a'
-            }}
-          >
+          <Box sx={{ p: 1, borderBottom: '1px solid #00f5ff' }}>
             <Typography
-              variant="subtitle2"
+              variant="caption"
               sx={{
                 color: '#00f5ff',
                 fontFamily: "'Aldrich', monospace",
@@ -256,138 +314,400 @@ const NetRunnerLeftSideBar: React.FC<NetRunnerLeftSideBarProps> = ({
                 mb: 0.25
               }}
             >
-              SCRIPTS_&_POWERTOOLS
+              INTEL_PIPELINE
             </Typography>
           </Box>
         )}
 
-        {/* Tools Grid */}
-        <Box sx={{ flex: 1, overflow: 'auto', p: open ? 0.5 : 0.25 }}>
-          <Box
-            sx={{
-              display: 'grid',
-              gridTemplateColumns: open ? 'repeat(2, 1fr)' : '1fr',
-              gap: open ? 0.5 : 0.25
-            }}
-          >
-            {scriptsAndTools.map((tool) => (
-              <Tooltip title={tool.name} placement="right" key={tool.id}>
-                <IconButton
-                  onClick={() => setSelectedTool(selectedTool === tool.id ? null : tool.id)}
+        {/* Tabs */}
+        {open && (
+          <Box sx={{ borderBottom: '1px solid #333333' }}>
+            <Tabs
+              value={activeTab}
+              onChange={(_, newValue) => setActiveTab(newValue)}
+              sx={{
+                minHeight: '28px',
+                '& .MuiTab-root': {
+                  color: '#aaaaaa',
+                  fontSize: '0.6rem',
+                  minHeight: '28px',
+                  textTransform: 'uppercase',
+                  fontFamily: "'Aldrich', monospace",
+                  letterSpacing: '0.05em',
+                  py: 0.25,
+                  px: 0.75,
+                  minWidth: 'auto'
+                },
+                '& .MuiTab-root.Mui-selected': {
+                  color: '#00f5ff'
+                },
+                '& .MuiTabs-indicator': {
+                  backgroundColor: '#00f5ff',
+                  height: 1
+                }
+              }}
+            >
+              <Tab 
+                label="SCRIPTS" 
+                icon={<FileText size={10} />} 
+                iconPosition="start"
+                sx={{ gap: 0.5 }}
+              />
+              <Tab 
+                label="TOOLS" 
+                icon={<Wrench size={10} />} 
+                iconPosition="start"
+                sx={{ gap: 0.5 }}
+              />
+              <Tab 
+                label="FLOWS" 
+                icon={<GitBranch size={10} />} 
+                iconPosition="start"
+                sx={{ gap: 0.5 }}
+              />
+            </Tabs>
+          </Box>
+        )}
+
+        {/* Tab Content */}
+        <Box sx={{ flex: 1, overflow: 'auto' }}>
+          {/* Scripts Tab */}
+          {(!open || activeTab === 0) && (
+            <Box sx={{ p: open ? 1 : 0.5, height: '100%' }}>
+              {open ? (
+                <Box>
+                  <Typography variant="caption" sx={{ color: '#aaaaaa', mb: 1, display: 'block' }}>
+                    RawData → Intel Processing
+                  </Typography>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                    {/* Default Scripts */}
+                    <Box>
+                      <Typography variant="caption" sx={{ color: '#00f5ff', fontSize: '0.6rem' }}>
+                        DEFAULT SCRIPTS
+                      </Typography>
+                      {defaultScripts.map((script) => {
+                        const isExecuting = executingScripts.has(script.metadata.id);
+                        const scriptDisplayName = script.metadata.name;
+                        
+                        return (
+                          <Box
+                            key={script.metadata.id}
+                            onClick={() => !isExecuting && handleExecuteScript(script.metadata.id, scriptDisplayName)}
+                            sx={{
+                              p: 0.5,
+                              backgroundColor: '#0a0a0a',
+                              border: '1px solid #333333',
+                              borderRadius: 0,
+                              color: isExecuting ? '#ffaa00' : '#ffffff',
+                              fontSize: '0.65rem',
+                              cursor: isExecuting ? 'not-allowed' : 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 0.5,
+                              '&:hover': isExecuting ? {} : {
+                                borderColor: '#00f5ff',
+                                backgroundColor: 'rgba(0, 245, 255, 0.1)'
+                              }
+                            }}
+                          >
+                            {isExecuting ? (
+                              <CircularProgress size={10} sx={{ color: '#ffaa00' }} />
+                            ) : (
+                              <Play size={10} />
+                            )}
+                            {scriptDisplayName}
+                            {isExecuting && (
+                              <Typography variant="caption" sx={{ ml: 'auto', fontSize: '0.5rem', color: '#ffaa00' }}>
+                                RUNNING
+                              </Typography>
+                            )}
+                          </Box>
+                        );
+                      })}
+                      
+                      {defaultScripts.length === 0 && (
+                        <Typography variant="caption" sx={{ color: '#666666', fontSize: '0.6rem', fontStyle: 'italic' }}>
+                          No scripts available
+                        </Typography>
+                      )}
+                    </Box>
+                    
+                    {/* Custom Scripts */}
+                    <Box sx={{ mt: 1 }}>
+                      <Typography variant="caption" sx={{ color: '#00ff88', fontSize: '0.6rem' }}>
+                        CUSTOM SCRIPTS
+                      </Typography>
+                      <Box
+                        sx={{
+                          p: 0.5,
+                          backgroundColor: '#0a0a0a',
+                          border: '1px dashed #333333',
+                          borderRadius: 0,
+                          color: '#aaaaaa',
+                          fontSize: '0.65rem',
+                          cursor: 'pointer',
+                          textAlign: 'center',
+                          '&:hover': {
+                            borderColor: '#00ff88',
+                            backgroundColor: 'rgba(0, 255, 136, 0.1)'
+                          }
+                        }}
+                      >
+                        + Add Custom Script
+                      </Box>
+                    </Box>
+                  </Box>
+                </Box>
+              ) : (
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
+                  <Tooltip title="Scripts" placement="right">
+                    <IconButton
+                      sx={{
+                        width: 28,
+                        height: 28,
+                        backgroundColor: activeTab === 0 ? 'rgba(0, 245, 255, 0.15)' : '#0a0a0a',
+                        border: '1px solid',
+                        borderColor: activeTab === 0 ? '#00f5ff' : '#333333',
+                        borderRadius: 0,
+                        color: activeTab === 0 ? '#00f5ff' : '#ffffff'
+                      }}
+                      onClick={() => setActiveTab(0)}
+                    >
+                      <FileText size={14} />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
+              )}
+            </Box>
+          )}
+
+          {/* Tools Tab */}
+          {open && activeTab === 1 && (
+            <Box sx={{ height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+              {/* Compact PowerTools List */}
+              <Box sx={{ p: 1, borderBottom: '1px solid #333333' }}>
+                <Typography variant="caption" sx={{ color: '#aaaaaa', fontSize: '0.6rem' }}>
+                  OSINT POWERTOOLS
+                </Typography>
+              </Box>
+              
+              <Box sx={{ flex: 1, overflow: 'auto', p: 0.5 }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                  {netRunnerPowerTools.slice(0, 8).map((tool) => (
+                    <Box
+                      key={tool.id}
+                      onClick={() => {
+                        setSelectedPowerTools(prev => 
+                          prev.includes(tool.id) 
+                            ? prev.filter(id => id !== tool.id)
+                            : [...prev, tool.id]
+                        );
+                      }}
+                      sx={{
+                        p: 0.75,
+                        backgroundColor: selectedPowerTools.includes(tool.id) ? 'rgba(0, 245, 255, 0.15)' : '#0a0a0a',
+                        border: '1px solid',
+                        borderColor: selectedPowerTools.includes(tool.id) ? '#00f5ff' : '#333333',
+                        borderRadius: 0,
+                        color: selectedPowerTools.includes(tool.id) ? '#00f5ff' : '#ffffff',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 0.25,
+                        '&:hover': {
+                          borderColor: '#00f5ff',
+                          backgroundColor: 'rgba(0, 245, 255, 0.1)'
+                        }
+                      }}
+                    >
+                      <Typography variant="caption" sx={{ 
+                        fontSize: '0.65rem', 
+                        fontWeight: 'bold',
+                        color: 'inherit',
+                        fontFamily: "'Aldrich', monospace"
+                      }}>
+                        {tool.name}
+                      </Typography>
+                      <Typography variant="caption" sx={{ 
+                        fontSize: '0.55rem', 
+                        color: '#aaaaaa',
+                        lineHeight: 1.2
+                      }}>
+                        {tool.description.slice(0, 60)}...
+                      </Typography>
+                      <Box sx={{ display: 'flex', gap: 0.25, mt: 0.25 }}>
+                        <Typography variant="caption" sx={{ 
+                          fontSize: '0.5rem', 
+                          color: tool.premium ? '#ffaa00' : '#00ff88',
+                          textTransform: 'uppercase'
+                        }}>
+                          {tool.premium ? 'Premium' : 'Free'}
+                        </Typography>
+                        <Typography variant="caption" sx={{ 
+                          fontSize: '0.5rem', 
+                          color: '#666666',
+                          textTransform: 'uppercase'
+                        }}>
+                          {tool.category}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  ))}
+                  
+                  {/* Show More Button */}
+                  <Box
+                    sx={{
+                      p: 0.5,
+                      backgroundColor: '#0a0a0a',
+                      border: '1px dashed #333333',
+                      borderRadius: 0,
+                      color: '#aaaaaa',
+                      fontSize: '0.65rem',
+                      cursor: 'pointer',
+                      textAlign: 'center',
+                      '&:hover': {
+                        borderColor: '#00f5ff',
+                        backgroundColor: 'rgba(0, 245, 255, 0.1)'
+                      }
+                    }}
+                  >
+                    + Show More Tools ({netRunnerPowerTools.length - 8} more)
+                  </Box>
+                </Box>
+              </Box>
+              
+              {/* Selected Tools Summary */}
+              {selectedPowerTools.length > 0 && (
+                <Box sx={{ p: 0.75, borderTop: '1px solid #00f5ff', backgroundColor: '#0a0a0a' }}>
+                  <Typography variant="caption" sx={{ 
+                    color: '#00f5ff', 
+                    fontSize: '0.6rem',
+                    display: 'block',
+                    mb: 0.5
+                  }}>
+                    SELECTED: {selectedPowerTools.length}
+                  </Typography>
+                  <Box sx={{ display: 'flex', gap: 0.25, flexWrap: 'wrap' }}>
+                    {selectedPowerTools.slice(0, 3).map((toolId) => {
+                      const tool = netRunnerPowerTools.find(t => t.id === toolId);
+                      return tool ? (
+                        <Typography key={toolId} variant="caption" sx={{ 
+                          fontSize: '0.55rem', 
+                          color: '#ffffff',
+                          backgroundColor: 'rgba(0, 245, 255, 0.2)',
+                          px: 0.5,
+                          py: 0.25,
+                          borderRadius: 0
+                        }}>
+                          {tool.name.split(' ')[0]}
+                        </Typography>
+                      ) : null;
+                    })}
+                    {selectedPowerTools.length > 3 && (
+                      <Typography variant="caption" sx={{ 
+                        fontSize: '0.55rem', 
+                        color: '#aaaaaa'
+                      }}>
+                        +{selectedPowerTools.length - 3}
+                      </Typography>
+                    )}
+                  </Box>
+                </Box>
+              )}
+            </Box>
+          )}
+
+          {/* Workflows Tab */}
+          {open && activeTab === 2 && (
+            <Box sx={{ p: 1, height: '100%' }}>
+              <Typography variant="caption" sx={{ color: '#aaaaaa', mb: 1, display: 'block' }}>
+                Automated Tool → Script → Intel Pipelines
+              </Typography>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                {['Domain Intel Pipeline', 'Email Harvesting Flow', 'Threat Assessment Workflow', 'Infrastructure Mapping'].map((workflow) => (
+                  <Box
+                    key={workflow}
+                    sx={{
+                      p: 0.5,
+                      backgroundColor: '#0a0a0a',
+                      border: '1px solid #333333',
+                      borderRadius: 0,
+                      color: '#ffffff',
+                      fontSize: '0.65rem',
+                      cursor: 'pointer',
+                      '&:hover': {
+                        borderColor: '#00f5ff',
+                        backgroundColor: 'rgba(0, 245, 255, 0.1)'
+                      }
+                    }}
+                  >
+                    {workflow}
+                  </Box>
+                ))}
+                
+                <Box
                   sx={{
-                    width: open ? 'auto' : 28,
-                    height: open ? 'auto' : 28,
-                    minWidth: open ? 36 : 28,
-                    minHeight: open ? 36 : 28,
-                    backgroundColor: selectedTool === tool.id ? 'rgba(0, 245, 255, 0.15)' : '#0a0a0a',
-                    border: '1px solid',
-                    borderColor: selectedTool === tool.id ? '#00f5ff' : '#333333',
+                    p: 0.5,
+                    backgroundColor: '#0a0a0a',
+                    border: '1px dashed #333333',
                     borderRadius: 0,
-                    color: selectedTool === tool.id ? '#00f5ff' : '#ffffff',
-                    display: 'flex',
-                    flexDirection: open ? 'column' : 'row',
-                    gap: open ? 0.25 : 0,
-                    transition: 'all 0.1s ease',
+                    color: '#aaaaaa',
+                    fontSize: '0.65rem',
+                    cursor: 'pointer',
+                    textAlign: 'center',
+                    mt: 1,
                     '&:hover': {
-                      borderColor: '#00f5ff',
-                      backgroundColor: 'rgba(0, 245, 255, 0.1)'
+                      borderColor: '#00ff88',
+                      backgroundColor: 'rgba(0, 255, 136, 0.1)'
                     }
                   }}
                 >
-                  <tool.icon size={open ? 16 : 14} />
-                  {open && (
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        fontSize: '0.55rem',
-                        textAlign: 'center',
-                        lineHeight: 1,
-                        color: 'inherit',
-                        fontFamily: "'Courier New', monospace"
-                      }}
-                    >
-                      {tool.name.split(' ')[0].toUpperCase()}
-                    </Typography>
-                  )}
-                </IconButton>
-              </Tooltip>
-            ))}
-          </Box>
+                  + Create Workflow
+                </Box>
+              </Box>
+            </Box>
+          )}
+
+          {/* Collapsed Tools Icons */}
+          {!open && (
+            <Box sx={{ p: 0.25 }}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
+                <Tooltip title="Tools" placement="right">
+                  <IconButton
+                    sx={{
+                      width: 28,
+                      height: 28,
+                      backgroundColor: activeTab === 1 ? 'rgba(0, 245, 255, 0.15)' : '#0a0a0a',
+                      border: '1px solid',
+                      borderColor: activeTab === 1 ? '#00f5ff' : '#333333',
+                      borderRadius: 0,
+                      color: activeTab === 1 ? '#00f5ff' : '#ffffff'
+                    }}
+                    onClick={() => setActiveTab(1)}
+                  >
+                    <Wrench size={14} />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Workflows" placement="right">
+                  <IconButton
+                    sx={{
+                      width: 28,
+                      height: 28,
+                      backgroundColor: activeTab === 2 ? 'rgba(0, 245, 255, 0.15)' : '#0a0a0a',
+                      border: '1px solid',
+                      borderColor: activeTab === 2 ? '#00f5ff' : '#333333',
+                      borderRadius: 0,
+                      color: activeTab === 2 ? '#00f5ff' : '#ffffff'
+                    }}
+                    onClick={() => setActiveTab(2)}
+                  >
+                    <GitBranch size={14} />
+                  </IconButton>
+                </Tooltip>
+              </Box>
+            </Box>
+          )}
         </Box>
-
-        {/* Management Bar */}
-        <Box
-          sx={{
-            borderTop: '1px solid #00f5ff',
-            p: 0.5,
-            display: 'flex',
-            justifyContent: 'space-around',
-            gap: 0.25,
-            backgroundColor: '#0a0a0a'
-          }}
-        >
-          <Tooltip title="Add Script/Tool">
-            <IconButton
-              size="small"
-              sx={{
-                color: '#00ff88',
-                border: '1px solid #00ff88',
-                borderRadius: '6px',
-                minWidth: open ? 32 : 28,
-                minHeight: open ? 32 : 28,
-                '&:hover': {
-                  backgroundColor: 'rgba(0, 255, 136, 0.1)',
-                  transform: 'scale(1.1)'
-                }
-              }}
-            >
-              <Plus size={open ? 16 : 14} />
-            </IconButton>
-          </Tooltip>
-
-          <Tooltip title="Edit Selected">
-            <IconButton
-              size="small"
-              disabled={!selectedTool}
-              sx={{
-                color: selectedTool ? '#ffaa00' : '#555555',
-                border: '1px solid',
-                borderColor: selectedTool ? '#ffaa00' : '#555555',
-                borderRadius: '6px',
-                minWidth: open ? 32 : 28,
-                minHeight: open ? 32 : 28,
-                '&:hover': {
-                  backgroundColor: selectedTool ? 'rgba(255, 170, 0, 0.1)' : 'transparent',
-                  transform: selectedTool ? 'scale(1.1)' : 'none'
-                }
-              }}
-            >
-              <Edit size={open ? 16 : 14} />
-            </IconButton>
-          </Tooltip>
-
-          <Tooltip title="Remove Selected">
-            <IconButton
-              size="small"
-              disabled={!selectedTool}
-              sx={{
-                color: selectedTool ? '#ff4444' : '#555555',
-                border: '1px solid',
-                borderColor: selectedTool ? '#ff4444' : '#555555',
-                borderRadius: '6px',
-                minWidth: open ? 32 : 28,
-                minHeight: open ? 32 : 28,
-                '&:hover': {
-                  backgroundColor: selectedTool ? 'rgba(255, 68, 68, 0.1)' : 'transparent',
-                  transform: selectedTool ? 'scale(1.1)' : 'none'
-                }
-              }}
-            >
-              <Trash2 size={open ? 16 : 14} />
-            </IconButton>
-          </Tooltip>
-        </Box>
-
       </Box>
     </Box>
   );

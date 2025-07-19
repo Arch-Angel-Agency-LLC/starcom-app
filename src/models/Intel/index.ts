@@ -4,6 +4,13 @@
 // Raw Intel Types
 export * from './Intel';
 
+// Enhanced Operational Capabilities
+export * from './Tasking';
+export * from './Lifecycle';
+export * from './RealTimeProcessing';
+export * from './Performance';
+export * from './Operations';
+
 // Processed Intelligence Types  
 export * from './Intelligence';
 

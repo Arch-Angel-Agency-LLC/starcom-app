@@ -11,6 +11,8 @@ import { useIntelReport3DMarkers } from '../../hooks/useIntelReport3DMarkers';
 import { intelReportVisualizationService } from '../../services/IntelReportVisualizationService';
 import { IntelReportOverlayMarker } from '../../interfaces/IntelReportOverlay';
 import { Enhanced3DGlobeInteractivity } from './Enhanced3DGlobeInteractivity';
+import { useGlobeSolarSystemIntegration } from './GlobeSolarSystemIntegration';
+import { SolarSystemDebugPanel } from './SolarSystemDebugPanel';
 
 // Define ModelInstance interface locally since it's used in multiple files
 interface ModelInstance {
@@ -50,6 +52,24 @@ const GlobeView: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isInitializing, setIsInitializing] = useState(!hasGlobeLoadedBefore);
   const [containerSize, setContainerSize] = useState({ width: 800, height: 600 });
+
+  // Solar system integration (optional feature - can be enabled/disabled)
+  // Only activate in compatible visualization modes to prevent conflicts
+  const solarSystemEnabled = visualizationMode.mode === 'EcoNatural' || 
+                              (visualizationMode.mode === 'CyberCommand' && visualizationMode.subMode !== 'IntelReports');
+  
+  const solarSystemIntegration = useGlobeSolarSystemIntegration({
+    globeRef,
+    enabled: solarSystemEnabled, // Only enable in compatible modes
+    debugMode: true, // Enable debug mode to see what's happening
+    onStateChange: (state) => {
+      // Optional: Handle solar system state changes for UI updates
+      if (state.sunState?.isVisible) {
+        console.log(`Sun is now visible in ${state.currentContext} scale`);
+      }
+      console.log('Solar system state change:', state);
+    }
+  });
 
   useEffect(() => {
     // Fast track initialization if Globe has loaded before
@@ -422,6 +442,19 @@ const GlobeView: React.FC = () => {
           onHoverChange={setHoveredReportId}
           containerRef={containerRef}
           onCreateIntelReport={handleCreateIntelReport}
+        />
+        
+        {/* Solar System Debug Panel */}
+        <SolarSystemDebugPanel 
+          solarSystemState={solarSystemIntegration.solarSystemState ? {
+            isActive: solarSystemIntegration.isActive,
+            currentScale: solarSystemIntegration.currentScale || 'unknown',
+            sunVisible: solarSystemIntegration.sunVisible,
+            cameraDistance: solarSystemIntegration.solarSystemState.cameraDistance || 0,
+            sunState: solarSystemIntegration.solarSystemState.sunState,
+            planetsVisible: solarSystemIntegration.solarSystemState.planetaryInfo?.visiblePlanets,
+            activePlanets: solarSystemIntegration.solarSystemState.planetaryInfo?.activePlanets
+          } : null}
         />
         
         {/* Borders and territories overlays would be attached to the Three.js scene here in a custom renderer or with react-three-fiber */}

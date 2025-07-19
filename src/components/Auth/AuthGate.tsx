@@ -2,7 +2,11 @@ import React from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { useAuthFeatures } from '../../hooks/useAuthFeatures';
 import type { FeatureRequirements } from '../../hooks/useAuthFeatures';
+import { debugLogger, DebugCategory } from '../../utils/debugLogger';
 import styles from './AuthGate.module.css';
+
+// Component loading debug
+debugLogger.info(DebugCategory.COMPONENT_LOAD, 'AuthGate.tsx loaded - will monitor authentication gating');
 
 // AI-NOTE: Enhanced AuthGate component with comprehensive feature gating
 // Supports wallet connection, session auth, role-based access, and token gating
@@ -93,28 +97,42 @@ const AuthGate: React.FC<AuthGateProps> = ({
 
   // Handle authentication action
   const handleConnect = async () => {
+    // 🚨🚨🚨 CRITICAL: AuthGate calling authentication
+    console.error('🚨🚨🚨 AUTHGATE CALLING AUTHENTICATION!');
+    console.error('Auth requirements:', { requirements, requirement });
+    console.error('Current auth state:', {
+      isAuthenticated: auth.isAuthenticated,
+      address: !!auth.address,
+      connectionStatus: auth.connectionStatus
+    });
+    alert('AuthGate calling authentication - check console!');
+    
     try {
       if (requirements) {
         // Handle new feature requirements
         if (requirements.requireAuthentication && !auth.isAuthenticated) {
           if (!auth.address) {
+            console.error('🚨 AuthGate: No address, calling connectWallet');
             await auth.connectWallet();
           }
           if (auth.address && !auth.isAuthenticated) {
+            console.error('🚨 AuthGate: Have address but not authenticated, calling signIn');
             await auth.signIn();
           }
         }
       } else {
         // Handle legacy requirements
         if (requirement === 'wallet' || requirement === 'both') {
+          console.error('🚨 AuthGate: Legacy wallet requirement, calling connectWallet');
           await auth.connectWallet();
         }
         if (requirement === 'session' || requirement === 'both') {
+          console.error('🚨 AuthGate: Legacy session requirement, calling signIn');
           await auth.signIn();
         }
       }
     } catch (error) {
-      console.error('Authentication failed:', error);
+      console.error('🚨 AuthGate authentication failed:', error);
     }
   };
 

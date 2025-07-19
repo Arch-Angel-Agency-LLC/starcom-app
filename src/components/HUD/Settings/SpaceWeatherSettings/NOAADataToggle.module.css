@@ -1,0 +1,77 @@
+/* NOAADataToggle.module.css - Quick category toggles */
+
+.dataToggles {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.title {
+  font-size: 10px;
+  color: #00ff00;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: 'Courier New', monospace;
+}
+
+.toggleGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.toggle {
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  display: block;
+}
+
+.checkbox {
+  display: none;
+}
+
+.toggleVisual {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  transition: all 0.2s ease;
+}
+
+.toggle:hover .toggleVisual {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.toggle.enabled .toggleVisual {
+  background: rgba(0, 255, 0, 0.1);
+  border-color: rgba(0, 255, 0, 0.3);
+  color: #00ff00;
+}
+
+.icon {
+  font-size: 12px;
+  line-height: 1;
+  width: 14px;
+  text-align: center;
+}
+
+.label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  flex: 1;
+}

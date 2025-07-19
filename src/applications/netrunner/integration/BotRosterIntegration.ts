@@ -6,7 +6,7 @@
  */
 
 import { v4 as uuidv4 } from 'uuid';
-import { NetRunnerTool, IntelType } from '../tools/NetRunnerPowerTools';
+import { IntelType } from '../tools/NetRunnerPowerTools';
 
 // Bot capabilities for OSINT operations
 export type BotCapability =

@@ -1,3 +1,4 @@
 {
-    "git.ignoreLimitWarning": true
+    "git.ignoreLimitWarning": true,
+    "cmake.sourceDirectory": "/Users/jono/Documents/GitHub/starcom-app/node_modules/@ipshipyard/node-datachannel"
 }

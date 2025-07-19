@@ -4,7 +4,13 @@
     "jsx": "react-jsx",
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "types": ["node", "react", "react-dom"]
+    "types": ["node", "react", "react-dom", "jest", "vitest"]
   },
-  "include": ["src/pages/NetRunner/**/*"]
+  "include": [
+    "src/pages/NetRunner/**/*",
+    "src/applications/netrunner/**/*"
+  ],
+  "exclude": [
+    "src/applications/netrunner/scripts/tests/**/*"
+  ]
 }

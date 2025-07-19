@@ -1,0 +1,74 @@
+{
+  "displayName": "NetRunner Error Handling Tests",
+  "preset": "ts-jest",
+  "testEnvironment": "node",
+  "roots": [
+    "<rootDir>/src/core/intel/tests"
+  ],
+  "testMatch": [
+    "**/*ErrorTests.ts",
+    "**/ComprehensiveErrorHandlingTestRunner.ts",
+    "**/*TDD.test.ts"
+  ],
+  "transform": {
+    "^.+\\.ts$": ["ts-jest", {
+      "useESM": false,
+      "tsconfig": {
+        "target": "ES2020",
+        "module": "commonjs",
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "resolveJsonModule": true,
+        "declaration": false,
+        "declarationMap": false,
+        "sourceMap": true
+      }
+    }]
+  }
+},
+  "collectCoverageFrom": [
+    "src/core/intel/errors/**/*.ts",
+    "src/core/intel/adapters/**/*.ts",
+    "src/core/intel/bridge/**/*.ts",
+    "!**/*.d.ts",
+    "!**/__tests__/**",
+    "!**/tests/**"
+  ],
+  "coverageDirectory": "coverage/error-handling",
+  "coverageReporters": [
+    "text",
+    "text-summary", 
+    "lcov",
+    "html",
+    "json"
+  ],
+  "coverageThreshold": {
+    "global": {
+      "branches": 85,
+      "functions": 90,
+      "lines": 90,
+      "statements": 90
+    }
+  },
+  "setupFilesAfterEnv": [
+    "<rootDir>/src/core/intel/tests/ErrorHandlingTestInfrastructure.ts"
+  ],
+  "testTimeout": 30000,
+  "maxWorkers": "50%",
+  "errorOnDeprecated": true,
+  "verbose": true,
+  "detectOpenHandles": true,
+  "forceExit": true,
+  "clearMocks": true,
+  "restoreMocks": true,
+  "reporters": [
+    "default"
+  ],
+  "moduleNameMapper": {
+    "^@/(.*)$": "<rootDir>/src/$1",
+    "^@core/(.*)$": "<rootDir>/src/core/$1",
+    "^@errors/(.*)$": "<rootDir>/src/core/intel/errors/$1"
+
+}

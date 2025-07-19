@@ -295,38 +295,6 @@ export class EnhancedEventEmitter {
       unsubscribe: () => this.unsubscribe(subscriptionId)
     };
   }
-
-  /**
-   * Emit an event with data
-   */
-  emit(eventName: string, data?: any): void {
-    const event: DataEvent = {
-      id: uuidv4(),
-      type: 'update', // Default type
-      topic: eventName,
-      timestamp: new Date().toISOString(),
-      entityId: data?.id || uuidv4(),
-      entityType: data?.type || 'unknown',
-      data: data || {},
-      source: 'intel-data-core'
-    };
-    
-    // Add to history
-    this.addToHistory(event);
-    
-    // Emit on the specific topic
-    this.emitToTopic(event.topic, event);
-    
-    // Also emit on wildcard topics
-    const topicParts = event.topic.split(':');
-    for (let i = 1; i < topicParts.length; i++) {
-      const wildcardTopic = [...topicParts.slice(0, i), '*'].join(':');
-      this.emitToTopic(wildcardTopic, event);
-    }
-    
-    // Emit on global wildcard
-    this.emitToTopic('*', event);
-  }
 }
 
 // Create and export a singleton instance

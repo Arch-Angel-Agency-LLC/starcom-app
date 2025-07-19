@@ -9,9 +9,7 @@
  */
 
 import { LoggerFactory, OperationLogger } from '../logging';
-import { NetRunnerError, NETRUNNER_ERROR_CODES } from '../error';
 import { OSINTResult } from '../../models/OSINTDataModels';
-import { ToolExecutionRequest } from '../../models';
 
 const logger = LoggerFactory.getLogger('NetRunner:WorkflowEngine');
 
@@ -24,7 +22,7 @@ export interface WorkflowTask {
   name: string;
   description?: string;
   toolId: string;
-  parameters: Record<string, any>;
+  parameters: Record<string, unknown>;
   dependencies: string[]; // Task IDs this task depends on
   retryPolicy?: RetryPolicy;
   timeout?: number; // milliseconds
@@ -50,7 +48,7 @@ export interface WorkflowDefinition {
   tasks: WorkflowTask[];
   maxExecutionTime?: number; // milliseconds
   retryPolicy?: RetryPolicy;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface WorkflowInput {
@@ -58,7 +56,7 @@ export interface WorkflowInput {
   type: 'string' | 'number' | 'boolean' | 'array' | 'object';
   required: boolean;
   description?: string;
-  default?: any;
+  default?: unknown;
   validation?: ValidationRule[];
 }
 
@@ -71,7 +69,7 @@ export interface WorkflowOutput {
 
 export interface ValidationRule {
   type: 'regex' | 'range' | 'enum' | 'custom';
-  value: any;
+  value: unknown;
   message?: string;
 }
 
@@ -97,8 +95,8 @@ export interface WorkflowExecution {
   triggeredBy: string;
   startTime: Date;
   endTime?: Date;
-  inputs: Record<string, any>;
-  outputs?: Record<string, any>;
+  inputs: Record<string, unknown>;
+  outputs?: Record<string, unknown>;
   taskExecutions: Map<string, TaskExecution>;
   error?: string;
   metrics: ExecutionMetrics;
@@ -140,10 +138,10 @@ export interface WorkflowSchedule {
   cronExpression: string;
   timezone: string;
   enabled: boolean;
-  inputs: Record<string, any>;
+  inputs: Record<string, unknown>;
   nextRun?: Date;
   lastRun?: Date;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface WorkflowTemplate {
@@ -155,7 +153,7 @@ export interface WorkflowTemplate {
   estimatedDuration: number; // minutes
   requiredTools: string[];
   definition: WorkflowDefinition;
-  exampleInputs: Record<string, any>;
+  exampleInputs: Record<string, unknown>;
   documentation: string;
 }
 

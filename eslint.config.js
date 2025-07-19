@@ -17,7 +17,13 @@ export default tseslint.config(
       'src/**/__tests__/**',
       'src/**/*.test.{ts,tsx}',
       'src/**/*.spec.{ts,tsx}',
-      '**/*.d.ts'
+      '**/*.d.ts',
+      '**/*_OLD*.{ts,tsx}',
+      '**/*.old.{ts,tsx}',
+      '**/*.bak.{ts,tsx}',
+      '**/*.backup.{ts,tsx}',
+      '**/*.disabled.{ts,tsx}',
+      'starcom-mk2-backup/**'
     ] 
   },
   {
@@ -36,6 +42,14 @@ export default tseslint.config(
       'react-refresh/only-export-components': [
         'warn',
         { allowConstantExport: true },
+      ],
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { 
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_'
+        }
       ],
     },
   },
