@@ -5,15 +5,13 @@
  * Provides an interface for making requests to theHarvester for email, subdomain, and name harvesting.
  */
 
-import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
 import { 
   ToolExecutionRequest, 
   ToolExecutionResponse, 
   ToolSchema,
   IntelType,
-  netRunnerPowerTools,
-  findToolById
+  netRunnerPowerTools
 } from '../NetRunnerPowerTools';
 import { BaseAdapter } from './BaseAdapter';
 

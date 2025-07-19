@@ -1,5 +1,8 @@
 import React from 'react';
 
+// 🚨🚨🚨 AUTH ERROR BOUNDARY DEBUGGING
+console.log('🔍 AuthErrorBoundary.tsx loaded - will monitor authentication errors');
+
 // AI-NOTE: Error boundary for authentication and wallet errors (see artifacts)
 // TODO: Add support for enterprise SSO integration for organizational users - PRIORITY: LOW
 class AuthErrorBoundary extends React.Component<{
@@ -8,14 +11,33 @@ class AuthErrorBoundary extends React.Component<{
   constructor(props: { children: React.ReactNode }) {
     super(props);
     this.state = { hasError: false, error: null };
+    console.log('🔍 AuthErrorBoundary constructor called');
   }
 
   static getDerivedStateFromError(error: Error) {
+    // 🚨🚨🚨 CRITICAL: Error boundary caught an error!
+    console.error('🚨🚨🚨 AUTH ERROR BOUNDARY CAUGHT ERROR!');
+    console.error('Error details:', {
+      name: error.name,
+      message: error.message,
+      stack: error.stack,
+      timestamp: new Date().toISOString()
+    });
+    
+    if (error.name === 'WalletNotSelectedError' || error.message?.includes('WalletNotSelectedError')) {
+      console.error('🎯 ERROR BOUNDARY: WalletNotSelectedError caught!');
+      alert('ERROR BOUNDARY: WalletNotSelectedError caught! Check console.');
+    }
+    
     return { hasError: true, error };
   }
 
-  componentDidCatch() {
-    // No-op: error boundary logic does not use these parameters
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    // 🚨🚨🚨 COMPREHENSIVE ERROR LOGGING
+    console.error('🚨🚨🚨 AUTH ERROR BOUNDARY componentDidCatch called!');
+    console.error('Error:', error);
+    console.error('Error Info:', errorInfo);
+    console.error('Component Stack:', errorInfo.componentStack);
   }
 
   handleRetry = () => {

@@ -17,7 +17,7 @@ const GroupChatPanel: React.FC<GroupChatPanelProps> = ({
   className = ''
 }) => {
   const { connected, publicKey } = useWallet();
-  const [isConnecting, setIsConnecting] = useState(false);
+  const [_isConnecting, _setIsConnecting] = useState(false);
   const [channelLoaded, setChannelLoaded] = useState(false);
   
   // Use the unified chat context

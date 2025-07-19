@@ -5,6 +5,9 @@
  * It defines the fundamental types used across all intelligence modules.
  */
 
+// Import new Intel architecture types for enhanced integration
+import { ReliabilityRating } from '../../../models/Intel/Intel';
+
 // --- Base Types ---
 
 /**
@@ -40,8 +43,10 @@ export interface Relationship {
 
 /**
  * Core Intelligence Entity - the foundation of the intelligence data model
+ * Enhanced to support new Intel architecture integration
  */
 export interface IntelEntity extends BaseEntity {
+  // === EXISTING PROPERTIES (100% Backward Compatible) ===
   title: string;
   description: string;
   classification: ClassificationLevel;
@@ -53,6 +58,67 @@ export interface IntelEntity extends BaseEntity {
   confidence: number; // 0-100 scale
   expiresAt?: string;
   attachments: Attachment[];
+  
+  // === NEW INTEL ARCHITECTURE INTEGRATION ===
+  // Optional properties for enhanced processing - all backward compatible
+  
+  /** Link to source Intelligence objects from new architecture */
+  sourceIntelligence?: string[]; // Intelligence IDs that contributed to this entity
+  
+  /** Link to raw data sources from new architecture */
+  derivedFromRawData?: string[]; // RawData IDs this entity was derived from
+  
+  /** Reliability assessment from new architecture */
+  reliability?: ReliabilityRating; // A, B, C, D, E, F reliability scale
+  
+  /** Processing lineage for audit trail */
+  processingLineage?: {
+    steps: Array<{
+      stage: 'collection' | 'processing' | 'analysis' | 'visualization';
+      timestamp: number;
+      processor: string;
+      transformationType: string;
+      sourceIds: string[];
+      confidence: number;
+    }>;
+    totalSteps: number;
+    processingDuration: number;
+    qualityScore: number;
+  };
+  
+  /** Enhanced confidence metrics with breakdown */
+  confidenceMetrics?: {
+    extraction: number;    // Confidence in data extraction (0-100)
+    correlation: number;   // Confidence in correlation with other data (0-100)
+    analysis: number;      // Confidence in analytical conclusions (0-100)
+    validation: number;    // Confidence in validation/verification (0-100)
+    overall: number;       // Overall confidence (computed from above)
+  };
+  
+  /** OSINT-specific metadata for NetRunner integration */
+  osintMetadata?: {
+    collectionMethod: string;     // How this data was collected
+    collectionTimestamp: number; // When it was collected
+    lastVerified: number;        // Last verification timestamp
+    verificationMethod?: string; // How it was verified
+    qualityIndicators: {
+      freshness: number;         // How recent the data is (0-100)
+      completeness: number;      // How complete the data is (0-100)
+      accuracy: number;          // Assessed accuracy (0-100)
+      relevance: number;         // Relevance to investigation (0-100)
+    };
+  };
+  
+  /** Bridge metadata for tracking transformations */
+  bridgeMetadata?: {
+    originalIntelId?: string;      // Original Intel object ID
+    transformationId: string;     // Unique transformation identifier
+    transformedAt: number;        // When transformation occurred
+    transformationVersion: string; // Version of transformation logic
+    preservedFields: string[];    // Which fields were preserved
+    enhancedFields: string[];     // Which fields were enhanced
+    qualityScore: number;         // Quality of transformation (0-100)
+  };
 }
 
 /**

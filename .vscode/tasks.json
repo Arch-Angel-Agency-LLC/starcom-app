@@ -19,14 +19,6 @@
 			"problemMatcher": ["$tsc"]
 		},
 		{
-			"label": "Run Dev Server",
-			"type": "shell",
-			"command": "npm run dev",
-			"group": "test",
-			"isBackground": true,
-			"problemMatcher": []
-		},
-		{
 			"label": "NetRunner: Type Check",
 			"type": "shell",
 			"command": "npx",

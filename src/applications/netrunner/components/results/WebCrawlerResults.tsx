@@ -59,6 +59,9 @@ import {
   Zap
 } from 'lucide-react';
 
+// NetRunner services
+import { websiteScanner, ScanResult as ServiceScanResult } from '../../services/WebsiteScanner';
+
 interface ScanResult {
   id: string;
   url: string;
@@ -121,73 +124,87 @@ const WebCrawlerResults: React.FC<WebCrawlerResultsProps> = ({
   // Real-time threat assessment
   const [aiAnalysisEnabled, setAiAnalysisEnabled] = useState(true);
 
-  // Mock scan results - replace with real data
-  const scanResults: ScanResult[] = React.useMemo(() => [
-    {
-      id: '1',
-      url: 'https://target.com/admin',
-      type: 'admin',
-      status: 200,
-      title: 'Admin Dashboard',
-      security: 'protected',
-      intelValue: 'critical',
-      discoveredAt: new Date(),
-      depth: 2,
-      technologies: ['PHP', 'MySQL'],
-      adminAccess: true,
-      forms: 3
-    },
-    {
-      id: '2',
-      url: 'https://target.com/api/users',
-      type: 'api',
-      status: 200,
-      security: 'vulnerable',
-      intelValue: 'high',
-      discoveredAt: new Date(),
-      depth: 3,
-      apiEndpoints: 12,
-      personalInfo: true
-    },
-    {
-      id: '3',
-      url: 'https://target.com/backup/',
-      type: 'directory',
-      status: 403,
-      security: 'restricted',
-      intelValue: 'high',
-      discoveredAt: new Date(),
-      depth: 1,
-      description: 'Backup directory with potential data exposure'
-    },
-    {
-      id: '4',
-      url: 'https://target.com/contact.php',
-      type: 'page',
-      status: 200,
-      title: 'Contact Us',
-      security: 'open',
-      intelValue: 'medium',
-      discoveredAt: new Date(),
-      depth: 1,
-      emails: ['info@target.com', 'support@target.com'],
-      phones: ['+1-555-0123'],
-      forms: 1
-    },
-    {
-      id: '5',
-      url: 'https://target.com/.env',
-      type: 'file',
-      status: 200,
-      security: 'vulnerable',
-      intelValue: 'critical',
-      discoveredAt: new Date(),
-      depth: 1,
-      credentials: true,
-      description: 'Environment configuration file'
-    }
-  ], []);
+  // Real scan results state
+  const [scanResults, setScanResults] = useState<ScanResult[]>([]);
 
+  // Adapter to convert service scan results to UI format
+  const adaptServiceScanResult = (serviceScan: ServiceScanResult, index: number): ScanResult => {
+    // Extract intel value based on vulnerabilities
+    const criticalVulns = serviceScan.vulnerabilities?.filter(v => v.severity === 'critical') || [];
+    const highVulns = serviceScan.vulnerabilities?.filter(v => v.severity === 'high') || [];
+    
+    let intelValue: 'low' | 'medium' | 'high' | 'critical' = 'low';
+    if (criticalVulns.length > 0) intelValue = 'critical';
+    else if (highVulns.length > 0) intelValue = 'high';
+    else if (serviceScan.vulnerabilities?.length > 0) intelValue = 'medium';
+
+    // Determine type based on URL and technologies
+    let type: ScanResult['type'] = 'page';
+    const url = serviceScan.url.toLowerCase();
+    if (url.includes('/admin') || url.includes('/dashboard')) type = 'admin';
+    else if (url.includes('/api/')) type = 'api';
+    else if (url.includes('/login')) type = 'login';
+    else if (url.includes('/database') || url.includes('/db')) type = 'database';
+    else if (url.includes('/upload') || url.includes('/form')) type = 'form';
+    else if (url.endsWith('/')) type = 'directory';
+
+    // Determine security status
+    let security: 'open' | 'protected' | 'vulnerable' = 'protected';
+    if (serviceScan.vulnerabilities?.length > 0) security = 'vulnerable';
+    else if (url.includes('/public') || url.includes('/open')) security = 'open';
+
+    return {
+      id: `scan-${index}`,
+      url: serviceScan.url,
+      type,
+      status: serviceScan.status === 'error' ? 404 : 200,
+      title: serviceScan.title || 'Unknown Page',
+      security,
+      intelValue,
+      discoveredAt: new Date(serviceScan.timestamp),
+      depth: 1,
+      technologies: serviceScan.osintData?.technologies?.map(t => t.name) || [],
+      // Additional data based on type
+      ...(type === 'admin' && { adminAccess: security === 'vulnerable' }),
+      ...(type === 'api' && { 
+        apiEndpoints: serviceScan.osintData?.technologies?.length || 0,
+        personalInfo: serviceScan.osintData?.emails?.length > 0
+      }),
+      ...(serviceScan.vulnerabilities?.length > 0 && { 
+        vulnerabilities: serviceScan.vulnerabilities.length 
+      })
+    };
+  };
+
+  // Scan function
+  const performScan = React.useCallback(async (targetUrl: string) => {
+    if (!targetUrl || isScanning) return;
+    
+    try {
+      // Use the websiteScanner service to scan the target URL
+      const scanResult = await websiteScanner.scanWebsite(targetUrl, (progressValue, status) => {
+        // Progress callback - the parent component manages the progress state
+        console.log(`Scan progress: ${progressValue}% - ${status}`);
+      });
+      
+      // Convert the single scan result to our UI format
+      const adaptedResult = adaptServiceScanResult(scanResult, 0);
+      setScanResults([adaptedResult]);
+      
+    } catch (error) {
+      console.error('Error scanning website:', error);
+      setScanResults([]);
+    }
+  }, [isScanning]);
+
+  // Trigger scan when targetUrl changes
+  React.useEffect(() => {
+    if (targetUrl && targetUrl.startsWith('http') && !isScanning) {
+      performScan(targetUrl);
+    }
+  }, [targetUrl, performScan, isScanning]);
+
+  // Grouping and filtering logic
   const groupResultsByCategory = (results: ScanResult[] = filteredResults): PathwayGroup[] => {
     const groups: Record<string, PathwayGroup> = {};
 

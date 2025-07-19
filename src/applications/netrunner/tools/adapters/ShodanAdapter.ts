@@ -5,15 +5,13 @@
  * Provides an interface for making requests to the Shodan API.
  */
 
-import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
 import { 
   ToolExecutionRequest, 
   ToolExecutionResponse, 
   ToolSchema,
   IntelType,
-  netRunnerPowerTools,
-  findToolById
+  netRunnerPowerTools
 } from '../NetRunnerPowerTools';
 import { BaseAdapter } from './BaseAdapter';
 
@@ -103,7 +101,7 @@ class ShodanApiClient {
 
 // Mock client for fallback when no API key is available
 const mockShodanApiClient = {
-  search: async (query: string, limit: number = 10): Promise<Record<string, unknown>> => {
+  search: async (query: string, _limit: number = 10): Promise<Record<string, unknown>> => {
     console.warn('Using mock Shodan client - configure SHODAN_API_KEY for real data');
     await new Promise(resolve => setTimeout(resolve, 1500));
     

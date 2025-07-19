@@ -12,7 +12,6 @@ import {
   Collapse,
   IconButton,
   Tooltip,
-  Button,
   CircularProgress
 } from '@mui/material';
 import {
@@ -28,8 +27,7 @@ import {
   CreditCard,
   AlertTriangle,
   Info,
-  Download,
-  Link as LinkIcon
+  Download
 } from 'lucide-react';
 
 import { SearchResult, EntityType } from '../types/netrunner';
@@ -205,7 +203,7 @@ const EntityExtractor: React.FC<EntityExtractorProps> = ({
   const hasEntities = Object.keys(groupedEntities).length > 0;
   
   // Generate count badge for entity types
-  const entityTypeCounts = Object.entries(groupedEntities).reduce((counts, [type, entities]) => {
+  const _entityTypeCounts = Object.entries(groupedEntities).reduce((counts, [type, entities]) => {
     counts[type as EntityType] = entities.length;
     return counts;
   }, {} as Record<EntityType, number>);

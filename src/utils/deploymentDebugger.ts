@@ -127,11 +127,20 @@ export function debugLog(
   // Check feature flags first
   const isDeploymentDebugEnabled = featureFlagManager.getFlag('deploymentDebugLoggingEnabled');
   const isAssetDebugEnabled = featureFlagManager.getFlag('assetDebugLoggingEnabled');
+  const is3DAssetDebugEnabled = featureFlagManager.getFlag('threeDAssetLoggingEnabled');
+  const isIntelReportDebugEnabled = featureFlagManager.getFlag('intelReportLoggingEnabled');
   
   // Determine if this log should be shown based on category and feature flags
   let shouldLog = false;
   
-  if (category.includes('ASSET') || category.includes('MODEL')) {
+  if (category.includes('3D') || category.includes('MODEL') || message.toLowerCase().includes('intel')) {
+    // 3D Asset specific logs
+    if (message.toLowerCase().includes('intel')) {
+      shouldLog = isIntelReportDebugEnabled;
+    } else {
+      shouldLog = is3DAssetDebugEnabled;
+    }
+  } else if (category.includes('ASSET')) {
     shouldLog = isAssetDebugEnabled;
   } else {
     shouldLog = isDeploymentDebugEnabled;

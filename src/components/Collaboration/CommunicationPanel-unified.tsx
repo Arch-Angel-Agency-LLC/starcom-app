@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AgencyType, ClearanceLevel } from '../../types';
 import { useChat } from '../../context/ChatContext';
 import ChatWindow from '../Chat/ChatWindow';

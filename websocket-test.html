@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Test</title>
+</head>
+<body>
+    <h1>WebSocket Connection Test</h1>
+    <div id="status">Testing...</div>
+    <div id="log"></div>
+    
+    <script>
+        const statusDiv = document.getElementById('status');
+        const logDiv = document.getElementById('log');
+        
+        function log(message) {
+            const p = document.createElement('p');
+            p.textContent = new Date().toLocaleTimeString() + ': ' + message;
+            logDiv.appendChild(p);
+        }
+        
+        // Test WebSocket connection to Vite HMR
+        function testWebSocket() {
+            try {
+                const ws = new WebSocket('ws://localhost:5174/');
+                
+                ws.onopen = function() {
+                    statusDiv.textContent = 'WebSocket Connected!';
+                    statusDiv.style.color = 'green';
+                    log('WebSocket connection opened successfully');
+                };
+                
+                ws.onerror = function(error) {
+                    statusDiv.textContent = 'WebSocket Error';
+                    statusDiv.style.color = 'red';
+                    log('WebSocket error: ' + JSON.stringify(error));
+                };
+                
+                ws.onclose = function(event) {
+                    statusDiv.textContent = 'WebSocket Closed';
+                    statusDiv.style.color = 'orange';
+                    log('WebSocket closed: ' + event.code + ' - ' + event.reason);
+                };
+                
+                ws.onmessage = function(event) {
+                    log('Received: ' + event.data);
+                };
+                
+            } catch (error) {
+                statusDiv.textContent = 'WebSocket Failed';
+                statusDiv.style.color = 'red';
+                log('WebSocket creation failed: ' + error.message);
+            }
+        }
+        
+        // Test after page loads
+        setTimeout(testWebSocket, 1000);
+    </script>
+</body>
+</html>

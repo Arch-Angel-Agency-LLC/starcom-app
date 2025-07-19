@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useChat } from '../../context/ChatContext';
-import { format } from 'date-fns';
 import styles from './EarthAllianceCommunicationPanel.module.css';
 import { ClearanceLevel, AgencyType } from '../../types/features/collaboration';
 import { ChatMessage, ChatChannel } from '../../lib/chat/ChatInterface';
@@ -9,7 +8,7 @@ import { ChatMessage, ChatChannel } from '../../lib/chat/ChatInterface';
 type MessageType = 'text' | 'intelligence' | 'alert' | 'status' | 'evidence' | 'verification' | 'emergency';
 
 // Earth Alliance specific message metadata
-interface EarthAllianceMetadata {
+interface _EarthAllianceMetadata {
   type: MessageType;
   senderAgency?: AgencyType;
   clearanceLevel?: ClearanceLevel;
@@ -69,7 +68,7 @@ const EarthAllianceCommunicationPanel: React.FC<EarthAllianceCommunicationPanelP
     channels, 
     isConnected, 
     isLoading: contextLoading, 
-    error: contextError,
+    error: _contextError,
     sendMessage, 
     connect, 
     setCurrentChannel,
@@ -132,7 +131,7 @@ const EarthAllianceCommunicationPanel: React.FC<EarthAllianceCommunicationPanelP
 
   // Derived state to simplify usage
   const isServiceAvailable = isConnected && provider !== null;
-  const [serviceAvailable, setServiceAvailable] = useState<boolean>(isServiceAvailable);
+  const [_serviceAvailable, setServiceAvailable] = useState<boolean>(isServiceAvailable);
 
   // Initialize Earth Alliance chat channel
   const initializeEarthAlliance = useCallback(async () => {
@@ -281,7 +280,7 @@ const EarthAllianceCommunicationPanel: React.FC<EarthAllianceCommunicationPanelP
     try {
       // Include metadata with the message
       // We need to extend the message with our metadata by manipulating the context
-      const metadataExtension = {
+      const _metadataExtension = {
         operativeLevel,
         reclamationCell: cellCode,
         region,

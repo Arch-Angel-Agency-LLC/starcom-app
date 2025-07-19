@@ -1,0 +1,100 @@
+/* CompactSpaceWeatherControls.module.css - Main compact layout */
+
+.compactControls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 100px;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Status bar showing connection status and vector count */
+.statusBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 16px;
+  padding: 2px 4px;
+  background: rgba(0, 10, 20, 0.6);
+  border-radius: 2px;
+  font-size: 10px;
+}
+
+.statusDot {
+  color: #00ff00;
+  animation: pulse 1.5s infinite;
+}
+
+.errorDot {
+  color: #ff4444;
+  animation: pulse 1s infinite;
+}
+
+.vectorCount {
+  color: #00ffff;
+  font-size: 9px;
+  font-weight: bold;
+}
+
+.advancedSection {
+  margin-top: auto; /* Push to bottom */
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: center;
+}
+
+.advancedButton {
+  width: 100%;
+  padding: 6px 8px;
+  background: rgba(0, 255, 0, 0.1);
+  border: 1px solid rgba(0, 255, 0, 0.3);
+  border-radius: 4px;
+  color: #00ff00;
+  font-size: 11px;
+  font-family: 'Courier New', monospace;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.advancedButton:hover:not(:disabled) {
+  background: rgba(0, 255, 0, 0.2);
+  border-color: rgba(0, 255, 0, 0.5);
+}
+
+.advancedButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.advancedIcon {
+  font-size: 12px;
+}
+
+.advancedLabel {
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.lastUpdated {
+  font-size: 7px;
+  color: rgba(0, 255, 255, 0.6);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* Animations */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}

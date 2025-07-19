@@ -54,8 +54,7 @@ import { ErrorFactory, NETRUNNER_ERROR_CODES } from '../services/error';
 import { 
   Workflow,
   WorkflowExecutionState,
-  WorkflowEngine,
-  sampleWorkflows
+  WorkflowEngine
 } from '../integration/WorkflowEngine';
 import { WorkflowScheduler, ScheduledJob } from '../integration/WorkflowScheduler';
 import { OsintBot } from '../integration/BotRosterIntegration';
@@ -105,63 +104,39 @@ const WorkflowControlPanel: React.FC<WorkflowControlPanelProps> = ({
     propsWorkflowScheduler || new WorkflowScheduler(workflowEngine)
   );
   
-  // Initialize with sample workflows if empty
+  // Initialize with real workflows from WorkflowEngine
   useEffect(() => {
-    if (workflowEngine.getWorkflows().length === 0) {
-      // Configure sample workflows with real tool and bot IDs
-      const configuredWorkflows = sampleWorkflows.map(workflow => {
-        // Assign bot IDs
-        const workflowWithBots = {
-          ...workflow,
-          botIds: bots.slice(0, 2).map(bot => bot.id)
-        };
-        
-        // Assign tool IDs to steps
-        if (workflowWithBots.steps) {
-          workflowWithBots.steps = workflowWithBots.steps.map((step, index) => {
-            // Assign a compatible tool based on the step's purpose
-            let toolId = '';
-            
-            if (step.name.includes('Reconnaissance') || step.name.includes('Domain')) {
-              toolId = tools.find(t => t.name.includes('Shodan'))?.id || '';
-            } else if (step.name.includes('Email') || step.name.includes('Harvesting')) {
-              toolId = tools.find(t => t.name.includes('Harvester'))?.id || '';
-            } else if (step.name.includes('Intelligence') || step.name.includes('Analysis')) {
-              toolId = tools.find(t => t.name.includes('Analyzer'))?.id || '';
-            } else if (step.name.includes('Vulnerability') || step.name.includes('Scanning')) {
-              toolId = tools.find(t => t.name.includes('Shodan'))?.id || '';
-            } else if (step.name.includes('Dark Web') || step.name.includes('Monitoring')) {
-              toolId = tools.find(t => t.name.includes('Dark'))?.id || '';
-            } else {
-              // Default to the first tool if no match
-              toolId = tools[0]?.id || '';
-            }
-            
-            // Set dependencies to previous steps where appropriate
-            const dependsOn: string[] = [];
-            if (index > 0 && step.name.includes('Analysis')) {
-              // Analysis steps typically depend on data collection steps
-              dependsOn.push(workflowWithBots.steps?.[0].id || '');
-              if (index > 1) {
-                dependsOn.push(workflowWithBots.steps?.[1].id || '');
-              }
-            }
-            
-            return {
-              ...step,
-              toolId,
-              dependsOn: dependsOn.length > 0 ? dependsOn : step.dependsOn
-            };
-          });
+    // Load existing workflows from the engine first
+    const existingWorkflows = workflowEngine.getWorkflows();
+    
+    // Only create sample workflows if none exist (first time setup)
+    if (existingWorkflows.length === 0) {
+      // Create some basic workflow templates using real bot and tool IDs
+      const basicWorkflows = [
+        {
+          name: 'Domain Intelligence Pipeline',
+          description: 'Comprehensive domain analysis workflow',
+          botIds: bots.slice(0, 1).map(bot => bot.id),
+          status: 'active' as const,
+          tags: ['domain', 'intelligence']
+        },
+        {
+          name: 'Threat Assessment Workflow', 
+          description: 'Automated security threat assessment',
+          parallelExecution: true,
+          botIds: bots.slice(0, 2).map(bot => bot.id),
+          status: 'active' as const,
+          tags: ['security', 'assessment']
         }
-        
-        return workflowWithBots;
-      });
-      
-      // Create the workflows
-      configuredWorkflows.forEach(workflow => {
+      ];
+
+      // Create the workflows in the engine
+      basicWorkflows.forEach(workflow => {
         workflowEngine.createWorkflow(workflow);
       });
+      
+      // Update state with newly created workflows
+      setWorkflows(workflowEngine.getWorkflows());
     }
     
     // Initialize the scheduler
@@ -175,7 +150,8 @@ const WorkflowControlPanel: React.FC<WorkflowControlPanelProps> = ({
   
   // State
   const [activeTab, setActiveTab] = useState<number>(0);
-  const [workflows, setWorkflows] = useState<Workflow[]>([]);
+  // State - initialize workflows from engine
+  const [workflows, setWorkflows] = useState<Workflow[]>(() => workflowEngine.getWorkflows());
   const [selectedWorkflow, setSelectedWorkflow] = useState<Workflow | null>(null);
   const [executionStates, setExecutionStates] = useState<WorkflowExecutionState[]>([]);
   const [scheduledJobs, setScheduledJobs] = useState<ScheduledJob[]>([]);

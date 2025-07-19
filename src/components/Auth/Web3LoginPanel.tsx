@@ -2,6 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import Snackbar from '../Shared/Snackbar';
 import Modal from '../Shared/Modal';
+import { debugLogger, DebugCategory } from '../../utils/debugLogger';
+
+// Component loading debug
+debugLogger.info(DebugCategory.COMPONENT_LOAD, 'Web3LoginPanel.tsx loaded - will monitor wallet connection calls');
 
 const AccountInfoPopup: React.FC<{
   open: boolean;
@@ -35,6 +39,16 @@ const Web3LoginPanel: React.FC = () => {
     disconnectWallet,
     switchNetwork,
   } = useAuth();
+  
+  // Debug: Log Web3LoginPanel state
+  debugLogger.debug(DebugCategory.AUTH, 'Web3LoginPanel rendered with state', {
+    isAuthenticated,
+    address: !!address,
+    connectionStatus,
+    connectWallet: !!connectWallet,
+    timestamp: new Date().toISOString()
+  });
+  
   const [showAccount, setShowAccount] = useState(false);
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; type: 'success' | 'info' | 'error' }>({ open: false, message: '', type: 'info' });
   const [wasAuthenticated, setWasAuthenticated] = useState(false);
@@ -50,10 +64,21 @@ const Web3LoginPanel: React.FC = () => {
   }, [isAuthenticated, wasAuthenticated]);
 
   const handleLogin = async () => {
+    // 🚨🚨🚨 CRITICAL: Web3LoginPanel calling connectWallet
+    console.error('🚨🚨🚨 WEB3LOGINPANEL CALLING CONNECTWALLET!');
+    console.error('Current state:', {
+      isAuthenticated,
+      connectionStatus,
+      address: !!address,
+      timestamp: new Date().toISOString()
+    });
+    alert('Web3LoginPanel calling connectWallet - check console!');
+    
     try {
       await connectWallet();
       // Snackbar handled by useEffect
-    } catch {
+    } catch (error) {
+      console.error('🚨 Web3LoginPanel connectWallet failed:', error);
       setSnackbar({ open: true, message: 'Login failed', type: 'error' });
     }
   };

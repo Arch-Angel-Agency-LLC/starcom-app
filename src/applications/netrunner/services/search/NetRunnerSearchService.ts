@@ -42,7 +42,7 @@ interface SearchSourceConfig {
 /**
  * Search response from external API
  */
-interface ExternalSearchResponse {
+interface _ExternalSearchResponse {
   results: Array<{
     id: string;
     title: string;
@@ -254,7 +254,7 @@ export class NetRunnerSearchService {
   private async searchSource(
     source: SearchSourceConfig, 
     query: SearchQuery, 
-    correlationId: string
+    _correlationId: string
   ): Promise<SearchResult[]> {
     this.logger.debug(`Searching source: ${source.name}`, {
       sourceId: source.id,
@@ -274,6 +274,8 @@ export class NetRunnerSearchService {
           
           // Execute real tool adapter
           const toolResult = await adapter.execute({
+            requestId: `search-${Date.now()}`,
+            timestamp: Date.now(),
             toolId: source.id,
             parameters: { 
               query: query.text,
@@ -281,9 +283,9 @@ export class NetRunnerSearchService {
             }
           });
           
-          if (toolResult.success && toolResult.results) {
+          if (toolResult.data) {
             // Transform tool result to search results format
-            return this.transformToolResultToSearchResults(toolResult, source);
+            return this.transformToolResultToSearchResults(toolResult.data as Record<string, unknown>, source);
           }
         }
       }
@@ -311,7 +313,7 @@ export class NetRunnerSearchService {
    * Transform tool execution result to search results format
    */
   private transformToolResultToSearchResults(
-    toolResult: any, 
+    toolResult: Record<string, unknown>, 
     source: SearchSourceConfig
   ): SearchResult[] {
     try {
@@ -320,11 +322,11 @@ export class NetRunnerSearchService {
       
       if (toolResult.data && Array.isArray(toolResult.data)) {
         // Handle array of results
-        toolResult.data.forEach((item: any, index: number) => {
+        toolResult.data.forEach((item: Record<string, unknown>, index: number) => {
           results.push({
             id: `${source.id}-${Date.now()}-${index}`,
-            title: item.title || item.hostname || item.ip_str || `${source.name} Result`,
-            snippet: item.description || item.banner || item.data || JSON.stringify(item).substring(0, 200),
+            title: (item.title as string) || (item.hostname as string) || (item.ip_str as string) || `${source.name} Result`,
+            snippet: (item.description as string) || (item.banner as string) || (item.data as string) || JSON.stringify(item).substring(0, 200),
             source: source.name,
             timestamp: new Date().toISOString(),
             confidence: 0.8, // Default confidence for real API results
@@ -337,10 +339,11 @@ export class NetRunnerSearchService {
         });
       } else if (toolResult.data) {
         // Handle single result object
+        const data = toolResult.data as Record<string, unknown>;
         results.push({
           id: `${source.id}-${Date.now()}-single`,
-          title: toolResult.data.title || `${source.name} Result`,
-          snippet: toolResult.data.description || JSON.stringify(toolResult.data).substring(0, 200),
+          title: (data.title as string) || `${source.name} Result`,
+          snippet: (data.description as string) || JSON.stringify(toolResult.data).substring(0, 200),
           source: source.name,
           timestamp: new Date().toISOString(),
           confidence: 0.8,

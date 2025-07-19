@@ -136,16 +136,27 @@ export default defineConfig(({ mode }) => {
   },
   server: {
     port: 5174,
-    host: true,
-    // Increased timeout for large project
+    host: '0.0.0.0', // Allow external connections
+    // Enhanced HMR configuration for WebSocket stability
     hmr: {
-      timeout: 5000, // 5 seconds
+      port: 5175, // Use different port for HMR WebSocket
+      host: 'localhost',
+      timeout: 15000, // 15 seconds for large project
+      overlay: true,
+    },
+    // Enable CORS for development
+    cors: true,
+    // Watch options for better file monitoring
+    watch: {
+      usePolling: false,
+      interval: 100,
+      ignored: ['**/node_modules/**', '**/backup/**', '**/starcom-mk2-backup/**', '**/backup_logs/**'],
     },
     fs: {
       // Explicitly allow these directories
-      allow: ['.', './src', './public'],
+      allow: ['.', './src', './public', './asset development'],
       // Strict allow mode to prevent scanning of unwanted directories
-      strict: true
+      strict: false // Changed to false to allow more flexibility
     },
   },
   build: {
