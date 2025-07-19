@@ -4,15 +4,13 @@ import { useSettingsValidation } from '../../../../utils/uiSettingsReflection';
 import styles from './CyberCommandSettings.module.css';
 
 interface CyberCommandSettingsProps {
-  subMode: 'IntelReports' | 'Timelines' | 'CrisisZones';
+  subMode: 'IntelReports' | 'NetworkInfrastructure' | 'CyberThreats' | 'CommHubs' | 'CyberAttacks';
 }
 
 const CyberCommandSettings: React.FC<CyberCommandSettingsProps> = ({ subMode }) => {
   const { 
     config, 
-    updateIntelReports, 
-    updateTimelines, 
-    updateCrisisZones
+    updateIntelReports
   } = useCyberCommandSettings();
 
   // Validate that UI state reflects persistent settings
@@ -100,142 +98,106 @@ const CyberCommandSettings: React.FC<CyberCommandSettingsProps> = ({ subMode }) 
     </div>
   );
 
-  const renderTimelinesSettings = () => (
+  const renderNetworkInfrastructureSettings = () => (
     <div className={styles.settingsSection}>
       <div className={styles.settingGroup}>
-        <label className={styles.settingLabel}>
-          Time Range: {config.timelines.timeRange} hours
+        <label className={styles.checkboxLabel}>
+          <input type="checkbox" defaultChecked />
+          Show Data Centers
         </label>
-        <input
-          type="range"
-          min="6"
-          max="168"
-          value={config.timelines.timeRange}
-          onChange={(e) => updateTimelines({ timeRange: parseInt(e.target.value) })}
-          className={styles.slider}
-        />
       </div>
-
       <div className={styles.settingGroup}>
-        <h5 className={styles.subheading}>Event Categories</h5>
-        {Object.entries(config.timelines.eventCategories).map(([key, enabled]) => (
-          <label key={key} className={styles.checkboxLabel}>
-            <input
-              type="checkbox"
-              checked={enabled}
-              onChange={(e) => updateTimelines({
-                eventCategories: {
-                  ...config.timelines.eventCategories,
-                  [key]: e.target.checked
-                }
-              })}
-            />
-            {key.charAt(0).toUpperCase() + key.slice(1)}
-          </label>
-        ))}
-      </div>
-
-      <div className={styles.settingGroup}>
-        <label className={styles.settingLabel}>
-          Animation Speed: {config.timelines.animationSpeed.toFixed(1)}x
+        <label className={styles.checkboxLabel}>
+          <input type="checkbox" defaultChecked />
+          Show Submarine Cables
         </label>
-        <input
-          type="range"
-          min="0.1"
-          max="2.0"
-          step="0.1"
-          value={config.timelines.animationSpeed}
-          onChange={(e) => updateTimelines({ animationSpeed: parseFloat(e.target.value) })}
-          className={styles.slider}
-        />
       </div>
-
       <div className={styles.settingGroup}>
-        <label className={styles.settingLabel}>
-          Marker Size: {config.timelines.markerSize.toFixed(1)}x
+        <label className={styles.checkboxLabel}>
+          <input type="checkbox" defaultChecked />
+          Show Internet Exchanges
         </label>
-        <input
-          type="range"
-          min="0.5"
-          max="2.0"
-          step="0.1"
-          value={config.timelines.markerSize}
-          onChange={(e) => updateTimelines({ markerSize: parseFloat(e.target.value) })}
-          className={styles.slider}
-        />
+      </div>
+      <div className={styles.comingSoon}>
+        Full network infrastructure controls coming soon...
       </div>
     </div>
   );
 
-  const renderCrisisZonesSettings = () => (
+  const renderCyberThreatsSettings = () => (
     <div className={styles.settingsSection}>
       <div className={styles.settingGroup}>
-        <label className={styles.settingLabel}>Alert Level</label>
-        <select
-          value={config.crisisZones.alertLevel}
-          onChange={(e) => updateCrisisZones({ alertLevel: e.target.value as 'low' | 'medium' | 'high' | 'critical' })}
-          className={styles.select}
-        >
-          <option value="low">Low</option>
-          <option value="medium">Medium</option>
-          <option value="high">High</option>
-          <option value="critical">Critical</option>
-        </select>
+        <label className={styles.checkboxLabel}>
+          <input type="checkbox" defaultChecked />
+          Show Threat Zones
+        </label>
       </div>
-
-      <div className={styles.settingGroup}>
-        <h5 className={styles.subheading}>Zone Categories</h5>
-        {Object.entries(config.crisisZones.zoneCategories).map(([key, enabled]) => (
-          <label key={key} className={styles.checkboxLabel}>
-            <input
-              type="checkbox"
-              checked={enabled}
-              onChange={(e) => updateCrisisZones({
-                zoneCategories: {
-                  ...config.crisisZones.zoneCategories,
-                  [key]: e.target.checked
-                }
-              })}
-            />
-            {key.charAt(0).toUpperCase() + key.slice(1)}
-          </label>
-        ))}
-      </div>
-
       <div className={styles.settingGroup}>
         <label className={styles.checkboxLabel}>
-          <input
-            type="checkbox"
-            checked={config.crisisZones.showRadius}
-            onChange={(e) => updateCrisisZones({ showRadius: e.target.checked })}
-          />
-          Show Crisis Radius
+          <input type="checkbox" defaultChecked />
+          Show Malware Origins
         </label>
       </div>
-
       <div className={styles.settingGroup}>
         <label className={styles.checkboxLabel}>
-          <input
-            type="checkbox"
-            checked={config.crisisZones.blinkAlerts}
-            onChange={(e) => updateCrisisZones({ blinkAlerts: e.target.checked })}
-          />
-          Blink Alerts
+          <input type="checkbox" defaultChecked />
+          Show Botnet C&C
         </label>
       </div>
+      <div className={styles.comingSoon}>
+        Full cyber threat visualization controls coming soon...
+      </div>
+    </div>
+  );
 
+  const renderCommHubsSettings = () => (
+    <div className={styles.settingsSection}>
       <div className={styles.settingGroup}>
-        <label className={styles.settingLabel}>
-          Intensity Threshold: {config.crisisZones.intensityThreshold}%
+        <label className={styles.checkboxLabel}>
+          <input type="checkbox" defaultChecked />
+          Show Satellite Ground Stations
         </label>
-        <input
-          type="range"
-          min="0"
-          max="100"
-          value={config.crisisZones.intensityThreshold}
-          onChange={(e) => updateCrisisZones({ intensityThreshold: parseInt(e.target.value) })}
-          className={styles.slider}
-        />
+      </div>
+      <div className={styles.settingGroup}>
+        <label className={styles.checkboxLabel}>
+          <input type="checkbox" defaultChecked />
+          Show Communication Towers
+        </label>
+      </div>
+      <div className={styles.settingGroup}>
+        <label className={styles.checkboxLabel}>
+          <input type="checkbox" defaultChecked />
+          Show Signal Intelligence
+        </label>
+      </div>
+      <div className={styles.comingSoon}>
+        Full communication hub controls coming soon...
+      </div>
+    </div>
+  );
+
+  const renderCyberAttacksSettings = () => (
+    <div className={styles.settingsSection}>
+      <div className={styles.settingGroup}>
+        <label className={styles.checkboxLabel}>
+          <input type="checkbox" defaultChecked />
+          Show Real-time Attacks
+        </label>
+      </div>
+      <div className={styles.settingGroup}>
+        <label className={styles.checkboxLabel}>
+          <input type="checkbox" defaultChecked />
+          Show Attack Vectors
+        </label>
+      </div>
+      <div className={styles.settingGroup}>
+        <label className={styles.checkboxLabel}>
+          <input type="checkbox" defaultChecked />
+          Show Target Analysis
+        </label>
+      </div>
+      <div className={styles.comingSoon}>
+        Full cyber attack visualization controls coming soon...
       </div>
     </div>
   );
@@ -244,10 +206,14 @@ const CyberCommandSettings: React.FC<CyberCommandSettingsProps> = ({ subMode }) 
     switch (subMode) {
       case 'IntelReports':
         return renderIntelReportsSettings();
-      case 'Timelines':
-        return renderTimelinesSettings();
-      case 'CrisisZones':
-        return renderCrisisZonesSettings();
+      case 'NetworkInfrastructure':
+        return renderNetworkInfrastructureSettings();
+      case 'CyberThreats':
+        return renderCyberThreatsSettings();
+      case 'CommHubs':
+        return renderCommHubsSettings();
+      case 'CyberAttacks':
+        return renderCyberAttacksSettings();
       default:
         return renderIntelReportsSettings();
     }

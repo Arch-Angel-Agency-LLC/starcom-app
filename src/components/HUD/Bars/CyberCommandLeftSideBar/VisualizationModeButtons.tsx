@@ -7,21 +7,21 @@ const VisualizationModeButtons: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      {/* Primary Mode Buttons - 3 main visualization modes */}
+      {/* Primary Mode Buttons - 3 main visualization modes - CyberCommand first as default */}
       <div className={styles.buttonContainer}>
-        <button 
-          className={`${styles.shaderButton} ${visualizationMode.mode === 'EcoNatural' ? styles.active : ''}`}
-          onClick={() => setPrimaryMode('EcoNatural')}
-          title="Eco Natural"
-        >
-          🌎
-        </button>
         <button 
           className={`${styles.shaderButton} ${visualizationMode.mode === 'CyberCommand' ? styles.active : ''}`}
           onClick={() => setPrimaryMode('CyberCommand')}
           title="Cyber Command"
         >
           📑
+        </button>
+        <button 
+          className={`${styles.shaderButton} ${visualizationMode.mode === 'EcoNatural' ? styles.active : ''}`}
+          onClick={() => setPrimaryMode('EcoNatural')}
+          title="Eco Natural"
+        >
+          🌎
         </button>
         <button 
           className={`${styles.shaderButton} ${visualizationMode.mode === 'GeoPolitical' ? styles.active : ''}`}
@@ -34,7 +34,7 @@ const VisualizationModeButtons: React.FC = () => {
       
       {/* Secondary Mode Buttons - 3 buttons that change based on primary mode selection */}
       <div className={styles.secondaryButtonContainer}>
-        {/* CyberCommand submodes */}
+        {/* CyberCommand submodes - 5 globe-appropriate cyber intelligence modes - Icons only for space efficiency */}
         {visualizationMode.mode === 'CyberCommand' && (
           <>
             <button 
@@ -45,23 +45,37 @@ const VisualizationModeButtons: React.FC = () => {
               📑
             </button>
             <button 
-              className={`${styles.secondaryButton} ${visualizationMode.subMode === 'Timelines' ? styles.active : ''}`}
-              onClick={() => setVisualizationMode({ mode: 'CyberCommand', subMode: 'Timelines' })}
-              title="Timelines"
+              className={`${styles.secondaryButton} ${visualizationMode.subMode === 'NetworkInfrastructure' ? styles.active : ''}`}
+              onClick={() => setVisualizationMode({ mode: 'CyberCommand', subMode: 'NetworkInfrastructure' })}
+              title="Network Infrastructure"
             >
-              ⏱️
+              🌐
             </button>
             <button 
-              className={`${styles.secondaryButton} ${visualizationMode.subMode === 'CrisisZones' ? styles.active : ''}`}
-              onClick={() => setVisualizationMode({ mode: 'CyberCommand', subMode: 'CrisisZones' })}
-              title="Crisis Zones"
+              className={`${styles.secondaryButton} ${visualizationMode.subMode === 'CyberThreats' ? styles.active : ''}`}
+              onClick={() => setVisualizationMode({ mode: 'CyberCommand', subMode: 'CyberThreats' })}
+              title="Cyber Threat Zones"
             >
-              🚨
+              🔒
+            </button>
+            <button 
+              className={`${styles.secondaryButton} ${visualizationMode.subMode === 'CommHubs' ? styles.active : ''}`}
+              onClick={() => setVisualizationMode({ mode: 'CyberCommand', subMode: 'CommHubs' })}
+              title="Communication Hubs"
+            >
+              📡
+            </button>
+            <button 
+              className={`${styles.secondaryButton} ${visualizationMode.subMode === 'CyberAttacks' ? styles.active : ''}`}
+              onClick={() => setVisualizationMode({ mode: 'CyberCommand', subMode: 'CyberAttacks' })}
+              title="Cyber Attacks"
+            >
+              ⚡
             </button>
           </>
         )}
         
-        {/* GeoPolitical submodes */}
+        {/* GeoPolitical submodes - Icons only for space efficiency */}
         {visualizationMode.mode === 'GeoPolitical' && (
           <>
             <button 
@@ -88,7 +102,7 @@ const VisualizationModeButtons: React.FC = () => {
           </>
         )}
         
-        {/* EcoNatural submodes */}
+        {/* EcoNatural submodes - Icons only for space efficiency */}
         {visualizationMode.mode === 'EcoNatural' && (
           <>
             <button 
