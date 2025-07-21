@@ -126,6 +126,12 @@ Cargo.lock
 # Documentation backups and artifacts
 docs-artifacts-backup-*.tar.gz
 *-backup-*.tar.gz
+*_backup_*.txt
+*_backup_*.log
+backup_*.txt
+backup_*.log
+backup_logs/
+**/backup_logs/
 
 # Local development
 .local
