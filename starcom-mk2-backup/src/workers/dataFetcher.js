@@ -1,1 +1,0 @@
-// Fetches multiple APIs in parallel

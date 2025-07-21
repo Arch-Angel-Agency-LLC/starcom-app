@@ -1,1 +1,0 @@
-// Handles globe interactivity (click, zoom, hover)

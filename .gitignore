@@ -104,11 +104,24 @@ Desktop.ini
 
 # Rust specific
 /target/
+**/target/
 **/*.rs.bk
 Cargo.lock
+**/*.rlib
+**/*.rmeta
+**/*.rcgu.o
+**/*.d
+**/build/
+**/deps/
+**/incremental/
+**/query-cache.bin
+**/work-products.bin
+**/dep-graph.bin
 
 # WebAssembly
 *.wasm.map
+**/pkg/
+**/wasm_bindgen_*
 
 # Documentation backups and artifacts
 docs-artifacts-backup-*.tar.gz
@@ -142,3 +155,7 @@ programs/.bin/
 *.db
 *.sqlite
 *.sqlite3
+technical_reference_code_samples/NOAA_directory_scan/noaa_data/*.json
+test-results/screenshots/
+**/*.venv/
+**/backup/

@@ -32,9 +32,9 @@ const VisualizationModeButtons: React.FC = () => {
         </button>
       </div>
       
-      {/* Secondary Mode Buttons - 3 buttons that change based on primary mode selection */}
+      {/* Secondary Mode Buttons - 3 core CyberCommand modes */}
       <div className={styles.secondaryButtonContainer}>
-        {/* CyberCommand submodes - 5 globe-appropriate cyber intelligence modes - Icons only for space efficiency */}
+        {/* CyberCommand submodes - 3 core cyber intelligence modes - Icons only for space efficiency */}
         {visualizationMode.mode === 'CyberCommand' && (
           <>
             <button 
@@ -45,25 +45,11 @@ const VisualizationModeButtons: React.FC = () => {
               📑
             </button>
             <button 
-              className={`${styles.secondaryButton} ${visualizationMode.subMode === 'NetworkInfrastructure' ? styles.active : ''}`}
-              onClick={() => setVisualizationMode({ mode: 'CyberCommand', subMode: 'NetworkInfrastructure' })}
-              title="Network Infrastructure"
-            >
-              🌐
-            </button>
-            <button 
               className={`${styles.secondaryButton} ${visualizationMode.subMode === 'CyberThreats' ? styles.active : ''}`}
               onClick={() => setVisualizationMode({ mode: 'CyberCommand', subMode: 'CyberThreats' })}
               title="Cyber Threat Zones"
             >
               🔒
-            </button>
-            <button 
-              className={`${styles.secondaryButton} ${visualizationMode.subMode === 'CommHubs' ? styles.active : ''}`}
-              onClick={() => setVisualizationMode({ mode: 'CyberCommand', subMode: 'CommHubs' })}
-              title="Communication Hubs"
-            >
-              📡
             </button>
             <button 
               className={`${styles.secondaryButton} ${visualizationMode.subMode === 'CyberAttacks' ? styles.active : ''}`}

@@ -4,7 +4,7 @@ import { useSettingsValidation } from '../../../../utils/uiSettingsReflection';
 import styles from './CyberCommandSettings.module.css';
 
 interface CyberCommandSettingsProps {
-  subMode: 'IntelReports' | 'NetworkInfrastructure' | 'CyberThreats' | 'CommHubs' | 'CyberAttacks';
+  subMode: 'IntelReports' | 'CyberThreats' | 'CyberAttacks';
 }
 
 const CyberCommandSettings: React.FC<CyberCommandSettingsProps> = ({ subMode }) => {
@@ -98,32 +98,6 @@ const CyberCommandSettings: React.FC<CyberCommandSettingsProps> = ({ subMode }) 
     </div>
   );
 
-  const renderNetworkInfrastructureSettings = () => (
-    <div className={styles.settingsSection}>
-      <div className={styles.settingGroup}>
-        <label className={styles.checkboxLabel}>
-          <input type="checkbox" defaultChecked />
-          Show Data Centers
-        </label>
-      </div>
-      <div className={styles.settingGroup}>
-        <label className={styles.checkboxLabel}>
-          <input type="checkbox" defaultChecked />
-          Show Submarine Cables
-        </label>
-      </div>
-      <div className={styles.settingGroup}>
-        <label className={styles.checkboxLabel}>
-          <input type="checkbox" defaultChecked />
-          Show Internet Exchanges
-        </label>
-      </div>
-      <div className={styles.comingSoon}>
-        Full network infrastructure controls coming soon...
-      </div>
-    </div>
-  );
-
   const renderCyberThreatsSettings = () => (
     <div className={styles.settingsSection}>
       <div className={styles.settingGroup}>
@@ -146,32 +120,6 @@ const CyberCommandSettings: React.FC<CyberCommandSettingsProps> = ({ subMode }) 
       </div>
       <div className={styles.comingSoon}>
         Full cyber threat visualization controls coming soon...
-      </div>
-    </div>
-  );
-
-  const renderCommHubsSettings = () => (
-    <div className={styles.settingsSection}>
-      <div className={styles.settingGroup}>
-        <label className={styles.checkboxLabel}>
-          <input type="checkbox" defaultChecked />
-          Show Satellite Ground Stations
-        </label>
-      </div>
-      <div className={styles.settingGroup}>
-        <label className={styles.checkboxLabel}>
-          <input type="checkbox" defaultChecked />
-          Show Communication Towers
-        </label>
-      </div>
-      <div className={styles.settingGroup}>
-        <label className={styles.checkboxLabel}>
-          <input type="checkbox" defaultChecked />
-          Show Signal Intelligence
-        </label>
-      </div>
-      <div className={styles.comingSoon}>
-        Full communication hub controls coming soon...
       </div>
     </div>
   );
@@ -206,12 +154,8 @@ const CyberCommandSettings: React.FC<CyberCommandSettingsProps> = ({ subMode }) 
     switch (subMode) {
       case 'IntelReports':
         return renderIntelReportsSettings();
-      case 'NetworkInfrastructure':
-        return renderNetworkInfrastructureSettings();
       case 'CyberThreats':
         return renderCyberThreatsSettings();
-      case 'CommHubs':
-        return renderCommHubsSettings();
       case 'CyberAttacks':
         return renderCyberAttacksSettings();
       default:
