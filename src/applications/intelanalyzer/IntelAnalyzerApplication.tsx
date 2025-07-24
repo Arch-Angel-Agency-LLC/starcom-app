@@ -43,34 +43,11 @@ const IntelAnalyzerApplication: React.FC = () => {
   // Initialize Intel transformation system
   useEffect(() => {
     const initializeIntelTransformationSystem = async () => {
-      if (!isAuthenticated || !user) {
-        setAppState(prev => ({
-          ...prev,
-          loading: false,
-          userHasAccess: false,
-          error: 'Authentication required for Intel Transformation access'
-        }));
-        return;
-      }
-
       try {
         // TODO: When UnifiedUserService is implemented, check user Intel permissions here
-        // const hasIntelAccess = await userService.checkIntelTransformationAccess(user.id);
+        // For now, allow anonymous access to the Intel Transformation interface
+        // Authentication will be required when real intel services are integrated
         
-        // For now, assume authenticated users have access
-        // This will be replaced with proper permission checking
-        const hasIntelAccess = true;
-
-        if (!hasIntelAccess) {
-          setAppState(prev => ({
-            ...prev,
-            loading: false,
-            userHasAccess: false,
-            error: 'Insufficient permissions for Intel Transformation access'
-          }));
-          return;
-        }
-
         // TODO: Initialize Intel services when unified services are ready
         // await intelTransformationService.initialize(user);
         
@@ -93,7 +70,7 @@ const IntelAnalyzerApplication: React.FC = () => {
     if (!authLoading) {
       initializeIntelTransformationSystem();
     }
-  }, [isAuthenticated, user, authLoading]);
+  }, [authLoading]);
 
   // Loading state
   if (authLoading || appState.loading) {
@@ -107,18 +84,18 @@ const IntelAnalyzerApplication: React.FC = () => {
     );
   }
 
-  // Authentication required
+  // Render main interface regardless of authentication status
   if (!isAuthenticated) {
     return (
-      <Container maxWidth="md" sx={{ mt: 4 }}>
-        <Alert severity="warning">
-          <Typography variant="h6">Authentication Required</Typography>
-          <Typography>
-            Please connect your wallet to access the Intel Transformation system.
-            This system converts raw intelligence data into structured intelligence reports.
-          </Typography>
-        </Alert>
-      </Container>
+      <IntelReports3DErrorBoundary>
+        <Box sx={{ 
+          minHeight: '100vh',
+          backgroundColor: '#0a0a0a',
+          color: '#00ff00'
+        }}>
+          <IntelTransformationDashboard />
+        </Box>
+      </IntelReports3DErrorBoundary>
     );
   }
 
@@ -162,48 +139,7 @@ const IntelAnalyzerApplication: React.FC = () => {
         backgroundColor: '#0a0a0a',
         color: '#00ff00'
       }}>
-        {/* Header */}
-        <Container maxWidth="xl" sx={{ py: 2 }}>
-          <Typography 
-            variant="h4" 
-            sx={{ 
-              mb: 1,
-              fontFamily: 'monospace',
-              color: '#00ff00',
-              textAlign: 'center'
-            }}
-          >
-            🧠 STARCOM INTEL TRANSFORMATION CENTER
-          </Typography>
-          <Typography 
-            variant="subtitle1" 
-            sx={{ 
-              mb: 3,
-              color: '#888',
-              textAlign: 'center',
-              fontStyle: 'italic'
-            }}
-          >
-            "Converting Raw Intelligence into Actionable Intelligence Reports"
-          </Typography>
-        </Container>
-
-        {/* Main Transformation Dashboard */}
         <IntelTransformationDashboard />
-
-        {/* Footer */}
-        <Container maxWidth="xl" sx={{ py: 2, mt: 4 }}>
-          <Typography 
-            variant="body2" 
-            sx={{ 
-              color: '#666',
-              textAlign: 'center',
-              fontFamily: 'monospace'
-            }}
-          >
-            CLASSIFICATION: UNCLASS // Intel Transformation System v2.0 // Powered by IntelFusion Service
-          </Typography>
-        </Container>
       </Box>
     </IntelReports3DErrorBoundary>
   );

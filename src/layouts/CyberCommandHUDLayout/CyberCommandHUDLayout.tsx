@@ -24,7 +24,6 @@ import Phase5Integration from '../../components/Optimization/Phase5Integration';
 import PerformanceOptimizer from '../../components/Optimization/PerformanceOptimizer';
 import SecurityHardening from '../../components/Optimization/SecurityHardening';
 import { useFeatureFlag } from '../../utils/featureFlags';
-import { PopupProvider } from '../../components/Popup/PopupManager';
 import { GlobeLoadingProvider } from '../../context/GlobeLoadingContext';
 import { SecureChatManager } from '../../components/SecureChat';
 
@@ -69,7 +68,6 @@ const CyberCommandHUDLayout: React.FC<CyberCommandHUDLayoutProps> = ({ isEmbedde
 
   const HUDContent = () => (
     <GlobeLoadingProvider>
-      <PopupProvider>
         <AdaptiveProvider>
           <AdaptiveUIController>
             <PhaseTransitionManager>
@@ -129,7 +127,6 @@ const CyberCommandHUDLayout: React.FC<CyberCommandHUDLayoutProps> = ({ isEmbedde
         
         {/* Subtle New User Hint - Non-blocking */}
         {!isEmbedded && <NewUserHint />}
-      </PopupProvider>
     </GlobeLoadingProvider>
   );
 

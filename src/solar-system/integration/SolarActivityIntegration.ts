@@ -87,19 +87,42 @@ export class SolarActivityIntegration {
     this.initializeIntegration();
   }
 
+  private async waitForSunMesh(maxAttempts: number = 10, delay: number = 100): Promise<THREE.Mesh | null> {
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      const sunMesh = this.sunManager.getSunMesh();
+      if (sunMesh && sunMesh.parent) {
+        // Verify the mesh is properly attached to a scene
+        return sunMesh;
+      }
+      
+      // Wait before next attempt
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+    
+    return null;
+  }
+
   private async initializeIntegration(): Promise<void> {
     try {
       // Connect to NOAA service
       await this.noaaService.connect();
       
-      // Get sun mesh from SolarSunManager
-      const sunMesh = this.sunManager.getSunMesh();
+      // Get sun mesh from SolarSunManager with retry logic
+      const sunMesh = await this.waitForSunMesh();
       if (!sunMesh) {
-        throw new Error('SolarSunManager does not have a sun mesh');
+        console.warn('SolarSunManager sun mesh not available, deferring initialization');
+        this.state.isActive = false;
+        return;
       }
 
       // Create activity visualizer
       const scene = sunMesh.parent as THREE.Scene;
+      if (!scene || !scene.add) {
+        console.warn('Invalid scene reference from sun mesh parent');
+        this.state.isActive = false;
+        return;
+      }
+
       this.activityVisualizer = new SolarActivityVisualizer(
         scene,
         sunMesh,
@@ -239,6 +262,23 @@ export class SolarActivityIntegration {
     
     this.state.currentScale = newScale;
     this.optimizeForCurrentScale();
+  }
+
+  /**
+   * Retry initialization if it was deferred due to missing sun mesh
+   */
+  public async retryInitialization(): Promise<boolean> {
+    if (this.state.isActive || this.activityVisualizer) {
+      return true; // Already initialized
+    }
+    
+    try {
+      await this.initializeIntegration();
+      return this.state.isActive;
+    } catch (error) {
+      console.warn('Retry initialization failed:', error);
+      return false;
+    }
   }
 
   /**

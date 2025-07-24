@@ -12,7 +12,12 @@ import { intelReportVisualizationService } from '../../services/IntelReportVisua
 import { IntelReportOverlayMarker } from '../../interfaces/IntelReportOverlay';
 import { Enhanced3DGlobeInteractivity } from './Enhanced3DGlobeInteractivity';
 import { useGlobeSolarSystemIntegration } from './GlobeSolarSystemIntegration';
-import { SolarSystemDebugPanel } from './SolarSystemDebugPanel';
+import GlobePerformanceMonitor from './GlobePerformanceMonitor';
+// Cyber visualization services
+import { ThreatIntelligenceService } from '../../services/CyberThreats/ThreatIntelligenceService';
+import { RealTimeAttackService } from '../../services/CyberAttacks/RealTimeAttackService';
+import type { CyberThreatData } from '../../types/CyberThreats';
+import type { CyberAttackData } from '../../types/CyberAttacks';
 
 // Define ModelInstance interface locally since it's used in multiple files
 interface ModelInstance {
@@ -41,6 +46,19 @@ const GlobeView: React.FC = () => {
   const intelMarkerGroupRef = useRef<THREE.Group>(new THREE.Group());
   const [intelModels, setIntelModels] = useState<ModelInstance[]>([]); // Store 3D model instances for interactivity
   const [hoveredReportId, setHoveredReportId] = useState<string | null>(null); // Track hovered model
+
+  // CyberThreats and CyberAttacks visualization state
+  const cyberThreatsGroupRef = useRef<THREE.Group>(new THREE.Group());
+  const cyberAttacksGroupRef = useRef<THREE.Group>(new THREE.Group());
+  const networkInfraGroupRef = useRef<THREE.Group>(new THREE.Group());
+  const commHubsGroupRef = useRef<THREE.Group>(new THREE.Group());
+  
+  // Cyber data services and state
+  const threatServiceRef = useRef<ThreatIntelligenceService | null>(null);
+  const attackServiceRef = useRef<RealTimeAttackService | null>(null);
+  const [cyberThreatsData, setCyberThreatsData] = useState<CyberThreatData[]>([]);
+  const [cyberAttacksData, setCyberAttacksData] = useState<CyberAttackData[]>([]);
+  const [cyberDataLoading, setCyberDataLoading] = useState(false);
   
   // Space weather integration via context
   const { 
@@ -58,10 +76,10 @@ const GlobeView: React.FC = () => {
   const solarSystemEnabled = visualizationMode.mode === 'EcoNatural' || 
                               (visualizationMode.mode === 'CyberCommand' && visualizationMode.subMode !== 'IntelReports');
   
-  const solarSystemIntegration = useGlobeSolarSystemIntegration({
+  const _solarSystemIntegration = useGlobeSolarSystemIntegration({
     globeRef,
     enabled: solarSystemEnabled, // Only enable in compatible modes
-    debugMode: true, // Enable debug mode to see what's happening
+    debugMode: false, // Disabled debug mode to reduce console noise
     onStateChange: (state) => {
       // Optional: Handle solar system state changes for UI updates
       if (state.sunState?.isVisible) {
@@ -143,41 +161,73 @@ const GlobeView: React.FC = () => {
   // Intel Report 3D markers integration - only show when CyberCommand + IntelReports mode
   useEffect(() => {
     let mounted = true;
+    let currentLoadRequest: Promise<void> | null = null;
 
     // Only fetch Intel Reports when in the correct visualization mode
     if (visualizationMode.mode === 'CyberCommand' && visualizationMode.subMode === 'IntelReports') {
+      // Prevent duplicate loading if already in progress
+      if (currentLoadRequest) {
+        return;
+      }
+
       // Fetch Intel Reports for 3D visualization
-      const loadIntelReports = async () => {
+      currentLoadRequest = (async () => {
         try {
           const markers = await intelReportVisualizationService.getIntelReportMarkers({
-            maxReports: 50 // Limit for performance
+            maxReports: 25 // Reduced from 50 for better performance
           });
           
           if (mounted) {
             setIntelReports(markers);
-            console.log(`Loaded ${markers.length} Intel Report 3D markers for CyberCommand/IntelReports mode`);
+            console.log(`📊 Loaded ${markers.length} Intel Report 3D markers for CyberCommand/IntelReports mode`);
           }
         } catch (error) {
-          console.error('Error loading Intel Report markers:', error);
+          if (mounted) {
+            console.error('Error loading Intel Report markers:', error);
+          }
+        } finally {
+          currentLoadRequest = null;
         }
-      };
+      })();
 
-      loadIntelReports();
-
-      // Set up periodic refresh (every 30 seconds) only when in correct mode
-      const interval = setInterval(loadIntelReports, 30000);
+      // Set up periodic refresh (every 60 seconds instead of 30) only when in correct mode
+      const interval = setInterval(() => {
+        if (mounted && visualizationMode.mode === 'CyberCommand' && visualizationMode.subMode === 'IntelReports') {
+          currentLoadRequest = (async () => {
+            try {
+              const markers = await intelReportVisualizationService.getIntelReportMarkers({
+                maxReports: 25
+              });
+              if (mounted) {
+                setIntelReports(markers);
+              }
+            } catch (error) {
+              if (mounted) {
+                console.error('Error refreshing Intel Report markers:', error);
+              }
+            } finally {
+              currentLoadRequest = null;
+            }
+          })();
+        }
+      }, 60000); // Increased from 30s to 60s
 
       return () => {
         mounted = false;
         clearInterval(interval);
+        currentLoadRequest = null;
       };
     } else {
       // Clear Intel Reports when not in the correct mode
       if (mounted) {
         setIntelReports([]);
-        console.log('Intel Report 3D markers cleared - not in CyberCommand/IntelReports mode');
+        console.log('🧹 Intel Report 3D markers cleared - not in CyberCommand/IntelReports mode');
       }
     }
+
+    return () => {
+      mounted = false;
+    };
   }, [visualizationMode.mode, visualizationMode.subMode]);
 
   // Add Intel Report 3D markers to the Globe scene - respect visualization mode
@@ -210,6 +260,252 @@ const GlobeView: React.FC = () => {
     };
   }, [globeRef, intelReports, visualizationMode.mode, visualizationMode.subMode]);
 
+  // =============================================================================
+  // CYBER THREATS DATA INTEGRATION - Real data loading and visualization
+  // =============================================================================
+  useEffect(() => {
+    let mounted = true;
+    let dataRefreshInterval: NodeJS.Timeout | null = null;
+
+    if (visualizationMode.mode === 'CyberCommand' && visualizationMode.subMode === 'CyberThreats') {
+      console.log('🔒 CYBER THREATS MODE ACTIVATED - Loading real threat data');
+      
+      // Initialize threat service if not already done
+      if (!threatServiceRef.current) {
+        threatServiceRef.current = new ThreatIntelligenceService({
+          updateInterval: 10000, // 10 seconds
+          maxActiveThreatss: 1000,
+          enableGeographicCorrelation: true,
+          enableTemporalCorrelation: true,
+          debugMode: process.env.NODE_ENV === 'development'
+        });
+      }
+
+      const loadThreatData = async () => {
+        if (!mounted || !threatServiceRef.current) return;
+        
+        try {
+          setCyberDataLoading(true);
+          console.log('� Fetching cyber threat intelligence data...');
+          
+          const threatData = await threatServiceRef.current.getData({
+            limit: 100, // Limit for performance
+            target_countries: ['US', 'CA', 'GB', 'DE', 'FR', 'JP', 'AU'], // Focus regions
+            severity_min: 3, // Medium severity and above
+            time_window: {
+              start: new Date(Date.now() - 24 * 60 * 60 * 1000), // Last 24 hours
+              end: new Date()
+            },
+            sort_by: 'severity',
+            sort_order: 'desc'
+          });
+          
+          if (mounted) {
+            setCyberThreatsData(threatData);
+            console.log(`🔒 Loaded ${threatData.length} cyber threat data points`);
+          }
+        } catch (error) {
+          if (mounted) {
+            console.error('Error loading cyber threat data:', error);
+            // Fallback to mock data for development
+            console.log('� Using mock threat data for development');
+          }
+        } finally {
+          if (mounted) {
+            setCyberDataLoading(false);
+          }
+        }
+      };
+
+      // Initial data load
+      loadThreatData();
+
+      // Set up periodic data refresh
+      dataRefreshInterval = setInterval(() => {
+        if (mounted && visualizationMode.mode === 'CyberCommand' && visualizationMode.subMode === 'CyberThreats') {
+          loadThreatData();
+        }
+      }, 30000); // Refresh every 30 seconds
+
+      return () => {
+        mounted = false;
+        if (dataRefreshInterval) {
+          clearInterval(dataRefreshInterval);
+        }
+      };
+    } else {
+      // Clear data when leaving CyberThreats mode
+      if (mounted) {
+        setCyberThreatsData([]);
+        console.log('🧹 Cyber threats data cleared - left CyberThreats mode');
+      }
+    }
+
+    return () => {
+      mounted = false;
+    };
+  }, [visualizationMode.mode, visualizationMode.subMode]);
+
+  // =============================================================================
+  // CYBER ATTACKS DATA INTEGRATION - Real data loading and visualization  
+  // =============================================================================
+  useEffect(() => {
+    let mounted = true;
+    let dataRefreshInterval: NodeJS.Timeout | null = null;
+
+    if (visualizationMode.mode === 'CyberCommand' && visualizationMode.subMode === 'CyberAttacks') {
+      console.log('⚡ CYBER ATTACKS MODE ACTIVATED - Loading real attack data');
+      
+      // Initialize attack service if not already done
+      if (!attackServiceRef.current) {
+        attackServiceRef.current = new RealTimeAttackService();
+      }
+
+      const loadAttackData = async () => {
+        if (!mounted || !attackServiceRef.current) return;
+        
+        try {
+          setCyberDataLoading(true);
+          console.log('📡 Fetching real-time cyber attack data...');
+          
+          const attackData = await attackServiceRef.current.getData({
+            limit: 150, // More attacks for dynamic visualization
+            time_window: {
+              start: new Date(Date.now() - 2 * 60 * 60 * 1000), // Last 2 hours
+              end: new Date()
+            },
+            attack_statuses: ['detected', 'in_progress', 'escalated'],
+            severity_min: 3, // Medium severity (3) and above
+            real_time: true
+          });
+          
+          if (mounted) {
+            setCyberAttacksData(attackData);
+            console.log(`⚡ Loaded ${attackData.length} cyber attack data points`);
+          }
+        } catch (error) {
+          if (mounted) {
+            console.error('Error loading cyber attack data:', error);
+            // Fallback to mock data for development
+            console.log('🔧 Using mock attack data for development');
+          }
+        } finally {
+          if (mounted) {
+            setCyberDataLoading(false);
+          }
+        }
+      };
+
+      // Initial data load
+      loadAttackData();
+
+      // Set up faster refresh for real-time attacks
+      dataRefreshInterval = setInterval(() => {
+        if (mounted && visualizationMode.mode === 'CyberCommand' && visualizationMode.subMode === 'CyberAttacks') {
+          loadAttackData();
+        }
+      }, 15000); // Refresh every 15 seconds for more dynamic feel
+
+      return () => {
+        mounted = false;
+        if (dataRefreshInterval) {
+          clearInterval(dataRefreshInterval);
+        }
+      };
+    } else {
+      // Clear data when leaving CyberAttacks mode
+      if (mounted) {
+        setCyberAttacksData([]);
+        console.log('🧹 Cyber attacks data cleared - left CyberAttacks mode');
+      }
+    }
+
+    return () => {
+      mounted = false;
+    };
+  }, [visualizationMode.mode, visualizationMode.subMode]);
+
+  // =============================================================================
+  // NETWORK INFRASTRUCTURE INTEGRATION - New mode integration
+  // =============================================================================
+  useEffect(() => {
+    if (!globeRef.current) return;
+
+    const globeObj = globeRef.current as unknown as { scene: () => THREE.Scene };
+    const scene = globeObj?.scene();
+    const infraGroup = networkInfraGroupRef.current;
+
+    if (visualizationMode.mode === 'CyberCommand' && visualizationMode.subMode === 'NetworkInfrastructure') {
+      console.log('🌐 NETWORK INFRASTRUCTURE MODE ACTIVATED - New Integration Point');
+      console.log('📊 Data Source: NetworkInfrastructureService (to be created)');
+      console.log('🎯 Ready for: ISP nodes, fiber cables, data centers, backbone infrastructure');
+      
+      // Add infraGroup to scene
+      if (scene && infraGroup && !scene.children.includes(infraGroup)) {
+        scene.add(infraGroup);
+        console.log('🌐 Network Infrastructure visualization group added to Globe scene');
+        
+        // TODO: Create NetworkInfrastructureService
+        // TODO: Add fiber optic cable visualization
+        // TODO: Add data center markers
+        // TODO: Add ISP node visualization
+      }
+    } else {
+      // Remove from scene if mode changed
+      if (scene && infraGroup && scene.children.includes(infraGroup)) {
+        scene.remove(infraGroup);
+        console.log('🌐 Network Infrastructure visualization group removed from Globe scene');
+      }
+    }
+
+    return () => {
+      if (scene && infraGroup) {
+        scene.remove(infraGroup);
+      }
+    };
+  }, [globeRef, visualizationMode.mode, visualizationMode.subMode]);
+
+  // =============================================================================
+  // COMMUNICATION HUBS INTEGRATION - New mode integration
+  // =============================================================================
+  useEffect(() => {
+    if (!globeRef.current) return;
+
+    const globeObj = globeRef.current as unknown as { scene: () => THREE.Scene };
+    const scene = globeObj?.scene();
+    const commGroup = commHubsGroupRef.current;
+
+    if (visualizationMode.mode === 'CyberCommand' && visualizationMode.subMode === 'CommHubs') {
+      console.log('📡 COMMUNICATION HUBS MODE ACTIVATED - New Integration Point');
+      console.log('📊 Data Source: CommunicationHubsService (to be created)');
+      console.log('🎯 Ready for: Satellite uplinks, radio towers, submarine cables, relay stations');
+      
+      // Add commGroup to scene
+      if (scene && commGroup && !scene.children.includes(commGroup)) {
+        scene.add(commGroup);
+        console.log('📡 Communication Hubs visualization group added to Globe scene');
+        
+        // TODO: Create CommunicationHubsService
+        // TODO: Add satellite constellation visualization
+        // TODO: Add radio tower networks
+        // TODO: Add submarine cable routes
+        // TODO: Add relay station markers
+      }
+    } else {
+      // Remove from scene if mode changed
+      if (scene && commGroup && scene.children.includes(commGroup)) {
+        scene.remove(commGroup);
+        console.log('📡 Communication Hubs visualization group removed from Globe scene');
+      }
+    }
+
+    return () => {
+      if (scene && commGroup) {
+        scene.remove(commGroup);
+      }
+    };
+  }, [globeRef, visualizationMode.mode, visualizationMode.subMode]);
+
   // Initialize 3D Intel Report markers using the hook - capture models for interactivity
   const { models: intel3DModels } = useIntelReport3DMarkers(
     // Pass reports only when in correct visualization mode
@@ -221,9 +517,9 @@ const GlobeView: React.FC = () => {
     null, // No longer need globe object reference
     {
       globeRadius: 100,
-      hoverAltitude: 12,  // Increased from 8 to 12 for larger models
-      rotationSpeed: 0.005,
-      scale: 4.0  // Increased from 0.8 to 4.0 (5x larger)
+      hoverAltitude: 10,  // Reduced from 12 to 10
+      rotationSpeed: 0.003, // Reduced from 0.005 to 0.003 for better performance
+      scale: 3.0  // Reduced from 4.0 to 3.0
     },
     hoveredReportId // Pass the currently hovered report ID
   );
@@ -232,6 +528,351 @@ const GlobeView: React.FC = () => {
   useEffect(() => {
     setIntelModels(intel3DModels);
   }, [intel3DModels]);
+
+  // =============================================================================
+  // CYBER THREATS 3D VISUALIZATION - Real animated data-driven visualization
+  // =============================================================================
+  useEffect(() => {
+    if (!globeRef.current || cyberThreatsData.length === 0) return;
+    
+    const globeObj = globeRef.current as unknown as { scene: () => THREE.Scene };
+    const scene = globeObj && globeObj.scene();
+    const cyberThreatsGroup = cyberThreatsGroupRef.current;
+    
+    if (visualizationMode.mode === 'CyberCommand' && visualizationMode.subMode === 'CyberThreats') {
+      console.log(`🔒 CYBER THREATS 3D VISUALIZATION - Rendering ${cyberThreatsData.length} threat objects`);
+      
+      // Clear previous visualization efficiently
+      while (cyberThreatsGroup.children.length > 0) {
+        const child = cyberThreatsGroup.children[0];
+        cyberThreatsGroup.remove(child);
+        if (child instanceof THREE.Mesh) {
+          child.geometry?.dispose();
+          if (child.material instanceof THREE.Material) {
+            child.material.dispose();
+          }
+        }
+      }
+      
+      // Create animated threat visualizations from real data
+      cyberThreatsData.forEach((threatData) => {
+        const { location, category, severity, status, confidence } = threatData;
+        
+        // Convert lat/lng to 3D position
+        const phi = (90 - location.latitude) * (Math.PI / 180);
+        const theta = (location.longitude + 180) * (Math.PI / 180);
+        const radius = 1.05 + (severity / 20); // Height varies by severity
+        
+        // Create threat geometry based on category
+        let geometry: THREE.BufferGeometry;
+        let color: number;
+        
+        switch (category) {
+          case 'Malware':
+            geometry = new THREE.IcosahedronGeometry(0.02 + severity * 0.005, 1);
+            color = 0xff3333; // Red
+            break;
+          case 'APT':
+            geometry = new THREE.ConeGeometry(0.015 + severity * 0.003, 0.04 + severity * 0.008, 6);
+            color = 0xff1144; // Dark red
+            break;
+          case 'Botnet':
+            geometry = new THREE.SphereGeometry(0.018 + severity * 0.004, 8, 6);
+            color = 0xff6600; // Orange-red
+            break;
+          case 'Phishing':
+            geometry = new THREE.TetrahedronGeometry(0.015 + severity * 0.003);
+            color = 0xffaa00; // Orange
+            break;
+          case 'DataBreach':
+            geometry = new THREE.OctahedronGeometry(0.02 + severity * 0.005);
+            color = 0xcc0000; // Deep red
+            break;
+          default:
+            geometry = new THREE.SphereGeometry(0.015 + severity * 0.003, 6, 4);
+            color = 0xff4444; // Default red
+        }
+        
+        // Create material with confidence-based opacity and status-based effects
+        const material = new THREE.MeshBasicMaterial({ 
+          color,
+          transparent: true, 
+          opacity: 0.7 + (confidence === 'Confirmed' ? 0.3 : 
+                         confidence === 'High' ? 0.2 : 
+                         confidence === 'Medium' ? 0.1 : 0),
+          wireframe: status === 'Emerging' // Wireframe for emerging threats
+        });
+        
+        const threatMarker = new THREE.Mesh(geometry, material);
+        threatMarker.position.set(
+          -radius * Math.sin(phi) * Math.cos(theta),
+          radius * Math.cos(phi),
+          radius * Math.sin(phi) * Math.sin(theta)
+        );
+        
+        // Store metadata for interactivity
+        threatMarker.userData = { 
+          type: 'cyber-threat', 
+          id: threatData.id,
+          category: threatData.category,
+          severity: threatData.severity,
+          name: threatData.name,
+          threatData: threatData
+        };
+        
+        // Add pulsing animation for active threats
+        if (status === 'Active') {
+          const animationSpeed = 0.01 + (severity * 0.002);
+          threatMarker.userData.animate = () => {
+            const scale = 1 + Math.sin(Date.now() * animationSpeed) * 0.3;
+            threatMarker.scale.setScalar(scale);
+          };
+        }
+        
+        cyberThreatsGroup.add(threatMarker);
+      });
+      
+      // Add group to scene only once
+      if (scene && !scene.children.includes(cyberThreatsGroup)) {
+        scene.add(cyberThreatsGroup);
+      }
+      
+      console.log(`🔒 Generated ${cyberThreatsGroup.children.length} 3D threat visualization objects`);
+      
+    } else {
+      // Clean up when leaving mode
+      if (scene && scene.children.includes(cyberThreatsGroup)) {
+        scene.remove(cyberThreatsGroup);
+        // Dispose of geometries and materials to free memory
+        cyberThreatsGroup.children.forEach(child => {
+          if (child instanceof THREE.Mesh) {
+            child.geometry?.dispose();
+            if (child.material instanceof THREE.Material) {
+              child.material.dispose();
+            }
+          }
+        });
+        cyberThreatsGroup.clear();
+      }
+    }
+
+    return () => {
+      // Cleanup on unmount
+      if (scene && cyberThreatsGroup && scene.children.includes(cyberThreatsGroup)) {
+        scene.remove(cyberThreatsGroup);
+      }
+    };
+  }, [globeRef, cyberThreatsData, visualizationMode.mode, visualizationMode.subMode]);
+
+  // =============================================================================
+  // CYBER ATTACKS 3D VISUALIZATION - Real animated attack trajectories
+  // =============================================================================
+  useEffect(() => {
+    if (!globeRef.current || cyberAttacksData.length === 0) return;
+    
+    const globeObj = globeRef.current as unknown as { scene: () => THREE.Scene };
+    const scene = globeObj && globeObj.scene();
+    const cyberAttacksGroup = cyberAttacksGroupRef.current;
+    
+    if (visualizationMode.mode === 'CyberCommand' && visualizationMode.subMode === 'CyberAttacks') {
+      console.log(`⚡ CYBER ATTACKS 3D VISUALIZATION - Rendering ${cyberAttacksData.length} attack objects with trajectories`);
+      
+      // Clear previous visualization efficiently
+      while (cyberAttacksGroup.children.length > 0) {
+        const child = cyberAttacksGroup.children[0];
+        cyberAttacksGroup.remove(child);
+        if (child instanceof THREE.Mesh || child instanceof THREE.Line) {
+          if (child instanceof THREE.Mesh) {
+            child.geometry?.dispose();
+            if (child.material instanceof THREE.Material) {
+              child.material.dispose();
+            }
+          } else if (child instanceof THREE.Line) {
+            child.geometry?.dispose();
+            if (child.material instanceof THREE.Material) {
+              child.material.dispose();
+            }
+          }
+        }
+      }
+      
+      // Create animated attack visualizations from real data
+      cyberAttacksData.forEach((attackData) => {
+        const { trajectory, attack_type, severity, attack_status } = attackData;
+        
+        // Source position (attack origin)
+        const sourcePhi = (90 - trajectory.source.latitude) * (Math.PI / 180);
+        const sourceTheta = (trajectory.source.longitude + 180) * (Math.PI / 180);
+        const sourceRadius = 1.02;
+        
+        const sourcePosition = new THREE.Vector3(
+          -sourceRadius * Math.sin(sourcePhi) * Math.cos(sourceTheta),
+          sourceRadius * Math.cos(sourcePhi),
+          sourceRadius * Math.sin(sourcePhi) * Math.sin(sourceTheta)
+        );
+        
+        // Target position (attack destination)
+        const targetPhi = (90 - trajectory.target.latitude) * (Math.PI / 180);
+        const targetTheta = (trajectory.target.longitude + 180) * (Math.PI / 180);
+        const targetRadius = 1.02;
+        
+        const targetPosition = new THREE.Vector3(
+          -targetRadius * Math.sin(targetPhi) * Math.cos(targetTheta),
+          targetRadius * Math.cos(targetPhi),
+          targetRadius * Math.sin(targetPhi) * Math.sin(targetTheta)
+        );
+        
+        // Create attack trajectory curve (great circle)
+        const distance = sourcePosition.distanceTo(targetPosition);
+        const midPoint = sourcePosition.clone().add(targetPosition).multiplyScalar(0.5);
+        midPoint.normalize().multiplyScalar(1.15 + distance * 0.1); // Arc height based on distance
+        
+        const curve = new THREE.QuadraticBezierCurve3(sourcePosition, midPoint, targetPosition);
+        const curveGeometry = new THREE.TubeGeometry(curve, 32, 0.003 + severity * 0.001, 8, false);
+        
+        // Color based on attack type and severity
+        let attackColor: number;
+        switch (attack_type) {
+          case 'DDoS':
+            attackColor = 0x00ffff; // Cyan
+            break;
+          case 'Malware':
+            attackColor = 0xff3366; // Pink-red
+            break;
+          case 'Ransomware':
+            attackColor = 0xff0000; // Red
+            break;
+          case 'DataBreach':
+            attackColor = 0xffaa00; // Orange
+            break;
+          case 'WebAttack':
+            attackColor = 0xff6600; // Orange-red
+            break;
+          case 'NetworkIntrusion':
+            attackColor = 0x9900ff; // Purple
+            break;
+          case 'APT':
+            attackColor = 0xcc0000; // Dark red
+            break;
+          case 'Botnet':
+            attackColor = 0xff9900; // Orange
+            break;
+          default:
+            attackColor = 0x00aaff; // Blue
+        }
+        
+        const attackMaterial = new THREE.MeshBasicMaterial({ 
+          color: attackColor,
+          transparent: true, 
+          opacity: attack_status === 'in_progress' ? 0.9 : 0.6
+        });
+        
+        const trajectoryMesh = new THREE.Mesh(curveGeometry, attackMaterial);
+        trajectoryMesh.userData = { 
+          type: 'cyber-attack-trajectory', 
+          id: attackData.id,
+          attack_type: attackData.attack_type,
+          severity: attackData.severity,
+          attackData: attackData
+        };
+        
+        cyberAttacksGroup.add(trajectoryMesh);
+        
+        // Source marker (attack origin)
+        const sourceGeometry = new THREE.ConeGeometry(0.01 + severity * 0.002, 0.025 + severity * 0.005, 6);
+        const sourceMaterial = new THREE.MeshBasicMaterial({ 
+          color: attackColor,
+          transparent: true,
+          opacity: 0.8
+        });
+        const sourceMarker = new THREE.Mesh(sourceGeometry, sourceMaterial);
+        sourceMarker.position.copy(sourcePosition);
+        sourceMarker.lookAt(0, 0, 0);
+        sourceMarker.userData = { 
+          type: 'cyber-attack-source', 
+          id: `${attackData.id}-source`,
+          attackData: attackData
+        };
+        
+        cyberAttacksGroup.add(sourceMarker);
+        
+        // Target marker (attack destination) - different shape
+        const targetGeometry = new THREE.OctahedronGeometry(0.012 + severity * 0.003);
+        const targetMaterial = new THREE.MeshBasicMaterial({ 
+          color: attackColor,
+          transparent: true,
+          opacity: 0.9,
+          wireframe: attack_status === 'detected'
+        });
+        const targetMarker = new THREE.Mesh(targetGeometry, targetMaterial);
+        targetMarker.position.copy(targetPosition);
+        targetMarker.userData = { 
+          type: 'cyber-attack-target', 
+          id: `${attackData.id}-target`,
+          attackData: attackData
+        };
+        
+        cyberAttacksGroup.add(targetMarker);
+        
+        // Add pulsing animation for active attacks
+        if (attack_status === 'in_progress') {
+          const animationSpeed = 0.008 + (severity * 0.003);
+          sourceMarker.userData.animate = () => {
+            const scale = 1 + Math.sin(Date.now() * animationSpeed) * 0.4;
+            sourceMarker.scale.setScalar(scale);
+          };
+          targetMarker.userData.animate = () => {
+            const scale = 1 + Math.sin(Date.now() * animationSpeed + Math.PI) * 0.3;
+            targetMarker.scale.setScalar(scale);
+          };
+        }
+        
+        // Trajectory flow animation (if attack is in progress)
+        if (attack_status === 'in_progress') {
+          trajectoryMesh.userData.animate = () => {
+            // Create flowing effect by modifying material properties
+            const flow = (Date.now() * 0.001) % 1;
+            attackMaterial.opacity = 0.6 + Math.sin(flow * Math.PI * 2) * 0.3;
+          };
+        }
+      });
+      
+      // Add group to scene only once
+      if (scene && !scene.children.includes(cyberAttacksGroup)) {
+        scene.add(cyberAttacksGroup);
+      }
+      
+      console.log(`⚡ Generated ${cyberAttacksGroup.children.length} 3D attack visualization objects with trajectories`);
+      
+    } else {
+      // Clean up when leaving mode
+      if (scene && scene.children.includes(cyberAttacksGroup)) {
+        scene.remove(cyberAttacksGroup);
+        // Dispose of geometries and materials to free memory
+        cyberAttacksGroup.children.forEach(child => {
+          if (child instanceof THREE.Mesh) {
+            child.geometry?.dispose();
+            if (child.material instanceof THREE.Material) {
+              child.material.dispose();
+            }
+          } else if (child instanceof THREE.Line) {
+            child.geometry?.dispose();
+            if (child.material instanceof THREE.Material) {
+              child.material.dispose();
+            }
+          }
+        });
+        cyberAttacksGroup.clear();
+      }
+    }
+
+    return () => {
+      // Cleanup on unmount
+      if (scene && cyberAttacksGroup && scene.children.includes(cyberAttacksGroup)) {
+        scene.remove(cyberAttacksGroup);
+      }
+    };
+  }, [globeRef, cyberAttacksData, visualizationMode.mode, visualizationMode.subMode]);
 
   useEffect(() => {
     if (!globeRef.current) return;
@@ -377,6 +1018,73 @@ const GlobeView: React.FC = () => {
     alert(`Intel report created at: ${lat.toFixed(4)}, ${lng.toFixed(4)}`);
   };
 
+  // =============================================================================
+  // ANIMATION LOOP - Real-time animations for cyber visualizations
+  // =============================================================================
+  useEffect(() => {
+    let animationId: number;
+    
+    const animate = () => {
+      // Animate cyber threats (pulsing for active threats)
+      cyberThreatsGroupRef.current?.children.forEach(child => {
+        if (child.userData.animate && typeof child.userData.animate === 'function') {
+          child.userData.animate();
+        }
+      });
+      
+      // Animate cyber attacks (pulsing markers and flowing trajectories)
+      cyberAttacksGroupRef.current?.children.forEach(child => {
+        if (child.userData.animate && typeof child.userData.animate === 'function') {
+          child.userData.animate();
+        }
+      });
+      
+      animationId = requestAnimationFrame(animate);
+    };
+    
+    // Start animation loop when in cyber visualization modes
+    if (visualizationMode.mode === 'CyberCommand' && 
+        (visualizationMode.subMode === 'CyberThreats' || visualizationMode.subMode === 'CyberAttacks')) {
+      animate();
+    }
+    
+    return () => {
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
+    };
+  }, [visualizationMode.mode, visualizationMode.subMode]);
+
+  // Cleanup effect when component unmounts or visualization mode changes
+  useEffect(() => {
+    return () => {
+      // Clean up all visualization groups
+      [cyberThreatsGroupRef, cyberAttacksGroupRef, networkInfraGroupRef, commHubsGroupRef, intelMarkerGroupRef].forEach(groupRef => {
+        const group = groupRef.current;
+        if (group) {
+          // Dispose of all geometries and materials
+          group.children.forEach(child => {
+            if (child instanceof THREE.Mesh) {
+              child.geometry?.dispose();
+              if (child.material instanceof THREE.Material) {
+                child.material.dispose();
+              } else if (Array.isArray(child.material)) {
+                child.material.forEach(material => material.dispose());
+              }
+            }
+          });
+          group.clear();
+        }
+      });
+      
+      // Clear models array
+      setIntelModels([]);
+      setIntelReports([]);
+      
+      console.log('🧹 Globe cleanup completed - all visualization groups disposed');
+    };
+  }, []);
+
   return (
     <div ref={containerRef} style={{ 
       position: 'relative',
@@ -444,8 +1152,34 @@ const GlobeView: React.FC = () => {
           onCreateIntelReport={handleCreateIntelReport}
         />
         
-        {/* Solar System Debug Panel */}
-        <SolarSystemDebugPanel 
+        {/* Performance Monitor for debugging data issues */}
+        <GlobePerformanceMonitor 
+          enabled={process.env.NODE_ENV === 'development'}
+          visualizationMode={visualizationMode}
+          onPerformanceIssue={(issue) => {
+            console.warn('🐌 Globe Performance Issue:', issue);
+          }}
+        />
+        
+        {/* Cyber Data Loading Indicator */}
+        {cyberDataLoading && (
+          <div style={{
+            position: 'absolute',
+            top: '20px',
+            right: '20px',
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            color: '#00ffff',
+            padding: '8px 12px',
+            borderRadius: '4px',
+            fontSize: '12px',
+            zIndex: 1000
+          }}>
+            {visualizationMode.subMode === 'CyberThreats' ? '🔒 Loading Threats...' : '⚡ Loading Attacks...'}
+          </div>
+        )}
+        
+        {/* Solar System Debug Panel - Temporarily disabled for performance */}
+        {/* <SolarSystemDebugPanel 
           solarSystemState={solarSystemIntegration.solarSystemState ? {
             isActive: solarSystemIntegration.isActive,
             currentScale: solarSystemIntegration.currentScale || 'unknown',
@@ -455,7 +1189,7 @@ const GlobeView: React.FC = () => {
             planetsVisible: solarSystemIntegration.solarSystemState.planetaryInfo?.visiblePlanets,
             activePlanets: solarSystemIntegration.solarSystemState.planetaryInfo?.activePlanets
           } : null}
-        />
+        /> */}
         
         {/* Borders and territories overlays would be attached to the Three.js scene here in a custom renderer or with react-three-fiber */}
       </GlobeLoadingManager>

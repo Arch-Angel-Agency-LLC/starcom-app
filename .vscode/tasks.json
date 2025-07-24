@@ -22,7 +22,7 @@
 			"label": "NetRunner: Type Check",
 			"type": "shell",
 			"command": "npx",
-			"args": ["tsc", "--noEmit", "--project", "src/applications/netrunner"],
+			"args": ["tsc", "--noEmit", "--project", "tsconfig.netrunner.json"],
 			"group": "build",
 			"presentation": {
 				"echo": true,

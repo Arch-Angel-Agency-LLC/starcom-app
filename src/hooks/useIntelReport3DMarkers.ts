@@ -66,17 +66,27 @@ export const useIntelReport3DMarkers = (
   const animationFrameRef = useRef<number>();
   const groupRef = useRef<THREE.Group>(new THREE.Group());
 
-  // Load the GLB model once using robust asset loader
+  // Load the GLB model once using robust asset loader with proper memoization
   useEffect(() => {
+    // Prevent loading if model is already loaded or loading in progress
+    if (gltfModel) {
+      return;
+    }
+
+    let cancelled = false;
+    
     const loadModel = async () => {
       // Log the model loading attempt with the debugging utility
-      DeploymentDebugger.assetLoading(
-        intelReportModelUrl,
-        '3D GLB Model',
-        'loading',
-        undefined,
-        { scale, useCase: 'Intel Report Markers' }
-      );
+      if (!gltfModel) {
+        console.log('🔄 Loading Intel Report 3D model (once)...');
+        DeploymentDebugger.assetLoading(
+          intelReportModelUrl,
+          '3D GLB Model',
+          'loading',
+          undefined,
+          { scale, useCase: 'Intel Report Markers', loadAttempt: Date.now() }
+        );
+      }
       
       try {
         // Explicitly log the absolute URL
@@ -98,13 +108,17 @@ export const useIntelReport3DMarkers = (
           );
         }
         
+        if (cancelled) return;
+        
         const model = await assetLoader.loadModel(intelReportModelUrl, {
           scale,
           fallbackColor: 0xff6b35,
           fallbackGeometry: 'cone',
-          retryCount: 3,
-          timeout: 15000
+          retryCount: 2, // Reduced from 3 to 2
+          timeout: 10000 // Reduced from 15000 to 10000
         });
+        
+        if (cancelled) return;
         
         setGltfModel(model);
         
@@ -171,7 +185,12 @@ export const useIntelReport3DMarkers = (
     };
 
     loadModel();
-  }, [scale]);
+    
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty dependency array - load model only once per component lifecycle
 
   // Convert lat/lng to 3D position on sphere
   const latLngToVector3 = (lat: number, lng: number, radius: number): THREE.Vector3 => {

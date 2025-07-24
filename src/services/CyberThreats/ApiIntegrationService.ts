@@ -124,6 +124,46 @@ const FREE_API_ENDPOINTS: ApiEndpoint[] = [
     last_used: new Date(0),
     error_count: 0,
     success_count: 0
+  },
+  // Additional free APIs for better threat coverage
+  {
+    id: 'greynoise_free',
+    name: 'GreyNoise Community',
+    provider: 'GreyNoise',
+    base_url: 'https://api.greynoise.io/v3',
+    api_key_required: false, // Community API is free
+    rate_limit_per_minute: 50,
+    free_tier: true,
+    enabled: true,
+    last_used: new Date(0),
+    error_count: 0,
+    success_count: 0
+  },
+  {
+    id: 'firehol_free',
+    name: 'FireHOL IP Lists',
+    provider: 'FireHOL',
+    base_url: 'https://iplists.firehol.org/files',
+    api_key_required: false,
+    rate_limit_per_minute: 10,
+    free_tier: true,
+    enabled: true,
+    last_used: new Date(0),
+    error_count: 0,
+    success_count: 0
+  },
+  {
+    id: 'ipapi_geo',
+    name: 'IP-API Geolocation',
+    provider: 'IP-API',
+    base_url: 'http://ip-api.com/json',
+    api_key_required: false,
+    rate_limit_per_minute: 45,
+    free_tier: true,
+    enabled: true,
+    last_used: new Date(0),
+    error_count: 0,
+    success_count: 0
   }
 ];
 
@@ -625,17 +665,61 @@ export class ApiIntegrationService {
       promises.push(this.queryAbuseIPDB(ioc));
     }
 
+    // TODO: Add OTX and GreyNoise integration
+    // AlienVault OTX for all IOC types (BEST FREE SOURCE) 
+    if (this.config.endpoints.find(e => e.id === 'otx_free')?.enabled) {
+      console.log(`OTX integration for ${type}: ${ioc} - placeholder`);
+      // promises.push(this.queryOTX(ioc, type));
+    }
+
+    // GreyNoise for IP addresses only
+    if (type === 'ip_address' && 
+        this.config.endpoints.find(e => e.id === 'greynoise_free')?.enabled) {
+      console.log(`GreyNoise integration for IP: ${ioc} - placeholder`);
+      // promises.push(this.queryGreyNoise(ioc));
+    }
+
     // Wait for all APIs to respond
     const results = await Promise.allSettled(promises);
     
     // Combine successful results
-    const threats: CyberThreatData[] = [];
+    const allThreats: CyberThreatData[] = [];
     results.forEach(result => {
       if (result.status === 'fulfilled') {
-        threats.push(...result.value);
+        allThreats.push(...result.value);
+      } else {
+        console.warn(`API query failed for IOC ${ioc}:`, result.reason);
       }
     });
 
+    return allThreats;
+  }
+
+  /**
+   * Get real-time attack sources from FireHOL IP lists
+   */
+  async getRealtimeAttackSources(): Promise<CyberThreatData[]> {
+    const endpoint = this.config.endpoints.find(e => e.id === 'firehol_free');
+    if (!endpoint?.enabled) {
+      return [];
+    }
+
+    console.log('FireHOL integration - placeholder implementation');
+    // TODO: Implement FireHOL IP list parsing
+    return [];
+  }
+
+  /**
+   * Enhance threat data with geographic information using IP-API
+   */
+  async enhanceWithGeolocation(threats: CyberThreatData[]): Promise<CyberThreatData[]> {
+    const geoEndpoint = this.config.endpoints.find(e => e.id === 'ipapi_geo');
+    if (!geoEndpoint?.enabled) {
+      return threats; // Return unenhanced data
+    }
+
+    console.log(`Geolocation enhancement for ${threats.length} threats - placeholder`);
+    // TODO: Implement IP-API geolocation enhancement
     return threats;
   }
 

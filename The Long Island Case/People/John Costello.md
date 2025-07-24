@@ -1,0 +1,18 @@
+(John Costello, [[Dick Romeo]] AND [[Steve Romeo]] all know eachother
+
+
+John Costello lives in [[Greenport]], which is also where his business is, and thats under the umbrella of [[Southold]] town.....Back in the 1960's the wife of a then police officer went missing. A few years ago, literally in like 2018, the womans daughter (I think she was also the police officers daughter but might have been a step daughter) who is now in like, her late 60's early 70's put out a video or something of how her mother was never found...a few months later, the mothers remains were "found" in the basement of a house where someone who knew the family back then, currently lived! Apparently the woman knew, but was too scared to talk (I can't blame her!) Let me find the newspaper article because I can't remember exact details!
+
+Links:
+https://abc7ny.com/suffolk-county-southold-louise-pietrewicz-missing-woman/3237418/#:~:text=SOUTHOLD%2C%20Suffolk%20County%20(WABC),1966%20disappearance%20of%20Louise%20Pietrewicz
+
+https://suffolktimes.timesreview.com/2022/02/greenport-businessman-settles-civil-suit-with-5-5m-payout-to-estate-of-man-he-killed-in-crash/
+
+- **1) Plea Deal and Lack of Jail Time:** John Costello pleaded guilty to vehicular manslaughter but avoided jail time due to a plea deal. This outcome could raise suspicions about possible connections or influence that allowed him to receive a relatively lenient sentence, which could be an intriguing plot point for the investigation. 
+- **2) Settlement Amount:** The substantial settlement amount of $5.5 million, to be paid on behalf of Costello and his business, raises questions about potential hidden assets or undisclosed sources of wealth. This could lead the investigator to dig deeper into Costello's financial affairs and uncover potential corruption or illicit activities. 
+- **3) Disputed Claims and Expert Opinion:** The conflicting accounts regarding John Costello's alcohol consumption and the dispute over Bartolone Miguel's pain and suffering could suggest attempts to manipulate or deceive the legal proceedings. The investigation could explore the motives behind these disputes, including the potential involvement of influential individuals trying to protect Costello. 
+- **4) Connections and Influence:** The article mentions Costello's successful contracting business, which could imply a network of connections and potential ties to powerful individuals or organizations. Investigating these connections could reveal a web of corruption, with Costello being just one piece of a larger puzzle. 
+- **5) Character Motivations:** Understanding the motivations of the various individuals involved, including the judge, the winemaker serving as the executor of Miguel's estate, and others, could add depth to the case timeline. Exploring their potential biases, personal interests, or hidden agendas could provide opportunities for the us to uncover additional layers of corruption. 
+
+**Eye Witness Says:**
+*"John Costello...he's got a TON time an INFINITY amount of money...he's probably like 75 or so now....back in 2014 or so, he was also drunk driving on a rainy night and crashed into this guy and killed him....John Costello owns Costello Marine, and John gives money, or basically helps businesses out here that can't hold their own mortgage, I guess he does it for them, then the businesses pay him and he's not in jail either because he's paid his way out of it I know that John Costello, Dick Romeo AND Steve Romeo all know eachother because I literally watched the three of them eat breakfast at the place I worked on numerous occassions!!"*"

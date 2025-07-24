@@ -158,9 +158,10 @@ export class SolarSystemManager {
       // Set initial scale context
       this.solarActivityIntegration.updateScale(this.currentContext);
 
-      this.log('Enhanced solar activity integration initialized with real-time NOAA data');
+      this.log('Solar activity integration initialized - may be deferred if sun mesh not ready');
     } catch (error) {
-      console.error('Failed to initialize solar activity integration:', error);
+      console.warn('Solar activity integration initialization deferred:', error);
+      // Note: This is now expected behavior when sun mesh isn't ready
     }
   }
 
@@ -244,6 +245,13 @@ export class SolarSystemManager {
     // Update solar activity integration for new context (Phase 2)
     if (this.solarActivityIntegration) {
       this.solarActivityIntegration.updateScale(newContext);
+      
+      // Retry initialization if it was deferred and sun is now visible
+      if (newContext !== ScaleContext.EARTH_LOCAL && !this.solarActivityIntegration.getState().isActive) {
+        this.solarActivityIntegration.retryInitialization().catch(error => {
+          console.warn('Failed to retry solar activity initialization:', error);
+        });
+      }
     }
 
     // Update planetary system for new context (Phase 4)

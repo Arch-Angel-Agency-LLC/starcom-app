@@ -100,10 +100,17 @@ const MainBottomBar: React.FC = () => {
 
   // Check if an application is currently active
   const isActive = useCallback((item: NavItem) => {
-    if (item.id === 'cybercommand') {
+    // Use consistent logic for all buttons - check Enhanced Application Router state first
+    if (currentApp === item.id) {
+      return true;
+    }
+    
+    // Fallback to URL pathname checking for Globe/CyberCommand when Enhanced Router state is not set
+    if (item.id === 'cybercommand' && !currentApp) {
       return location.pathname === '/' || location.pathname === '/globe';
     }
-    return currentApp === item.id;
+    
+    return false;
   }, [currentApp, location.pathname]);
 
   // Handle navigation

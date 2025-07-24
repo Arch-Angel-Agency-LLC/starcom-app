@@ -17,7 +17,12 @@ import {
   Select,
   MenuItem,
   IconButton,
-  Divider
+  Divider,
+  Grid,
+  Card,
+  CardContent,
+  Slider,
+  Alert
 } from '@mui/material';
 import { 
   Plus, 
@@ -30,23 +35,56 @@ import {
   Share,
   BookOpen,
   Brain,
-  Zap
+  Zap,
+  Network,
+  GitBranch,
+  Users,
+  Map,
+  Filter,
+  Shuffle,
+  Maximize,
+  Settings
 } from 'lucide-react';
 
-// Intelligence Node Interface
-interface IntelNode {
+// Network Node Interface for relationship mapping
+interface NetworkNode {
   id: string;
-  title: string;
-  content: string;
-  type: 'report' | 'analysis' | 'entity' | 'connection' | 'hypothesis';
-  tags: string[];
+  label: string;
+  type: 'person' | 'organization' | 'location' | 'event' | 'document' | 'technology';
+  category: string;
+  description: string;
   connections: string[]; // IDs of connected nodes
   coordinates: { x: number; y: number };
+  properties: {
+    size: number;
+    color: string;
+    importance: number;
+    lastActive: string;
+  };
   metadata: {
-    author: string;
     created: string;
     updated: string;
-    classification: 'unclassified' | 'confidential' | 'secret' | 'top-secret';
+    confidence: number;
+    source: string;
+  };
+}
+
+// Network Edge Interface for relationships
+interface NetworkEdge {
+  id: string;
+  source: string;
+  target: string;
+  type: 'knows' | 'works_for' | 'located_at' | 'communicates_with' | 'financial' | 'family';
+  strength: number; // 0-100
+  direction: 'bidirectional' | 'source_to_target' | 'target_to_source';
+  label: string;
+  properties: {
+    color: string;
+    width: number;
+    style: 'solid' | 'dashed' | 'dotted';
+  };
+  metadata: {
+    created: string;
     confidence: number;
     source: string;
   };

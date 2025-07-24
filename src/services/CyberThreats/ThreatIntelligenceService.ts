@@ -433,7 +433,10 @@ export class ThreatIntelligenceService {
     const startTime = performance.now();
 
     try {
-      // Generate mock data for development
+      // 🔥 DISABLE REAL API CALLS FOR NOW - Use enhanced mock data with real patterns
+      console.log('⚠️ Real API integration temporarily disabled - using enhanced mock data with real-world patterns');
+      
+      // Enhanced mock data that behaves like real data
       const threatCount = options.limit || 100;
       const threats: CyberThreatData[] = [];
 

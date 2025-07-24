@@ -32,6 +32,7 @@ import { Intel } from '../../models/intelligence/Intel';
 import { IntelligenceReportData } from '../../models/intelligence/IntelligenceReport';
 import { IntelFusionInterface } from './IntelFusionInterface';
 import { IntelSearch } from './IntelSearch';
+import IntelReportsViewer from './IntelReportsViewer';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -291,7 +292,7 @@ export const IntelTransformationDashboard: React.FC = () => {
                 <ReportsIcon />
               </Badge>
             } 
-            label="Generated Reports" 
+            label="Intelligence Reports" 
             id="intel-tab-2"
             aria-controls="intel-tabpanel-2"
           />
@@ -359,49 +360,7 @@ export const IntelTransformationDashboard: React.FC = () => {
       </TabPanel>
 
       <TabPanel value={activeTab} index={2}>
-        <Typography variant="h5" sx={{ mb: 3, color: '#00ff00' }}>
-          📋 Generated Intelligence Reports
-        </Typography>
-        {generatedReports.length === 0 ? (
-          <Alert severity="info">
-            No reports generated yet. Use the Intel Fusion tab to create intelligence reports from raw intel data.
-          </Alert>
-        ) : (
-          <Grid container spacing={2}>
-            {generatedReports.map((report, index) => (
-              <Grid item xs={12} md={6} key={index}>
-                <Card sx={{ backgroundColor: '#1e1e1e', border: '1px solid #00ff00' }}>
-                  <CardContent>
-                    <Typography variant="h6" sx={{ color: '#00ff00', mb: 1 }}>
-                      {report.title}
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: '#ccc', mb: 2 }}>
-                      Generated: {new Date(report.timestamp || Date.now()).toLocaleString()}
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: '#888', mb: 1 }}>
-                      Classification: {report.classification?.level}
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: '#888', mb: 1 }}>
-                      Confidence: {report.confidence}%
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: '#888', mb: 2 }}>
-                      Sources: {report.sources?.length || 0}
-                    </Typography>
-                    <Typography variant="body2" sx={{ 
-                      maxHeight: 100, 
-                      overflow: 'auto',
-                      border: '1px solid #333',
-                      p: 1,
-                      borderRadius: 1
-                    }}>
-                      {report.executiveSummary}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-        )}
+        <IntelReportsViewer />
       </TabPanel>
 
       <TabPanel value={activeTab} index={3}>

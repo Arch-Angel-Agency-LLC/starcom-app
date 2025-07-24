@@ -28,6 +28,7 @@ import { debugLogger, DebugCategory } from "./utils/debugLogger";
 import "./styles/globals.css";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AuthErrorBoundary from './components/Auth/AuthErrorBoundary';
+import { PopupProvider } from './components/Popup/PopupManager';
 
 // Component loading debug
 debugLogger.info(DebugCategory.COMPONENT_LOAD, 'App.tsx loaded - main application entry point');
@@ -40,7 +41,7 @@ const AppContent: React.FC = () => {
 
   useEffect(() => {
     // Initialize console error monitoring in development
-    if (import.meta.env.DEV) {
+    if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
       initConsoleErrorMonitoring();
       initializeErrorHandling();
       initPointerEventsDebugging();
@@ -69,39 +70,41 @@ const AppContent: React.FC = () => {
 
 const App: React.FC = () => (
   <QueryClientProvider client={queryClient}>
-    <PreloaderManager minimumDisplayTime={2500}>
-      <AuthErrorBoundary>
-          <WASMProvider>
-            <DashboardProvider>
-              <VisualizationModeProvider>
-                <GlobeProvider>
-                  <SpaceWeatherProvider>
-                    <MarketplaceProvider>
-                      <UnifiedGlobalCommandProvider>
-                        <InvestigationProvider>
-                          <GlobalGlobeContextMenuProvider>
-                            <RightSideBarProvider>
-                              <ViewProvider>
-                                <SecureChatProvider>
-                                  <EnhancedApplicationRouterProvider>
-                                    <div data-testid="app-root">
-                                      <AppContent />
-                                    </div>
-                                  </EnhancedApplicationRouterProvider>
-                                </SecureChatProvider>
-                              </ViewProvider>
-                            </RightSideBarProvider>
-                          </GlobalGlobeContextMenuProvider>
-                        </InvestigationProvider>
-                      </UnifiedGlobalCommandProvider>
-                    </MarketplaceProvider>
-                  </SpaceWeatherProvider>
-                </GlobeProvider>
-              </VisualizationModeProvider>
-            </DashboardProvider>
-          </WASMProvider>
-        </AuthErrorBoundary>
-    </PreloaderManager>
+    <PopupProvider>
+      <PreloaderManager minimumDisplayTime={2500}>
+        <AuthErrorBoundary>
+            <WASMProvider>
+              <DashboardProvider>
+                <VisualizationModeProvider>
+                  <GlobeProvider>
+                    <SpaceWeatherProvider>
+                      <MarketplaceProvider>
+                        <UnifiedGlobalCommandProvider>
+                          <InvestigationProvider>
+                            <GlobalGlobeContextMenuProvider>
+                              <RightSideBarProvider>
+                                <ViewProvider>
+                                  <SecureChatProvider>
+                                    <EnhancedApplicationRouterProvider>
+                                      <div data-testid="app-root">
+                                        <AppContent />
+                                      </div>
+                                    </EnhancedApplicationRouterProvider>
+                                  </SecureChatProvider>
+                                </ViewProvider>
+                              </RightSideBarProvider>
+                            </GlobalGlobeContextMenuProvider>
+                          </InvestigationProvider>
+                        </UnifiedGlobalCommandProvider>
+                      </MarketplaceProvider>
+                    </SpaceWeatherProvider>
+                  </GlobeProvider>
+                </VisualizationModeProvider>
+              </DashboardProvider>
+            </WASMProvider>
+          </AuthErrorBoundary>
+      </PreloaderManager>
+    </PopupProvider>
   </QueryClientProvider>
 );
 

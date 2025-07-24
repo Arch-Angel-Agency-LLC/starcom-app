@@ -1,13 +1,16 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { TOPBAR_CATEGORIES } from './topbarCategories';
 import { useTopBarPreferences } from './useTopBarPreferences';
 import CyberCommandMarquee from './CyberCommandMarquee';
+import EnhancedSettingsPopup from './EnhancedSettingsPopup';
 import { useTopBarData } from './useTopBarData';
 import { MarqueeDataPoint } from './interfaces';
+import { usePopup } from '../../../Popup/PopupManager';
 import styles from './CyberCommandTopBar.module.css';
 
 const CyberCommandTopBar: React.FC = () => {
   const { preferences } = useTopBarPreferences();
+  const { showPopup } = usePopup();
 
   // Data point click handler for future detailed popup functionality
   const handleDataPointClick = React.useCallback((dataPoint: MarqueeDataPoint) => {
@@ -129,6 +132,33 @@ const CyberCommandTopBar: React.FC = () => {
     loadingStates, dataAvailability
   ]);
 
+  // Settings popup handler - opens EnhancedSettingsPopup for marquee configuration
+  const handleOpenSettings = useCallback((dataPointId?: string) => {
+    console.log('Opening settings popup', dataPointId ? `for data point: ${dataPointId}` : '');
+    
+    showPopup({
+      component: ({ onClose }: { onClose: () => void }) => (
+        <EnhancedSettingsPopup
+          open={true}
+          onClose={onClose}
+          enabledCategories={preferences.enabledCategories}
+          onCategoryToggle={(categoryId: string, enabled: boolean) => {
+            console.log(`Toggle category ${categoryId}: ${enabled}`);
+            // TODO: Implement category toggle functionality
+          }}
+          categories={TOPBAR_CATEGORIES}
+          currentDataPoints={dataPoints}
+          // If a specific data point was clicked, navigate to it
+          {...(dataPointId && {
+            activeTab: 'data'
+          })}
+        />
+      ),
+      backdrop: true,
+      zIndex: 4000 // Higher than other popups to ensure it appears on top
+    });
+  }, [preferences.enabledCategories, showPopup, dataPoints]);
+
   return (
     <header
       className={styles.topBar}
@@ -145,6 +175,7 @@ const CyberCommandTopBar: React.FC = () => {
           isDraggable={true}
           onDataPointClick={handleDataPointClick}
           onDataPointHover={handleDataPointHover}
+          onOpenSettings={handleOpenSettings}
         />
       </div>
     </header>
