@@ -8,7 +8,7 @@
       }
     }
   ],
-  "buildCommand": "npm run build",
+  "buildCommand": "npm run build:vercel",
   "headers": [
     {
       "source": "/(.*).glb",

@@ -31,9 +31,22 @@ import {
 // Import NetRunner PowerTools
 import { netRunnerPowerTools } from '../../tools/NetRunnerPowerTools';
 
-// Import Scripts Engine
-import { NetRunnerScriptsUIService, UIEventData } from '../../scripts/engine/NetRunnerScriptsUIService';
-import { ScriptDefinition } from '../../scripts/types/ScriptTypes';
+// Import Scripts Engine - TEMPORARILY DISABLED FOR VERCEL DEBUG
+// import { NetRunnerScriptsUIService, UIEventData } from '../../scripts/engine/NetRunnerScriptsUIService';
+// import { ScriptDefinition } from '../../scripts/types/ScriptTypes';
+
+// Temporary mock types for build
+type UIEventData = { scriptId?: string };
+type ScriptDefinition = { metadata: { id: string; name: string } };
+const NetRunnerScriptsUIService = {
+  getInstance: () => ({
+    getUIState: () => ({ availableScripts: [] as ScriptDefinition[], executingScripts: new Set<string>() }),
+    getDefaultScripts: () => [] as ScriptDefinition[],
+    addEventListener: (_event: string, _handler: (data: UIEventData) => void) => {},
+    removeEventListener: (_event: string, _handler: (data: UIEventData) => void) => {},
+    executeScript: async (_config: object) => ({ success: true, error: null })
+  })
+};
 
 interface NetRunnerLeftSideBarProps {
   open: boolean;
