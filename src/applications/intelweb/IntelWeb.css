@@ -1,0 +1,380 @@
+/**
+ * IntelWeb Application Styles
+ * 
+ * Phase 2: Basic Obsidian-inspired layout styling
+ * Desktop-focused, three-pane layout
+ */
+
+/* Main Layout */
+.intelweb-application {
+  width: 100vw;
+  height: 100vh;
+  background: #1e1e1e;
+  color: #d4d4d4;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  overflow: hidden;
+}
+
+.intelweb-layout {
+  display: flex;
+  height: 100%;
+  width: 100%;
+}
+
+/* Loading and Error States */
+.intelweb-loading,
+.intelweb-error,
+.intelweb-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: #1e1e1e;
+  color: #d4d4d4;
+}
+
+.loading-spinner {
+  font-size: 18px;
+  opacity: 0.8;
+}
+
+.error-message {
+  color: #f48771;
+  margin-bottom: 16px;
+}
+
+.empty-state {
+  text-align: center;
+}
+
+.empty-state h2 {
+  margin-bottom: 16px;
+  color: #569cd6;
+}
+
+.empty-state button {
+  background: #0e639c;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.empty-state button:hover {
+  background: #1177bb;
+}
+
+/* Three-Pane Layout */
+.left-sidebar {
+  width: 300px;
+  min-width: 200px;
+  max-width: 500px;
+  background: #252526;
+  border-right: 1px solid #3c3c3c;
+  display: flex;
+  flex-direction: column;
+  resize: horizontal;
+  overflow: hidden;
+}
+
+.main-content {
+  flex: 1;
+  background: #1e1e1e;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.right-sidebar {
+  width: 300px;
+  min-width: 200px;
+  max-width: 400px;
+  background: #252526;
+  border-left: 1px solid #3c3c3c;
+  display: flex;
+  flex-direction: column;
+  resize: horizontal;
+  overflow: hidden;
+}
+
+/* Vault Explorer */
+.vault-explorer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.vault-header {
+  padding: 16px;
+  border-bottom: 1px solid #3c3c3c;
+  background: #2d2d30;
+}
+
+.vault-header h3 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #cccccc;
+}
+
+.vault-stats {
+  font-size: 12px;
+  color: #969696;
+}
+
+.file-tree {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 0;
+}
+
+/* File and Folder Items */
+.file-item,
+.folder-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1.4;
+  min-height: 24px;
+  user-select: none;
+  transition: background-color 0.1s ease;
+}
+
+.file-item:hover,
+.folder-item:hover {
+  background: #2a2d2e;
+}
+
+.file-item.selected {
+  background: #094771;
+  color: #ffffff;
+}
+
+.file-icon,
+.folder-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.file-name,
+.folder-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.classification {
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.classification.unclassified {
+  background: #4a5568;
+  color: #ffffff;
+}
+
+.classification.confidential {
+  background: #d69e2e;
+  color: #1a202c;
+}
+
+.classification.secret {
+  background: #e53e3e;
+  color: #ffffff;
+}
+
+.classification.top_secret {
+  background: #9f7aea;
+  color: #ffffff;
+}
+
+.folder-contents {
+  margin-left: 0;
+}
+
+/* Main Content Area */
+.welcome-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  padding: 40px;
+}
+
+.welcome-content h2 {
+  margin-bottom: 16px;
+  color: #569cd6;
+  font-size: 24px;
+}
+
+.welcome-content p {
+  color: #969696;
+  margin-bottom: 8px;
+  font-size: 16px;
+}
+
+/* File Viewer */
+.file-viewer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.file-header {
+  padding: 16px;
+  border-bottom: 1px solid #3c3c3c;
+  background: #2d2d30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.file-header h3 {
+  margin: 0;
+  font-size: 16px;
+  color: #cccccc;
+}
+
+.file-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.file-content {
+  flex: 1;
+  overflow: auto;
+  padding: 20px;
+}
+
+.file-content pre {
+  margin: 0;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #d4d4d4;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.file-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: 16px;
+  color: #969696;
+}
+
+/* Metadata Panel */
+.metadata-panel {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
+}
+
+.metadata-panel h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #cccccc;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #3c3c3c;
+}
+
+.metadata-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.metadata-item label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #969696;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.metadata-item span {
+  font-size: 14px;
+  color: #d4d4d4;
+  word-break: break-word;
+}
+
+/* Scrollbars */
+.file-tree::-webkit-scrollbar,
+.file-content::-webkit-scrollbar,
+.metadata-panel::-webkit-scrollbar {
+  width: 8px;
+}
+
+.file-tree::-webkit-scrollbar-track,
+.file-content::-webkit-scrollbar-track,
+.metadata-panel::-webkit-scrollbar-track {
+  background: #2d2d30;
+}
+
+.file-tree::-webkit-scrollbar-thumb,
+.file-content::-webkit-scrollbar-thumb,
+.metadata-panel::-webkit-scrollbar-thumb {
+  background: #424242;
+  border-radius: 4px;
+}
+
+.file-tree::-webkit-scrollbar-thumb:hover,
+.file-content::-webkit-scrollbar-thumb:hover,
+.metadata-panel::-webkit-scrollbar-thumb:hover {
+  background: #4f4f4f;
+}
+
+/* Phase 2 Foundation - Ready for Phase 3 Graph Integration */
+.graph-container {
+  width: 100%;
+  height: 100%;
+  background: #1e1e1e;
+  position: relative;
+}
+
+.graph-controls {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 100;
+  background: rgba(45, 45, 48, 0.9);
+  border: 1px solid #3c3c3c;
+  border-radius: 4px;
+  padding: 12px;
+  backdrop-filter: blur(8px);
+}
+
+/* Responsive helpers (for future mobile support) */
+@media (max-width: 768px) {
+  .intelweb-layout {
+    flex-direction: column;
+  }
+  
+  .left-sidebar,
+  .right-sidebar {
+    width: 100%;
+    height: auto;
+    max-width: none;
+    resize: none;
+  }
+}

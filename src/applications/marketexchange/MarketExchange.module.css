@@ -1,0 +1,723 @@
+/* ================================================================
+   STARCOM QUANTUM-ENHANCED MARKET EXCHANGE DESIGN SYSTEM
+   Superior merger of CyberCommand + NetRunner + Financial UI
+================================================================ */
+
+@import '../../styles/quantum-cyber-design-system.css';
+
+/* ============== MARKET EXCHANGE CORE LAYOUT ============== */
+
+.marketContainer {
+  padding: var(--space-lg);
+  height: 100vh;
+  overflow: hidden;
+  background: var(--surface-base);
+  background-image: 
+    radial-gradient(circle at 20% 50%, rgba(0, 245, 255, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255, 170, 0, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 40% 80%, rgba(0, 255, 136, 0.04) 0%, transparent 50%);
+  animation: quantum-fade-in 0.8s ease-out;
+}
+
+.marketHeader {
+  margin-bottom: var(--space-lg);
+  animation: quantum-fade-in 0.6s ease-out 0.1s both;
+}
+
+.marketTitle {
+  color: var(--text-quantum);
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 var(--space-md) 0;
+  text-shadow: 0 0 20px rgba(0, 245, 255, 0.3);
+  letter-spacing: 0.02em;
+}
+
+/* ============== MARKET METRICS DASHBOARD ============== */
+
+.metricsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-lg);
+  margin-bottom: var(--space-xl);
+  animation: quantum-fade-in 0.6s ease-out 0.2s both;
+}
+
+.metricCard {
+  flex: 1 1 200px;
+  min-width: 200px;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--border-radius-lg);
+  padding: var(--space-lg);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-quantum);
+  transition: all var(--transition-cyber);
+}
+
+.metricCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--quantum-gradient-primary);
+  opacity: 0.6;
+}
+
+.metricCard:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-glow);
+  box-shadow: var(--shadow-quantum-hover);
+}
+
+.metricCard:nth-child(1)::before {
+  background: linear-gradient(90deg, var(--quantum-primary), var(--neural-green));
+}
+
+.metricCard:nth-child(2)::before {
+  background: linear-gradient(90deg, var(--neural-green), var(--quantum-energy));
+}
+
+.metricCard:nth-child(3)::before {
+  background: linear-gradient(90deg, var(--quantum-energy), var(--quantum-tertiary));
+}
+
+.metricCard:nth-child(4)::before {
+  background: linear-gradient(90deg, var(--quantum-tertiary), var(--quantum-primary));
+}
+
+.metricContent {
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.metricIcon {
+  font-size: 2rem;
+  margin-bottom: var(--space-md);
+  color: var(--primary-cyan);
+  filter: drop-shadow(0 0 8px rgba(0, 245, 255, 0.4));
+}
+
+.metricValue {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-quantum);
+  font-family: var(--font-mono);
+  margin-bottom: var(--space-xs);
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.metricLabel {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 500;
+}
+
+/* ============== NAVIGATION TABS SYSTEM ============== */
+
+.tabsContainer {
+  border-bottom: 2px solid var(--border-primary);
+  margin-bottom: var(--space-lg);
+  position: relative;
+  animation: quantum-fade-in 0.6s ease-out 0.3s both;
+}
+
+.tabsContainer::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  height: 2px;
+  width: 100%;
+  background: linear-gradient(90deg, transparent, var(--primary-cyan), transparent);
+  opacity: 0.3;
+}
+
+.tabsList {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: var(--space-md);
+}
+
+.tab {
+  background: transparent;
+  border: none;
+  padding: var(--space-md) var(--space-lg);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  position: relative;
+  transition: all var(--transition-neural);
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+}
+
+.tab::before {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--quantum-gradient-primary);
+  transform: scaleX(0);
+  transition: transform var(--transition-neural);
+}
+
+.tab:hover {
+  color: var(--text-primary);
+  background: var(--surface-interactive);
+}
+
+.tab.active {
+  color: var(--primary-cyan);
+  background: var(--surface-elevated);
+  box-shadow: 0 0 15px rgba(0, 245, 255, 0.2);
+}
+
+.tab.active::before {
+  transform: scaleX(1);
+}
+
+/* ============== CONTENT AREAS ============== */
+
+.contentArea {
+  height: calc(100vh - 300px);
+  overflow: auto;
+  animation: quantum-fade-in 0.6s ease-out 0.4s both;
+}
+
+.contentArea::-webkit-scrollbar {
+  width: 8px;
+}
+
+.contentArea::-webkit-scrollbar-track {
+  background: var(--surface-dim);
+  border-radius: var(--border-radius);
+}
+
+.contentArea::-webkit-scrollbar-thumb {
+  background: var(--border-primary);
+  border-radius: var(--border-radius);
+  transition: background var(--transition-neural);
+}
+
+.contentArea::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-cyan);
+}
+
+/* ============== MARKET TABLE SYSTEM ============== */
+
+.marketTable {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface-elevated);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-quantum);
+}
+
+.tableHeader {
+  background: var(--surface-overlay);
+  border-bottom: 2px solid var(--border-primary);
+}
+
+.tableHeaderCell {
+  padding: var(--space-md) var(--space-lg);
+  text-align: left;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-right: 1px solid var(--border-subtle);
+}
+
+.tableHeaderCell:last-child {
+  border-right: none;
+}
+
+.tableRow {
+  border-bottom: 1px solid var(--border-subtle);
+  transition: all var(--transition-neural);
+}
+
+.tableRow:hover {
+  background: var(--surface-interactive);
+  box-shadow: inset 0 0 0 1px rgba(0, 245, 255, 0.1);
+}
+
+.tableCell {
+  padding: var(--space-md) var(--space-lg);
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  border-right: 1px solid var(--border-subtle);
+  vertical-align: middle;
+}
+
+.tableCell:last-child {
+  border-right: none;
+}
+
+.assetInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.assetIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--quantum-gradient-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-inverse);
+  font-weight: 700;
+  font-size: 0.75rem;
+  box-shadow: 0 0 10px rgba(0, 245, 255, 0.3);
+}
+
+.assetDetails {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.assetSymbol {
+  color: var(--text-primary);
+  font-weight: 600;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+}
+
+.assetName {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-family: var(--font-sans);
+}
+
+.priceContainer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+}
+
+.priceValue {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+}
+
+.changeIndicator {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--border-radius);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.changePositive {
+  background: rgba(0, 255, 136, 0.1);
+  color: var(--neural-green);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+.changeNegative {
+  background: rgba(255, 0, 102, 0.1);
+  color: var(--quantum-accent);
+  border: 1px solid rgba(255, 0, 102, 0.3);
+}
+
+.changeNeutral {
+  background: var(--surface-dim);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+}
+
+/* ============== ACTION BUTTONS SYSTEM ============== */
+
+.actionButtonsContainer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+}
+
+.actionButton {
+  background: var(--quantum-gradient-secondary);
+  border: 1px solid var(--border-primary);
+  color: var(--text-primary);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all var(--transition-neural);
+  position: relative;
+  overflow: hidden;
+  min-width: 80px;
+  text-align: center;
+}
+
+.actionButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 245, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.actionButton:hover::before {
+  left: 100%;
+}
+
+.actionButton:hover {
+  background: var(--quantum-gradient-hover);
+  border-color: var(--neural-green);
+  box-shadow: var(--shadow-quantum);
+  transform: translateY(-1px);
+}
+
+.actionButton.primary {
+  background: var(--quantum-gradient-primary);
+  border-color: var(--primary-cyan);
+}
+
+.actionButton.primary:hover {
+  background: var(--quantum-gradient-hover);
+  box-shadow: var(--shadow-quantum-hover);
+}
+
+/* ============== INTELLIGENCE LISTINGS ============== */
+
+.listingCard {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--border-radius-lg);
+  padding: var(--space-lg);
+  margin-bottom: var(--space-lg);
+  position: relative;
+  transition: all var(--transition-cyber);
+  backdrop-filter: blur(8px);
+  box-shadow: var(--shadow-subtle);
+}
+
+.listingCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--quantum-gradient-secondary);
+  opacity: 0.6;
+}
+
+.listingCard:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-glow);
+  box-shadow: var(--shadow-quantum);
+}
+
+.listingHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--space-md);
+}
+
+.listingTitle {
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0 0 var(--space-xs) 0;
+  line-height: 1.4;
+}
+
+.listingPrice {
+  color: var(--quantum-energy);
+  font-family: var(--font-mono);
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-shadow: 0 0 10px rgba(255, 170, 0, 0.3);
+}
+
+.listingDescription {
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  margin-bottom: var(--space-md);
+}
+
+.listingMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  align-items: center;
+  margin-bottom: var(--space-md);
+}
+
+.sellerInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.sellerAvatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--quantum-gradient-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-inverse);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.sellerName {
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.verifiedBadge {
+  color: var(--neural-green);
+  margin-left: var(--space-xs);
+}
+
+.listingStats {
+  display: flex;
+  gap: var(--space-lg);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.tagContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+
+.tag {
+  background: var(--surface-dim);
+  color: var(--text-secondary);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--border-radius);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  border: 1px solid var(--border-subtle);
+  transition: all var(--transition-neural);
+}
+
+.tag:hover {
+  background: var(--surface-interactive);
+  border-color: var(--border-primary);
+  color: var(--text-primary);
+}
+
+/* ============== LOADING STATES ============== */
+
+.loadingContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  padding: var(--space-2xl);
+  color: var(--text-secondary);
+}
+
+.loadingSpinner {
+  animation: quantum-rotate 1s linear infinite;
+}
+
+.loadingText {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 500;
+  margin-left: var(--space-md);
+}
+
+/* ============== RESPONSIVE DESIGN ============== */
+
+@media (max-width: 1024px) {
+  .metricsContainer {
+    gap: var(--space-md);
+  }
+  
+  .metricCard {
+    min-width: 180px;
+  }
+  
+  .tableHeaderCell,
+  .tableCell {
+    padding: var(--space-sm) var(--space-md);
+  }
+}
+
+@media (max-width: 768px) {
+  .marketContainer {
+    padding: var(--space-md);
+  }
+  
+  .metricsContainer {
+    flex-direction: column;
+  }
+  
+  .metricCard {
+    min-width: auto;
+  }
+  
+  .tabsList {
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+  }
+  
+  .tab {
+    padding: var(--space-sm) var(--space-md);
+  }
+  
+  .contentArea {
+    height: calc(100vh - 250px);
+  }
+  
+  .listingHeader {
+    flex-direction: column;
+    gap: var(--space-sm);
+    align-items: flex-start;
+  }
+  
+  .actionButtonsContainer {
+    justify-content: stretch;
+  }
+  
+  .actionButton {
+    flex: 1;
+  }
+}
+
+@media (max-width: 480px) {
+  .marketTitle {
+    font-size: 1.5rem;
+  }
+  
+  .metricValue {
+    font-size: 1.5rem;
+  }
+  
+  .tableHeaderCell,
+  .tableCell {
+    padding: var(--space-xs) var(--space-sm);
+    font-size: 0.75rem;
+  }
+  
+  .assetInfo {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-xs);
+  }
+}
+
+/* ============== QUANTUM ANIMATIONS ============== */
+
+@keyframes quantum-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes quantum-rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ============== ACCESSIBILITY ENHANCEMENTS ============== */
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.actionButton:focus-visible,
+.tab:focus-visible {
+  outline: 2px solid var(--primary-cyan);
+  outline-offset: 2px;
+}
+
+/* ================================================================
+   QUANTUM-ENHANCED MARKET EXCHANGE DESIGN SYSTEM INTEGRATION
+   ================================================================
+   
+   This MarketExchange has been enhanced with the Quantum-Enhanced
+   Cyber Operations Design System, featuring:
+   
+   💰 Financial UI Integration:
+   - Market data tables with quantum styling
+   - Price indicators with neural network colors
+   - Interactive trading interface elements
+   
+   📊 Data Visualization:
+   - Metric cards with gradient top borders
+   - Asset information with quantum icons
+   - Change indicators with contextual colors
+   
+   🎯 Intelligence Marketplace:
+   - Listing cards with quantum backgrounds
+   - Seller verification badges with neural green
+   - Tag system with hover interactions
+   
+   ⚡ Performance Optimizations:
+   - Hardware-accelerated animations
+   - Smooth scrolling with custom scrollbars
+   - Responsive grid system for all screen sizes
+   
+   This creates a sophisticated trading and intelligence marketplace
+   interface that maintains the quantum cyberpunk aesthetic while
+   providing professional financial data visualization.
+   ================================================================ */

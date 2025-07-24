@@ -1,0 +1,577 @@
+/* ================================================================
+   STARCOM CYBER COMMAND QUANTUM LOADING SYSTEM
+   Enhanced Earth Alliance loader with quantum effects
+================================================================ */
+
+@import '../../styles/quantum-cyber-design-system.css';
+
+/* ============== CYBER COMMAND LOADER CONTAINER ============== */
+
+.cyberLoaderContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  padding: var(--space-2xl);
+  background: var(--surface-base);
+  background-image: 
+    radial-gradient(circle at 20% 30%, rgba(0, 245, 255, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(0, 255, 136, 0.02) 0%, transparent 50%),
+    linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.1) 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.cyberLoaderContainer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    linear-gradient(45deg, transparent 49%, rgba(0, 245, 255, 0.03) 50%, transparent 51%),
+    linear-gradient(-45deg, transparent 49%, rgba(0, 255, 136, 0.02) 50%, transparent 51%);
+  background-size: 20px 20px;
+  animation: cyber-grid-scan 4s linear infinite;
+  opacity: 0.3;
+}
+
+/* ============== QUANTUM ORBITAL SYSTEM ============== */
+
+.quantumOrbitalSystem {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  margin-bottom: var(--space-xl);
+}
+
+.centralCore {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 40px;
+  height: 40px;
+  background: var(--quantum-gradient-primary);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 
+    0 0 20px rgba(0, 245, 255, 0.6),
+    0 0 40px rgba(0, 245, 255, 0.4),
+    0 0 60px rgba(0, 245, 255, 0.2);
+  animation: core-pulse 2s ease-in-out infinite alternate;
+}
+
+.centralCore::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, var(--quantum-primary), var(--neural-green), var(--quantum-tertiary), var(--quantum-primary));
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: subtract;
+  animation: core-border-rotate 3s linear infinite;
+}
+
+.quantumOrbit {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border: 1px solid rgba(0, 245, 255, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.orbit1 {
+  width: 80px;
+  height: 80px;
+  animation: orbit-glow 3s ease-in-out infinite alternate;
+}
+
+.orbit2 {
+  width: 120px;
+  height: 120px;
+  animation: orbit-glow 3s ease-in-out infinite alternate 0.5s;
+}
+
+.orbit3 {
+  width: 160px;
+  height: 160px;
+  animation: orbit-glow 3s ease-in-out infinite alternate 1s;
+}
+
+.orbit4 {
+  width: 200px;
+  height: 200px;
+  animation: orbit-glow 3s ease-in-out infinite alternate 1.5s;
+}
+
+.quantumParticle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: var(--neural-green);
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(0, 255, 136, 0.8);
+}
+
+.particle1 {
+  top: -3px;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: particle-orbit-1 4s linear infinite;
+}
+
+.particle2 {
+  top: 50%;
+  right: -3px;
+  transform: translateY(-50%);
+  animation: particle-orbit-2 5s linear infinite;
+}
+
+.particle3 {
+  bottom: -3px;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: particle-orbit-3 6s linear infinite;
+}
+
+.particle4 {
+  top: 50%;
+  left: -3px;
+  transform: translateY(-50%);
+  animation: particle-orbit-4 7s linear infinite;
+}
+
+/* ============== DATA STREAM VISUALIZATION ============== */
+
+.dataStreamContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.dataStream {
+  position: absolute;
+  width: 2px;
+  height: 0;
+  background: linear-gradient(180deg, transparent, var(--quantum-primary), transparent);
+  animation: data-stream-fall 2s linear infinite;
+}
+
+.stream1 {
+  left: 10%;
+  animation-delay: 0s;
+  animation-duration: 2.5s;
+}
+
+.stream2 {
+  left: 25%;
+  animation-delay: 0.5s;
+  animation-duration: 3s;
+}
+
+.stream3 {
+  left: 40%;
+  animation-delay: 1s;
+  animation-duration: 2.2s;
+}
+
+.stream4 {
+  left: 55%;
+  animation-delay: 1.5s;
+  animation-duration: 2.8s;
+}
+
+.stream5 {
+  left: 70%;
+  animation-delay: 0.3s;
+  animation-duration: 3.2s;
+}
+
+.stream6 {
+  left: 85%;
+  animation-delay: 0.8s;
+  animation-duration: 2.6s;
+}
+
+/* ============== LOADING TEXT SYSTEM ============== */
+
+.loadingTextContainer {
+  text-align: center;
+  position: relative;
+  z-index: 10;
+}
+
+.loadingTitle {
+  font-family: 'Aldrich', monospace;
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: var(--text-primary);
+  margin: 0 0 var(--space-md) 0;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  text-shadow: 
+    0 0 10px rgba(0, 245, 255, 0.5),
+    0 0 20px rgba(0, 245, 255, 0.3);
+  animation: text-glow-pulse 3s ease-in-out infinite alternate;
+}
+
+.loadingSubtext {
+  font-family: 'Aldrich', monospace;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.8;
+}
+
+.loadingProgress {
+  margin-top: var(--space-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+}
+
+.progressBar {
+  width: 200px;
+  height: 4px;
+  background: var(--surface-elevated);
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid rgba(0, 245, 255, 0.3);
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--quantum-gradient-primary);
+  border-radius: 2px;
+  position: relative;
+  animation: progress-scan 2s ease-in-out infinite;
+  box-shadow: 0 0 10px rgba(0, 245, 255, 0.6);
+}
+
+.progressFill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 20px;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: progress-shine 2s linear infinite;
+}
+
+.progressPercent {
+  font-family: 'Aldrich', monospace;
+  font-size: 0.75rem;
+  color: var(--quantum-primary);
+  min-width: 40px;
+  text-align: right;
+  font-weight: 600;
+}
+
+/* ============== SYSTEM STATUS INDICATORS ============== */
+
+.systemStatusContainer {
+  position: absolute;
+  bottom: var(--space-xl);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: var(--space-lg);
+}
+
+.statusIndicator {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-family: 'Aldrich', monospace;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--neural-green);
+  box-shadow: 0 0 8px rgba(0, 255, 136, 0.6);
+  animation: status-blink 2s ease-in-out infinite;
+}
+
+.statusDot.warning {
+  background: var(--quantum-energy);
+  box-shadow: 0 0 8px rgba(255, 170, 0, 0.6);
+  animation-delay: 0.5s;
+}
+
+.statusDot.critical {
+  background: var(--quantum-accent);
+  box-shadow: 0 0 8px rgba(255, 0, 153, 0.6);
+  animation-delay: 1s;
+}
+
+/* ============== QUANTUM ANIMATIONS ============== */
+
+@keyframes cyber-grid-scan {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.3;
+  }
+  100% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes core-pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    box-shadow: 
+      0 0 20px rgba(0, 245, 255, 0.6),
+      0 0 40px rgba(0, 245, 255, 0.4),
+      0 0 60px rgba(0, 245, 255, 0.2);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.1);
+    box-shadow: 
+      0 0 30px rgba(0, 245, 255, 0.8),
+      0 0 60px rgba(0, 245, 255, 0.6),
+      0 0 90px rgba(0, 245, 255, 0.4);
+  }
+}
+
+@keyframes core-border-rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes orbit-glow {
+  0% {
+    border-color: rgba(0, 245, 255, 0.2);
+    box-shadow: 0 0 0 rgba(0, 245, 255, 0);
+  }
+  100% {
+    border-color: rgba(0, 245, 255, 0.6);
+    box-shadow: 0 0 20px rgba(0, 245, 255, 0.3);
+  }
+}
+
+@keyframes particle-orbit-1 {
+  0% {
+    transform: translateX(-50%) rotate(0deg) translateX(40px) rotate(0deg);
+  }
+  100% {
+    transform: translateX(-50%) rotate(360deg) translateX(40px) rotate(-360deg);
+  }
+}
+
+@keyframes particle-orbit-2 {
+  0% {
+    transform: translateY(-50%) rotate(0deg) translateY(60px) rotate(0deg);
+  }
+  100% {
+    transform: translateY(-50%) rotate(360deg) translateY(60px) rotate(-360deg);
+  }
+}
+
+@keyframes particle-orbit-3 {
+  0% {
+    transform: translateX(-50%) rotate(0deg) translateX(80px) rotate(0deg);
+  }
+  100% {
+    transform: translateX(-50%) rotate(360deg) translateX(80px) rotate(-360deg);
+  }
+}
+
+@keyframes particle-orbit-4 {
+  0% {
+    transform: translateY(-50%) rotate(0deg) translateY(100px) rotate(0deg);
+  }
+  100% {
+    transform: translateY(-50%) rotate(360deg) translateY(100px) rotate(-360deg);
+  }
+}
+
+@keyframes data-stream-fall {
+  0% {
+    top: -20px;
+    height: 0;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  50% {
+    height: 100px;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    top: 100%;
+    height: 0;
+    opacity: 0;
+  }
+}
+
+@keyframes text-glow-pulse {
+  0% {
+    text-shadow: 
+      0 0 10px rgba(0, 245, 255, 0.5),
+      0 0 20px rgba(0, 245, 255, 0.3);
+  }
+  100% {
+    text-shadow: 
+      0 0 20px rgba(0, 245, 255, 0.8),
+      0 0 40px rgba(0, 245, 255, 0.6),
+      0 0 60px rgba(0, 245, 255, 0.4);
+  }
+}
+
+@keyframes progress-scan {
+  0% {
+    width: 0%;
+  }
+  50% {
+    width: 75%;
+  }
+  100% {
+    width: 0%;
+  }
+}
+
+@keyframes progress-shine {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(500%);
+  }
+}
+
+@keyframes status-blink {
+  0%, 70% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  80% {
+    opacity: 0.5;
+    transform: scale(0.8);
+  }
+  90% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ============== RESPONSIVE DESIGN ============== */
+
+@media (max-width: 768px) {
+  .cyberLoaderContainer {
+    padding: var(--space-lg);
+    min-height: 300px;
+  }
+  
+  .quantumOrbitalSystem {
+    width: 150px;
+    height: 150px;
+  }
+  
+  .centralCore {
+    width: 30px;
+    height: 30px;
+  }
+  
+  .orbit1 { width: 60px; height: 60px; }
+  .orbit2 { width: 90px; height: 90px; }
+  .orbit3 { width: 120px; height: 120px; }
+  .orbit4 { width: 150px; height: 150px; }
+  
+  .loadingTitle {
+    font-size: 1.25rem;
+  }
+  
+  .progressBar {
+    width: 150px;
+  }
+  
+  .systemStatusContainer {
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+}
+
+@media (max-width: 480px) {
+  .quantumOrbitalSystem {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .centralCore {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .orbit1 { width: 48px; height: 48px; }
+  .orbit2 { width: 72px; height: 72px; }
+  .orbit3 { width: 96px; height: 96px; }
+  .orbit4 { width: 120px; height: 120px; }
+  
+  .loadingTitle {
+    font-size: 1rem;
+  }
+  
+  .loadingSubtext {
+    font-size: 0.75rem;
+  }
+  
+  .progressBar {
+    width: 120px;
+  }
+}
+
+/* ============== ACCESSIBILITY SUPPORT ============== */
+
+@media (prefers-reduced-motion: reduce) {
+  .centralCore,
+  .quantumOrbit,
+  .quantumParticle,
+  .dataStream,
+  .progressFill,
+  .statusDot {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+  
+  .cyberLoaderContainer::before {
+    animation: none;
+    opacity: 0.1;
+  }
+}
+
+/* ================================================================
+   CYBER COMMAND LOADING SYSTEM INTEGRATION COMPLETE
+   ================================================================ */

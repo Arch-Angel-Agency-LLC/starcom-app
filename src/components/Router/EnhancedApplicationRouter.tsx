@@ -6,7 +6,7 @@ import CyberCommandApplication from '../../applications/cybercommand/CyberComman
 import NetRunnerApplication from '../../applications/netrunner/NetRunnerApplication';
 import IntelAnalyzerApplication from '../../applications/intelanalyzer/IntelAnalyzerApplication';
 import TimeMapApplication from '../../applications/timemap/TimeMapApplication';
-import NodeWebApplication from '../../applications/nodeweb/NodeWebApplication';
+import IntelWebApplicationWrapper from '../../applications/intelweb/IntelWebApplicationWrapper';
 import TeamWorkspaceApplication from '../../applications/teamworkspace/TeamWorkspaceApplication';
 import MarketExchangeApplication from '../../applications/marketexchange/MarketExchangeApplication';
 
@@ -125,7 +125,7 @@ const defaultApplications: ApplicationConfig[] = [
     description: 'Intelligence connections and relationship mapping',
     defaultMode: 'standalone',
     supportedModes: ['standalone', 'modal'],
-    component: NodeWebApplication
+    component: IntelWebApplicationWrapper
   },
   {
     id: 'teamworkspace',

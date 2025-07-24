@@ -33,7 +33,7 @@ interface VirtualizationResult<T> {
   containerProps: {
     ref: React.RefObject<HTMLDivElement>;
     style: {
-      position: 'relative' as 'relative';
+      position: 'relative';
       height: '100%';
       overflow: 'auto';
       willChange: 'transform';
@@ -155,7 +155,7 @@ function calculateRange<T>(
         item,
         index: virtualIndex,
         style: {
-          position: 'absolute' as 'absolute',
+          position: 'absolute' as const,
           top: virtualIndex * itemHeight,
           left: 0,
           width: '100%',

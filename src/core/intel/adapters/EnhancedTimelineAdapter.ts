@@ -497,4 +497,13 @@ export class EnhancedTimelineAdapter {
   subscribeToTimelineUpdates(callback: (timeline: IntelTimelineData) => void): () => void {
     const interval = setInterval(async () => {
       const timeline = await this.getIntelTimelineData();
-      if
+      if (timeline) {
+        callback(timeline);
+      }
+    }, this.config.updateInterval || 30000);
+
+    return () => clearInterval(interval);
+  }
+}
+
+export default EnhancedTimelineAdapter;
