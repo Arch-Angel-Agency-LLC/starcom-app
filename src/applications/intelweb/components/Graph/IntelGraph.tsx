@@ -220,49 +220,27 @@ export const IntelGraph: React.FC<IntelGraphProps> = ({
         });
       }
 
-      // Create temporal edges for files with timestamps
-      if (node.timestamp) {
-        const timeWindow = 24 * 60 * 60 * 1000; // 24 hours
-        nodes.forEach(otherNode => {
-          if (otherNode.timestamp && otherNode.id !== node.id) {
-            const timeDiff = Math.abs(node.timestamp!.getTime() - otherNode.timestamp.getTime());
-            if (timeDiff <= timeWindow) {
-              const edgeId = `${node.id}~${otherNode.id}`;
+      // Use explicit relationships from the vault relationship graph
+      if (vault.relationshipGraph) {
+        vault.relationshipGraph.forEach(relationship => {
+          if (relationship.source === node.id || relationship.target === node.id) {
+            const sourceId = relationship.source;
+            const targetId = relationship.target;
+            const sourceNode = nodeMap.get(sourceId);
+            const targetNode = nodeMap.get(targetId);
+            
+            if (sourceNode && targetNode) {
+              const edgeId = `${sourceId}-${targetId}`;
               
               if (!edges.find(e => e.id === edgeId)) {
                 edges.push({
                   id: edgeId,
-                  source: node.id,
-                  target: otherNode.id,
-                  type: 'temporal',
-                  weight: 1 - (timeDiff / timeWindow),
-                  confidence: Math.min(node.confidence, otherNode.confidence),
-                  metadata: { timeDiff }
-                });
-              }
-            }
-          }
-        });
-      }
-
-      // Create spatial edges for files with locations
-      if (node.location) {
-        const spatialThreshold = 100; // km
-        nodes.forEach(otherNode => {
-          if (otherNode.location && otherNode.id !== node.id) {
-            const distance = calculateDistance(node.location!, otherNode.location);
-            if (distance <= spatialThreshold) {
-              const edgeId = `${node.id}@${otherNode.id}`;
-              
-              if (!edges.find(e => e.id === edgeId)) {
-                edges.push({
-                  id: edgeId,
-                  source: node.id,
-                  target: otherNode.id,
-                  type: 'spatial',
-                  weight: 1 - (distance / spatialThreshold),
-                  confidence: Math.min(node.confidence, otherNode.confidence),
-                  metadata: { distance }
+                  source: sourceId,
+                  target: targetId,
+                  type: 'reference',
+                  weight: relationship.strength || 0.5,
+                  confidence: Math.min(sourceNode.confidence, targetNode.confidence),
+                  metadata: relationship.metadata || {}
                 });
               }
             }
@@ -271,6 +249,7 @@ export const IntelGraph: React.FC<IntelGraphProps> = ({
       }
     });
 
+    console.log(`🔗 Graph created: ${nodes.length} nodes, ${edges.length} edges (wikilink-based only)`);
     return { nodes, edges };
   }, []);
 
@@ -559,7 +538,28 @@ function adjustColorBrightness(hex: string, factor: number): string {
 function extractFileReferences(content: string, vault: VirtualFileSystem): string[] {
   const references: string[] = [];
   
-  // Look for markdown-style links: [text](path)
+  // Look for Obsidian-style wikilinks: [[Entity Name]]
+  const wikilinkMatches = content.match(/\[\[([^\]]+)\]\]/g);
+  if (wikilinkMatches) {
+    wikilinkMatches.forEach(link => {
+      const match = link.match(/\[\[([^\]]+)\]\]/);
+      if (match) {
+        const entityName = match[1].trim();
+        
+        // Find file that matches this entity name (without .md extension)
+        const matchingPath = Array.from(vault.fileIndex.keys()).find(filePath => {
+          const fileName = filePath.split('/').pop()?.replace('.md', '');
+          return fileName === entityName;
+        });
+        
+        if (matchingPath) {
+          references.push(matchingPath);
+        }
+      }
+    });
+  }
+  
+  // Look for markdown-style links: [text](path) - keep for other references
   const markdownLinks = content.match(/\[([^\]]+)\]\(([^)]+)\)/g);
   if (markdownLinks) {
     markdownLinks.forEach(link => {
@@ -573,30 +573,7 @@ function extractFileReferences(content: string, vault: VirtualFileSystem): strin
     });
   }
   
-  // Look for file paths mentioned in content
-  Array.from(vault.fileIndex.keys()).forEach(filePath => {
-    if (content.includes(filePath)) {
-      references.push(filePath);
-    }
-  });
-  
   return [...new Set(references)]; // Remove duplicates
-}
-
-function calculateDistance(coord1: [number, number], coord2: [number, number]): number {
-  const [lat1, lon1] = coord1;
-  const [lat2, lon2] = coord2;
-  
-  const R = 6371; // Earth's radius in km
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLon = (lon2 - lon1) * Math.PI / 180;
-  
-  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-    Math.sin(dLon/2) * Math.sin(dLon/2);
-  
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-  return R * c;
 }
 
 export default IntelGraph;

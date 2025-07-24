@@ -1,0 +1,398 @@
+/**
+ * Intelligence Markdown Rendering Styles
+ * 
+ * Enhanced styles for formatted intelligence documents with:
+ * - Wikilink styling with hover effects
+ * - Classification tags with security colors
+ * - Hashtag highlighting
+ * - Frontmatter metadata display
+ * - Professional intelligence document appearance
+ */
+
+/* Main markdown content container */
+.markdown-content {
+  font-family: 'SF Pro Text', 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.6;
+  color: #e0e0e0;
+  background: rgba(10, 20, 30, 0.95);
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid rgba(65, 145, 255, 0.2);
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+/* Headings */
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4,
+.markdown-content h5,
+.markdown-content h6 {
+  color: #ffffff;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  font-weight: 600;
+}
+
+.markdown-content h1 {
+  font-size: 1.8em;
+  border-bottom: 2px solid rgba(65, 145, 255, 0.5);
+  padding-bottom: 0.3em;
+}
+
+.markdown-content h2 {
+  font-size: 1.5em;
+  border-bottom: 1px solid rgba(65, 145, 255, 0.3);
+  padding-bottom: 0.2em;
+}
+
+.markdown-content h3 {
+  font-size: 1.3em;
+  color: #4191ff;
+}
+
+/* Paragraphs */
+.markdown-content p {
+  margin-bottom: 1em;
+  text-align: justify;
+}
+
+/* Wikilinks - Entity references */
+.markdown-content .wikilink {
+  color: #4fc3f7;
+  text-decoration: none;
+  background: rgba(79, 195, 247, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(79, 195, 247, 0.3);
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.markdown-content .wikilink:hover {
+  background: rgba(79, 195, 247, 0.2);
+  border-color: rgba(79, 195, 247, 0.6);
+  box-shadow: 0 2px 8px rgba(79, 195, 247, 0.3);
+  transform: translateY(-1px);
+}
+
+.markdown-content .wikilink:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 4px rgba(79, 195, 247, 0.3);
+}
+
+/* Hashtags */
+.markdown-content .hashtag {
+  color: #81c784;
+  background: rgba(129, 199, 132, 0.15);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-weight: 500;
+  font-size: 0.9em;
+  border: 1px solid rgba(129, 199, 132, 0.3);
+}
+
+/* Classification tags */
+.markdown-content .classification {
+  font-weight: bold;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.85em;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 1px solid;
+}
+
+.markdown-content .classification.unclassified {
+  background: rgba(76, 175, 80, 0.2);
+  color: #81c784;
+  border-color: rgba(76, 175, 80, 0.5);
+}
+
+.markdown-content .classification.confidential {
+  background: rgba(255, 152, 0, 0.2);
+  color: #ffb74d;
+  border-color: rgba(255, 152, 0, 0.5);
+}
+
+.markdown-content .classification.secret {
+  background: rgba(244, 67, 54, 0.2);
+  color: #e57373;
+  border-color: rgba(244, 67, 54, 0.5);
+}
+
+.markdown-content .classification.top_secret {
+  background: rgba(156, 39, 176, 0.2);
+  color: #ba68c8;
+  border-color: rgba(156, 39, 176, 0.5);
+}
+
+/* Lists */
+.markdown-content ul,
+.markdown-content ol {
+  margin-bottom: 1em;
+  padding-left: 1.5em;
+}
+
+.markdown-content li {
+  margin-bottom: 0.3em;
+}
+
+/* Code blocks */
+.markdown-content code {
+  background: rgba(30, 40, 50, 0.8);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  font-size: 0.9em;
+  color: #f8f8f2;
+  border: 1px solid rgba(65, 145, 255, 0.2);
+}
+
+.markdown-content pre {
+  background: rgba(30, 40, 50, 0.8);
+  padding: 16px;
+  border-radius: 6px;
+  overflow-x: auto;
+  border: 1px solid rgba(65, 145, 255, 0.2);
+  margin: 1em 0;
+}
+
+.markdown-content pre code {
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+/* Blockquotes */
+.markdown-content blockquote {
+  border-left: 4px solid #4191ff;
+  padding-left: 16px;
+  margin: 1em 0;
+  color: #b0b0b0;
+  font-style: italic;
+  background: rgba(65, 145, 255, 0.05);
+  padding: 12px 16px;
+  border-radius: 4px;
+}
+
+/* Frontmatter display */
+.frontmatter-display {
+  background: rgba(30, 40, 50, 0.9);
+  border: 1px solid rgba(65, 145, 255, 0.3);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+  font-size: 0.9em;
+}
+
+.frontmatter-display h4 {
+  margin: 0 0 12px 0;
+  color: #4191ff;
+  font-size: 1.1em;
+  font-weight: 600;
+}
+
+.metadata-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.metadata-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.metadata-item.full-width {
+  grid-column: 1 / -1;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.metadata-key {
+  font-weight: 600;
+  color: #a0a0a0;
+  min-width: 80px;
+}
+
+.metadata-value {
+  color: #e0e0e0;
+  font-weight: 500;
+}
+
+.metadata-value.classification {
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 0.8em;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.metadata-value.confidence {
+  color: #81c784;
+  font-weight: 600;
+}
+
+.metadata-value.category {
+  color: #4fc3f7;
+  text-transform: capitalize;
+}
+
+/* Tags display */
+.metadata-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.metadata-tags .tag {
+  background: rgba(129, 199, 132, 0.2);
+  color: #81c784;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.8em;
+  border: 1px solid rgba(129, 199, 132, 0.3);
+}
+
+/* Entity links display */
+.metadata-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.metadata-links .entity-link {
+  color: #4fc3f7;
+  text-decoration: none;
+  background: rgba(79, 195, 247, 0.1);
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(79, 195, 247, 0.3);
+  font-size: 0.85em;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.metadata-links .entity-link:hover {
+  background: rgba(79, 195, 247, 0.2);
+  border-color: rgba(79, 195, 247, 0.6);
+  transform: translateY(-1px);
+}
+
+/* Strong and emphasis */
+.markdown-content strong {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.markdown-content em {
+  color: #f0f0f0;
+  font-style: italic;
+}
+
+/* Tables (if any) */
+.markdown-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1em 0;
+  background: rgba(30, 40, 50, 0.5);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.markdown-content th,
+.markdown-content td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid rgba(65, 145, 255, 0.2);
+}
+
+.markdown-content th {
+  background: rgba(65, 145, 255, 0.1);
+  color: #4191ff;
+  font-weight: 600;
+}
+
+/* Horizontal rules */
+.markdown-content hr {
+  border: none;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(65, 145, 255, 0.5), transparent);
+  margin: 2em 0;
+}
+
+/* Scrollbar styling */
+.markdown-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.markdown-content::-webkit-scrollbar-track {
+  background: rgba(30, 40, 50, 0.5);
+  border-radius: 4px;
+}
+
+.markdown-content::-webkit-scrollbar-thumb {
+  background: rgba(65, 145, 255, 0.3);
+  border-radius: 4px;
+}
+
+.markdown-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(65, 145, 255, 0.5);
+}
+
+/* Animation for content loading */
+.markdown-content {
+  animation: fadeInContent 0.3s ease-in-out;
+}
+
+@keyframes fadeInContent {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .metadata-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .markdown-content {
+    padding: 16px;
+    font-size: 0.9em;
+  }
+}
+
+/* Print styles */
+@media print {
+  .markdown-content {
+    background: white;
+    color: black;
+    border: 1px solid #ccc;
+    padding: 20px;
+  }
+  
+  .markdown-content .wikilink,
+  .markdown-content .entity-link {
+    color: #0066cc;
+    background: none;
+    border: none;
+  }
+  
+  .frontmatter-display {
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+  }
+}
