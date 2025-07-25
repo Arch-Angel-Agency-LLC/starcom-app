@@ -2,7 +2,7 @@
 
 [![DOI](https://zenodo.org/badge/824411336.svg)](https://doi.org/10.5281/zenodo.16419375)
 
-https://discord.gg/Mea5v8pQmt
+[![Starcom Discord Server](https://discord.com/api/guilds/1145517675389403287/widget.png?style=banner2)](https://discord.gg/Mea5v8pQmt)
 
 **Decentralized Quantum-Safe Global Reclamation Platform**
 
