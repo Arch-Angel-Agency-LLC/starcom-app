@@ -8,7 +8,7 @@
 
 A next-generation civilian-led intelligence platform for corruption exposure, truth liberation, and coordinated planetary reclamation operations against transnational crime syndicates.
 
-**Mission**: Earth Alliance / Tho'ra Clan operations to counter death cult cabals and restore natural planetary governance by 2030.
+**Mission**: Earth Alliance / Arch Angel Agency operations to counter death cult cabals and restore natural planetary governance by 2030.
 
 ---
 
