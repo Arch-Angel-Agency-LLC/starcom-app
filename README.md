@@ -1,4 +1,4 @@
-# Starcom - Earth Alliance Platform and Global Intelligence Marketplace 🌍
+# Starcom - Earth Alliance Platform & Global Intelligence Marketplace 🌍
 
 [![DOI](https://zenodo.org/badge/824411336.svg)](https://doi.org/10.5281/zenodo.16419375)
 
