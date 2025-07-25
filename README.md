@@ -1,5 +1,7 @@
 # Starcom - Earth Alliance Platform 🌍
 
+https://discord.gg/Mea5v8pQmt
+
 **Decentralized Quantum-Safe Global Reclamation Platform**
 
 A next-generation civilian-led intelligence platform for corruption exposure, truth liberation, and coordinated planetary reclamation operations against transnational crime syndicates.
