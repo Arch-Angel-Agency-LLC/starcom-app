@@ -81,6 +81,8 @@ export class NetRunnerScriptRegistry {
         console.warn(`[ScriptRegistry] Script ${script.metadata.id} already exists, updating...`);
       }
 
+      console.log(`[ScriptRegistry] Registering script: ${script.metadata.id} - ${script.metadata.name}`);
+
       // Register with execution engine
       this.executionEngine.registerScript(script);
 
@@ -180,6 +182,9 @@ export class NetRunnerScriptRegistry {
       'tech-stack-analyzer-v1',
       'contact-harvester-v1'
     ];
+    
+    console.log('[ScriptRegistry] Getting default scripts, total registered:', this.registry.scripts.size);
+    console.log('[ScriptRegistry] Registered script IDs:', Array.from(this.registry.scripts.keys()));
     
     return defaultScriptIds
       .map(id => this.registry.scripts.get(id))

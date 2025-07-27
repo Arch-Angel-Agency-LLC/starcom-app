@@ -9,7 +9,8 @@ import {
   FetchOptions 
 } from '../interfaces';
 import { 
-  SpaceWeatherAlert
+  SpaceWeatherAlert,
+  ProcessedElectricFieldData
 } from '../../../types';
 import {
   NOAADataTypes,
@@ -880,5 +881,44 @@ export class NOAADataProvider implements DataProvider<NOAADataTypes> {
     if (dst > -100) return 'moderate';
     if (dst > -250) return 'intense';
     return 'super';
+  }
+
+  /**
+   * Transform raw electric field data into processed format for visualization
+   * Implements the same processing logic as legacy useSpaceWeatherData hook
+   */
+  private transformElectricFieldData(rawData: NOAAElectricFieldData): ProcessedElectricFieldData {
+    const vectors = rawData.features.map(feature => ({
+      longitude: feature.geometry.coordinates[0],
+      latitude: feature.geometry.coordinates[1],
+      ex: feature.properties.Ex,
+      ey: feature.properties.Ey,
+      magnitude: Math.sqrt(feature.properties.Ex ** 2 + feature.properties.Ey ** 2),
+      direction: Math.atan2(feature.properties.Ey, feature.properties.Ex) * (180 / Math.PI),
+      quality: feature.properties.quality_flag || 1,
+      stationDistance: feature.properties.distance_nearest_station || 0
+    }));
+
+    const latitudes = vectors.map(v => v.latitude);
+    const longitudes = vectors.map(v => v.longitude);
+    const magnitudes = vectors.map(v => v.magnitude);
+
+    return {
+      timestamp: rawData.time_tag || new Date().toISOString(),
+      source: rawData.network === 'InterMag' ? 'InterMagEarthScope' : 'US-Canada-1D',
+      vectors,
+      coverage: {
+        minLat: Math.min(...latitudes),
+        maxLat: Math.max(...latitudes),
+        minLon: Math.min(...longitudes),
+        maxLon: Math.max(...longitudes)
+      },
+      statistics: {
+        totalPoints: vectors.length,
+        highQualityPoints: vectors.filter(v => v.quality >= 3).length,
+        maxFieldStrength: Math.max(...magnitudes),
+        avgFieldStrength: magnitudes.reduce((sum, mag) => sum + mag, 0) / magnitudes.length
+      }
+    };
   }
 }

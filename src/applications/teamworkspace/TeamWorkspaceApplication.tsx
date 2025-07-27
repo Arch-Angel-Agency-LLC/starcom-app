@@ -18,7 +18,9 @@ import {
   ListItem,
   ListItemAvatar,
   ListItemText,
-  IconButton
+  IconButton,
+  ThemeProvider,
+  createTheme
 } from '@mui/material';
 import { 
   MessageSquare, 
@@ -31,6 +33,148 @@ import {
   Bot,
   Zap
 } from 'lucide-react';
+
+// Cyberpunk Theme for CollabCenter
+const cyberpunkTheme = createTheme({
+  palette: {
+    mode: 'dark',
+    primary: {
+      main: '#00ffff',
+      dark: '#00d4ff',
+      light: '#4dffff',
+    },
+    secondary: {
+      main: '#ff0080',
+      dark: '#cc0066',
+      light: '#ff4da6',
+    },
+    background: {
+      default: '#0a0f14',
+      paper: 'rgba(0, 15, 30, 0.95)',
+    },
+    text: {
+      primary: '#ffffff',
+      secondary: 'rgba(255, 255, 255, 0.7)',
+    },
+    error: {
+      main: '#ff4444',
+    },
+    warning: {
+      main: '#ff9800',
+    },
+    info: {
+      main: '#00c4ff',
+    },
+    success: {
+      main: '#00ff41',
+    },
+  },
+  typography: {
+    fontFamily: "'Aldrich-Regular', 'Orbitron', monospace",
+    h1: { fontFamily: "'Orbitron', monospace" },
+    h2: { fontFamily: "'Orbitron', monospace" },
+    h3: { fontFamily: "'Orbitron', monospace" },
+    h4: { fontFamily: "'Orbitron', monospace" },
+    h5: { fontFamily: "'Orbitron', monospace" },
+    h6: { fontFamily: "'Orbitron', monospace" },
+  },
+  components: {
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          background: 'rgba(0, 15, 30, 0.95)',
+          border: '1px solid rgba(0, 255, 255, 0.2)',
+          borderRadius: '0',
+          backdropFilter: 'blur(10px)',
+          boxShadow: '0 0 20px rgba(0, 255, 255, 0.1)',
+        },
+      },
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: '0',
+          textTransform: 'uppercase',
+          fontFamily: "'Aldrich-Regular', monospace",
+          fontWeight: 600,
+          letterSpacing: '0.5px',
+        },
+        contained: {
+          background: 'linear-gradient(135deg, #00ffff 0%, #0099cc 100%)',
+          color: '#000',
+          border: '1px solid #00ffff',
+          boxShadow: '0 0 15px rgba(0, 255, 255, 0.3)',
+          '&:hover': {
+            background: 'linear-gradient(135deg, #00d4ff 0%, #0088bb 100%)',
+            boxShadow: '0 0 25px rgba(0, 255, 255, 0.5)',
+          },
+        },
+        outlined: {
+          color: '#00ffff',
+          border: '1px solid rgba(0, 255, 255, 0.5)',
+          '&:hover': {
+            border: '1px solid #00ffff',
+            background: 'rgba(0, 255, 255, 0.1)',
+            boxShadow: '0 0 15px rgba(0, 255, 255, 0.2)',
+          },
+        },
+      },
+    },
+    MuiTextField: {
+      styleOverrides: {
+        root: {
+          '& .MuiOutlinedInput-root': {
+            borderRadius: '0',
+            '& fieldset': {
+              borderColor: 'rgba(0, 255, 255, 0.3)',
+            },
+            '&:hover fieldset': {
+              borderColor: 'rgba(0, 255, 255, 0.6)',
+            },
+            '&.Mui-focused fieldset': {
+              borderColor: '#00ffff',
+              boxShadow: '0 0 10px rgba(0, 255, 255, 0.3)',
+            },
+          },
+        },
+      },
+    },
+    MuiChip: {
+      styleOverrides: {
+        root: {
+          borderRadius: '0',
+          fontFamily: "'Aldrich-Regular', monospace",
+        },
+      },
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          background: 'rgba(0, 20, 35, 0.9)',
+          border: '1px solid rgba(0, 255, 255, 0.2)',
+          borderRadius: '0',
+          backdropFilter: 'blur(10px)',
+          '&:hover': {
+            borderColor: 'rgba(0, 255, 255, 0.4)',
+            boxShadow: '0 0 20px rgba(0, 255, 255, 0.2)',
+          },
+        },
+      },
+    },
+    MuiLinearProgress: {
+      styleOverrides: {
+        root: {
+          backgroundColor: 'rgba(0, 255, 255, 0.2)',
+          borderRadius: '0',
+        },
+        bar: {
+          backgroundColor: '#00ffff',
+          boxShadow: '0 0 10px rgba(0, 255, 255, 0.5)',
+        },
+      },
+    },
+  },
+});
 
 // Team Member Interface
 interface TeamMember {
@@ -264,19 +408,77 @@ const TeamWorkspaceApplication: React.FC = () => {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-        <CircularProgress />
-        <Typography variant="h6" sx={{ ml: 2 }}>Loading Team Workspace...</Typography>
-      </Box>
+      <ThemeProvider theme={cyberpunkTheme}>
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+          <CircularProgress />
+          <Typography variant="h6" sx={{ ml: 2 }}>Loading Team Workspace...</Typography>
+        </Box>
+      </ThemeProvider>
     );
   }
 
   return (
-    <Box sx={{ p: 3, height: '100vh', overflow: 'hidden' }}>
+    <ThemeProvider theme={cyberpunkTheme}>
+      <Box sx={{ 
+        p: 3, 
+        height: '100vh', 
+        overflow: 'hidden',
+        background: 'linear-gradient(135deg, rgba(0, 10, 20, 0.95) 0%, rgba(0, 15, 30, 0.98) 100%)',
+        backdropFilter: 'blur(10px)',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'linear-gradient(45deg, transparent 49%, rgba(0, 255, 255, 0.02) 50%, transparent 51%)',
+          pointerEvents: 'none',
+          zIndex: 0,
+        }
+      }}>
       {/* Header */}
-      <Box sx={{ mb: 3 }}>
+      <Box sx={{ mb: 3, position: 'relative', zIndex: 1 }}>
+        {/* CollabCenter Title */}
+        <Box sx={{ mb: 3, textAlign: 'center' }}>
+          <Typography 
+            variant="h4" 
+            sx={{ 
+              color: '#00ffff',
+              fontFamily: "'Orbitron', monospace",
+              fontWeight: 700,
+              letterSpacing: '2px',
+              textShadow: '0 0 20px rgba(0, 255, 255, 0.5)',
+              mb: 1,
+              '&::before': {
+                content: '"[["',
+                color: 'rgba(0, 255, 255, 0.6)',
+                marginRight: '8px',
+              },
+              '&::after': {
+                content: '"]]"',
+                color: 'rgba(0, 255, 255, 0.6)',
+                marginLeft: '8px',
+              }
+            }}
+          >
+            COLLABCENTER
+          </Typography>
+          <Typography 
+            variant="subtitle1" 
+            sx={{ 
+              color: 'rgba(255, 255, 255, 0.7)',
+              fontFamily: "'Aldrich-Regular', monospace",
+              letterSpacing: '1px',
+              fontSize: '0.9rem',
+            }}
+          >
+            INTELLIGENCE OPERATIONS COLLABORATION HUB
+          </Typography>
+        </Box>
+        
         {/* Tab Navigation */}
-        <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+        <Box sx={{ display: 'flex', gap: 1, mb: 2, justifyContent: 'center' }}>
           {(['overview', 'projects', 'chat', 'operatives', 'admin'] as const).map((tab) => (
             <Button
               key={tab}
@@ -291,7 +493,27 @@ const TeamWorkspaceApplication: React.FC = () => {
       </Box>
 
       {/* Tab Content */}
-      <Box sx={{ height: 'calc(100vh - 200px)', overflow: 'auto' }}>
+      <Box sx={{ 
+        height: 'calc(100vh - 250px)', 
+        overflow: 'auto',
+        position: 'relative',
+        zIndex: 1,
+        '&::-webkit-scrollbar': {
+          width: '8px',
+        },
+        '&::-webkit-scrollbar-track': {
+          background: 'rgba(0, 0, 0, 0.3)',
+          borderRadius: '0',
+        },
+        '&::-webkit-scrollbar-thumb': {
+          background: 'linear-gradient(180deg, #00ffff 0%, #0099cc 100%)',
+          borderRadius: '0',
+          boxShadow: '0 0 10px rgba(0, 255, 255, 0.5)',
+        },
+        '&::-webkit-scrollbar-thumb:hover': {
+          background: 'linear-gradient(180deg, #00d4ff 0%, #0088bb 100%)',
+        },
+      }}>
         {/* Overview Tab */}
         {activeTab === 'overview' && (
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
@@ -638,6 +860,7 @@ const TeamWorkspaceApplication: React.FC = () => {
         )}
       </Box>
     </Box>
+    </ThemeProvider>
   );
 };
 

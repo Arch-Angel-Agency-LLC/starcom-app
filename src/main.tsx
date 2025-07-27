@@ -12,7 +12,7 @@ import '@solana/wallet-adapter-react-ui/styles.css';
 // Global debugging setup
 debugLogger.info(DebugCategory.COMPONENT_LOAD, 'main.tsx loaded - setting up global error monitoring');
 
-// Capture ALL unhandled errors
+// Capture unhandled errors for WalletNotSelectedError tracking
 window.addEventListener('error', (event) => {
   debugLogger.error(DebugCategory.CONSOLE_ERROR, 'GLOBAL ERROR EVENT', {
     message: event.message,
@@ -24,22 +24,20 @@ window.addEventListener('error', (event) => {
   });
   
   if (event.error?.name === 'WalletNotSelectedError' || event.message?.includes('WalletNotSelectedError')) {
-    console.error('🎯 GLOBAL: WalletNotSelectedError caught!');
-    alert('GLOBAL ERROR: WalletNotSelectedError! Check console.');
+    console.error('🎯 GLOBAL: WalletNotSelectedError caught in global error handler');
   }
 });
 
-// Capture ALL unhandled promise rejections
+// Capture unhandled promise rejections  
 window.addEventListener('unhandledrejection', (event) => {
-  console.error('🚨🚨🚨 GLOBAL UNHANDLED PROMISE REJECTION:', {
+  debugLogger.error(DebugCategory.CONSOLE_ERROR, 'GLOBAL UNHANDLED PROMISE REJECTION', {
     reason: event.reason,
     promise: event.promise,
     timestamp: new Date().toISOString()
   });
   
   if (event.reason?.name === 'WalletNotSelectedError' || String(event.reason).includes('WalletNotSelectedError')) {
-    console.error('🎯 GLOBAL PROMISE: WalletNotSelectedError caught!');
-    alert('GLOBAL PROMISE REJECTION: WalletNotSelectedError! Check console.');
+    console.error('🎯 GLOBAL PROMISE: WalletNotSelectedError caught in promise rejection handler');
   }
 });
 
@@ -77,26 +75,22 @@ const AppWithWallets = React.memo(() => (
       wallets={wallets} 
       autoConnect={false}
       onError={(error) => {
-        // 🚨🚨🚨 CRITICAL DEBUGGING: WalletProvider error handler called!
-        console.error('🚨🚨🚨 WALLET PROVIDER ERROR HANDLER CALLED!');
-        console.error('Error details:', {
+        // Enhanced error logging for wallet issues
+        debugLogger.error(DebugCategory.WALLET, 'WalletProvider error', {
           name: error.name,
           message: error.message,
           stack: error.stack,
           timestamp: new Date().toISOString()
         });
         
-        // Check if this is the WalletNotSelectedError we're hunting
+        // Track WalletNotSelectedError for debugging
         if (error.name === 'WalletNotSelectedError' || error.message?.includes('WalletNotSelectedError')) {
-          console.error('🎯 FOUND IT! WalletNotSelectedError caught in WalletProvider onError');
-          console.error('This means the error is coming from Solana wallet adapter, NOT our code');
-          alert('🎯 WalletNotSelectedError caught in WalletProvider! Check console for details.');
+          console.error('🎯 WalletNotSelectedError caught in WalletProvider onError - this indicates the error is from Solana wallet adapter');
         }
         
-        console.error('Wallet Provider Error:', error);
-        // Suppress MetaMask-related errors in console to reduce noise
+        // Suppress MetaMask-related errors to reduce noise
         if (!error.message?.toLowerCase().includes('metamask')) {
-          console.error('Non-MetaMask wallet error:', error);
+          console.error('Wallet Provider Error:', error);
         }
       }}
       localStorageKey="solana-wallet-adapter"

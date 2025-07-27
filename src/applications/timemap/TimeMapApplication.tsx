@@ -10,7 +10,9 @@ import {
   FormControl,
   InputLabel,
   Select,
-  MenuItem
+  MenuItem,
+  ThemeProvider,
+  createTheme
 } from '@mui/material';
 import { 
   Clock, 
@@ -21,6 +23,163 @@ import {
   Activity,
   MapPin
 } from 'lucide-react';
+
+// Cyberpunk Temporal Theme for TimeMap
+const cyberpunkTemporalTheme = createTheme({
+  palette: {
+    mode: 'dark',
+    primary: {
+      main: '#00bfff', // Deep sky blue for temporal elements
+      dark: '#0088cc',
+      light: '#4dd0ff',
+    },
+    secondary: {
+      main: '#9c27b0', // Purple for timeline and events
+      dark: '#7b1fa2',
+      light: '#ba68c8',
+    },
+    background: {
+      default: '#0a0a1a',
+      paper: 'rgba(0, 10, 30, 0.95)', // Deep blue tint for temporal theme
+    },
+    text: {
+      primary: '#ffffff',
+      secondary: 'rgba(255, 255, 255, 0.7)',
+    },
+    error: {
+      main: '#ff4444',
+    },
+    warning: {
+      main: '#ffaa00',
+    },
+    info: {
+      main: '#00bfff',
+    },
+    success: {
+      main: '#00ff9f',
+    },
+  },
+  typography: {
+    fontFamily: "'Aldrich-Regular', 'Orbitron', monospace",
+    h1: { fontFamily: "'Orbitron', monospace" },
+    h2: { fontFamily: "'Orbitron', monospace" },
+    h3: { fontFamily: "'Orbitron', monospace" },
+    h4: { fontFamily: "'Orbitron', monospace" },
+    h5: { fontFamily: "'Orbitron', monospace" },
+    h6: { fontFamily: "'Orbitron', monospace" },
+  },
+  components: {
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          background: 'rgba(0, 10, 30, 0.95)',
+          border: '1px solid rgba(0, 191, 255, 0.2)',
+          borderRadius: '0',
+          backdropFilter: 'blur(10px)',
+          boxShadow: '0 0 20px rgba(0, 191, 255, 0.1)',
+        },
+      },
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: '0',
+          textTransform: 'uppercase',
+          fontFamily: "'Aldrich-Regular', monospace",
+          fontWeight: 600,
+          letterSpacing: '0.5px',
+        },
+        contained: {
+          background: 'linear-gradient(135deg, #00bfff 0%, #0088cc 100%)',
+          color: '#000',
+          border: '1px solid #00bfff',
+          boxShadow: '0 0 15px rgba(0, 191, 255, 0.3)',
+          '&:hover': {
+            background: 'linear-gradient(135deg, #0088cc 0%, #006699 100%)',
+            boxShadow: '0 0 25px rgba(0, 191, 255, 0.5)',
+          },
+        },
+        outlined: {
+          color: '#00bfff',
+          border: '1px solid rgba(0, 191, 255, 0.5)',
+          '&:hover': {
+            border: '1px solid #00bfff',
+            background: 'rgba(0, 191, 255, 0.1)',
+            boxShadow: '0 0 15px rgba(0, 191, 255, 0.2)',
+          },
+        },
+      },
+    },
+    MuiChip: {
+      styleOverrides: {
+        root: {
+          borderRadius: '0',
+          fontFamily: "'Aldrich-Regular', monospace",
+          fontSize: '0.75rem',
+        },
+      },
+    },
+    MuiFormControl: {
+      styleOverrides: {
+        root: {
+          '& .MuiOutlinedInput-root': {
+            borderRadius: '0',
+            '& fieldset': {
+              borderColor: 'rgba(0, 191, 255, 0.3)',
+            },
+            '&:hover fieldset': {
+              borderColor: 'rgba(0, 191, 255, 0.6)',
+            },
+            '&.Mui-focused fieldset': {
+              borderColor: '#00bfff',
+              boxShadow: '0 0 10px rgba(0, 191, 255, 0.3)',
+            },
+          },
+          '& .MuiInputLabel-root': {
+            color: 'rgba(255, 255, 255, 0.7)',
+            fontFamily: "'Aldrich-Regular', monospace",
+            '&.Mui-focused': {
+              color: '#00bfff',
+            },
+          },
+        },
+      },
+    },
+    MuiMenuItem: {
+      styleOverrides: {
+        root: {
+          fontFamily: "'Aldrich-Regular', monospace",
+          backgroundColor: 'rgba(0, 10, 30, 0.95)',
+          '&:hover': {
+            backgroundColor: 'rgba(0, 191, 255, 0.1)',
+          },
+          '&.Mui-selected': {
+            backgroundColor: 'rgba(0, 191, 255, 0.2)',
+            '&:hover': {
+              backgroundColor: 'rgba(0, 191, 255, 0.3)',
+            },
+          },
+        },
+      },
+    },
+    MuiSelect: {
+      styleOverrides: {
+        root: {
+          '& .MuiSelect-select': {
+            fontFamily: "'Aldrich-Regular', monospace",
+          },
+        },
+      },
+    },
+    MuiCircularProgress: {
+      styleOverrides: {
+        root: {
+          color: '#00bfff',
+        },
+      },
+    },
+  },
+});
 
 // TimeMap Event Interface
 interface TimeMapEvent {
@@ -166,19 +325,83 @@ const TimeMapApplication: React.FC = () => {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-        <CircularProgress />
-        <Typography variant="h6" sx={{ ml: 2 }}>Loading Timeline Data...</Typography>
-      </Box>
+      <ThemeProvider theme={cyberpunkTemporalTheme}>
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh" sx={{
+          background: 'linear-gradient(135deg, rgba(0, 10, 30, 0.95) 0%, rgba(0, 5, 20, 0.98) 100%)',
+          backdropFilter: 'blur(10px)',
+        }}>
+          <CircularProgress />
+          <Typography variant="h6" sx={{ ml: 2 }}>Loading Timeline Data...</Typography>
+        </Box>
+      </ThemeProvider>
     );
   }
 
   return (
-    <Box sx={{ p: 3, height: '100vh', overflow: 'hidden' }}>
+    <ThemeProvider theme={cyberpunkTemporalTheme}>
+      <Box sx={{ 
+        p: 3, 
+        height: '100vh', 
+        overflow: 'hidden',
+        background: 'linear-gradient(135deg, rgba(0, 10, 30, 0.95) 0%, rgba(0, 5, 20, 0.98) 100%)',
+        backdropFilter: 'blur(10px)',
+        position: 'relative',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'linear-gradient(45deg, transparent 49%, rgba(0, 191, 255, 0.02) 50%, transparent 51%)',
+          pointerEvents: 'none',
+          zIndex: 0,
+        }
+      }}>
       {/* Header */}
-      <Box sx={{ mb: 3 }}>
+      <Box sx={{ mb: 3, position: 'relative', zIndex: 1 }}>
+        {/* TimeMap Title */}
+        <Box sx={{ mb: 3, textAlign: 'center' }}>
+          <Typography 
+            variant="h4" 
+            sx={{ 
+              color: '#00bfff',
+              fontFamily: "'Orbitron', monospace",
+              fontWeight: 700,
+              letterSpacing: '2px',
+              textShadow: '0 0 20px rgba(0, 191, 255, 0.5)',
+              mb: 1,
+              '&::before': {
+                content: '"⟨"',
+                color: 'rgba(0, 191, 255, 0.6)',
+                marginRight: '12px',
+                fontSize: '1.2em',
+              },
+              '&::after': {
+                content: '"⟩"',
+                color: 'rgba(0, 191, 255, 0.6)',
+                marginLeft: '12px',
+                fontSize: '1.2em',
+              }
+            }}
+          >
+            TIMEMAP
+          </Typography>
+          <Typography 
+            variant="subtitle1" 
+            sx={{ 
+              color: 'rgba(255, 255, 255, 0.7)',
+              fontFamily: "'Aldrich-Regular', monospace",
+              letterSpacing: '1px',
+              fontSize: '0.9rem',
+            }}
+          >
+            TEMPORAL ANALYSIS & MONITORING PLATFORM
+          </Typography>
+        </Box>
+        
         {/* Controls */}
-        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
+        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap', position: 'relative', zIndex: 1 }}>
           {/* View Mode Selector */}
           <FormControl size="small">
             <InputLabel>View Mode</InputLabel>
@@ -258,7 +481,28 @@ const TimeMapApplication: React.FC = () => {
       {/* Main Content */}
       <Box sx={{ display: 'flex', gap: 2, height: 'calc(100vh - 200px)' }}>
         {/* Timeline Events Panel */}
-        <Paper sx={{ flex: 2, p: 2, overflow: 'auto' }}>
+        <Paper sx={{ 
+          flex: 2, 
+          p: 2, 
+          overflow: 'auto',
+          position: 'relative',
+          zIndex: 1,
+          '&::-webkit-scrollbar': {
+            width: '8px',
+          },
+          '&::-webkit-scrollbar-track': {
+            background: 'rgba(0, 0, 0, 0.3)',
+            borderRadius: '0',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            background: 'linear-gradient(180deg, #00bfff 0%, #0088cc 100%)',
+            borderRadius: '0',
+            boxShadow: '0 0 10px rgba(0, 191, 255, 0.5)',
+          },
+          '&::-webkit-scrollbar-thumb:hover': {
+            background: 'linear-gradient(180deg, #0088cc 0%, #006699 100%)',
+          },
+        }}>
           <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Clock size={20} />
             Timeline Events
@@ -312,7 +556,28 @@ const TimeMapApplication: React.FC = () => {
         </Paper>
 
         {/* Monitoring & Analysis Panel */}
-        <Paper sx={{ flex: 1, p: 2, overflow: 'auto' }}>
+        <Paper sx={{ 
+          flex: 1, 
+          p: 2, 
+          overflow: 'auto',
+          position: 'relative',
+          zIndex: 1,
+          '&::-webkit-scrollbar': {
+            width: '8px',
+          },
+          '&::-webkit-scrollbar-track': {
+            background: 'rgba(0, 0, 0, 0.3)',
+            borderRadius: '0',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            background: 'linear-gradient(180deg, #9c27b0 0%, #7b1fa2 100%)',
+            borderRadius: '0',
+            boxShadow: '0 0 10px rgba(156, 39, 176, 0.5)',
+          },
+          '&::-webkit-scrollbar-thumb:hover': {
+            background: 'linear-gradient(180deg, #7b1fa2 0%, #4a148c 100%)',
+          },
+        }}>
           <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Activity size={20} />
             System Monitoring
@@ -396,6 +661,7 @@ const TimeMapApplication: React.FC = () => {
         </Paper>
       </Box>
     </Box>
+    </ThemeProvider>
   );
 };
 

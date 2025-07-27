@@ -127,167 +127,14 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
     connect: !!solanaWallet.connect
   });
   
-  // 🚨🚨🚨 ENHANCED MONKEY PATCH: Comprehensive wallet operation monitoring
-  const originalConnect = solanaWallet.connect;
-  const originalDisconnect = solanaWallet.disconnect;
-  const originalSelect = solanaWallet.select;
-  
-  if (originalConnect && !(originalConnect as unknown as { _patched?: boolean })._patched) {
-    const patchedConnect = async () => {
-      console.error('🚨🚨🚨 MONKEY PATCH: solanaWallet.connect() called!');
-      console.error('🚨 Call stack:', new Error().stack?.split('\n').slice(0, 10).join('\n'));
-      console.error('🚨 Complete wallet state at connect time:', {
-        'wallet_exists': !!solanaWallet.wallet,
-        'wallet_name': solanaWallet.wallet?.adapter?.name,
-        'wallet_ready_state': solanaWallet.wallet?.adapter?.readyState,
-        'adapter_exists': !!solanaWallet.wallet?.adapter,
-        'connected': solanaWallet.connected,
-        'connecting': solanaWallet.connecting,
-        'publicKey': !!solanaWallet.publicKey,
-        'publicKey_string': solanaWallet.publicKey?.toBase58(),
-        'wallets_available': solanaWallet.wallets?.length,
-        'autoConnect': solanaWallet.autoConnect,
-        'local_storage_wallets': Object.keys(localStorage).filter(k => k.includes('wallet')),
-        'user_agent': navigator.userAgent.substring(0, 50),
-        'timestamp': new Date().toISOString()
-      });
-      alert('MONKEY PATCH: solanaWallet.connect() intercepted! Check console.');
-      
-      // 🔍 ULTIMATE DEBUGGING: Pre-connection validation with maximum detail
-      console.log('🔍 MONKEY PATCH: Pre-connection wallet state analysis:', {
-        'wallet_object_exists': !!solanaWallet.wallet,
-        'wallet_name': solanaWallet.wallet?.adapter?.name,
-        'wallet_readyState': solanaWallet.wallet?.adapter?.readyState,
-        'wallet_connected': solanaWallet.wallet?.adapter?.connected,
-        'context_connected': solanaWallet.connected,
-        'context_connecting': solanaWallet.connecting,
-        'available_wallets_count': solanaWallet.wallets?.length,
-        'available_wallets': solanaWallet.wallets?.map(w => ({
-          name: w.adapter.name,
-          readyState: w.adapter.readyState,
-          connected: w.adapter.connected
-        })),
-        'browser_wallet_extensions': {
-          'phantom_window': typeof (window as unknown as { phantom?: unknown }).phantom !== 'undefined',
-          'solflare_window': typeof (window as unknown as { solflare?: unknown }).solflare !== 'undefined',
-          'phantom_provider': typeof (window as unknown as { phantom?: { solana?: unknown } }).phantom?.solana !== 'undefined',
-          'solflare_provider': typeof (window as unknown as { solflare?: { isSolflare?: unknown } }).solflare?.isSolflare !== 'undefined'
-        },
-        'call_stack_origin': new Error().stack?.split('\n').slice(1, 4),
-        'timestamp': new Date().toISOString(),
-        'performance_mark': performance.now()
-      });
-
-      // Enhanced pre-connection validation
-      if (!solanaWallet.wallet) {
-        console.error('🚨 CRITICAL: WalletNotSelectedError about to occur!', {
-          'reason': 'No wallet selected in context',
-          'available_wallets': solanaWallet.wallets?.map(w => w.adapter.name),
-          'wallets_count': solanaWallet.wallets?.length,
-          'autoSelect_possible': solanaWallet.wallets?.length === 1,
-          'user_action_required': 'User must select a wallet first',
-          'suggested_solution': 'Call wallet.select() before connect()',
-          'error_location': 'AuthContext monkey patch validation',
-          'timestamp': new Date().toISOString()
-        });
-        
-        // 🎯 ULTIMATE DEBUGGING: Try to understand WHY no wallet is selected
-        if (solanaWallet.wallets && solanaWallet.wallets.length > 0) {
-          console.error('� WALLET SELECTION ANALYSIS:', {
-            'total_wallets_available': solanaWallet.wallets.length,
-            'phantom_available': solanaWallet.wallets.find(w => w.adapter.name === 'Phantom'),
-            'solflare_available': solanaWallet.wallets.find(w => w.adapter.name === 'Solflare'),
-            'first_wallet': solanaWallet.wallets[0]?.adapter?.name,
-            'auto_select_first_wallet': 'Could auto-select first available wallet',
-            'possible_race_condition': 'Wallet may not be initialized yet'
-          });
-        }
-        
-        throw new Error('WalletNotSelectedError: No wallet selected');
-      }
-      
-      try {
-        console.log('🔄 MONKEY PATCH: Calling original connect()...');
-        const result = await originalConnect();
-        console.log('✅ MONKEY PATCH: Original connect() succeeded:', {
-          'result': result,
-          'now_connected': solanaWallet.connected,
-          'now_has_publicKey': !!solanaWallet.publicKey,
-          'publicKey': solanaWallet.publicKey?.toBase58()
-        });
-        return result;
-      } catch (error) {
-        console.error('❌ MONKEY PATCH: Original connect() failed:', {
-          'error_name': (error as Error).name,
-          'error_message': (error as Error).message,
-          'error_stack': (error as Error).stack,
-          'wallet_state_after_error': {
-            'connected': solanaWallet.connected,
-            'connecting': solanaWallet.connecting,
-            'wallet_exists': !!solanaWallet.wallet,
-            'wallet_name': solanaWallet.wallet?.adapter?.name
-          }
-        });
-        throw error;
-      }
-    };
-    (patchedConnect as unknown as { _patched: boolean })._patched = true;
-    solanaWallet.connect = patchedConnect;
-  }
-  
-  // 🔍 WALLET SELECTION MONITORING
-  if (originalSelect && typeof originalSelect === 'function' && !(originalSelect as unknown as { _patched?: boolean })._patched) {
-    const patchedSelect = (walletName: string | null) => {
-      console.log('🔄 WALLET SELECTION CHANGE:', {
-        'from_wallet': solanaWallet.wallet?.adapter?.name,
-        'to_wallet': walletName,
-        'was_connected': solanaWallet.connected,
-        'available_wallets': solanaWallet.wallets?.map(w => w.adapter.name),
-        'timestamp': new Date().toISOString()
-      });
-      
-      try {
-        const result = originalSelect.call(solanaWallet, walletName);
-        console.log('✅ Wallet selection completed:', {
-          'new_wallet': solanaWallet.wallet?.adapter?.name,
-          'selection_result': result
-        });
-        return result;
-      } catch (error) {
-        console.error('❌ Wallet selection failed:', error);
-        throw error;
-      }
-    };
-    (patchedSelect as unknown as { _patched: boolean })._patched = true;
-    solanaWallet.select = patchedSelect;
-  }
-  
-  // 🔌 DISCONNECTION MONITORING
-  if (originalDisconnect && !(originalDisconnect as unknown as { _patched?: boolean })._patched) {
-    const patchedDisconnect = async (...args: unknown[]) => {
-      console.log('🔌 WALLET DISCONNECT initiated:', {
-        'wallet': solanaWallet.wallet?.adapter?.name,
-        'was_connected': solanaWallet.connected,
-        'had_publicKey': !!solanaWallet.publicKey,
-        'call_stack': new Error().stack?.split('\n').slice(0, 5).join('\n'),
-        'timestamp': new Date().toISOString()
-      });
-      
-      try {
-        const result = await originalDisconnect.apply(this, args);
-        console.log('✅ Wallet disconnection completed:', {
-          'now_connected': solanaWallet.connected,
-          'still_has_wallet': !!solanaWallet.wallet
-        });
-        return result;
-      } catch (error) {
-        console.error('❌ Wallet disconnection failed:', error);
-        throw error;
-      }
-    };
-    (patchedDisconnect as unknown as { _patched: boolean })._patched = true;
-    solanaWallet.disconnect = patchedDisconnect;
-  }
+  // Basic wallet connection monitoring (simplified)
+  debugLogger.debug(DebugCategory.WALLET, 'Wallet adapter initialized', {
+    connected: solanaWallet.connected,
+    connecting: solanaWallet.connecting,
+    walletSelected: !!solanaWallet.wallet,
+    walletName: solanaWallet.wallet?.adapter?.name,
+    publicKey: !!solanaWallet.publicKey
+  });
   
   const { setVisible: setWalletModalVisible } = useWalletModal();
   
@@ -1313,116 +1160,39 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
     address: solanaWallet.publicKey?.toString() || null,
     connectionStatus: solanaWallet.connected ? 'connected' : (solanaWallet.connecting || isConnecting ? 'connecting' : 'disconnected'),
     connectWallet: async () => {
-      // �🚨🚨 UNMISSABLE DEBUG - IF YOU DON'T SEE THIS, WRONG CODE PATH!
-      console.error('🚨🚨🚨 AUTHCONTEXT CONNECTWALLET CALLED - THIS SHOULD BE VISIBLE!');
-      console.error('🚨🚨🚨 If you see WalletNotSelectedError but NOT this message, there is another connectWallet function!');
-      alert('AUTHCONTEXT CONNECTWALLET CALLED - Check console for details');
-      
-      // �🔍 ULTRA-COMPREHENSIVE DEBUG LOG WITH STACK TRACE
-      const callStack = new Error().stack;
-      console.log('🔗 connectWallet called with FULL DEBUG INFO:', {
-        'timestamp': new Date().toISOString(),
-        'solanaWallet.wallet': !!solanaWallet.wallet,
-        'solanaWallet.wallet.adapter': !!solanaWallet.wallet?.adapter,
-        'solanaWallet.wallet.adapter.name': solanaWallet.wallet?.adapter?.name,
-        'solanaWallet.connected': solanaWallet.connected,
-        'solanaWallet.connecting': solanaWallet.connecting,
-        'solanaWallet.publicKey': !!solanaWallet.publicKey,
-        'isAuthenticated': isAuthenticated,
-        'isConnecting': isConnecting,
-        'isLoading': isLoading,
-        'isSIWSLoading': isSIWSLoading,
-        'emergencyMode': emergencyMode,
-        'callStack': callStack?.split('\n').slice(0, 5).join('\n')
+      // Clear debug alerts and extensive logging
+      debugLogger.debug(DebugCategory.WALLET, 'ConnectWallet called', {
+        walletSelected: !!solanaWallet.wallet,
+        walletName: solanaWallet.wallet?.adapter?.name,
+        connected: solanaWallet.connected,
+        connecting: solanaWallet.connecting || isConnecting
       });
       
       try {
-        // 🚨 TRIPLE-CHECK WALLET STATE WITH DETAILED LOGGING
-        console.log('🔍 PRE-CONNECTION WALLET STATE ANALYSIS:');
-        console.log('  - solanaWallet object exists:', !!solanaWallet);
-        console.log('  - solanaWallet.wallet exists:', !!solanaWallet.wallet);
-        console.log('  - solanaWallet.wallet type:', typeof solanaWallet.wallet);
-        console.log('  - solanaWallet.wallet value:', solanaWallet.wallet);
-        
-        // 🚨 IMMEDIATE WALLET CHECK: Prevent WalletNotSelectedError before any state changes
+        // Validate wallet is selected
         if (!solanaWallet.wallet) {
-          console.error('🚨🚨🚨 CRITICAL ERROR PREVENTED: No wallet selected!');
-          console.log('🚨 Full solanaWallet state:', JSON.stringify(solanaWallet, null, 2));
-          console.log('🚨 Opening wallet modal instead of connecting');
+          debugLogger.info(DebugCategory.WALLET, 'No wallet selected, opening modal');
           setWalletModalVisible(true);
           setAuthError('Please select a wallet from the modal to continue.');
           return;
         }
-        
-        // 🚨 ADDITIONAL SAFETY CHECK: Verify wallet adapter
+
+        // Validate wallet adapter
         if (!solanaWallet.wallet.adapter) {
-          console.error('🚨🚨🚨 CRITICAL ERROR PREVENTED: Wallet exists but adapter missing!');
-          console.log('🚨 Wallet object:', solanaWallet.wallet);
           setWalletModalVisible(true);
           setAuthError('Wallet adapter not available. Please select a different wallet.');
           return;
         }
-        
-        // 🚨 FINAL SAFETY CHECK: Verify connect method exists
-        if (!solanaWallet.wallet.adapter.connect) {
-          console.error('🚨🚨🚨 CRITICAL ERROR PREVENTED: Wallet adapter missing connect method!');
-          console.log('🚨 Adapter object:', solanaWallet.wallet.adapter);
-          setWalletModalVisible(true);
-          setAuthError('Wallet adapter is not functional. Please select a different wallet.');
-          return;
-        }
-        
-        console.log('✅ ALL WALLET CHECKS PASSED - Proceeding with connection');
-        console.log('  - Wallet name:', solanaWallet.wallet.adapter.name);
-        console.log('  - Adapter ready:', !!solanaWallet.wallet.adapter.readyState);
-        
-        setIsConnecting(true);
-        setAuthError(null);
-        setIsLoading(false); // Ensure loading state is clear at start
-        
-        // 🚨 QUAGMIRE DETECTION: Check if we're in emergency mode
-        if (emergencyMode) {
-          console.log('⚠️ Emergency mode active, blocking wallet connection');
-          setAuthError('Emergency mode is active. Please wait for automatic recovery or refresh the page.');
-          setIsConnecting(false);
-          return;
-        }
-        
-        // 🚨 DETECTION: Check for repeated connection attempts (potential loop)
-        const recentErrors = errorHistory.filter(e => 
-          e.type === AuthErrorType.WALLET_CONNECTION_FAILED && 
-          Date.now() - e.timestamp.getTime() < 30000 // Last 30 seconds
-        );
-        
-        if (recentErrors.length >= 3) {
-          console.warn('🌪️ Multiple recent connection failures detected');
-          await handleError(new Error('Multiple connection failures detected'), 'wallet-connection-loop');
-          return;
-        }
-        
-        // 🔍 COMPREHENSIVE WALLET STATE ANALYSIS
-        
-        // Check 1: Browser environment compatibility
-        if (typeof window === 'undefined') {
-          throw new Error('Browser environment required for wallet connection');
-        }
-        
-        // Check 2: Solana wallet adapter availability
-        if (!solanaWallet) {
-          throw new Error('Solana wallet adapter not available');
-        }
-        
-        // Check 3: If wallet is already connected and authenticated
+
+        // Check if already connected and authenticated
         if (solanaWallet.connected && solanaWallet.publicKey && isAuthenticated) {
-          console.log('✅ Already connected and authenticated');
-          setIsConnecting(false);
+          debugLogger.debug(DebugCategory.WALLET, 'Already connected and authenticated');
           return;
         }
-        
-        // Check 4: If wallet is connected but not authenticated
+
+        // If connected but not authenticated, start auth flow
         if (solanaWallet.connected && solanaWallet.publicKey && !isAuthenticated) {
-          console.log('🔐 Wallet connected but not authenticated, starting auth flow');
-          setIsConnecting(false);
+          debugLogger.debug(DebugCategory.WALLET, 'Connected but not authenticated, starting auth');
           setIsLoading(true);
           try {
             await siwsSignIn();
@@ -1433,145 +1203,61 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
           }
           return;
         }
+
+        setIsConnecting(true);
+        setAuthError(null);
         
-        // Check 5: Wallet selection state analysis
-        if (!solanaWallet.wallet) {
-          console.log('📱 No wallet selected - showing selection modal');
-          setWalletModalVisible(true);
-          setIsConnecting(false);
-          setIsLoading(false);
-          
-          // Set user guidance for wallet selection
-          setAuthError('Please select a wallet from the modal to continue.');
-          return;
-        }
-        
-        // Check 6: Wallet adapter state validation
-        if (!solanaWallet.wallet.adapter) {
-          console.warn('⚠️ Wallet adapter missing');
-          await handleError(new Error('Wallet adapter not available'), 'adapter-missing');
-          return;
-        }
-        
-        // Check 7: Wallet adapter readiness
-        if (!solanaWallet.wallet.adapter.name) {
-          console.warn('⚠️ Wallet adapter not properly initialized');
-          await handleError(new Error('Wallet adapter not initialized'), 'adapter-not-ready');
-          return;
-        }
-        
-        // Check 8: Wallet adapter connection capability
-        if (!solanaWallet.wallet.adapter.connect) {
-          console.warn('⚠️ Wallet adapter missing connect method');
-          await handleError(new Error('Wallet adapter missing connect method'), 'adapter-method-missing');
-          return;
-        }
-        
-        // Check 9: Browser extension/app availability
-        if (solanaWallet.wallet.adapter.name.toLowerCase().includes('phantom')) {
-          // @ts-ignore - Check for Phantom
-          if (typeof window.phantom === 'undefined') {
-            throw new Error('Phantom wallet extension not detected. Please install Phantom wallet.');
-          }
-        } else if (solanaWallet.wallet.adapter.name.toLowerCase().includes('solflare')) {
-          // @ts-ignore - Check for Solflare
-          if (typeof window.solflare === 'undefined') {
-            throw new Error('Solflare wallet extension not detected. Please install Solflare wallet.');
-          }
-        }
-        
-        // Check 10: Network connectivity
-        if (!navigator.onLine) {
-          throw new Error('No internet connection detected. Please check your network.');
-        }
-        
-        // Check 11: Storage availability (required for session management)
-        try {
-          localStorage.setItem('test', 'test');
-          localStorage.removeItem('test');
-        } catch (storageError) {
-          throw new Error('Browser storage is disabled. Please enable cookies and local storage.');
-        }
-        
-        // 🚀 ATTEMPT WALLET CONNECTION
-        console.log(`🔗 Attempting to connect wallet: ${solanaWallet.wallet.adapter.name}`);
-        
-        // 🚨 CRITICAL SAFETY CHECK: Verify wallet is still selected before connecting
-        if (!solanaWallet.wallet || !solanaWallet.wallet.adapter) {
-          console.error('🚨 CRITICAL: Wallet became unselected during connection attempt');
-          await handleError(new Error('Wallet was deselected during connection attempt'), 'wallet-deselected');
-          return;
-        }
-        
-        // Set connecting state with timeout protection
+        // Connection timeout protection
         const connectionTimeout = setTimeout(() => {
           if (isConnecting) {
             handleError(new Error('Wallet connection timeout'), 'connection-timeout');
           }
-        }, 30000); // 30 second timeout
-        
+        }, 30000);
+
         try {
-          // 🚨🚨🚨 FINAL PRE-CONNECTION STATE VERIFICATION
-          console.log('🔥 ABOUT TO CALL solanaWallet.connect() - FINAL STATE CHECK:');
-          console.log('  - solanaWallet exists:', !!solanaWallet);
-          console.log('  - solanaWallet.wallet exists:', !!solanaWallet.wallet);
-          console.log('  - solanaWallet.wallet.adapter exists:', !!solanaWallet.wallet?.adapter);
-          console.log('  - solanaWallet.wallet.adapter.connect exists:', !!solanaWallet.wallet?.adapter?.connect);
-          console.log('  - solanaWallet.wallet.adapter.name:', solanaWallet.wallet?.adapter?.name);
-          console.log('  - solanaWallet.connected:', solanaWallet.connected);
-          console.log('  - solanaWallet.connecting:', solanaWallet.connecting);
+          debugLogger.debug(DebugCategory.WALLET, 'Attempting wallet connection', {
+            walletName: solanaWallet.wallet.adapter.name
+          });
           
-          // 🚨 RACE CONDITION PREVENTION: One more check right before connect
-          if (!solanaWallet.wallet || !solanaWallet.wallet.adapter || !solanaWallet.wallet.adapter.connect) {
-            throw new Error('🚨 RACE CONDITION DETECTED: Wallet state changed right before connection attempt');
-          }
+          // Call wallet connect
+          await solanaWallet.connect();
           
-          console.log('🚀 CALLING solanaWallet.connect() NOW...');
+          // Wait for state propagation with proper async handling
+          let attempts = 0;
+          const maxAttempts = 10;
+          const checkInterval = 100; // ms
           
-          // 🚨 ULTIMATE BULLETPROOF CHECK: Last-second verification
-          // This checks the INTERNAL wallet adapter state that might differ from our view
-          try {
-            if (!solanaWallet.wallet || !solanaWallet.wallet.adapter) {
-              throw new Error('🚨 ULTIMATE CHECK FAILED: Wallet state invalid at connection time');
+          while (attempts < maxAttempts) {
+            // Check if connection state has updated
+            if (solanaWallet.connected && solanaWallet.publicKey) {
+              break;
             }
             
-            // Double-check that the wallet adapter's internal select method shows a wallet is selected
-            if (typeof solanaWallet.wallet.adapter.name !== 'string' || solanaWallet.wallet.adapter.name.length === 0) {
-              throw new Error('🚨 ULTIMATE CHECK FAILED: Wallet adapter name is invalid');
-            }
-            
-            console.log('🔥 ULTIMATE CHECK PASSED - Calling connect on:', solanaWallet.wallet.adapter.name);
-            await solanaWallet.connect();
-            console.log('✅ solanaWallet.connect() completed successfully');
-            
-          } catch (ultimateCheckError) {
-            console.error('🚨🚨🚨 ULTIMATE CHECK PREVENTED WalletNotSelectedError!');
-            console.error('🚨 Error would have been:', ultimateCheckError.message);
-            console.error('🚨 Opening wallet modal instead');
-            
-            setWalletModalVisible(true);
-            setAuthError('Wallet connection failed. Please select a wallet from the modal.');
-            setIsConnecting(false);
-            return;
+            // Wait before next check
+            await new Promise(resolve => setTimeout(resolve, checkInterval));
+            attempts++;
           }
+          
           clearTimeout(connectionTimeout);
           
-          // Verify connection was successful
+          // Final verification with improved error messaging
           if (!solanaWallet.connected || !solanaWallet.publicKey) {
-            throw new Error('Wallet connection appeared to succeed but wallet is not connected');
+            throw new Error('Wallet connection failed: Connection state not updated. Please try again or select a different wallet.');
           }
           
-          console.log(`✅ Wallet connected successfully: ${solanaWallet.publicKey.toString()}`);
+          debugLogger.info(DebugCategory.WALLET, 'Wallet connected successfully', {
+            address: solanaWallet.publicKey.toString().substring(0, 8) + '...',
+            walletName: solanaWallet.wallet.adapter.name
+          });
           
-          // 🔐 AUTO-AUTHENTICATION ATTEMPT
+          // Start authentication flow
           if (!isAuthenticated) {
-            console.log('🔐 Starting authentication flow');
             setIsLoading(true);
             try {
               await siwsSignIn();
-              console.log('✅ Authentication completed successfully');
+              debugLogger.info(DebugCategory.WALLET, 'Authentication completed successfully');
             } catch (authError) {
-              console.warn('⚠️ Auto-authentication failed, user can manually authenticate');
+              debugLogger.warn(DebugCategory.WALLET, 'Auto-authentication failed', authError);
               await handleError(authError, 'auto-auth-failed');
             } finally {
               setIsLoading(false);
@@ -1581,47 +1267,19 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         } catch (connectionError) {
           clearTimeout(connectionTimeout);
           
-          // 🚨🚨🚨 COMPREHENSIVE WalletNotSelectedError ANALYSIS
-          console.error('🚨 CONNECTION ERROR CAUGHT:', {
-            'errorName': connectionError.name,
-            'errorMessage': connectionError.message,
-            'errorStack': connectionError.stack,
-            'errorType': typeof connectionError,
-            'fullError': connectionError
-          });
-          
-          console.error('🚨 POST-ERROR WALLET STATE:', {
-            'solanaWallet.wallet': !!solanaWallet.wallet,
-            'solanaWallet.wallet.adapter': !!solanaWallet.wallet?.adapter,
-            'solanaWallet.wallet.adapter.name': solanaWallet.wallet?.adapter?.name,
-            'solanaWallet.connected': solanaWallet.connected,
-            'solanaWallet.connecting': solanaWallet.connecting,
-            'walletModalVisible': undefined // We'll need to track this
-          });
-          
-          // Enhanced detection for WalletNotSelectedError
+          // Simplified error handling without extensive logging
           const isWalletNotSelectedError = 
             connectionError.name === 'WalletNotSelectedError' || 
             connectionError.message?.includes('WalletNotSelectedError') ||
             connectionError.message?.includes('not selected') ||
-            connectionError.message?.includes('No wallet selected') ||
-            String(connectionError).includes('WalletNotSelectedError');
+            connectionError.message?.includes('No wallet selected');
             
           if (isWalletNotSelectedError) {
-            console.error('🚨🚨🚨 WalletNotSelectedError DETECTED - THIS SHOULD NOT HAPPEN!');
-            console.error('🚨 Our wallet checks failed to prevent this error');
-            console.error('🚨 Analysis of what went wrong:');
-            console.error('  - Did wallet become null between checks?', !solanaWallet.wallet);
-            console.error('  - Is adapter missing?', !solanaWallet.wallet?.adapter);
-            console.error('  - Error details:', connectionError);
-            
+            debugLogger.error(DebugCategory.WALLET, 'WalletNotSelectedError detected');
             setWalletModalVisible(true);
-            setAuthError('Critical wallet error detected. Please select a wallet from the modal to continue.');
+            setAuthError('Wallet selection error. Please select a wallet from the modal.');
             setIsConnecting(false);
             setIsLoading(false);
-            
-            // Add this error to our comprehensive tracking
-            await handleError(new Error(`WalletNotSelectedError bypassed our checks: ${connectionError.message}`), 'wallet-not-selected-bypass');
             return;
           }
           
@@ -1629,11 +1287,10 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         }
         
       } catch (err) {
-        console.error('🚨 Wallet connection error:', err);
+        debugLogger.error(DebugCategory.WALLET, 'Wallet connection error', err);
         await handleError(err, 'wallet-connection');
       } finally {
         setIsConnecting(false);
-        // Only clear loading state if we're not in the middle of authentication
         if (!isAuthenticated && !isSIWSLoading) {
           setIsLoading(false);
         }

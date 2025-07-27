@@ -441,12 +441,25 @@ const WalletStatusMini: React.FC = () => {
     checkForStaleData();
   }, []); // Only run once on mount
 
-  // Clear manual connecting state when connection status changes
+  // Clear wallet selection state when certain errors occur
   useEffect(() => {
-    if (connectionStatus !== 'disconnected') {
-      setIsManuallyConnecting(false);
+    // If we get a WalletNotSelectedError or similar, we may need to reset wallet selection
+    if (error || authError) {
+      const errorMessage = error || authError;
+      if (errorMessage && 
+          (errorMessage.includes('WalletNotSelectedError') || 
+           errorMessage.includes('not selected') ||
+           errorMessage.includes('No wallet selected') ||
+           errorMessage.includes('Wallet selection error'))) {
+        
+        // Clear the manual connecting state since wallet selection failed
+        setIsManuallyConnecting(false);
+        setWalletSelectionVisible(false);
+        
+        console.log('🔄 Wallet selection error detected, clearing local state for fresh selection');
+      }
     }
-  }, [connectionStatus]);
+  }, [error, authError]);
 
   // Show snackbar notifications
   useEffect(() => {
@@ -768,28 +781,27 @@ const WalletStatusMini: React.FC = () => {
           return;
           
         case 'error':
-          // Connection error - retry full connection
-          console.log('🔍 WalletStatusMini: Handling error case - retrying connection');
+          // Connection error - check if we need to go back to wallet selection
+          console.log('🔍 WalletStatusMini: Handling error case - checking wallet state');
           console.log('  - Current error:', error);
           console.log('  - Auth error:', authError);
-          console.log('  - Provider state:', {
-            'wallet': !!provider?.wallet,
-            'connected': provider?.connected,
-            'connecting': provider?.connecting
-          });
+          console.log('  - Wallet exists:', !!provider?.wallet);
           
-          setSnackbarMessage('Retrying connection...');
-          setSnackbarType('info');
-          setSnackbarOpen(true);
-          
-          console.log('🚀 WalletStatusMini: About to call connectWallet() from error case...');
-          
-          // 🚨🚨🚨 UNMISSABLE DEBUG - ERROR CASE CALLING CONNECTWALLET
-          console.error('🚨🚨🚨 WALLETSTATUSMINI ERROR CASE CALLING CONNECTWALLET!');
-          alert('WalletStatusMini ERROR CASE calling connectWallet - check console');
-          
-          await connectWallet();
-          console.log('✅ WalletStatusMini: connectWallet() call from error case completed');
+          // If wallet is no longer selected, go back to selection
+          if (!provider?.wallet) {
+            setSnackbarMessage('Opening wallet selection...');
+            setSnackbarType('info');
+            setSnackbarOpen(true);
+            openWalletModal();
+          } else {
+            // Wallet still selected, retry connection
+            setSnackbarMessage('Retrying connection...');
+            setSnackbarType('info');
+            setSnackbarOpen(true);
+            
+            await connectWallet();
+            console.log('✅ WalletStatusMini: connectWallet() call from error case completed');
+          }
           break;
           
         case 'connected':
@@ -798,114 +810,20 @@ const WalletStatusMini: React.FC = () => {
           
         case 'default':
         default:
-          // Special handling for 3-strike reset scenario
-          if (signingFailureCount.current >= 3 && (address || connectionStatus === 'connected')) {
-            // We're in a 3-strike reset scenario but still have connection remnants
-            setSnackbarMessage('Performing final cleanup after 3 retry attempts...');
-            setSnackbarType('info');
-            setSnackbarOpen(true);
-            
-            try {
-              // Force complete disconnect and reset
-              await disconnectWallet();
-              await forceReset();
-              
-              // Reset all local state
-              signingFailureCount.current = 0;
-              setShowForceReset(false);
-              
-              // Clear any manual connecting state
-              setIsManuallyConnecting(false);
-              
-              // Wait a moment then show ready message
-              setTimeout(() => {
-                setSnackbarMessage('All authentication state cleared. Ready for fresh connection.');
-                setSnackbarType('success');
-                setSnackbarOpen(true);
-              }, 1000);
-              
-            } catch (error) {
-              console.error('Final cleanup after 3-strike reset failed:', error);
-              setSnackbarMessage('Cleanup failed. Please refresh the page.');
-              setSnackbarType('error');
-              setSnackbarOpen(true);
-            }
-            return;
-          }
-          
-          // No wallet connected - check if wallet is selected first
-          console.log('🔍 WalletStatusMini: Checking wallet selection state:', {
-            'provider?.wallet exists': !!provider?.wallet,
-            'provider?.wallet.name': provider?.wallet?.name,
-            'provider?.connected': provider?.connected,
-            'provider?.connecting': provider?.connecting,
-            'provider.full': provider,
-            'connectionStatus': connectionStatus,
-            'address': address
-          });
-          
+          // Check if wallet is not selected and we need to open modal
           if (!provider?.wallet) {
-            console.log('🚨 WalletStatusMini: No wallet selected, opening modal');
+            console.log('� WalletStatusMini: No wallet selected, opening modal');
             setSnackbarMessage('Opening wallet selection...');
             setSnackbarType('info');
             setSnackbarOpen(true);
             openWalletModal();
           } else {
-            // CRITICAL SAFETY CHECK: Verify wallet is actually available before connecting
-            console.log('🔍 WalletStatusMini: Wallet appears selected, verifying before connection...');
-            console.log('  - Wallet name:', provider.wallet?.name);
-            console.log('  - Wallet type:', typeof provider.wallet);
-            console.log('  - Connection status:', connectionStatus);
-            
             // Wallet is selected but not connected - try to connect
             setSnackbarMessage('Connecting to selected wallet...');
             setSnackbarType('info');
             setSnackbarOpen(true);
             
             console.log('🚀 WalletStatusMini: About to call connectWallet()...');
-            
-            // 🚨🚨🚨 UNMISSABLE DEBUG - WALLET STATUS MINI CALLING CONNECTWALLET
-            console.error('🚨🚨🚨 WALLETSTATUSMINI CALLING CONNECTWALLET NOW!');
-            console.error('🔍 COMPREHENSIVE USER ACTION CONTEXT:', {
-              'user_action': 'retry_button_clicked',
-              'button_state': buttonState,
-              'connection_status': connectionStatus,
-              'wallet_info': {
-                'provider_exists': !!provider,
-                'wallet_exists': !!provider?.wallet,
-                'wallet_name': provider?.wallet?.name,
-                'connected': provider?.connected,
-                'connecting': provider?.connecting,
-                'publicKey': provider?.publicKey?.toString(),
-                'adapter_ready': provider?.wallet?.adapter?.readyState
-              },
-              'auth_state': {
-                'isAuthenticated': isAuthenticated,
-                'isSigningIn': isSigningIn,
-                'session_exists': !!session,
-                'authError': !!authError,
-                'authFailureCount': authFailureCount
-              },
-              'component_state': {
-                'isManuallyConnecting': isManuallyConnecting,
-                'retryCount': retryCount,
-                'inQuagmire': inQuagmire,
-                'autoAuthDisabled': autoAuthDisabled
-              },
-              'browser_context': {
-                'url': window.location.href,
-                'timestamp': new Date().toISOString(),
-                'user_agent': navigator.userAgent.substring(0, 100),
-                'local_storage_keys': Object.keys(localStorage).filter(k => k.includes('wallet') || k.includes('auth'))
-              },
-              'interaction_history': {
-                'time_since_last_attempt': timeSinceLastSignAttempt || 0,
-                'consecutive_errors': consecutiveErrorCount || 0,
-                'persistent_error_duration': persistentErrorDuration || 0,
-                'retry_count': retryCount || 0
-              }
-            });
-            alert('WalletStatusMini calling connectWallet - check console for comprehensive debug info');
             
             await connectWallet();
             console.log('✅ WalletStatusMini: connectWallet() call completed');
@@ -1006,7 +924,7 @@ const WalletStatusMini: React.FC = () => {
   
   // Comprehensive button state management for all scenarios
   const getConnectButtonState = () => {
-    // Check if no wallet is selected at all
+    // Check if no wallet is selected at all - this is the key fix
     if (!provider?.wallet && connectionStatus === 'disconnected' && !address) {
       return { 
         label: 'Select Wallet', 
@@ -1017,6 +935,17 @@ const WalletStatusMini: React.FC = () => {
       };
     }
     
+    // IMPORTANT: Check for wallet selection issues - if wallet became unselected
+    if (!provider?.wallet && (error || authError)) {
+      return { 
+        label: 'Select Wallet', 
+        disabled: false, 
+        showDefault: true, 
+        className: 'default',
+        icon: '👛'
+      };
+    }
+
     // Override states with manual connecting if user just clicked
     if (isManuallyConnecting && connectionStatus === 'disconnected') {
       return { 
@@ -1027,7 +956,7 @@ const WalletStatusMini: React.FC = () => {
         icon: '⟳'
       };
     }
-    
+
     // Show "Wallet Selected" state when user selected wallet but hasn't connected yet
     if (walletSelectionVisible && connectionStatus === 'disconnected' && !address) {
       return { 
@@ -1064,8 +993,19 @@ const WalletStatusMini: React.FC = () => {
       };
     }
     
-    // Error states
+    // Error states - IMPROVED: Check if wallet is still selected
     if (connectionStatus === 'disconnected' || (error && !address)) {
+      // If wallet is not selected, show Select Wallet instead of Retry
+      if (!provider?.wallet) {
+        return { 
+          label: 'Select Wallet', 
+          disabled: false, 
+          showDefault: true, 
+          className: 'default',
+          icon: '👛'
+        };
+      }
+      
       return { 
         label: 'Retry', 
         disabled: false, 

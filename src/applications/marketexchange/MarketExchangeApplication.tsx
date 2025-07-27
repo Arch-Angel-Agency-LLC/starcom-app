@@ -22,7 +22,9 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions
+  DialogActions,
+  ThemeProvider,
+  createTheme
 } from '@mui/material';
 import { 
   TrendingUp, 
@@ -38,6 +40,174 @@ import {
   Bitcoin,
   Shield
 } from 'lucide-react';
+
+// Cyberpunk Market Theme for MarketExchange
+const cyberpunkMarketTheme = createTheme({
+  palette: {
+    mode: 'dark',
+    primary: {
+      main: '#00ff88', // Green for profits/positive
+      dark: '#00cc66',
+      light: '#4dff99',
+    },
+    secondary: {
+      main: '#ff4444', // Red for losses/negative  
+      dark: '#cc3333',
+      light: '#ff6666',
+    },
+    background: {
+      default: '#0a0f14',
+      paper: 'rgba(0, 20, 10, 0.95)', // Subtle green tint for market theme
+    },
+    text: {
+      primary: '#ffffff',
+      secondary: 'rgba(255, 255, 255, 0.7)',
+    },
+    error: {
+      main: '#ff4444',
+    },
+    warning: {
+      main: '#ffaa00', // Amber for warnings
+    },
+    info: {
+      main: '#00c4ff', // Cyan for info
+    },
+    success: {
+      main: '#00ff88', // Bright green for success
+    },
+  },
+  typography: {
+    fontFamily: "'Aldrich-Regular', 'Orbitron', monospace",
+    h1: { fontFamily: "'Orbitron', monospace" },
+    h2: { fontFamily: "'Orbitron', monospace" },
+    h3: { fontFamily: "'Orbitron', monospace" },
+    h4: { fontFamily: "'Orbitron', monospace" },
+    h5: { fontFamily: "'Orbitron', monospace" },
+    h6: { fontFamily: "'Orbitron', monospace" },
+  },
+  components: {
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          background: 'rgba(0, 20, 10, 0.95)',
+          border: '1px solid rgba(0, 255, 136, 0.2)',
+          borderRadius: '0',
+          backdropFilter: 'blur(10px)',
+          boxShadow: '0 0 20px rgba(0, 255, 136, 0.1)',
+        },
+      },
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: '0',
+          textTransform: 'uppercase',
+          fontFamily: "'Aldrich-Regular', monospace",
+          fontWeight: 600,
+          letterSpacing: '0.5px',
+        },
+        contained: {
+          background: 'linear-gradient(135deg, #00ff88 0%, #00cc66 100%)',
+          color: '#000',
+          border: '1px solid #00ff88',
+          boxShadow: '0 0 15px rgba(0, 255, 136, 0.3)',
+          '&:hover': {
+            background: 'linear-gradient(135deg, #00cc66 0%, #009944 100%)',
+            boxShadow: '0 0 25px rgba(0, 255, 136, 0.5)',
+          },
+        },
+        outlined: {
+          color: '#00ff88',
+          border: '1px solid rgba(0, 255, 136, 0.5)',
+          '&:hover': {
+            border: '1px solid #00ff88',
+            background: 'rgba(0, 255, 136, 0.1)',
+            boxShadow: '0 0 15px rgba(0, 255, 136, 0.2)',
+          },
+        },
+      },
+    },
+    MuiChip: {
+      styleOverrides: {
+        root: {
+          borderRadius: '0',
+          fontFamily: "'Aldrich-Regular', monospace",
+          fontSize: '0.75rem',
+        },
+      },
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          background: 'rgba(0, 25, 15, 0.9)',
+          border: '1px solid rgba(0, 255, 136, 0.2)',
+          borderRadius: '0',
+          backdropFilter: 'blur(10px)',
+          transition: 'all 0.3s ease',
+          '&:hover': {
+            borderColor: 'rgba(0, 255, 136, 0.4)',
+            boxShadow: '0 0 20px rgba(0, 255, 136, 0.2)',
+            transform: 'translateY(-2px)',
+          },
+        },
+      },
+    },
+    MuiTable: {
+      styleOverrides: {
+        root: {
+          '& .MuiTableCell-root': {
+            borderBottom: '1px solid rgba(0, 255, 136, 0.1)',
+            color: 'rgba(255, 255, 255, 0.9)',
+            fontFamily: "'Aldrich-Regular', monospace",
+          },
+          '& .MuiTableHead-root .MuiTableCell-root': {
+            backgroundColor: 'rgba(0, 255, 136, 0.1)',
+            color: '#00ff88',
+            fontWeight: 700,
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+          },
+        },
+      },
+    },
+    MuiTabs: {
+      styleOverrides: {
+        root: {
+          borderBottom: '1px solid rgba(0, 255, 136, 0.2)',
+        },
+        indicator: {
+          backgroundColor: '#00ff88',
+          height: '3px',
+          boxShadow: '0 0 10px rgba(0, 255, 136, 0.5)',
+        },
+      },
+    },
+    MuiTab: {
+      styleOverrides: {
+        root: {
+          color: 'rgba(255, 255, 255, 0.7)',
+          fontFamily: "'Aldrich-Regular', monospace",
+          textTransform: 'uppercase',
+          letterSpacing: '0.5px',
+          '&.Mui-selected': {
+            color: '#00ff88',
+            textShadow: '0 0 10px rgba(0, 255, 136, 0.5)',
+          },
+        },
+      },
+    },
+    MuiDialog: {
+      styleOverrides: {
+        paper: {
+          background: 'rgba(0, 20, 10, 0.98)',
+          border: '1px solid rgba(0, 255, 136, 0.3)',
+          borderRadius: '0',
+          boxShadow: '0 0 30px rgba(0, 255, 136, 0.2)',
+        },
+      },
+    },
+  },
+});
 
 // Market Data Interfaces
 interface MarketAsset {
@@ -283,19 +453,77 @@ const MarketExchangeApplication: React.FC = () => {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-        <CircularProgress />
-        <Typography variant="h6" sx={{ ml: 2 }}>Loading Market Data...</Typography>
-      </Box>
+      <ThemeProvider theme={cyberpunkMarketTheme}>
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+          <CircularProgress />
+          <Typography variant="h6" sx={{ ml: 2 }}>Loading Market Data...</Typography>
+        </Box>
+      </ThemeProvider>
     );
   }
 
   return (
-    <Box sx={{ p: 3, height: '100vh', overflow: 'hidden' }}>
+    <ThemeProvider theme={cyberpunkMarketTheme}>
+      <Box sx={{ 
+        p: 3, 
+        height: '100vh', 
+        overflow: 'hidden',
+        background: 'linear-gradient(135deg, rgba(0, 15, 10, 0.95) 0%, rgba(0, 25, 15, 0.98) 100%)',
+        backdropFilter: 'blur(10px)',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'linear-gradient(45deg, transparent 49%, rgba(0, 255, 136, 0.02) 50%, transparent 51%)',
+          pointerEvents: 'none',
+          zIndex: 0,
+        }
+      }}>
       {/* Header */}
-      <Box sx={{ mb: 3 }}>
+      <Box sx={{ mb: 3, position: 'relative', zIndex: 1 }}>
+        {/* MarketExchange Title */}
+        <Box sx={{ mb: 3, textAlign: 'center' }}>
+          <Typography 
+            variant="h4" 
+            sx={{ 
+              color: '#00ff88',
+              fontFamily: "'Orbitron', monospace",
+              fontWeight: 700,
+              letterSpacing: '2px',
+              textShadow: '0 0 20px rgba(0, 255, 136, 0.5)',
+              mb: 1,
+              '&::before': {
+                content: '"[$"',
+                color: 'rgba(0, 255, 136, 0.6)',
+                marginRight: '8px',
+              },
+              '&::after': {
+                content: '"$]"',
+                color: 'rgba(0, 255, 136, 0.6)',
+                marginLeft: '8px',
+              }
+            }}
+          >
+            MARKETEXCHANGE
+          </Typography>
+          <Typography 
+            variant="subtitle1" 
+            sx={{ 
+              color: 'rgba(255, 255, 255, 0.7)',
+              fontFamily: "'Aldrich-Regular', monospace",
+              letterSpacing: '1px',
+              fontSize: '0.9rem',
+            }}
+          >
+            ECONOMIC ANALYSIS & MARKET INTELLIGENCE
+          </Typography>
+        </Box>
+        
         {/* Market Overview Stats */}
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 2 }}>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 2, position: 'relative', zIndex: 1 }}>
           <Box sx={{ flex: '1 1 200px', minWidth: 200 }}>
             <Card>
               <CardContent sx={{ textAlign: 'center' }}>
@@ -372,7 +600,27 @@ const MarketExchangeApplication: React.FC = () => {
       </Box>
 
       {/* Tab Content */}
-      <Box sx={{ height: 'calc(100vh - 300px)', overflow: 'auto' }}>
+      <Box sx={{ 
+        height: 'calc(100vh - 350px)', 
+        overflow: 'auto',
+        position: 'relative',
+        zIndex: 1,
+        '&::-webkit-scrollbar': {
+          width: '8px',
+        },
+        '&::-webkit-scrollbar-track': {
+          background: 'rgba(0, 0, 0, 0.3)',
+          borderRadius: '0',
+        },
+        '&::-webkit-scrollbar-thumb': {
+          background: 'linear-gradient(180deg, #00ff88 0%, #00cc66 100%)',
+          borderRadius: '0',
+          boxShadow: '0 0 10px rgba(0, 255, 136, 0.5)',
+        },
+        '&::-webkit-scrollbar-thumb:hover': {
+          background: 'linear-gradient(180deg, #00cc66 0%, #009944 100%)',
+        },
+      }}>
         {/* Markets Tab */}
         <TabPanel value={activeTab} index={0}>
           <TableContainer component={Paper}>
@@ -629,6 +877,7 @@ const MarketExchangeApplication: React.FC = () => {
         </DialogActions>
       </Dialog>
     </Box>
+    </ThemeProvider>
   );
 };
 

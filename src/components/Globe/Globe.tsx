@@ -8,6 +8,8 @@ import { GlobeEngine } from '../../globe-engine/GlobeEngine';
 import { useSpaceWeatherContext } from '../../context/SpaceWeatherContext';
 import GlobeLoadingManager from './GlobeLoadingManager';
 import { useIntelReport3DMarkers } from '../../hooks/useIntelReport3DMarkers';
+import { useCyberThreats3D } from '../../hooks/useCyberThreats3D';
+import { useCyberAttacks3D } from '../../hooks/useCyberAttacks3D';
 import { intelReportVisualizationService } from '../../services/IntelReportVisualizationService';
 import { IntelReportOverlayMarker } from '../../interfaces/IntelReportOverlay';
 import { Enhanced3DGlobeInteractivity } from './Enhanced3DGlobeInteractivity';
@@ -524,10 +526,59 @@ const GlobeView: React.FC = () => {
     hoveredReportId // Pass the currently hovered report ID
   );
 
+  // Initialize CyberThreats 3D visualization using the new hook
+  const cyberThreats = useCyberThreats3D(
+    visualizationMode.mode === 'CyberCommand' && visualizationMode.subMode === 'CyberThreats',
+    globeRef.current ? (globeRef.current as unknown as { scene: () => THREE.Scene }).scene() : null,
+    globeRef.current ? (globeRef.current as unknown as { camera: () => THREE.Camera }).camera() : null,
+    {
+      globeRadius: 100,
+      updateInterval: 5000,
+      enableHeatMap: true,
+      debugMode: process.env.NODE_ENV === 'development'
+    }
+  );
+
+  // Initialize CyberAttacks 3D visualization using the new hook
+  const cyberAttacks = useCyberAttacks3D(
+    visualizationMode.mode === 'CyberCommand' && visualizationMode.subMode === 'CyberAttacks',
+    globeRef.current ? (globeRef.current as unknown as { scene: () => THREE.Scene }).scene() : null,
+    globeRef.current ? (globeRef.current as unknown as { camera: () => THREE.Camera }).camera() : null,
+    {
+      globeRadius: 100,
+      updateInterval: 2000,
+      enableTrajectories: true,
+      trajectorySpeed: 1.0,
+      debugMode: process.env.NODE_ENV === 'development'
+    }
+  );
+
   // Update the models state when intel3DModels changes
   useEffect(() => {
     setIntelModels(intel3DModels);
   }, [intel3DModels]);
+
+  // Monitor CyberThreats hook status
+  useEffect(() => {
+    if (visualizationMode.mode === 'CyberCommand' && visualizationMode.subMode === 'CyberThreats') {
+      console.log(`🔒 CYBER THREATS 3D HOOK STATUS: ${cyberThreats.threats.length} threats loaded, Loading: ${cyberThreats.isLoading}`);
+      if (cyberThreats.error) {
+        console.error('🔒 CyberThreats Hook Error:', cyberThreats.error);
+      }
+      setCyberDataLoading(cyberThreats.isLoading);
+    }
+  }, [visualizationMode.mode, visualizationMode.subMode, cyberThreats.threats.length, cyberThreats.isLoading, cyberThreats.error]);
+
+  // Monitor CyberAttacks hook status
+  useEffect(() => {
+    if (visualizationMode.mode === 'CyberCommand' && visualizationMode.subMode === 'CyberAttacks') {
+      console.log(`⚡ CYBER ATTACKS 3D HOOK STATUS: ${cyberAttacks.attacks.length} attacks loaded, Loading: ${cyberAttacks.isLoading}`);
+      if (cyberAttacks.error) {
+        console.error('⚡ CyberAttacks Hook Error:', cyberAttacks.error);
+      }
+      setCyberDataLoading(cyberAttacks.isLoading);
+    }
+  }, [visualizationMode.mode, visualizationMode.subMode, cyberAttacks.attacks.length, cyberAttacks.isLoading, cyberAttacks.error]);
 
   // =============================================================================
   // CYBER THREATS 3D VISUALIZATION - Real animated data-driven visualization
