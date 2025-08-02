@@ -61,7 +61,7 @@ export interface DomainParserResult extends Record<string, unknown> {
  */
 export const DomainParserScript: ScriptDefinition = {
   metadata: {
-    id: 'domain-parser',
+    id: 'domain-parser-v1',
     name: 'Domain Parser',
     version: '1.0.0',
     description: 'Extract and analyze domain information from text, URLs, and email addresses',
@@ -123,7 +123,7 @@ export const DomainParserScript: ScriptDefinition = {
       // Validate input data
       if (!input.data) {
         const errorContext: ErrorContext = {
-          scriptId: 'domain-parser',
+          scriptId: 'domain-parser-v1',
           executionId,
           step: 'input-validation',
           environment: 'browser',
@@ -153,7 +153,7 @@ export const DomainParserScript: ScriptDefinition = {
             cacheMisses: 0
           },
           metadata: {
-            scriptId: 'domain-parser',
+            scriptId: 'domain-parser-v1',
             scriptVersion: '1.0.0',
             executionId,
             sourceData: 'invalid-input',
@@ -229,7 +229,7 @@ export const DomainParserScript: ScriptDefinition = {
           cacheMisses: 0
         },
         metadata: {
-          scriptId: 'domain-parser',
+          scriptId: 'domain-parser-v1',
           scriptVersion: '1.0.0',
           executionId,
           sourceData: input.source || 'unknown',
@@ -247,7 +247,7 @@ export const DomainParserScript: ScriptDefinition = {
     } catch (error) {
       const endTime = new Date();
       const errorContext: ErrorContext = {
-        scriptId: 'domain-parser',
+        scriptId: 'domain-parser-v1',
         executionId,
         step: 'execution',
         environment: 'browser',
@@ -277,7 +277,7 @@ export const DomainParserScript: ScriptDefinition = {
           cacheMisses: 0
         },
         metadata: {
-          scriptId: 'domain-parser',
+          scriptId: 'domain-parser-v1',
           scriptVersion: '1.0.0',
           executionId,
           sourceData: 'error-occurred',

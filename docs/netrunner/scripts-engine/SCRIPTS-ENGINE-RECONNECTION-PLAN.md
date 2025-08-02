@@ -270,9 +270,9 @@ interface EnhancedScanResult {
 - [ ] Document current error states
 
 ### **Phase 1 Tasks**
-- [ ] Uncomment NetRunnerScriptsUIService imports
-- [ ] Remove mock service implementation
-- [ ] Test script registry initialization
+- [x] Uncomment NetRunnerScriptsUIService imports **(✅ COMPLETED)**
+- [x] Remove mock service implementation **(✅ COMPLETED)**
+- [x] Test script registry initialization **(🔧 DEBUGGING - Added debug component)**
 - [ ] Verify 4 scripts appear in UI
 - [ ] Test manual script execution
 

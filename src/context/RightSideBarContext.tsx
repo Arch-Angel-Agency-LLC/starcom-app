@@ -34,7 +34,9 @@ export const RightSideBarProvider: React.FC<RightSideBarProviderProps> = ({ chil
     // Calculate sidebar width based on state
     const calculatedWidth = isCollapsed 
       ? 40 
-      : (activeSection === 'chat' ? 320 : 120);
+      : (activeSection === 'chat' ? 320 
+         : activeSection === 'controls' ? 240  // NEW: Wider for visualization controls
+         : 120);
     
     setSidebarWidth(calculatedWidth);
     

@@ -23,6 +23,7 @@ import {
   ProcessedIntelligenceData,
   ConfigurationValue,
   ProcessedDataValue,
+  ScriptCategory,
   ErrorContext
 } from '../types/ScriptTypes';
 
@@ -116,16 +117,16 @@ export interface ContactHarvesterResult extends Record<string, unknown> {
  */
 export const ContactHarvesterScript: ScriptDefinition = {
   metadata: {
-    id: 'contact-harvester',
-    name: 'Contact Harvester',
+    id: 'contact-harvester-v1',
+    name: 'Contact Information Harvester',
     version: '1.0.0',
-    description: 'Extract and organize contact information from various data sources',
-    author: 'NetRunner Scripts',
-    category: 'contact-harvesting',
-    tags: ['contacts', 'emails', 'phones', 'addresses', 'social', 'harvesting'],
+    description: 'Extracts and validates contact information including emails, phone numbers, and social media profiles',
+    author: 'NetRunner Scripts Engine',
+    category: 'contact-extraction' as ScriptCategory,
+    tags: ['contacts', 'extraction', 'validation', 'osint', 'social-media'],
     dependencies: [],
-    created: new Date(),
-    updated: new Date()
+    created: new Date('2025-07-17'),
+    updated: new Date('2025-07-17')
   },
   
   configuration: {
@@ -192,7 +193,7 @@ export const ContactHarvesterScript: ScriptDefinition = {
       // Validate input data
       if (!input.data) {
         const errorContext: ErrorContext = {
-          scriptId: 'contact-harvester',
+          scriptId: 'contact-harvester-v1',
           executionId,
           step: 'input-validation',
           environment: 'browser',
@@ -222,7 +223,7 @@ export const ContactHarvesterScript: ScriptDefinition = {
             cacheMisses: 0
           },
           metadata: {
-            scriptId: 'contact-harvester',
+            scriptId: 'contact-harvester-v1',
             scriptVersion: '1.0.0',
             executionId,
             sourceData: 'invalid-input',
@@ -292,7 +293,7 @@ export const ContactHarvesterScript: ScriptDefinition = {
           cacheMisses: 0
         },
         metadata: {
-          scriptId: 'contact-harvester',
+          scriptId: 'contact-harvester-v1',
           scriptVersion: '1.0.0',
           executionId,
           sourceData: input.source || 'unknown',
@@ -311,7 +312,7 @@ export const ContactHarvesterScript: ScriptDefinition = {
     } catch (error) {
       const endTime = new Date();
       const errorContext: ErrorContext = {
-        scriptId: 'contact-harvester',
+        scriptId: 'contact-harvester-v1',
         executionId,
         step: 'execution',
         environment: 'browser',
@@ -341,7 +342,7 @@ export const ContactHarvesterScript: ScriptDefinition = {
           cacheMisses: 0
         },
         metadata: {
-          scriptId: 'contact-harvester',
+          scriptId: 'contact-harvester-v1',
           scriptVersion: '1.0.0',
           executionId,
           sourceData: 'error-occurred',

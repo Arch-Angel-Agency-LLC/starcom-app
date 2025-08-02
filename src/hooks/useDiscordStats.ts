@@ -1,0 +1,102 @@
+// Copy exact pattern from useEnterpriseSpaceWeatherData
+import { useState, useEffect, useCallback } from 'react';
+import { DiscordService, DiscordServerStats } from '../services/DiscordService';
+import { DiscordNotifications } from '../utils/discordNotifications';
+
+interface UseDiscordStatsOptions {
+  autoRefresh?: boolean;
+  refreshInterval?: number; // in milliseconds
+}
+
+interface UseDiscordStats {
+  stats: DiscordServerStats | null;
+  onlineCount: number;
+  isLoading: boolean;
+  error: string | null;
+  lastUpdated: Date | null;
+  refresh: () => Promise<void>;
+}
+
+export const useDiscordStats = (
+  options: UseDiscordStatsOptions = {}
+): UseDiscordStats => {
+  const {
+    autoRefresh = true,
+    refreshInterval = 30 * 1000, // 30 seconds default (Discord updates frequently)
+  } = options;
+
+  const [stats, setStats] = useState<DiscordServerStats | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+
+  const fetchStats = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      console.log('🔄 Discord: Fetching server stats...');
+      const serverStats = await DiscordService.getServerStats();
+      
+      // Detect member changes and notify
+      if (stats && serverStats.presence_count > stats.presence_count) {
+        const newMembers = serverStats.presence_count - stats.presence_count;
+        if (newMembers === 1) {
+          // Try to identify the new member
+          const newMember = serverStats.members.find(m => 
+            !stats.members.some(existing => existing.id === m.id)
+          );
+          DiscordNotifications.showMemberJoined(
+            newMember?.username || 'An operative',
+            serverStats.presence_count
+          );
+        }
+      }
+
+      // Detect high activity (threshold: 50+ online)
+      if (serverStats.presence_count >= 50 && (!stats || stats.presence_count < 50)) {
+        DiscordNotifications.showHighActivity(serverStats.presence_count);
+      }
+      
+      setStats(serverStats);
+      setLastUpdated(new Date());
+      console.log('🎉 Discord: Server stats fetch completed successfully', {
+        onlineCount: serverStats.presence_count,
+        memberCount: serverStats.members.length
+      });
+
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+      setError(`Discord service failed: ${errorMessage}`);
+      console.error('Discord stats fetch error:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [stats]); // Add stats as dependency
+
+  const refresh = useCallback(async () => {
+    await fetchStats(); // Force refresh
+  }, [fetchStats]);
+
+  // Auto-refresh setup - same pattern as space weather
+  useEffect(() => {
+    if (!autoRefresh) return;
+
+    const interval = setInterval(fetchStats, refreshInterval);
+    return () => clearInterval(interval);
+  }, [autoRefresh, refreshInterval, fetchStats]);
+
+  // Initial data fetch
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats]);
+
+  return {
+    stats,
+    onlineCount: stats?.presence_count ?? 0,
+    isLoading,
+    error,
+    lastUpdated,
+    refresh
+  };
+};

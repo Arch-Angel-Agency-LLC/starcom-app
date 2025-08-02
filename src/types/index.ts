@@ -153,6 +153,16 @@ export type {
   UseAdaptiveInterfaceReturn
 } from './features/adaptive';
 
+// Discord Integration Types
+export type {
+  DiscordServerStats,
+  DiscordMember,
+  DiscordChannel,
+  DiscordNotificationData,
+  DiscordActivityMetrics,
+  DiscordWidgetConfig
+} from './discord';
+
 // ===============================
 // DATA LAYER TYPES
 // ===============================

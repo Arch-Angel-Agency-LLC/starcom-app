@@ -71,10 +71,10 @@ export interface TechStackAnalyzerResult extends Record<string, unknown> {
  */
 export const TechStackAnalyzerScript: ScriptDefinition = {
   metadata: {
-    id: 'tech-stack-analyzer',
+    id: 'tech-stack-analyzer-v1',
     name: 'Technology Stack Analyzer',
     version: '1.0.0',
-    description: 'Analyze and identify technology stacks from HTML, headers, and metadata',
+    description: 'Analyzes and categorizes technology stacks from website data',
     author: 'NetRunner Scripts',
     category: 'technology-detection',
     tags: ['technology', 'frameworks', 'libraries', 'stack', 'analysis'],
@@ -140,7 +140,7 @@ export const TechStackAnalyzerScript: ScriptDefinition = {
       // Validate input data
       if (!input.data) {
         const errorContext: ErrorContext = {
-          scriptId: 'tech-stack-analyzer',
+          scriptId: 'tech-stack-analyzer-v1',
           executionId,
           step: 'input-validation',
           environment: 'browser',
@@ -170,7 +170,7 @@ export const TechStackAnalyzerScript: ScriptDefinition = {
             cacheMisses: 0
           },
           metadata: {
-            scriptId: 'tech-stack-analyzer',
+            scriptId: 'tech-stack-analyzer-v1',
             scriptVersion: '1.0.0',
             executionId,
             sourceData: 'invalid-input',
@@ -237,7 +237,7 @@ export const TechStackAnalyzerScript: ScriptDefinition = {
           cacheMisses: 0
         },
         metadata: {
-          scriptId: 'tech-stack-analyzer',
+          scriptId: 'tech-stack-analyzer-v1',
           scriptVersion: '1.0.0',
           executionId,
           sourceData: input.source || 'unknown',
@@ -255,7 +255,7 @@ export const TechStackAnalyzerScript: ScriptDefinition = {
     } catch (error) {
       const endTime = new Date();
       const errorContext: ErrorContext = {
-        scriptId: 'tech-stack-analyzer',
+        scriptId: 'tech-stack-analyzer-v1',
         executionId,
         step: 'execution',
         environment: 'browser',
@@ -285,7 +285,7 @@ export const TechStackAnalyzerScript: ScriptDefinition = {
           cacheMisses: 0
         },
         metadata: {
-          scriptId: 'tech-stack-analyzer',
+          scriptId: 'tech-stack-analyzer-v1',
           scriptVersion: '1.0.0',
           executionId,
           sourceData: 'error-occurred',

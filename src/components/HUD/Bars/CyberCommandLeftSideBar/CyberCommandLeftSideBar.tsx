@@ -1,31 +1,48 @@
 import React, { lazy, Suspense } from 'react';
 import styles from './CyberCommandLeftSideBar.module.css';
-import ModeSettingsPanel from './ModeSettingsPanel';
-import VisualizationModeButtons from './VisualizationModeButtons';
-// Adaptive interface imports commented out but preserved for easy re-enabling
-// import RoleSelector from '../../../Adaptive/RoleSelector';
-// import ProgressiveDisclosure from '../../../Adaptive/ProgressiveDisclosure';
 
 // Lazy load TinyGlobe to reduce initial bundle size
 const TinyGlobe = lazy(() => import('../../../TinyGlobe/TinyGlobe'));
+
+// Clean placeholder components for future implementation
+const PrimaryModeSelector: React.FC = () => {
+  return (
+    <div className={styles.primaryModeSelector}>
+      {/* Placeholder for primary mode buttons */}
+      <div className={styles.modePlaceholder}>Primary Modes</div>
+    </div>
+  );
+};
+
+const SettingsPanel: React.FC = () => {
+  return (
+    <div className={styles.settingsPanel}>
+      {/* Placeholder for settings */}
+      <div className={styles.settingsPlaceholder}>Settings</div>
+    </div>
+  );
+};
 
 const CyberCommandLeftSideBar: React.FC = () => {
   return (
     <div className={styles.cyberCommandLeftSideBar}>
       <div className={styles.content}>
-        <Suspense fallback={<div className={styles.tinyGlobePlaceholder}>Loading Globe...</div>}>
-          <TinyGlobe />
-        </Suspense>
-        <VisualizationModeButtons />
-        <ModeSettingsPanel />
-        
-        {/* Adaptive Interface Controls - Hidden for clean human UX, functionality preserved for AI agents */}
-        {/* 
-        <div className={styles.adaptiveSection}>
-          <RoleSelector />
-          <ProgressiveDisclosure />
+        {/* TinyGlobe - Keep this as it works well */}
+        <div className={styles.globeContainer}>
+          <Suspense fallback={<div className={styles.tinyGlobePlaceholder}>Loading Globe...</div>}>
+            <TinyGlobe />
+          </Suspense>
         </div>
-        */}
+        
+        {/* Primary Mode Selector - Clean placeholder */}
+        <div className={styles.primarySection}>
+          <PrimaryModeSelector />
+        </div>
+        
+        {/* Settings Panel - Clean placeholder */}
+        <div className={styles.settingsSection}>
+          <SettingsPanel />
+        </div>
       </div>
     </div>
   );

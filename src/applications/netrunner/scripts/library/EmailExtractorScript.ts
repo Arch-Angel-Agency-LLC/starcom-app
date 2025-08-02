@@ -1,12 +1,15 @@
 /**
  * NetRunner Scripts Engine - Email Extractor Script
  * 
- * Enhanced email discovery and validation script for processing OSINT data.
- * Extracts, validates, categorizes, and enriches email addresses found in website data.
+ * Advanced email discovery, validation, and categorization script designed
+ * for OSINT operations. Identifies email addresses, validates their format
+ * and deliverability, and categorizes them by role and organization type.
  * 
  * @author GitHub Copilot
  * @date July 17, 2025
  */
+
+console.log('[EmailExtractorScript] Module loading...');
 
 import {
   ScriptDefinition,

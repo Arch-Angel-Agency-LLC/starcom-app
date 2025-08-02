@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useEnhancedApplicationRouter } from '../../hooks/useEnhancedApplicationRouter';
+import { useDiscordStats } from '../../hooks/useDiscordStats';
 import styles from './MainMarqueeTopBar.module.css';
 
 const MainMarqueeTopBar: React.FC = () => {
   const { currentApp, getApplication } = useEnhancedApplicationRouter();
+  const { onlineCount } = useDiscordStats();
   const [currentTime, setCurrentTime] = useState<string>('');
   const [currentDate, setCurrentDate] = useState<string>('');
   
@@ -47,6 +49,7 @@ const MainMarqueeTopBar: React.FC = () => {
     `${currentDate} | ${currentTime}`,
     `CONNECTION ${mockConnectionStatus}`,
     `THREAT LEVEL: ${mockAlertLevel}`,
+    `DISCORD: ${onlineCount} ${onlineCount === 1 ? 'OPERATIVE' : 'OPERATIVES'} ONLINE`,
     mockUpdatesAvailable ? 'UPDATES AVAILABLE' : 'SYSTEM UP TO DATE',
     'SENSORS ACTIVE'
   ];

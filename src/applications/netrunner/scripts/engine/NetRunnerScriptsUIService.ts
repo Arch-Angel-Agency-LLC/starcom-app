@@ -86,8 +86,10 @@ export class NetRunnerScriptsUIService {
    * Initialize UI state with available scripts
    */
   private initializeUIState(): void {
+    console.log('[ScriptsUIService] Initializing UI state...');
     this.uiState.availableScripts = this.registry.getAllScripts();
     console.log(`[ScriptsUIService] Initialized with ${this.uiState.availableScripts.length} scripts`);
+    console.log('[ScriptsUIService] Available scripts:', this.uiState.availableScripts.map(s => s.metadata.name));
   }
 
   /**

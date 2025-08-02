@@ -159,7 +159,10 @@ export class NetRunnerScriptRegistry {
    * Get all scripts
    */
   public getAllScripts(): ScriptDefinition[] {
-    return Array.from(this.registry.scripts.values());
+    const scripts = Array.from(this.registry.scripts.values());
+    console.log(`[ScriptRegistry] getAllScripts() returning ${scripts.length} scripts`);
+    console.log('[ScriptRegistry] Script IDs:', scripts.map(s => s.metadata.id));
+    return scripts;
   }
 
   /**

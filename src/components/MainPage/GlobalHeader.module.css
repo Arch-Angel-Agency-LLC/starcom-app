@@ -214,6 +214,37 @@
   border-radius: 0%;
 }
 
+.connectionIndicator {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  min-width: 16px;
+  height: 16px;
+  background-color: #5865f2;
+  border: 2px solid rgba(20, 30, 40, 0.95);
+  border-radius: 50%;
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 8px rgba(88, 101, 242, 0.4);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 8px rgba(88, 101, 242, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 12px rgba(88, 101, 242, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 8px rgba(88, 101, 242, 0.4);
+  }
+}
+
 .walletSection {
   display: flex;
   align-items: center;

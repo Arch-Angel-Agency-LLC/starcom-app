@@ -36,7 +36,7 @@ const VisualizationModeControls: React.FC = () => {
       
       {/* Secondary Mode Buttons */}
       <div className={styles.secondaryModeContainer}>
-        {/* CyberCommand submodes - 3 core cyber intelligence modes */}
+        {/* CyberCommand submodes - ALL 5 cyber intelligence modes */}
         {visualizationMode.mode === 'CyberCommand' && (
           <>
             <button 
@@ -59,6 +59,21 @@ const VisualizationModeControls: React.FC = () => {
               title="Cyber Attacks"
             >
               ⚡
+            </button>
+            {/* NEWLY EXPOSED HIDDEN FEATURES */}
+            <button 
+              className={`${styles.secondaryButton} ${visualizationMode.subMode === 'NetworkInfrastructure' ? styles.active : ''}`}
+              onClick={() => setVisualizationMode({ mode: 'CyberCommand', subMode: 'NetworkInfrastructure' })}
+              title="Network Infrastructure"
+            >
+              🌐
+            </button>
+            <button 
+              className={`${styles.secondaryButton} ${visualizationMode.subMode === 'CommHubs' ? styles.active : ''}`}
+              onClick={() => setVisualizationMode({ mode: 'CyberCommand', subMode: 'CommHubs' })}
+              title="Communication Hubs"
+            >
+              📡
             </button>
           </>
         )}
