@@ -1,10 +1,14 @@
-# Starcom - Earth Alliance Platform 🌍
+# Starcom - Earth Alliance Platform & Global Intel Marketplace 🌍
+
+[![DOI](https://zenodo.org/badge/824411336.svg)](https://doi.org/10.5281/zenodo.16419375)
+
+[![Starcom Discord Server](https://discord.com/api/guilds/1145517675389403287/widget.png?style=banner2)](https://discord.gg/Mea5v8pQmt)
 
 **Decentralized Quantum-Safe Global Reclamation Platform**
 
 A next-generation civilian-led intelligence platform for corruption exposure, truth liberation, and coordinated planetary reclamation operations against transnational crime syndicates.
 
-**Mission**: Earth Alliance / Tho'ra Clan operations to counter death cult cabals and restore natural planetary governance by 2030.
+**Mission**: Earth Alliance / Arch Angel Agency operations to counter death cult cabals and restore natural planetary governance by 2030.
 
 ---
 
