@@ -6,7 +6,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { useIntelReports3D } from '../../../hooks/intelligence/useIntelReports3D';
 import { useIntelContextAdapter } from '../../../hooks/intelligence/useIntelContextAdapter';
-import { IntelCategory, IntelPriority } from '../../../types/intelligence/IntelReportTypes';
+import { IntelCategory, IntelPriority } from '../../../models/Intel/IntelEnums';
 import styles from './IntelBottomBarPanel.module.css';
 
 interface IntelBottomBarPanelProps {

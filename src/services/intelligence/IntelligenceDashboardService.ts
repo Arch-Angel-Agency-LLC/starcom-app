@@ -3,11 +3,15 @@
  * 
  * Centralized service for managing and orchestrating intelligence workflows,
  * analysis engines, and real-time intelligence operations.
+ * 
+ * Updated for Phase 4: Service Dependency Updates
+ * - Migrated from deprecated Intelligence import to Intel + IntelReport
+ * - Updated to use enhanced IntelReportData with Phase 3 improvements
+ * - Integrated with clean type hierarchy
  */
 
 import { Intel, IntelRequirement } from '../../models/Intel/Intel';
-import { Intelligence } from '../../models/Intel/Intelligence';
-import { IntelligenceReportData } from '../../models/Intel/IntelligenceReport';
+import { IntelReportData } from '../../models/IntelReportData';
 import { IntelligenceWorkflowEngine, WorkflowExecution, AnalysisWorkflow } from './IntelligenceWorkflowEngine';
 import { IntelligenceAnalysisEngine, AnalysisResult, AnalysisContext } from './IntelligenceAnalysisEngine';
 import { IntelValidator } from '../../models/Intel/Validators';
@@ -168,7 +172,7 @@ export class IntelligenceDashboardService {
       context?: AnalysisContext;
     } = {}
   ): Promise<{
-    processed_intel: Intelligence[];
+    processed_intel: IntelReportData[]; // Phase 4: Updated from Intelligence to IntelReportData
     triggered_workflows: string[];
     generated_alerts: string[];
     analysis_results: AnalysisResult[];
@@ -182,7 +186,7 @@ export class IntelligenceDashboardService {
     };
 
     const result = {
-      processed_intel: [] as Intelligence[],
+      processed_intel: [] as IntelReportData[], // Phase 4: Updated from Intelligence to IntelReportData
       triggered_workflows: [] as string[],
       generated_alerts: [] as string[],
       analysis_results: [] as AnalysisResult[]
@@ -319,7 +323,7 @@ export class IntelligenceDashboardService {
       purpose: string;
       audience: string[];
     }
-  ): Promise<IntelligenceReportData> {
+  ): Promise<IntelReportData> {
     
     try {
       // Use Intel Fusion Service to create comprehensive report
@@ -456,7 +460,7 @@ export class IntelligenceDashboardService {
     // This would analyze validation results, correlation success, etc.
     this.performanceMetrics.quality_metrics.average_intel_quality = 85;
     this.performanceMetrics.quality_metrics.validation_success_rate = 92;
-    this.performenceMetrics.quality_metrics.correlation_success_rate = 78;
+    this.performanceMetrics.quality_metrics.correlation_success_rate = 78;
   }
 
   private updateResourceUtilization(): void {
@@ -641,17 +645,22 @@ export class IntelligenceDashboardService {
     return questions.length > 0 ? questions : ['What intelligence has been collected?', 'What are the key findings?'];
   }
 
-  private enhanceReportWithAnalysis(report: Partial<IntelligenceReportData>, analysisResults: AnalysisResult[]): IntelligenceReportData {
-    // Enhance the base report with analysis insights
-    const enhancedReport = report as IntelligenceReportData;
+  private enhanceReportWithAnalysis(report: Partial<IntelReportData>, analysisResults: AnalysisResult[]): IntelReportData {
+    // Enhance the base report with analysis insights using Phase 3 enhancements
+    const enhancedReport = report as IntelReportData;
     
-    // Add analysis findings to key findings
+    // Use Phase 3 enhanced summary field for analysis findings
     const analysisFindings = analysisResults.flatMap(r => r.findings.map(f => f.description));
-    enhancedReport.keyFindings = [...(enhancedReport.keyFindings || []), ...analysisFindings];
+    enhancedReport.summary = analysisFindings.join('; ');
     
-    // Add analysis recommendations
-    const analysisRecommendations = analysisResults.flatMap(r => r.recommendations);
-    enhancedReport.recommendations = [...(enhancedReport.recommendations || []), ...analysisRecommendations];
+    // Add analysis insights to processing history (Phase 3 enhancement)
+    const analysisProcessing = {
+      stage: 'approved' as const,
+      timestamp: new Date().toISOString(),
+      processedBy: 'IntelligenceDashboardService',
+      notes: `Analysis completed: ${analysisResults.length} results generated`
+    };
+    enhancedReport.processingHistory = [...(enhancedReport.processingHistory || []), analysisProcessing];
     
     return enhancedReport;
   }
@@ -700,7 +709,7 @@ export class IntelligenceDashboardService {
   }
 
   // Placeholder methods for workflow and operation management
-  private async createOperationWorkflow(operation: IntelligenceOperation, options: Record<string, unknown>): Promise<AnalysisWorkflow> {
+  private async createOperationWorkflow(operation: IntelligenceOperation, _options: Record<string, unknown>): Promise<AnalysisWorkflow> {
     // Create a workflow for the intelligence operation
     return {
       id: `operation_${operation.id}`,
@@ -715,7 +724,7 @@ export class IntelligenceDashboardService {
     };
   }
 
-  private createOperationContext(operation: IntelligenceOperation, options: Record<string, unknown>): AnalysisContext {
+  private createOperationContext(operation: IntelligenceOperation, _options: Record<string, unknown>): AnalysisContext {
     // Create analysis context for the operation
     return {
       focus_areas: ['operation_support'],

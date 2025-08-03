@@ -8,7 +8,7 @@
 import React, { useState, useCallback } from 'react';
 import { useIntelReportsMain, useIntelReportsGlobe } from '../Core/IntelReports3DProvider';
 import type { IntelReportFilters } from '../../../services/intelligence/IntelReports3DService';
-import type { IntelCategory } from '../../../types/intelligence/IntelReportTypes';
+import type { IntelCategory } from '../../../models/Intel/IntelEnums';
 
 // =============================================================================
 // COMPONENT PROPS AND TYPES

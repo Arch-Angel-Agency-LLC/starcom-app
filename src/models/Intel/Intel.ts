@@ -2,7 +2,10 @@
 // Base types for raw, unprocessed intelligence data points
 
 import { PrimaryIntelSource } from './Sources';
-import { ClassificationLevel } from './Classification';
+import { SourceQuality, InformationVisibility, ContentSensitivity, QualityAssessment } from './Classification';
+
+// Re-export quality types for convenience
+export type { SourceQuality, InformationVisibility, ContentSensitivity, QualityAssessment } from './Classification';
 
 export type ReliabilityRating = 
   | 'A' // Completely reliable
@@ -20,7 +23,7 @@ export type ReliabilityRating =
 export interface Intel {
   id: string;
   source: PrimaryIntelSource;
-  classification: ClassificationLevel;
+  qualityAssessment: QualityAssessment;
   reliability: ReliabilityRating;
   timestamp: number;
   collectedBy: string; // Collector/sensor ID
@@ -53,32 +56,6 @@ export interface Intel {
 }
 
 /**
- * Enhanced Intelligence interface with complete processing context
- * This bridges the gap between raw Intel and visualization-ready entities
- */
-export interface Intelligence extends Intel {
-  // Relationship tracking
-  derivedFrom: {
-    observations?: string[]; // Observation IDs
-    patterns?: string[]; // Pattern IDs  
-    evidence?: string[]; // Evidence IDs
-    indicators?: string[]; // Indicator IDs
-    rawData?: string[]; // RawData IDs
-    artifacts?: string[]; // Artifact IDs
-  };
-  
-  // Enhanced metadata
-  confidence: number; // 0-100 confidence score
-  implications: string[]; // What this intelligence suggests
-  recommendations?: string[]; // Suggested actions
-  
-  // Quality metrics
-  qualityScore?: number; // Overall quality assessment
-  completeness?: number; // How complete the intelligence is
-  timeliness?: number; // How timely/current the intelligence is
-}
-
-/**
  * Basic Intel Collection Requirements
  * Defines what kind of intelligence is needed
  */
@@ -93,7 +70,8 @@ export interface IntelRequirement {
   };
   deadline?: number; // timestamp
   requiredSources: PrimaryIntelSource[];
-  classification: ClassificationLevel;
+  minQualityLevel: SourceQuality; // Minimum acceptable source quality
+  desiredVisibility: InformationVisibility; // How openly this can be shared
   requestedBy: string;
   
   // Bridge integration

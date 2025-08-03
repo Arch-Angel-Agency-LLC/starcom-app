@@ -9,11 +9,11 @@ import * as THREE from 'three';
 import { EventEmitter } from 'events';
 import type {
   IntelReport3DData,
-  IntelAnimationConfig,
   IntelReport3DViewport,
   IntelLODLevel,
+  IntelAnimationConfig,
   IntelPerformanceMetrics
-} from '../../types/intelligence/IntelReportTypes';
+} from '../../models/Intel/IntelVisualization3D';
 import type {
   IntelReport3DContextState
 } from '../../types/intelligence/IntelContextTypes';

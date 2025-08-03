@@ -4,7 +4,8 @@
  */
 
 import React, { useState, useCallback, useMemo, useRef } from 'react';
-import { IntelCategory, IntelPriority, IntelClassification, IntelThreatLevel } from '../../../types/intelligence/IntelReportTypes';
+import { IntelCategory, IntelPriority, IntelThreatLevel } from '../../../models/Intel/IntelEnums';
+import { ClassificationLevel } from '../../../models/Intel/Classification';
 import styles from './IntelFilterControls.module.css';
 
 interface IntelFilterControlsProps {
@@ -12,7 +13,7 @@ interface IntelFilterControlsProps {
   filters: {
     category?: IntelCategory | 'all';
     priority?: IntelPriority | 'all';
-    classification?: IntelClassification | 'all';
+    classification?: ClassificationLevel | 'all';
     threatLevel?: IntelThreatLevel | 'all';
     search?: string;
     tags?: string[];
@@ -63,13 +64,13 @@ const PRIORITIES: Array<{ value: IntelPriority | 'all'; label: string }> = [
   { value: 'background', label: 'Background' }
 ];
 
-const CLASSIFICATIONS: Array<{ value: IntelClassification | 'all'; label: string }> = [
+const CLASSIFICATIONS: Array<{ value: ClassificationLevel | 'all'; label: string }> = [
   { value: 'all', label: 'All Classifications' },
-  { value: 'UNCLASSIFIED', label: 'Unclassified' },
+  { value: 'UNCLASS', label: 'Unclassified' },
+  { value: 'CUI', label: 'Controlled Unclassified Information' },
   { value: 'CONFIDENTIAL', label: 'Confidential' },
   { value: 'SECRET', label: 'Secret' },
-  { value: 'TOP_SECRET', label: 'Top Secret' },
-  { value: 'COMPARTMENTED', label: 'Compartmented' }
+  { value: 'TOP_SECRET', label: 'Top Secret' }
 ];
 
 const THREAT_LEVELS: Array<{ value: IntelThreatLevel | 'all'; label: string }> = [

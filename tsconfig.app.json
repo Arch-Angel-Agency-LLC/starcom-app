@@ -33,5 +33,5 @@
     "noFallthroughCasesInSwitch": true
   },
   "include": ["src/**/*", "src/setupTests.ts"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx", "src/testing/**/*", "jest.config.ts", "vite.config.ts", "playwright.config.ts"]
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx", "src/testing/**/*", "jest.config.ts", "vite.config.ts", "playwright.config.ts", "src/main_OLD.tsx"]
 }

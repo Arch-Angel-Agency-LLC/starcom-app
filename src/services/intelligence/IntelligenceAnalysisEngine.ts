@@ -6,9 +6,7 @@
  */
 
 import { Intel, ClassificationLevel } from '../../models/Intel/Intel';
-import { Intelligence, ThreatAssessment } from '../../models/Intel/Intelligence';
-import { IntelligenceReportData } from '../../models/Intel/IntelligenceReport';
-import { SourceMetadata, PrimaryIntelSource } from '../../models/Intel/Sources';
+import { PrimaryIntelSource } from '../../models/Intel/Sources';
 import { enhancedEventEmitter } from '../../core/intel/events/enhancedEventEmitter';
 
 // =============================================================================

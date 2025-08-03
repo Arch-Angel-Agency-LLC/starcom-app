@@ -50,12 +50,12 @@ import {
 } from '@mui/icons-material';
 
 // Import our Intel domain models
-import { Intel, IntelSource, ClassificationLevel, ReliabilityRating } from '../../models/intelligence/Intel';
-import { IntelligenceReportData } from '../../models/intelligence/IntelligenceReport';
-import { IntelFusionService } from '../../models/intelligence/IntelFusion';
+import { Intel, PrimaryIntelSource, ClassificationLevel, ReliabilityRating } from '../../models/Intel/Intel';
+import { IntelReportData } from '../../models/IntelReportData';
+import { IntelFusionService } from '../../models/Intel/IntelFusion';
 
 interface IntelFusionInterfaceProps {
-  onReportGenerated?: (report: Partial<IntelligenceReportData>) => void;
+  onReportGenerated?: (report: Partial<IntelReportData>) => void;
 }
 
 interface AnalysisContext {
@@ -80,7 +80,7 @@ export const IntelFusionInterface: React.FC<IntelFusionInterfaceProps> = ({
       end: Date.now()
     }
   });
-  const [generatedReport, setGeneratedReport] = useState<Partial<IntelligenceReportData> | null>(null);
+  const [generatedReport, setGeneratedReport] = useState<Partial<IntelReportData> | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [newQuestion, setNewQuestion] = useState('');

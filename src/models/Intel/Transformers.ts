@@ -3,9 +3,8 @@
 
 import { Intel } from './Intel';
 import { Intelligence } from './Intelligence';
-import { IntelligenceReportData } from './IntelligenceReport';
+import { IntelReportData } from '../IntelReportData';
 import { SourceMetadata } from './Sources';
-import { IntelReportData } from '../IntelReportData'; // Original model
 
 /**
  * Raw collection data interface

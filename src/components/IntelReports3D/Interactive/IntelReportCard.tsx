@@ -4,7 +4,9 @@
  */
 
 import React, { useState, useCallback, useMemo } from 'react';
-import { IntelReport3DData, IntelPriority, IntelClassification } from '../../../types/intelligence/IntelReportTypes';
+import { IntelReport3DData } from '../../../models/Intel/IntelVisualization3D';
+import { IntelPriority } from '../../../models/Intel/IntelEnums';
+import { ClassificationLevel } from '../../../models/Intel/Classification';
 import styles from './IntelReportCard.module.css';
 
 interface IntelReportCardProps {
@@ -45,7 +47,7 @@ const getPriorityColor = (priority: IntelPriority): string => {
 /**
  * Get classification color class
  */
-const getClassificationColor = (classification: IntelClassification): string => {
+const getClassificationColor = (classification?: string): string => {
   switch (classification) {
     case 'TOP_SECRET': return styles.classificationTopSecret;
     case 'SECRET': return styles.classificationSecret;

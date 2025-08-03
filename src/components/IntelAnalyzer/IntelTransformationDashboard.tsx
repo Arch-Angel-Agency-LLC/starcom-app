@@ -28,8 +28,8 @@ import {
   Timeline as AnalyticsIcon
 } from '@mui/icons-material';
 
-import { Intel } from '../../models/intelligence/Intel';
-import { IntelligenceReportData } from '../../models/intelligence/IntelligenceReport';
+import { Intel } from '../../models/Intel/Intel';
+import { IntelReportData } from '../../models/IntelReportData';
 import { IntelFusionInterface } from './IntelFusionInterface';
 import { IntelSearch } from './IntelSearch';
 import IntelReportsViewer from './IntelReportsViewer';
@@ -64,7 +64,7 @@ export const IntelTransformationDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState(0);
   const [intelDatabase, setIntelDatabase] = useState<Intel[]>([]);
   const [filteredIntel, setFilteredIntel] = useState<Intel[]>([]);
-  const [generatedReports, setGeneratedReports] = useState<Partial<IntelligenceReportData>[]>([]);
+  const [generatedReports, setGeneratedReports] = useState<Partial<IntelReportData>[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Initialize intel database (mock data for now)
@@ -182,7 +182,7 @@ export const IntelTransformationDashboard: React.FC = () => {
   }, []);
 
   // Handle report generation
-  const handleReportGenerated = (report: Partial<IntelligenceReportData>) => {
+  const handleReportGenerated = (report: Partial<IntelReportData>) => {
     setGeneratedReports(prev => [report, ...prev]);
     // Switch to reports tab to show the new report
     setActiveTab(2);

@@ -3,7 +3,7 @@
 
 import { Intel, IntelRequirement } from './Intel';
 import { Intelligence } from './Intelligence';
-import { IntelligenceReportData } from './IntelligenceReport';
+import { IntelReportData } from '../IntelReportData';
 import { ThreatAssessment, RiskAssessment } from './Assessments';
 import { ClassificationUtils } from './Classification';
 
@@ -273,7 +273,7 @@ export class IntelligenceReportValidator {
   /**
    * Validate intelligence report
    */
-  static validateReport(report: IntelligenceReportData): ValidationResult {
+  static validateReport(report: IntelReportData): ValidationResult {
     const errors: ValidationError[] = [];
     const warnings: ValidationWarning[] = [];
 
@@ -392,7 +392,7 @@ export class IntelligenceReportValidator {
    * Calculate report quality score
    */
   private static calculateReportQualityScore(
-    report: IntelligenceReportData,
+    report: IntelReportData,
     errors: ValidationError[],
     warnings: ValidationWarning[]
   ): number {

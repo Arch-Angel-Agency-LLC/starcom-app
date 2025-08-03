@@ -7,7 +7,7 @@
  */
 
 import React, { useState, useCallback } from 'react';
-import { IntelReport3DData } from '../../../types/intelligence/IntelReportTypes';
+import { IntelReport3DData } from '../../../models/Intel/IntelVisualization3D';
 import {
   IntelReportList,
   IntelFilterControls,

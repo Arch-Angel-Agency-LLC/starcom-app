@@ -7,7 +7,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { useIntelReports3D } from '../../../hooks/intelligence/useIntelReports3D';
 import { useIntelGlobeSync } from '../../../hooks/intelligence/useIntelGlobeSync';
-import { IntelReport3DData } from '../../../types/intelligence/IntelReportTypes';
+import { IntelReport3DData } from '../../../models/Intel/IntelVisualization3D';
 import styles from './IntelDetailPanel.module.css';
 
 interface IntelDetailPanelProps {

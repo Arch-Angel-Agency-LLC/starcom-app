@@ -2,8 +2,8 @@
 // This addresses the main gap in transforming raw Intel into structured IntelReports
 
 import { Intel } from './Intel';
-import { IntelligenceReportData } from './IntelligenceReport';
-import { ClassificationLevel } from './Classification';
+import { IntelReportData } from '../IntelReportData';
+import { SourceQuality, QualityUtils } from './Classification';
 import { SourceMetadata, CollectionMethod, SourcePlatform, DataQuality } from './Sources';
 
 /**
@@ -25,7 +25,7 @@ export class IntelFusionService {
       keyQuestions: string[];
       timeframe: { start: number; end: number };
     }
-  ): Partial<IntelligenceReportData> {
+  ): Partial<IntelReportData> {
     
     if (!intelRecords.length) {
       throw new Error('Cannot create report without intel records');
@@ -43,7 +43,7 @@ export class IntelFusionService {
     // Aggregate sources and determine overall reliability
     const sources = [...new Set(intelRecords.map(intel => intel.source))];
     const avgReliability = this.calculateAverageReliability(intelRecords);
-    const overallClassification = this.determineHighestClassification(intelRecords);
+    const overallQuality = this.determineOverallQuality(intelRecords);
 
     // Generate structured content
     const content = this.generateReportContent(intelRecords, analysisContext);
@@ -64,9 +64,11 @@ export class IntelFusionService {
       recommendations,
       intelligenceGaps: this.identifyIntelligenceGaps(intelRecords, analysisContext.keyQuestions),
       
-      // Classification - use highest from source intel
-      classification: {
-        level: overallClassification
+      // Quality Assessment - based on source intelligence
+      qualityAssessment: {
+        sourceQuality: overallQuality,
+        visibility: 'public', // Default for open source intelligence
+        sensitivity: 'open'  // Default for transparent sharing
       },
       
       // Source attribution
@@ -116,21 +118,21 @@ export class IntelFusionService {
   }
 
   /**
-   * Determine highest classification level from intel records
+   * Determine overall source quality from intel records
    */
-  private static determineHighestClassification(intelRecords: Intel[]): ClassificationLevel {
-    const levels = ['UNCLASS', 'CONFIDENTIAL', 'SECRET', 'TOP_SECRET'];
-    let highest = 'UNCLASS';
+  private static determineOverallQuality(intelRecords: Intel[]): SourceQuality {
+    const qualities = ['unreliable', 'questionable', 'unverified', 'reliable', 'verified'];
+    let lowestQuality = 'verified';
     
     for (const intel of intelRecords) {
-      const currentIndex = levels.indexOf(intel.classification);
-      const highestIndex = levels.indexOf(highest);
-      if (currentIndex > highestIndex) {
-        highest = intel.classification;
+      const currentIndex = qualities.indexOf(intel.qualityAssessment.sourceQuality);
+      const lowestIndex = qualities.indexOf(lowestQuality);
+      if (currentIndex < lowestIndex) {
+        lowestQuality = intel.qualityAssessment.sourceQuality;
       }
     }
     
-    return highest as ClassificationLevel;
+    return lowestQuality as SourceQuality;
   }
 
   /**
@@ -198,10 +200,13 @@ export class IntelFusionService {
   private static generateRecommendations(intelRecords: Intel[]): string[] {
     const recommendations: string[] = [];
     
-    // Based on classification levels
-    const classified = intelRecords.filter(intel => intel.classification !== 'UNCLASS');
-    if (classified.length > 0) {
-      recommendations.push('Maintain appropriate security controls for classified intelligence');
+    // Based on sensitivity levels
+    const sensitive = intelRecords.filter(intel => 
+      intel.qualityAssessment.sensitivity === 'protected' || 
+      intel.qualityAssessment.visibility === 'private'
+    );
+    if (sensitive.length > 0) {
+      recommendations.push('Handle sensitive information with appropriate operational security');
     }
     
     // Based on reliability concerns
@@ -235,7 +240,7 @@ export class IntelFusionService {
 
   private static convertIntelToSourceMetadata(intel: Intel): SourceMetadata {
     return {
-      primary: intel.source as any,
+      primary: intel.source,
       method: 'MANUAL' as CollectionMethod,
       platform: 'GROUND' as SourcePlatform,
       quality: this.mapReliabilityToQuality(intel.reliability) as DataQuality,

@@ -1,5 +1,7 @@
-// Enhanced Intel Report Type Definitions
-// This file defines the complete data structure for interactive Intel Reports
+import type { IntelReportData } from '../models/IntelReportData';
+
+// Intel Report UI Interaction Type Definitions
+// This file defines UI interaction states and events for Intel Reports on the Globe
 
 export interface Coordinates {
   latitude: number;
@@ -7,42 +9,7 @@ export interface Coordinates {
   altitude?: number;
 }
 
-export interface IntelReportAttachment {
-  id: string;
-  type: 'image' | 'document' | 'video' | 'audio';
-  name: string;
-  url: string;
-  size?: number;
-  thumbnail?: string;
-}
-
-export interface ActionItem {
-  id: string;
-  description: string;
-  assignee?: string;
-  priority: 'low' | 'medium' | 'high' | 'critical';
-  status: 'pending' | 'in-progress' | 'completed' | 'cancelled';
-  dueDate?: Date;
-}
-
-export interface IntelReportSource {
-  id: string;
-  name: string;
-  type: 'human' | 'signals' | 'imagery' | 'measurement' | 'open-source';
-  reliability: 1 | 2 | 3 | 4 | 5; // 1 = unreliable, 5 = completely reliable
-  confidenceLevel: 'low' | 'medium' | 'high';
-}
-
-export interface GeographicContext {
-  region: string;
-  country: string;
-  city?: string;
-  timezone: string;
-  population?: number;
-  strategicImportance: 'low' | 'medium' | 'high' | 'critical';
-}
-
-// Base Intel Report (existing structure)
+// Base Intel Report (minimal structure for UI interactions)
 export interface BaseIntelReport {
   id: string;
   title: string;
@@ -50,49 +17,6 @@ export interface BaseIntelReport {
   priority: 'low' | 'medium' | 'high' | 'critical';
   timestamp: Date;
   status: 'active' | 'archived' | 'classified';
-}
-
-// Enhanced Intel Report for detailed interactions
-export interface EnhancedIntelReport extends BaseIntelReport {
-  // Content
-  summary: string; // Brief overview for tooltips
-  description: string; // Detailed analysis
-  classification: 'UNCLASSIFIED' | 'CONFIDENTIAL' | 'SECRET' | 'TOP_SECRET';
-  
-  // Source information
-  source: IntelReportSource;
-  reportingOrganization: string;
-  analystNotes?: string;
-  
-  // Geographic and temporal context
-  geographicContext: GeographicContext;
-  eventTimeframe?: {
-    startTime: Date;
-    endTime?: Date;
-    isOngoing: boolean;
-  };
-  
-  // Assessment and analysis
-  threatLevel: 'minimal' | 'low' | 'moderate' | 'high' | 'severe';
-  impactAssessment: string;
-  verificationStatus: 'unverified' | 'partially-verified' | 'verified' | 'disputed';
-  
-  // Relationships and context
-  relatedReports: string[]; // IDs of related reports
-  tags: string[];
-  keywords: string[];
-  
-  // Attachments and media
-  attachments: IntelReportAttachment[];
-  
-  // Action items and follow-ups
-  actionItems: ActionItem[];
-  
-  // Metadata
-  createdBy: string;
-  lastUpdated: Date;
-  viewCount?: number;
-  accessLevel: 'public' | 'restricted' | 'classified';
 }
 
 // UI State for interactions
@@ -138,7 +62,7 @@ export interface IntelReportContextActions {
   closePopup: () => void;
   showTooltip: (reportId: string, position: { x: number; y: number }) => void;
   hideTooltip: () => void;
-  fetchReportDetails: (reportId: string) => Promise<EnhancedIntelReport>;
+  fetchReportDetails: (reportId: string) => Promise<IntelReportData>;
 }
 
 // Animation configuration

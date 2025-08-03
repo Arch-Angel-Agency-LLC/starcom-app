@@ -8,10 +8,12 @@
 
 import { EventEmitter } from 'events';
 import type {
-  IntelReport3DData,
+  IntelReport3DData
+} from '../../models/Intel/IntelVisualization3D';
+import type {
   IntelPriority,
   IntelClassification
-} from '../../types/intelligence/IntelReportTypes';
+} from '../../models/Intel/IntelEnums';
 import type {
   IntelReport3DContextState,
   CyberDataLayer

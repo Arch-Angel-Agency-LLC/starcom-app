@@ -9,12 +9,14 @@ import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import type {
   IntelReport3DData,
   IntelReport3DViewport,
-  IntelPerformanceMetrics,
+  IntelPerformanceMetrics
+} from '../../models/Intel/IntelVisualization3D';
+import type {
   IntelCategory,
   IntelPriority,
   IntelThreatLevel,
   IntelClassification
-} from '../../types/intelligence/IntelReportTypes';
+} from '../../models/Intel/IntelEnums';
 import type {
   IntelReport3DContextState
 } from '../../types/intelligence/IntelContextTypes';
@@ -238,10 +240,13 @@ export const useIntelReports3D = (
     loading: false,
     error: null,
     metrics: {
+      fps: 60,
+      renderTime: 0,
+      markerCount: 0,
+      visibleMarkers: 0,
+      memoryUsage: 0,
       totalIntelReports: 0,
       visibleIntelReports: 0,
-      renderTime: 0,
-      memoryUsage: 0,
       frameRate: 60,
       lastUpdate: new Date()
     }
@@ -714,10 +719,13 @@ export const useIntelReports3D = (
  */
 function convertServiceMetricsToPerformanceMetrics(serviceMetrics: IntelServiceMetrics): IntelPerformanceMetrics {
   return {
+    fps: 60, // Default FPS
+    renderTime: serviceMetrics.averageQueryTime || 0,
+    markerCount: serviceMetrics.totalReports || 0,
+    visibleMarkers: serviceMetrics.visibleReports || 0,
+    memoryUsage: serviceMetrics.memoryUsage || 0,
     totalIntelReports: serviceMetrics.totalReports || 0,
     visibleIntelReports: serviceMetrics.visibleReports || 0,
-    renderTime: serviceMetrics.averageQueryTime || 0,
-    memoryUsage: serviceMetrics.memoryUsage || 0,
     frameRate: 60, // Default framerate
     lastUpdate: serviceMetrics.lastUpdateTime || new Date()
   };
@@ -768,7 +776,7 @@ function applyFilters(reports: IntelReport3DData[], filters: IntelReportFilters)
   
   if (filters.category?.length) {
     filtered = filtered.filter(report =>
-      filters.category!.includes(report.metadata.category)
+      filters.category!.includes(report.metadata.category as IntelCategory)
     );
   }
   

@@ -11,7 +11,7 @@ import type {
   IntelReport3DData,
   IntelReport3DViewport,
   IntelPerformanceMetrics
-} from '../../types/intelligence/IntelReportTypes';
+} from '../../models/Intel/IntelVisualization3D';
 import type {
   IntelReport3DContextState
 } from '../../types/intelligence/IntelContextTypes';
@@ -124,10 +124,13 @@ export const useIntelGlobeSync = (
     error: null,
     loading: false,
     metrics: {
+      fps: 60,
+      renderTime: 0,
+      markerCount: 0,
+      visibleMarkers: 0,
+      memoryUsage: 0,
       totalIntelReports: 0,
       visibleIntelReports: 0,
-      renderTime: 0,
-      memoryUsage: 0,
       frameRate: 60,
       lastUpdate: new Date()
     }

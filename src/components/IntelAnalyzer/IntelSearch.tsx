@@ -17,7 +17,6 @@ import {
   CardContent,
   Typography,
   Grid,
-  Slider,
   Switch,
   FormControlLabel,
   Accordion,
@@ -30,7 +29,9 @@ import {
   Clear as ClearIcon
 } from '@mui/icons-material';
 
-import { Intel, IntelSource, ClassificationLevel, ReliabilityRating } from '../../models/intelligence/Intel';
+import { Intel, ReliabilityRating } from '../../models/Intel/Intel';
+import { PrimaryIntelSource } from '../../models/Intel/Sources';
+import { ClassificationLevel } from '../../models/Intel/Classification';
 
 interface IntelSearchProps {
   intel: Intel[];
@@ -39,7 +40,7 @@ interface IntelSearchProps {
 
 interface SearchFilters {
   searchTerm: string;
-  sources: IntelSource[];
+  sources: PrimaryIntelSource[];
   classifications: ClassificationLevel[];
   reliabilityRange: ReliabilityRating[];
   dateRange: { start: number; end: number };
@@ -50,7 +51,7 @@ interface SearchFilters {
 
 const reliabilityOrder: ReliabilityRating[] = ['A', 'B', 'C', 'D', 'E', 'F', 'X'];
 const classificationOrder: ClassificationLevel[] = ['UNCLASS', 'CONFIDENTIAL', 'SECRET', 'TOP_SECRET'];
-const allSources: IntelSource[] = ['SIGINT', 'HUMINT', 'GEOINT', 'OSINT', 'COMINT', 'ELINT', 'MASINT', 'TECHINT'];
+const allSources: PrimaryIntelSource[] = ['SIGINT', 'HUMINT', 'GEOINT', 'OSINT', 'COMINT', 'ELINT', 'MASINT', 'TECHINT'];
 
 export const IntelSearch: React.FC<IntelSearchProps> = ({ intel, onFilteredResults }) => {
   const [filters, setFilters] = useState<SearchFilters>({
@@ -221,10 +222,10 @@ export const IntelSearch: React.FC<IntelSearchProps> = ({ intel, onFilteredResul
                   <Select
                     multiple
                     value={filters.sources}
-                    onChange={(e) => updateFilter('sources', e.target.value as IntelSource[])}
+                    onChange={(e) => updateFilter('sources', e.target.value as PrimaryIntelSource[])}
                     renderValue={(selected) => (
                       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                        {(selected as IntelSource[]).map((value) => (
+                        {(selected as PrimaryIntelSource[]).map((value) => (
                           <Chip key={value} label={value} size="small" />
                         ))}
                       </Box>

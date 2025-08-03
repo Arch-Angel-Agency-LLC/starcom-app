@@ -9,7 +9,7 @@
  * @date July 13, 2025
  */
 
-import { Intel, Intelligence } from '../../../models/Intel/Intel';
+import { Intel } from '../../../models/Intel/Intel';
 import { storageOrchestrator } from '../../../core/intel/storage/storageOrchestrator';
 import { ScanResult, Technology } from './WebsiteScanner';
 import { WebsiteScannerService } from './WebsiteScanner';
@@ -27,7 +27,7 @@ import {
 export interface EnhancedScanResult extends ScanResult {
   // New Intel architecture outputs
   intelObjects: Intel[];
-  intelligenceObjects: Intelligence[];
+  processedIntelObjects: Intel[];
   
   // Bridge metadata
   bridgeMetadata: {

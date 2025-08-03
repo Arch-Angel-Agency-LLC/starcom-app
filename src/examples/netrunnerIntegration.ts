@@ -5,7 +5,7 @@
  * with the new Intel architecture and existing IntelDataCore system.
  */
 
-import { Intel, Intelligence } from '../models/Intel/Intel';
+import { Intel } from '../models/Intel/Intel';
 import { IntelEntity } from '../core/intel/types/intelDataModels';
 import { storageOrchestrator } from '../core/intel/storage/storageOrchestrator';
 import { useIntelBridge } from '../core/intel/hooks/useIntelBridge';

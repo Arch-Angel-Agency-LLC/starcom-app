@@ -7,7 +7,7 @@
 
 import type { 
   IntelReport3DData 
-} from './IntelReportTypes';
+} from '../../models/Intel/IntelVisualization3D';
 import type { 
   IntelReport3DContextState, 
   GeographicRegion 

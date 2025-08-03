@@ -4,7 +4,9 @@
  */
 
 import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
-import { IntelReport3DData, IntelCategory, IntelPriority, IntelClassification } from '../../../types/intelligence/IntelReportTypes';
+import { IntelReport3DData } from '../../../models/Intel/IntelVisualization3D';
+import { IntelCategory, IntelPriority } from '../../../models/Intel/IntelEnums';
+import { ClassificationLevel } from '../../../models/Intel/Classification';
 import { IntelReportCard } from './IntelReportCard';
 import styles from './IntelReportList.module.css';
 
@@ -31,7 +33,7 @@ interface IntelReportListProps {
   filters?: {
     category?: IntelCategory | 'all';
     priority?: IntelPriority | 'all';
-    classification?: IntelClassification | 'all';
+    classification?: ClassificationLevel | 'all';
     search?: string;
     tags?: string[];
     dateRange?: {
@@ -62,7 +64,7 @@ const filterReports = (
 
   return reports.filter(report => {
     // Category filter
-    if (filters.category && filters.category !== 'all' && report.metadata.category !== filters.category) {
+    if (filters.category && filters.category !== 'all' && report.metadata?.category !== filters.category) {
       return false;
     }
 
@@ -79,16 +81,14 @@ const filterReports = (
     // Search filter
     if (filters.search && filters.search.trim()) {
       const searchTerm = filters.search.toLowerCase();
-      const searchableText = [
-        report.title,
-        report.content.summary,
-        report.content.details,
-        report.source,
-        ...(report.content.keywords || []),
-        ...(report.metadata.tags || [])
-      ].join(' ').toLowerCase();
-
-      if (!searchableText.includes(searchTerm)) {
+    const searchableText = [
+      report.title,
+      report.content?.summary || '',
+      report.content?.details || '',
+      report.source || '',
+      ...(report.content?.keywords || []),
+      ...(report.metadata?.tags || [])
+    ].join(' ').toLowerCase();      if (!searchableText.includes(searchTerm)) {
         return false;
       }
     }
@@ -96,7 +96,7 @@ const filterReports = (
     // Tags filter
     if (filters.tags && filters.tags.length > 0) {
       const hasMatchingTag = filters.tags.some(tag => 
-        report.metadata.tags.some(reportTag => 
+        report.metadata?.tags?.some(reportTag => 
           reportTag.toLowerCase().includes(tag.toLowerCase())
         )
       );
@@ -106,7 +106,7 @@ const filterReports = (
     }
 
     // Date range filter
-    if (filters.dateRange) {
+    if (filters.dateRange && report.timestamp) {
       const reportDate = new Date(report.timestamp);
       if (reportDate < filters.dateRange.start || reportDate > filters.dateRange.end) {
         return false;
@@ -135,7 +135,9 @@ const sortReports = (reports: IntelReport3DData[]): IntelReport3DData[] => {
     if (priorityDiff !== 0) return priorityDiff;
 
     // Then by timestamp (newest first)
-    return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+    const aTime = a.timestamp ? new Date(a.timestamp).getTime() : 0;
+    const bTime = b.timestamp ? new Date(b.timestamp).getTime() : 0;
+    return bTime - aTime;
   });
 };
 

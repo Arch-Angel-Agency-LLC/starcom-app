@@ -711,7 +711,7 @@ export const EnhancedGlobeInteractivity: React.FC<EnhancedGlobeInteractivityProp
     }
   };
 
-  // Convert EnhancedIntelReport to IntelReportOverlayMarker for popup display
+  // Convert IntelReportData to IntelReportOverlayMarker for popup display
   const selectedReportForPopup = selectedReport ? {
     pubkey: selectedReport.id,
     title: selectedReport.title,

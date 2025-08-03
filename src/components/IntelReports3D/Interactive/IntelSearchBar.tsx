@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
-import { IntelReport3DData } from '../../../types/intelligence/IntelReportTypes';
+import { IntelReport3DData } from '../../../models/Intel/IntelVisualization3D';
 import styles from './IntelSearchBar.module.css';
 
 interface IntelSearchBarProps {

@@ -8,11 +8,13 @@
 
 import { 
   IntelReport3DData, 
-  IntelReport3DViewport,
+  IntelReport3DViewport
+} from '../../models/Intel/IntelVisualization3D';
+import { 
   IntelClassification,
   IntelCategory,
   IntelThreatLevel
-} from '../../types/intelligence/IntelReportTypes';
+} from '../../models/Intel/IntelEnums';
 import { IntelReport3DContextState } from '../../types/intelligence/IntelContextTypes';
 import { IntelCompatibilityAdapter } from '../../types/intelligence/IntelCompatibilityTypes';
 

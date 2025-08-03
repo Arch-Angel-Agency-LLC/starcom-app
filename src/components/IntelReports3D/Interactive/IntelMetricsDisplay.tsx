@@ -4,7 +4,8 @@
  */
 
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { IntelReport3DData, IntelPriority } from '../../../types/intelligence/IntelReportTypes';
+import { IntelReport3DData } from '../../../models/Intel/IntelVisualization3D';
+import { IntelPriority } from '../../../models/Intel/IntelEnums';
 import styles from './IntelMetricsDisplay.module.css';
 
 interface IntelMetricsDisplayProps {

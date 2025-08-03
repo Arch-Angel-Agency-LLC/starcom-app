@@ -4,7 +4,13 @@
 import { IntelReportOverlayMarker } from '../interfaces/IntelReportOverlay';
 import { fetchIntelReports } from '../api/intelligence';
 
-// Inline interface definitions to avoid import issues on Vercel
+// Import unified Intel types from Phase 2 cleanup
+import { IntelReport as UnifiedIntelReport, IntelReportAdapter } from '../models/Intel/IntelReport';
+
+// Legacy interface definitions for backward compatibility
+// TODO: Phase 2.3 - Replace these with unified IntelReport usage
+// Migration example: Use IntelReportAdapter.fromServiceProviderIntelReport() to convert
+// Legacy interfaces below will be removed once migration is complete
 interface IntelReportData {
   id?: string;
   title: string;

@@ -6,8 +6,8 @@
  */
 
 import { Intel, IntelRequirement, ClassificationLevel } from '../../models/Intel/Intel';
-import { Intelligence, ThreatAssessment } from '../../models/Intel/Intelligence';
-import { IntelligenceReportData } from '../../models/Intel/IntelligenceReport';
+import { ThreatAssessment } from '../../models/Intel/Intelligence';
+import { IntelReportData } from '../../models/IntelReportData';
 import { IntelValidator } from '../../models/Intel/Validators';
 import { enhancedEventEmitter } from '../../core/intel/events/enhancedEventEmitter';
 
@@ -126,8 +126,8 @@ export interface WorkflowInputs {
 }
 
 export interface WorkflowOutputs {
-  processedIntel?: Intelligence[];
-  reports?: IntelligenceReportData[];
+  processedIntel?: IntelReportData[];
+  reports?: IntelReportData[];
   alerts?: IntelAlert[];
   recommendations?: string[];
   threats?: ThreatAssessment[];
@@ -591,27 +591,27 @@ export class IntelligenceWorkflowEngine {
   ): Promise<{ output: StepOutput; confidence: number; metadata: StepMetadata }> {
     
     const intel = (inputs.validatedIntel || inputs.intel) as Intel[] || [];
-    const processedIntel: Intelligence[] = [];
+    const processedIntel: IntelReportData[] = [];
     let totalConfidence = 0;
 
     for (const intelItem of intel) {
-      // Convert Intel to Intelligence with analysis
-      const intelligence: Intelligence = {
+      // Convert Intel to IntelReportData with analysis
+      const reportData: IntelReportData = {
         ...intelItem,
-        analysis: await this.generateIntelAnalysis(intelItem, context),
-        confidence: this.calculateIntelConfidence(intelItem),
-        significance: this.assessIntelSignificance(intelItem, context),
-        processedBy: context?.analyst || 'automated-system',
-        processedAt: Date.now(),
-        analysisMethod: 'automated-workflow',
-        relatedIntel: await this.findRelatedIntel(intelItem),
-        threats: await this.identifyThreats(intelItem),
-        opportunities: await this.identifyOpportunities(intelItem),
-        recommendations: await this.generateRecommendations(intelItem)
+        summary: `Automated analysis of ${intelItem.title || intelItem.source?.primary || 'intelligence item'}`,
+        reliability: 'C', // Default reliability score
+        processingHistory: [{
+          stage: 'approved' as const,
+          timestamp: new Date().toISOString(),
+          processedBy: context?.analyst || 'automated-system',
+          notes: 'Processed via intelligence workflow engine'
+        }]
       };
 
-      processedIntel.push(intelligence);
-      totalConfidence += intelligence.confidence;
+      processedIntel.push(reportData);
+      totalConfidence += reportData.reliability === 'A' ? 95 : 
+                        reportData.reliability === 'B' ? 85 :
+                        reportData.reliability === 'C' ? 75 : 60;
     }
 
     const avgConfidence = processedIntel.length > 0 ? totalConfidence / processedIntel.length : 0;
@@ -1510,7 +1510,7 @@ export class IntelligenceWorkflowEngine {
     const processedIntel = inputs.processedIntel as Intelligence[] || [];
     const threatAssessments = inputs.threatAssessments as ThreatAssessment[] || [];
     
-    const reportData: IntelligenceReportData = {
+    const reportData: IntelReportData = {
       id: `report_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
       title: `Intelligence Report - ${new Date().toISOString().split('T')[0]}`,
       content: `Analysis of ${processedIntel.length} intelligence items`,
@@ -1604,7 +1604,7 @@ export class IntelligenceWorkflowEngine {
     context?: AnalysisContext
   ): Promise<{ output: StepOutput; confidence: number; metadata: StepMetadata }> {
     
-    const report = inputs.report as IntelligenceReportData;
+    const report = inputs.report as IntelReportData;
     const priority = context?.priority || 'MEDIUM';
     
     // Determine dissemination list based on classification and priority

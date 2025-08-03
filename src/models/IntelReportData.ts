@@ -4,11 +4,20 @@
 
 import { PrimaryIntelSource } from './Intel/Sources';
 import { ClassificationLevel } from './Intel/Classification';
+import { IntelVisualization3D } from './Intel/IntelVisualization3D';
+import { IntelLocation } from './Intel/IntelLocation';
 
 /**
  * Core Intelligence Report Data Structure
  * This interface represents the complete data model for intelligence reports
  * across all layers of the application.
+ * 
+ * Enhanced in Phase 3 with targeted improvements for real use cases:
+ * - Executive summary for quick overview
+ * - Source reliability assessment
+ * - Centralized metadata linking
+ * - Confidence and quality tracking
+ * - Processing history
  * 
  * Note: This is a "Report" which contains processed intelligence, not raw intel.
  * For raw intel data, see the Intel interface in ./intelligence/Intel.ts
@@ -32,6 +41,39 @@ export interface IntelReportData {
   confidence?: number; // 0-100 confidence in the report
   priority?: 'ROUTINE' | 'PRIORITY' | 'IMMEDIATE';
   
+  // === PHASE 3 ENHANCEMENTS - Targeted Improvements ===
+  
+  // Executive Summary for Quick Overview
+  summary?: string;
+  
+  // Source Reliability Assessment (from Intel domain)
+  reliability?: 'A' | 'B' | 'C' | 'D' | 'E' | 'F';
+  
+  // Centralized Metadata Link
+  metadata?: {
+    metadataId: string;
+    version: string;
+    lastUpdated: string;
+  };
+  
+  // Processing History Tracking
+  processingHistory?: {
+    stage: 'draft' | 'review' | 'approved' | 'distributed';
+    timestamp: string;
+    processedBy: string;
+    notes?: string;
+  }[];
+  
+  // Quality Metrics for Intelligence Assessment
+  qualityMetrics?: {
+    completeness: number; // 0-100
+    accuracy: number; // 0-100
+    timeliness: number; // 0-100
+    relevance: number; // 0-100
+  };
+  
+  // === END PHASE 3 ENHANCEMENTS ===
+  
   // Blockchain metadata (available after submission)
   pubkey?: string; // Solana account public key (base58)
   signature?: string; // Transaction signature
@@ -41,6 +83,10 @@ export interface IntelReportData {
   date?: string; // ISO date string for display
   categories?: string[];
   metaDescription?: string;
+  
+  // 3D Visualization Properties (optional, for Intel Reports 3D)
+  visualization3D?: IntelVisualization3D;
+  location3D?: IntelLocation;
   
   // Legacy compatibility fields (deprecated, use latitude/longitude)
   /** @deprecated Use latitude instead */

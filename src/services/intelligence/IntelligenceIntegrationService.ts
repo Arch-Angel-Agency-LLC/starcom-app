@@ -7,8 +7,7 @@
  */
 
 import { Intel, IntelRequirement } from '../../models/Intel/Intel';
-import { Intelligence } from '../../models/Intel/Intelligence';
-import { IntelligenceReportData } from '../../models/Intel/IntelligenceReport';
+import { IntelReportData } from '../../models/IntelReportData';
 import { IntelligenceDashboardService } from './IntelligenceDashboardService';
 import { IntelligenceWorkflowEngine } from './IntelligenceWorkflowEngine';
 import { IntelligenceAnalysisEngine } from './IntelligenceAnalysisEngine';
@@ -156,9 +155,9 @@ export class IntelligenceIntegrationService {
       deadline?: number;
     } = {}
   ): Promise<{
-    processed_intelligence: Intelligence[];
-    analysis_results: any[];
-    generated_reports: IntelligenceReportData[];
+    processed_intelligence: IntelReportData[];
+    analysis_results: unknown[];
+    generated_reports: IntelReportData[];
     recommendations: string[];
     quality_metrics: Record<string, number>;
   }> {
@@ -247,7 +246,7 @@ export class IntelligenceIntegrationService {
       time_sensitivity?: number; // minutes
     }
   ): Promise<{
-    threat_assessment: any;
+    threat_assessment: unknown;
     immediate_actions: string[];
     alerts_generated: string[];
     confidence_level: number;
@@ -312,8 +311,8 @@ export class IntelligenceIntegrationService {
     huntingHypotheses: string[],
     timeframe: { start: number; end: number }
   ): Promise<{
-    patterns_detected: any[];
-    anomalies_found: any[];
+    patterns_detected: unknown[];
+    anomalies_found: unknown[];
     hunting_results: any[];
     follow_up_recommendations: string[];
   }> {
@@ -568,35 +567,35 @@ export class IntelligenceIntegrationService {
     return intel;
   }
 
-  private async processAndEnrichIntel(intel: Intel[]): Promise<Intelligence[]> {
+  private async processAndEnrichIntel(_intel: Intel[]): Promise<IntelReportData[]> {
     // Process raw intel into structured intelligence
     return [];
   }
 
   private async performComprehensiveAnalysis(
-    intel: Intelligence[], 
-    requirements: IntelRequirement[], 
-    options: any
-  ): Promise<any[]> {
+    _intel: IntelReportData[], 
+    _requirements: IntelRequirement[], 
+    _options: Record<string, unknown>
+  ): Promise<unknown[]> {
     // Perform comprehensive analysis using the analysis engine
     return [];
   }
 
   private async generateIntelligenceProducts(
-    intel: Intelligence[], 
-    analysis: any[], 
-    requirements: IntelRequirement[], 
-    options: any
-  ): Promise<IntelligenceReportData[]> {
+    _intel: IntelReportData[], 
+    _analysis: unknown[], 
+    _requirements: IntelRequirement[], 
+    _options: Record<string, unknown>
+  ): Promise<IntelReportData[]> {
     // Generate intelligence reports and products
     return [];
   }
 
   private assessProcessingQuality(
-    originalIntel: Intel[],
-    processedIntel: Intelligence[],
-    analysis: any[],
-    reports: IntelligenceReportData[]
+    _originalIntel: Intel[],
+    _processedIntel: IntelReportData[],
+    _analysis: unknown[],
+    _reports: IntelReportData[]
   ): Record<string, number> {
     // Assess the quality of the processing pipeline
     return {

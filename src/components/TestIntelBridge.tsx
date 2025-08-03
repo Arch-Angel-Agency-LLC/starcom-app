@@ -18,7 +18,8 @@ import {
   LinearProgress
 } from '@mui/material';
 import { useIntelBridge } from '../core/intel/hooks/useIntelBridge';
-import { Intel, Intelligence } from '../models/Intel/Intel';
+import { Intel } from '../models/Intel/Intel';
+import { IntelReportData } from '../models/IntelReportData';
 
 const TestIntelBridge: React.FC = () => {
   const [testResults, setTestResults] = useState<string[]>([]);
@@ -34,7 +35,11 @@ const TestIntelBridge: React.FC = () => {
   const sampleIntel: Intel = {
     id: 'test-intel-001',
     source: 'OSINT',
-    classification: 'UNCLASS',
+    qualityAssessment: {
+      sourceQuality: 'unverified',
+      visibility: 'public',
+      sensitivity: 'open'
+    },
     reliability: 'C',
     timestamp: Date.now(),
     collectedBy: 'test-collector',
@@ -43,16 +48,22 @@ const TestIntelBridge: React.FC = () => {
     verified: false
   };
   
-  const sampleIntelligence: Intelligence = {
-    ...sampleIntel,
-    id: 'test-intelligence-001',
-    derivedFrom: {
-      observations: ['obs-001'],
-      rawData: ['raw-001']
-    },
-    confidence: 85,
-    implications: ['Potential administrative access vector'],
-    recommendations: ['Investigate administrative privileges', 'Check for privilege escalation']
+  const sampleIntelligence: IntelReportData = {
+    title: 'Test Intelligence Report',
+    content: 'Administrative access investigation report',
+    author: 'test-analyzer',
+    tags: ['email', 'administrative', 'access'],
+    latitude: 40.7128,
+    longitude: -74.0060,
+    timestamp: Date.now(),
+    summary: 'Potential administrative access vector identified',
+    reliability: 'B' as const,
+    processingHistory: [{
+      stage: 'approved' as const,
+      timestamp: new Date().toISOString(),
+      processedBy: 'test-system',
+      notes: 'Test intelligence transformation'
+    }]
   };
   
   const runBasicTest = () => {
@@ -87,11 +98,16 @@ const TestIntelBridge: React.FC = () => {
       setTestResults(prev => [...prev, `✅ Batch Intel: Transformed ${entities.length} objects`]);
       
       // Test batch intelligence transformation
-      const testIntelligence: Intelligence[] = testIntel.map(intel => ({
-        ...intel,
-        derivedFrom: { rawData: [intel.id] },
-        confidence: 75,
-        implications: [`Analysis of ${intel.data}`]
+      const testIntelligence: IntelReportData[] = testIntel.map((intel, index) => ({
+        title: `Batch Report ${index + 1}`,
+        content: `Analysis of ${intel.data}`,
+        author: 'batch-analyzer',
+        tags: intel.tags,
+        latitude: 40.7128 + index * 0.01,
+        longitude: -74.0060 + index * 0.01,
+        timestamp: Date.now() + index * 1000,
+        summary: `Automated analysis of ${intel.data}`,
+        reliability: 'C' as const
       }));
       
       const nodes = bridge.batchGenerateNodes(testIntelligence);
@@ -109,7 +125,11 @@ const TestIntelBridge: React.FC = () => {
         {
           id: 'netrunner-001',
           source: 'OSINT',
-          classification: 'UNCLASS',
+          qualityAssessment: {
+            sourceQuality: 'unverified',
+            visibility: 'public',
+            sensitivity: 'open'
+          },
           reliability: 'C',
           timestamp: Date.now(),
           collectedBy: 'netrunner-websitescanner',
@@ -120,7 +140,11 @@ const TestIntelBridge: React.FC = () => {
         {
           id: 'netrunner-002', 
           source: 'OSINT',
-          classification: 'UNCLASS',
+          qualityAssessment: {
+            sourceQuality: 'reliable',
+            visibility: 'public',
+            sensitivity: 'open'
+          },
           reliability: 'B',
           timestamp: Date.now(),
           collectedBy: 'netrunner-websitescanner',

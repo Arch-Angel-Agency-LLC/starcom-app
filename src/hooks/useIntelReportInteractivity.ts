@@ -3,7 +3,8 @@
 
 import { useState, useCallback, useRef, useMemo } from 'react';
 import { IntelReportOverlayMarker } from '../interfaces/IntelReportOverlay';
-import { EnhancedIntelReport, InteractionState } from '../types/intelReportInteractivity';
+import { InteractionState } from '../types/intelReportInteractivity';
+import type { IntelReportData } from '../models/IntelReportData';
 
 interface UseIntelReportInteractivityOptions {
   hoverDebounceMs?: number;
@@ -15,7 +16,7 @@ interface UseIntelReportInteractivityOptions {
 interface IntelReportInteractivityState {
   // Current interaction state
   hoveredReport: IntelReportOverlayMarker | null;
-  selectedReport: EnhancedIntelReport | null;
+  selectedReport: IntelReportData | null;
   interactionState: InteractionState;
   
   // UI state
@@ -55,7 +56,7 @@ export const useIntelReportInteractivity = (
 
   // Core state
   const [hoveredReport, setHoveredReport] = useState<IntelReportOverlayMarker | null>(null);
-  const [selectedReport, setSelectedReport] = useState<EnhancedIntelReport | null>(null);
+  const [selectedReport, setSelectedReport] = useState<IntelReportData | null>(null);
   const [interactionState, setInteractionState] = useState<InteractionState>({
     isHovering: false,
     isClicking: false,
@@ -151,47 +152,27 @@ export const useIntelReportInteractivity = (
       // In real implementation, this would fetch from API
       await new Promise(resolve => setTimeout(resolve, 200));
       
-      const enhancedReport: EnhancedIntelReport = {
+      const reportData: IntelReportData = {
         id: report.pubkey,
         title: report.title,
-        coordinates: {
-          latitude: report.latitude,
-          longitude: report.longitude
-        },
-        priority: 'medium', // Default priority
-        timestamp: new Date(report.timestamp * 1000),
-        status: 'active',
-        summary: `Summary for ${report.title}`,
-        description: report.content,
-        classification: 'UNCLASSIFIED',
-        source: {
-          id: report.author,
-          name: 'Unknown Source',
-          type: 'open-source',
-          reliability: 3,
-          confidenceLevel: 'medium'
-        },
-        reportingOrganization: 'Starcom Intelligence',
-        geographicContext: {
-          region: 'Unknown',
-          country: 'Unknown',
-          timezone: 'UTC',
-          strategicImportance: 'medium'
-        },
-        threatLevel: 'moderate',
-        impactAssessment: 'Assessment pending...',
-        verificationStatus: 'unverified',
-        relatedReports: [],
+        content: report.content,
         tags: report.tags,
-        keywords: [],
-        attachments: [],
-        actionItems: [],
-        createdBy: report.author,
-        lastUpdated: new Date(),
-        accessLevel: 'public'
+        latitude: report.latitude,
+        longitude: report.longitude,
+        timestamp: report.timestamp,
+        author: report.author,
+        classification: 'UNCLASS',
+        sources: ['OSINT'],
+        confidence: 75,
+        priority: 'ROUTINE',
+        pubkey: report.pubkey,
+        subtitle: `Intelligence Report - ${report.title}`,
+        date: new Date(report.timestamp * 1000).toISOString(),
+        categories: report.tags,
+        metaDescription: `Intelligence report for ${report.title}`
       };
 
-      setSelectedReport(enhancedReport);
+      setSelectedReport(reportData);
       setPopupVisible(true);
       setPopupLoading(false);
       

@@ -6,7 +6,7 @@
  */
 
 import React, { useMemo } from 'react';
-import type { IntelReport3DData } from '../../../types/intelligence/IntelReportTypes';
+import type { IntelReport3DData } from '../../../models/Intel/IntelVisualization3D';
 
 // =============================================================================
 // COMPONENT PROPS AND TYPES

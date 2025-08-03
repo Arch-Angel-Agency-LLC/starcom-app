@@ -1,142 +1,99 @@
-// Security Classification and Handling Instructions
-// Implementation of Improvement #4: Enhanced Type Definitions
+// Open Source Intelligence Quality Indicators
+// For civilian use in transparent intelligence analysis
 
 /**
- * Security Classification Levels
- * Based on U.S. Government classification standards
+ * Source Quality Rating
+ * Indicates reliability and trustworthiness of information sources
  */
-export type ClassificationLevel = 
-  | 'UNCLASS'       // Unclassified
-  | 'CUI'           // Controlled Unclassified Information
-  | 'CONFIDENTIAL'  // Confidential
-  | 'SECRET'        // Secret
-  | 'TOP_SECRET';   // Top Secret
+export type SourceQuality = 
+  | 'verified'      // Independently verified by multiple sources
+  | 'reliable'      // Known reliable source with good track record
+  | 'unverified'    // Single source, not yet corroborated  
+  | 'questionable'  // Source has accuracy issues
+  | 'unreliable';   // Known unreliable or biased source
 
 /**
- * Security Compartments
- * Special access programs and compartmented information
+ * Information Visibility
+ * How openly this information can be shared
  */
-export type SecurityCompartment = 
-  | 'SI'       // Special Intelligence
-  | 'TK'       // Talent Keyhole (satellite intelligence)
-  | 'HCS'      // Human Intelligence Control System
-  | 'ORCON'    // Originator Controlled
-  | 'NOFORN'   // Not Releasable to Foreign Nationals
-  | 'EYES_ONLY'; // Eyes Only
+export type InformationVisibility = 
+  | 'public'        // Publicly available information
+  | 'limited'       // Restricted distribution for operational reasons
+  | 'private';      // Internal use only
 
 /**
- * Dissemination Controls
- * Controls on how classified information can be shared
+ * Content Sensitivity
+ * Sensitivity level for operational security
  */
-export type DisseminationControl = 
-  | 'REL_TO'   // Releasable To (specific countries/organizations)
-  | 'NOFORN'   // No Foreign Nationals
-  | 'ORCON'    // Originator Controlled
-  | 'IMCON'    // Intelligence Methods Controlled
-  | 'PROPIN'   // Proprietary Information
-  | 'LIMDIS';  // Limited Distribution
+export type ContentSensitivity = 
+  | 'open'          // Open sharing encouraged
+  | 'careful'       // Share with care to protect sources/methods
+  | 'protected';    // Protect to avoid compromising ongoing operations
 
 /**
- * Handling Caveats
- * Special handling instructions
+ * Quality Assessment
+ * Comprehensive quality and handling assessment for intelligence
  */
-export type HandlingCaveat = 
-  | 'PERSONAL_FOR'    // Personal for specific individual
-  | 'EYES_ONLY'       // Eyes only for recipient
-  | 'IMMEDIATE'       // Immediate handling required
-  | 'PRIORITY'        // Priority handling
-  | 'ROUTINE'         // Routine handling
-  | 'FLASH_OVERRIDE'; // Flash override priority
-
-/**
- * Complete Classification Marking
- * Full classification with all controls and caveats
- */
-export interface ClassificationMarking {
-  level: ClassificationLevel;
-  compartments?: SecurityCompartment[];
-  disseminationControls?: DisseminationControl[];
-  handlingCaveats?: HandlingCaveat[];
-  releasabilityTo?: string[]; // Countries/organizations
-  downgradeDate?: number; // Automatic downgrade timestamp
-  exemptionCode?: string; // Declassification exemption
+export interface QualityAssessment {
+  sourceQuality: SourceQuality;
+  visibility: InformationVisibility;
+  sensitivity: ContentSensitivity;
+  verificationNotes?: string[];
+  sharingGuidelines?: string;
+  lastVerified?: number;
 }
 
 /**
- * Classification Utilities
+ * Quality Utilities
  */
-export class ClassificationUtils {
+export class QualityUtils {
   /**
-   * Generate standard classification banner
+   * Generate quality summary banner
    */
-  static generateBanner(marking: ClassificationMarking): string {
-    let banner = marking.level;
-    
-    if (marking.compartments?.length) {
-      banner += '//' + marking.compartments.join('/');
-    }
-    
-    if (marking.disseminationControls?.length) {
-      banner += '//' + marking.disseminationControls.join('/');
-    }
-    
-    if (marking.handlingCaveats?.length) {
-      banner += '//' + marking.handlingCaveats.join('/');
-    }
-    
-    return banner;
+  static generateSummary(assessment: QualityAssessment): string {
+    return `${assessment.sourceQuality.toUpperCase()} | ${assessment.visibility.toUpperCase()} | ${assessment.sensitivity.toUpperCase()}`;
   }
 
   /**
-   * Compare classification levels for precedence
+   * Compare source quality levels
    * Returns: -1 if a < b, 0 if equal, 1 if a > b
    */
-  static compareClassificationLevel(a: ClassificationLevel, b: ClassificationLevel): number {
-    const levels = ['UNCLASS', 'CUI', 'CONFIDENTIAL', 'SECRET', 'TOP_SECRET'];
+  static compareSourceQuality(a: SourceQuality, b: SourceQuality): number {
+    const levels = ['unreliable', 'questionable', 'unverified', 'reliable', 'verified'];
     const aIndex = levels.indexOf(a);
     const bIndex = levels.indexOf(b);
     return aIndex - bIndex;
   }
 
   /**
-   * Determine if user has clearance for classification
+   * Determine if information can be shared openly
    */
-  static hasAccess(
-    userClearance: ClassificationLevel,
-    requiredClearance: ClassificationLevel
-  ): boolean {
-    return this.compareClassificationLevel(userClearance, requiredClearance) >= 0;
+  static canShareOpenly(assessment: QualityAssessment): boolean {
+    return assessment.visibility === 'public' && assessment.sensitivity === 'open';
   }
 
   /**
-   * Validate classification marking format
+   * Validate quality assessment
    */
-  static validate(marking: ClassificationMarking): {
+  static validate(assessment: QualityAssessment): {
     isValid: boolean;
-    errors: string[];
+    warnings: string[];
   } {
-    const errors: string[] = [];
+    const warnings: string[] = [];
 
-    // Validate level
-    const validLevels: ClassificationLevel[] = ['UNCLASS', 'CUI', 'CONFIDENTIAL', 'SECRET', 'TOP_SECRET'];
-    if (!validLevels.includes(marking.level)) {
-      errors.push(`Invalid classification level: ${marking.level}`);
+    // Check for questionable sources being marked as public
+    if (assessment.sourceQuality === 'questionable' && assessment.visibility === 'public') {
+      warnings.push('Consider limiting distribution of questionable source material');
     }
 
-    // Validate compartments don't conflict
-    if (marking.level === 'UNCLASS' && marking.compartments?.length) {
-      errors.push('Unclassified information cannot have compartments');
-    }
-
-    // Validate dissemination controls
-    if (marking.disseminationControls?.includes('NOFORN') && 
-        marking.releasabilityTo?.length) {
-      errors.push('NOFORN cannot be used with releasability markings');
+    // Check for unverified sensitive information
+    if (assessment.sourceQuality === 'unverified' && assessment.sensitivity === 'protected') {
+      warnings.push('Protected information should ideally be from verified sources');
     }
 
     return {
-      isValid: errors.length === 0,
-      errors
+      isValid: warnings.length === 0,
+      warnings
     };
   }
 }
