@@ -15,6 +15,7 @@ import { ViewProvider } from "./context/ViewContext";
 import { SecureChatProvider } from "./communication/context/SecureChatContext";
 import { EnhancedApplicationRouterProvider } from "./components/Router/EnhancedApplicationRouter";
 import RouteSynchronizer from "./components/Navigation/RouteSynchronizer";
+import AnalyticsTracker from "./components/Analytics/AnalyticsTracker";
 import SettingsInitializer from "./components/SettingsInitializer";
 import SettingsStatusIndicator from "./components/SettingsStatusIndicator";
 import PreloaderManager from "./components/Preloader/PreloaderManager";
@@ -38,7 +39,7 @@ const queryClient = new QueryClient();
 const AppContent: React.FC = () => {
   const { fetchFromMiniServer, wasmReady } = useWASM();
   const { isVisible, closePanel } = useDebugPanel();
-
+  
   useEffect(() => {
     // Initialize console error monitoring in development
     if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
@@ -56,8 +57,11 @@ const AppContent: React.FC = () => {
     <>
       <SettingsInitializer />
       <BrowserRouter>
-        <RouteSynchronizer />
-        <AppRoutes />
+        <EnhancedApplicationRouterProvider>
+          <AnalyticsTracker />
+          <RouteSynchronizer />
+          <AppRoutes />
+        </EnhancedApplicationRouterProvider>
       </BrowserRouter>
       <SettingsStatusIndicator />
       {/* Wallet Diagnostics - Only shown when feature flag is enabled */}
@@ -85,11 +89,9 @@ const App: React.FC = () => (
                               <RightSideBarProvider>
                                 <ViewProvider>
                                   <SecureChatProvider>
-                                    <EnhancedApplicationRouterProvider>
-                                      <div data-testid="app-root">
-                                        <AppContent />
-                                      </div>
-                                    </EnhancedApplicationRouterProvider>
+                                    <div data-testid="app-root">
+                                      <AppContent />
+                                    </div>
                                   </SecureChatProvider>
                                 </ViewProvider>
                               </RightSideBarProvider>

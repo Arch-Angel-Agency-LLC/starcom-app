@@ -53,6 +53,13 @@ const MainBottomBar: React.FC = () => {
       category: 'intel'
     },
     { 
+      id: 'inteldashboard', 
+      label: 'IntelDashboard', 
+      icon: '📋',
+      tooltip: 'Intelligence reports and dashboard management',
+      category: 'intel'
+    },
+    { 
       id: 'timemap', 
       label: 'TimeMap', 
       icon: '🗓️',
@@ -111,7 +118,7 @@ const MainBottomBar: React.FC = () => {
     }
     
     return false;
-  }, [currentApp, location.pathname]);
+  }, [currentApp, location?.pathname]);
 
   // Handle navigation
   const handleNavigation = useCallback((item: NavItem) => {

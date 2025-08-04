@@ -5,6 +5,7 @@ import { EnhancedApplicationRouterContext } from '../../context/EnhancedApplicat
 import CyberCommandApplication from '../../applications/cybercommand/CyberCommandApplication';
 import NetRunnerApplication from '../../applications/netrunner/NetRunnerApplication';
 import IntelAnalyzerApplication from '../../applications/intelanalyzer/IntelAnalyzerApplication';
+import IntelDashboardApplication from '../../applications/inteldashboard/IntelDashboardApplication';
 import TimeMapApplication from '../../applications/timemap/TimeMapApplication';
 import IntelWebApplicationWrapper from '../../applications/intelweb/IntelWebApplicationWrapper';
 import TeamWorkspaceApplication from '../../applications/teamworkspace/TeamWorkspaceApplication';
@@ -15,6 +16,7 @@ export type ApplicationId =
   | 'cybercommand'
   | 'netrunner'
   | 'intelanalyzer'
+  | 'inteldashboard'
   | 'timemap'
   | 'nodeweb'
   | 'teamworkspace'
@@ -108,6 +110,15 @@ const defaultApplications: ApplicationConfig[] = [
     defaultMode: 'standalone',
     supportedModes: ['standalone', 'modal'],
     component: IntelAnalyzerApplication
+  },
+  {
+    id: 'inteldashboard',
+    name: 'IntelDashboard',
+    icon: '📋',
+    description: 'Intelligence reports and dashboard management',
+    defaultMode: 'standalone',
+    supportedModes: ['standalone', 'modal'],
+    component: IntelDashboardApplication
   },
   {
     id: 'timemap',
