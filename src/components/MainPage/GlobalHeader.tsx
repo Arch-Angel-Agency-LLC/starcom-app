@@ -2,6 +2,10 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useEnhancedApplicationRouter } from '../../hooks/useEnhancedApplicationRouter';
 import { useDiscordStats } from '../../hooks/useDiscordStats';
 import WalletStatusMini from '../Auth/WalletStatusMini';
+import AnalyticsWidget from '../Analytics/AnalyticsWidget';
+import TelegramWidget from '../Telegram/TelegramWidget';
+import GitHubWidget from '../GitHub/GitHubWidget';
+import { trackInvestorEvents } from '../../utils/analytics';
 import styles from './GlobalHeader.module.css';
 
 const wingCommanderLogo = '/assets/images/WingCommanderLogo-288x162.gif';
@@ -25,6 +29,9 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({
   const { navigateToApp } = useEnhancedApplicationRouter();
   const { onlineCount, error, isLoading: _isLoading } = useDiscordStats();
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showAnalytics, setShowAnalytics] = useState(false);
+  const [showTelegram, setShowTelegram] = useState(false);
+  const [showGitHub, setShowGitHub] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
@@ -99,31 +106,28 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({
     // TODO: Implement general application settings
   };
   
-  // Close search when clicking outside
-  const handleClickOutside = (e: MouseEvent) => {
-    if (searchInputRef.current && !searchInputRef.current.contains(e.target as Node)) {
+  // Add click outside listener
+  useEffect(() => {
+    const handleClickOutside = (_event: MouseEvent) => {
+      // Close all widgets when clicking outside
+      setShowNotifications(false);
+      setShowAnalytics(false);
+      setShowTelegram(false);
+      setShowGitHub(false);
       setShowSearch(false);
-    }
-  };
-  
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   // Focus search input when shown
   useEffect(() => {
     if (showSearch && searchInputRef.current) {
       searchInputRef.current.focus();
     }
-  }, [showSearch]);
-  
-  // Add click outside listener
-  useEffect(() => {
-    if (showSearch) {
-      document.addEventListener('mousedown', handleClickOutside);
-    } else {
-      document.removeEventListener('mousedown', handleClickOutside);
-    }
-    
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
   }, [showSearch]);
   
   // Keyboard shortcut for search (/)
@@ -255,6 +259,63 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({
           </svg>
           {onlineCount > 0 && <span className={styles.connectionIndicator}>{onlineCount}</span>}
         </button>
+        
+        <div className={styles.analyticsButtonContainer}>
+          <button 
+            className={`${styles.iconButton} ${styles.analyticsButton}`}
+            onClick={() => {
+              setShowAnalytics(!showAnalytics);
+              trackInvestorEvents.featureUsed('analytics-button');
+            }}
+            aria-label="Platform Analytics"
+          >
+            📊
+            <span className={styles.liveIndicator}></span>
+          </button>
+          
+          <AnalyticsWidget 
+            isOpen={showAnalytics}
+            onClose={() => setShowAnalytics(false)}
+          />
+        </div>
+
+        <div className={styles.telegramButtonContainer}>
+          <button 
+            className={`${styles.iconButton} ${styles.telegramButton}`}
+            onClick={() => {
+              setShowTelegram(!showTelegram);
+              trackInvestorEvents.featureUsed('telegram-button');
+            }}
+            aria-label="Secure Communications"
+          >
+            ✈️
+            <span className={styles.secureIndicator}></span>
+          </button>
+          
+          <TelegramWidget 
+            isOpen={showTelegram}
+            onClose={() => setShowTelegram(false)}
+          />
+        </div>
+
+        <div className={styles.githubButtonContainer}>
+          <button 
+            className={`${styles.iconButton} ${styles.githubButton}`}
+            onClick={() => {
+              setShowGitHub(!showGitHub);
+              trackInvestorEvents.featureUsed('github-button');
+            }}
+            aria-label="Open Source Repository"
+          >
+            🧑‍💻
+            <span className={styles.developerIndicator}></span>
+          </button>
+          
+          <GitHubWidget 
+            isOpen={showGitHub}
+            onClose={() => setShowGitHub(false)}
+          />
+        </div>
         
         <button 
           className={styles.iconButton}

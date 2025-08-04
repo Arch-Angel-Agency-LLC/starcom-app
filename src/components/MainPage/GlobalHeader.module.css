@@ -328,3 +328,120 @@
   font-size: 12px;
   color: #607d9c;
 }
+
+/* Analytics Button Styles */
+.analyticsButtonContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.analyticsButton {
+  color: #4CAF50 !important;
+  position: relative;
+}
+
+.analyticsButton:hover {
+  background-color: rgba(76, 175, 80, 0.2) !important;
+}
+
+.analyticsButton .liveIndicator {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 6px;
+  height: 6px;
+  background: #4CAF50;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+/* Telegram Button Styles */
+.telegramButtonContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.telegramButton {
+  color: #0088cc !important;
+  position: relative;
+}
+
+.telegramButton:hover {
+  background-color: rgba(0, 136, 204, 0.2) !important;
+}
+
+.telegramButton .secureIndicator {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 6px;
+  height: 6px;
+  background: #0088cc;
+  border-radius: 50%;
+  animation: secureGlow 3s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+@keyframes secureGlow {
+  0% { 
+    opacity: 1; 
+    box-shadow: 0 0 0 0 rgba(0, 136, 204, 0.7);
+  }
+  50% { 
+    opacity: 0.8; 
+    box-shadow: 0 0 0 3px rgba(0, 136, 204, 0.3);
+  }
+  100% { 
+    opacity: 1; 
+    box-shadow: 0 0 0 0 rgba(0, 136, 204, 0.7);
+  }
+}
+
+/* GitHub Button Styles */
+.githubButtonContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.githubButton {
+  color: #00ffff !important;
+  position: relative;
+}
+
+.githubButton:hover {
+  background-color: rgba(0, 255, 255, 0.2) !important;
+}
+
+.githubButton .developerIndicator {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 6px;
+  height: 6px;
+  background: #00ffff;
+  border-radius: 50%;
+  animation: developerGlow 3s infinite;
+}
+
+@keyframes developerGlow {
+  0% { 
+    opacity: 1; 
+    box-shadow: 0 0 0 0 rgba(0, 255, 255, 0.7);
+  }
+  50% { 
+    opacity: 0.8; 
+    box-shadow: 0 0 0 3px rgba(0, 255, 255, 0.3);
+  }
+  100% { 
+    opacity: 1; 
+    box-shadow: 0 0 0 0 rgba(0, 255, 255, 0.7);
+  }
+}
