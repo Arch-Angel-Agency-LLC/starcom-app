@@ -1,6 +1,7 @@
 import React from 'react';
 import AuthGate from '../Auth/AuthGate';
 import WalletStatusMini from '../Auth/WalletStatusMini';
+import AuthErrorBoundary from '../Auth/AuthErrorBoundary';
 import { useAuth } from '../../hooks/useAuth';
 import { useAuthFeatures } from '../../hooks/useAuthFeatures';
 import { FEATURE_REQUIREMENTS } from '../../hooks/useAuthFeatures';
@@ -22,7 +23,9 @@ const AuthDemoPage: React.FC = () => {
         <h1>🔐 Enhanced Authentication System Demo</h1>
         <div className={styles.currentStatus}>
           <span>Status: </span>
-          <WalletStatusMini />
+          <AuthErrorBoundary>
+            <WalletStatusMini />
+          </AuthErrorBoundary>
         </div>
       </div>
 

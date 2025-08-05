@@ -28,7 +28,7 @@ import { initPointerEventsDebugging } from "./utils/pointerEventsDebugger";
 import { debugLogger, DebugCategory } from "./utils/debugLogger";
 import "./styles/globals.css";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import AuthErrorBoundary from './components/Auth/AuthErrorBoundary';
+import ErrorBoundary from './components/Shared/ErrorBoundary';
 import { PopupProvider } from './components/Popup/PopupManager';
 
 // Component loading debug
@@ -76,7 +76,7 @@ const App: React.FC = () => (
   <QueryClientProvider client={queryClient}>
     <PopupProvider>
       <PreloaderManager minimumDisplayTime={2500}>
-        <AuthErrorBoundary>
+        <ErrorBoundary>
             <WASMProvider>
               <DashboardProvider>
                 <VisualizationModeProvider>
@@ -104,7 +104,7 @@ const App: React.FC = () => (
                 </VisualizationModeProvider>
               </DashboardProvider>
             </WASMProvider>
-          </AuthErrorBoundary>
+          </ErrorBoundary>
       </PreloaderManager>
     </PopupProvider>
   </QueryClientProvider>

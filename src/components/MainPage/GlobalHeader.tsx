@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useEnhancedApplicationRouter } from '../../hooks/useEnhancedApplicationRouter';
 import { useDiscordStats } from '../../hooks/useDiscordStats';
 import WalletStatusMini from '../Auth/WalletStatusMini';
+import AuthErrorBoundary from '../Auth/AuthErrorBoundary';
 import AnalyticsWidget from '../Analytics/AnalyticsWidget';
 import TelegramWidget from '../Telegram/TelegramWidget';
 import GitHubWidget from '../GitHub/GitHubWidget';
@@ -326,7 +327,9 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({
         </button>
         
         <div className={styles.walletSection}>
-          <WalletStatusMini />
+          <AuthErrorBoundary>
+            <WalletStatusMini />
+          </AuthErrorBoundary>
         </div>
       </div>
     </header>

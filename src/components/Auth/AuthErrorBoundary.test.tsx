@@ -1,25 +1,36 @@
 // Moved from src/__tests__/Web3Login.error-boundary.test.tsx
-// Tests for AuthErrorBoundary and error UI
+// Tests for AuthErrorBoundary and error UI - specifically for auth-related errors
+// Note: This component is now scoped to auth components only. General app errors use Shared/ErrorBoundary
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import AuthErrorBoundary from './AuthErrorBoundary';
 import { vi } from 'vitest';
 
-describe('Web3Login AuthErrorBoundary', () => {
+describe('Auth-specific ErrorBoundary', () => {
   afterEach(() => {
     vi.clearAllMocks();
   });
 
-  it('shows error boundary UI if an auth error occurs', () => {
-    // TODO: Implement authentication flow customization based on user preferences - PRIORITY: LOW
-    const Thrower = () => { throw new Error('Test Auth Error'); };
+  it('shows authentication error for wallet-related errors', () => {
+    const Thrower = () => { throw new Error('WalletNotSelectedError: No wallet selected'); };
     render(
       <AuthErrorBoundary>
         <Thrower />
       </AuthErrorBoundary>
     );
     expect(screen.getByText(/Authentication Error/i)).toBeInTheDocument();
-    expect(screen.getByText(/Test Auth Error/i)).toBeInTheDocument();
+    expect(screen.getByText(/WalletNotSelectedError/i)).toBeInTheDocument();
+  });
+
+  it('shows component error for non-auth errors', () => {
+    const Thrower = () => { throw new Error('useContext must be used within Provider'); };
+    render(
+      <AuthErrorBoundary>
+        <Thrower />
+      </AuthErrorBoundary>
+    );
+    expect(screen.getByText(/Wallet Component Error/i)).toBeInTheDocument();
+    expect(screen.getByText(/useContext must be used within Provider/i)).toBeInTheDocument();
   });
 
   it('renders children if no error is thrown', () => {
@@ -38,8 +49,8 @@ describe('Web3Login AuthErrorBoundary', () => {
       </AuthErrorBoundary>
     );
     expect(screen.getByText('Safe Child')).toBeInTheDocument();
-    // Rerender with error
-    const Thrower = () => { throw new Error('Test Auth Error'); };
+    // Rerender with auth error
+    const Thrower = () => { throw new Error('wallet authentication failed'); };
     rerender(
       <AuthErrorBoundary>
         <Thrower />
