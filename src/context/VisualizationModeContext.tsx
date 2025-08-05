@@ -39,14 +39,27 @@ const VisualizationModeContext = React.createContext<VisualizationModeContextPro
 
 // Provider component
 export const VisualizationModeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Initialize with persisted values or defaults
-  const [visualizationMode, setVisualizationModeState] = useState<VisualizationMode>(() => {
-    return settingsStorage.loadSettings(VISUALIZATION_MODE_STORAGE_KEY, DEFAULT_MODE);
-  });
+  // Initialize with defaults first, then load from storage
+  const [visualizationMode, setVisualizationModeState] = useState<VisualizationMode>(DEFAULT_MODE);
+  const [lastSelectedSubmodes, setLastSelectedSubmodesState] = useState<LastSelectedSubmodes>(DEFAULT_SUBMODES);
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  const [lastSelectedSubmodes, setLastSelectedSubmodesState] = useState<LastSelectedSubmodes>(() => {
-    return settingsStorage.loadSettings(LAST_SUBMODES_STORAGE_KEY, DEFAULT_SUBMODES);
-  });
+  // Load persisted settings after component mounts
+  useEffect(() => {
+    try {
+      const persistedMode = settingsStorage.loadSettings(VISUALIZATION_MODE_STORAGE_KEY, DEFAULT_MODE);
+      const persistedSubmodes = settingsStorage.loadSettings(LAST_SUBMODES_STORAGE_KEY, DEFAULT_SUBMODES);
+      
+      setVisualizationModeState(persistedMode);
+      setLastSelectedSubmodesState(persistedSubmodes);
+      setIsInitialized(true);
+      
+      console.log('VisualizationModeProvider: Initialized with', persistedMode);
+    } catch (error) {
+      console.warn('VisualizationModeProvider: Failed to load settings, using defaults', error);
+      setIsInitialized(true);
+    }
+  }, []);
 
   // Enhanced setter that also persists to storage
   const setVisualizationMode = (mode: VisualizationMode) => {

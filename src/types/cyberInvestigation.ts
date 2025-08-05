@@ -11,7 +11,6 @@ export interface IntelPackage {
   updatedAt: Date;
   reportIds: string[]; // Array of Intel Report IDs
   tags: string[];
-  classification: 'UNCLASSIFIED' | 'CONFIDENTIAL' | 'SECRET' | 'TOP_SECRET';
   status: 'ACTIVE' | 'ANALYZING' | 'COMPLETED' | 'ARCHIVED';
   
   // Cyber-specific metadata
@@ -166,7 +165,6 @@ export interface CreatePackageRequest {
   description: string;
   type: IntelPackage['type'];
   tags: string[];
-  classification: IntelPackage['classification'];
   incidentId?: string;
   affectedSystems: string[];
 }

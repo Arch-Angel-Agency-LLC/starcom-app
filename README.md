@@ -30,6 +30,11 @@ A next-generation civilian-led intelligence platform for corruption exposure, tr
 **NOT RESISTANCE - RECLAMATION**
 *We're not fighting the system. We're taking our planet back.*
 
+### **📊 Public Analytics Dashboard**
+Real-time platform metrics for transparency and grant applications:
+**https://lookerstudio.google.com/s/tjL7zN4Fim4**
+*(No login required - public access for stakeholders and grant reviewers)*
+
 ---
 
 ## 🚀 **Quick Start**

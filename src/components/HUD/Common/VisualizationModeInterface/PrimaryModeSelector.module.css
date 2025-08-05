@@ -1,0 +1,113 @@
+/**
+ * PrimaryModeSelector Styles
+ * 
+ * Styles for the 3 primary mode emoji buttons
+ */
+
+.primaryModeSelector {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+}
+
+.primaryModeSelector.compact {
+  gap: 4px;
+}
+
+.primaryModeButton {
+  /* Button base styling */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  border-radius: 4px;
+  background: rgba(0, 40, 80, 0.6);
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  
+  /* Remove default button styles */
+  outline: none;
+  padding: 0;
+  margin: 0;
+}
+
+.primaryModeButton.compact {
+  width: 28px;
+  height: 28px;
+}
+
+.primaryModeButton:hover {
+  background: rgba(0, 60, 120, 0.8);
+  border-color: rgba(0, 255, 255, 0.5);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 255, 255, 0.2);
+}
+
+.primaryModeButton:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 4px rgba(0, 255, 255, 0.1);
+}
+
+.primaryModeButton.active {
+  background: rgba(0, 255, 255, 0.2);
+  border-color: rgba(0, 255, 255, 0.8);
+  box-shadow: 0 0 12px rgba(0, 255, 255, 0.3);
+}
+
+.primaryModeButton.active:hover {
+  background: rgba(0, 255, 255, 0.3);
+  box-shadow: 0 0 16px rgba(0, 255, 255, 0.4);
+}
+
+.emoji {
+  font-size: 16px;
+  line-height: 1;
+  display: block;
+  user-select: none;
+  pointer-events: none;
+}
+
+.primaryModeButton.compact .emoji {
+  font-size: 14px;
+}
+
+/* Focus states for accessibility */
+.primaryModeButton:focus {
+  border-color: rgba(255, 255, 0, 0.8);
+  box-shadow: 0 0 8px rgba(255, 255, 0, 0.3);
+}
+
+.primaryModeButton:focus:not(:focus-visible) {
+  border-color: rgba(0, 255, 255, 0.3);
+  box-shadow: none;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .primaryModeButton {
+    border-width: 2px;
+  }
+  
+  .primaryModeButton.active {
+    border-color: #00ffff;
+    background: rgba(0, 255, 255, 0.4);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .primaryModeButton {
+    transition: none;
+  }
+  
+  .primaryModeButton:hover {
+    transform: none;
+  }
+  
+  .primaryModeButton:active {
+    transform: none;
+  }
+}

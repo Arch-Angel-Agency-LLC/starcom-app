@@ -34,7 +34,6 @@ interface ValidationErrors {
   name?: string;
   description?: string;
   type?: string;
-  classification?: string;
   affectedSystems?: string;
   tags?: string;
 }

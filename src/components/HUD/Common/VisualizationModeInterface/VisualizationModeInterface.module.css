@@ -1,0 +1,114 @@
+/**
+ * VisualizationModeInterface Styles
+ * 
+ * Container styles for the primary and secondary mode control interface
+ */
+
+.visualizationModeInterface {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  background: rgba(0, 20, 40, 0.8);
+  border: 1px solid rgba(0, 255, 255, 0.2);
+  border-radius: 4px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px rgba(0, 255, 255, 0.1);
+}
+
+.visualizationModeInterface.compact {
+  gap: 4px;
+  padding: 4px;
+}
+
+.primaryModeSection {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.secondaryModeSection {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  min-height: 32px; /* Reserve space even when no secondary modes */
+}
+
+/* Loading State */
+.loadingState {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 40px;
+  width: 100%;
+}
+
+.loadingText {
+  color: rgba(0, 255, 255, 0.7);
+  font-size: 16px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+/* Fallback State */
+.fallbackState {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 40px;
+  width: 100%;
+}
+
+.fallbackButtons {
+  display: flex;
+  gap: 4px;
+}
+
+.fallbackButton {
+  background: rgba(0, 255, 255, 0.1);
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.fallbackButton:hover {
+  background: rgba(0, 255, 255, 0.2);
+  border-color: rgba(0, 255, 255, 0.5);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .visualizationModeInterface {
+    gap: 6px;
+    padding: 6px;
+  }
+  
+  .visualizationModeInterface.compact {
+    gap: 3px;
+    padding: 3px;
+  }
+}
+
+/* Animation for mode transitions */
+.visualizationModeInterface * {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Focus management for accessibility */
+.visualizationModeInterface:focus-within {
+  border-color: rgba(0, 255, 255, 0.4);
+  box-shadow: 0 2px 12px rgba(0, 255, 255, 0.2);
+}

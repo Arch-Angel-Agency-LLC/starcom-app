@@ -1,4 +1,5 @@
 import React, { lazy, Suspense } from 'react';
+import { VisualizationModeInterface } from '../../Common/VisualizationModeInterface';
 import styles from './CyberCommandLeftSideBar.module.css';
 
 // Lazy load TinyGlobe to reduce initial bundle size
@@ -31,6 +32,13 @@ const CyberCommandLeftSideBar: React.FC = () => {
         <div className={styles.globeContainer}>
           <Suspense fallback={<div className={styles.tinyGlobePlaceholder}>Loading Globe...</div>}>
             <TinyGlobe />
+          </Suspense>
+        </div>
+        
+        {/* Visualization Mode Controls - NEW: Primary + Secondary mode buttons */}
+        <div className={styles.visualizationControls}>
+          <Suspense fallback={<div className={styles.visualizationPlaceholder}>⚡</div>}>
+            <VisualizationModeInterface compact={true} />
           </Suspense>
         </div>
         

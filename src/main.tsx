@@ -7,10 +7,22 @@ import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom';
 import { SolflareWalletAdapter } from '@solana/wallet-adapter-solflare';
 import { UnifiedAuthProvider } from './security/context/AuthContext';
 import { debugLogger, DebugCategory } from './utils/debugLogger';
+import { initGA } from './utils/analytics';
 import '@solana/wallet-adapter-react-ui/styles.css';
 
 // Global debugging setup
 debugLogger.info(DebugCategory.COMPONENT_LOAD, 'main.tsx loaded - setting up global error monitoring');
+
+// Initialize Google Analytics if enabled and measurement ID is provided
+const gaEnabled = import.meta.env.VITE_ANALYTICS_ENABLED === 'true';
+const gaMeasurementId = import.meta.env.VITE_GA_MEASUREMENT_ID;
+
+if (gaEnabled && gaMeasurementId && gaMeasurementId !== 'G-XXXXXXXXXX') {
+  initGA(gaMeasurementId);
+  debugLogger.info(DebugCategory.COMPONENT_LOAD, 'Google Analytics initialized for investor tracking');
+} else {
+  debugLogger.info(DebugCategory.COMPONENT_LOAD, 'Google Analytics disabled or not configured');
+}
 
 // Capture unhandled errors for WalletNotSelectedError tracking
 window.addEventListener('error', (event) => {

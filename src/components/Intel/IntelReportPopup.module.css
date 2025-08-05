@@ -39,13 +39,41 @@
   gap: 18px;
 }
 
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
 .header {
   color: #00C4FF;
-  text-align: center;
   text-shadow: 0 0 8px #00C4FF, 0 0 2px #000;
   font-size: 1.4rem;
   font-family: 'Orbitron', Arial, sans-serif;
-  margin-bottom: 16px;
+  margin: 0;
+}
+
+.dashboardButton {
+  background: linear-gradient(135deg, #0099ff 0%, #00ff41 50%, #ffff00 100%);
+  color: #000;
+  border: none;
+  border-radius: 12px;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: 'Orbitron', Arial, sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(0, 196, 255, 0.3);
+}
+
+.dashboardButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 196, 255, 0.5);
+  background: linear-gradient(135deg, #00ff41 0%, #ffff00 50%, #0099ff 100%);
 }
 
 .formFields {

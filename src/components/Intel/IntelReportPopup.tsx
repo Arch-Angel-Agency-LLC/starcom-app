@@ -3,8 +3,9 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { submitIntelReport } from '../../api/intelligence';
 import { IntelReport } from '../../models/IntelReport';
-import { IntelReportFormData } from '../HUD/Corners/BottomRight/IntelReportFormData';
-import MapSelectorPopup from '../HUD/Corners/BottomRight/MapSelectorPopup';
+import { IntelReportFormData } from '../HUD/Corners/CyberCommandBottomRight/IntelReportFormData';
+import MapSelectorPopup from '../HUD/Corners/CyberCommandBottomRight/MapSelectorPopup';
+import { useIntelDashboard } from '../../hooks/useIntelDashboard';
 import styles from './IntelReportPopup.module.css';
 
 interface IntelReportPopupProps {
@@ -13,6 +14,7 @@ interface IntelReportPopupProps {
 
 const IntelReportPopup: React.FC<IntelReportPopupProps> = ({ onClose }) => {
   const { connected, publicKey, signTransaction } = useWallet();
+  const { openIntelDashboard } = useIntelDashboard();
   const [status, setStatus] = useState('');
   const [isMapPopupOpen, setIsMapPopupOpen] = useState(false);
   
@@ -113,7 +115,17 @@ const IntelReportPopup: React.FC<IntelReportPopupProps> = ({ onClose }) => {
         <div className={styles.popupLayout}>
           {/* Left: Intel Report Form */}
           <form onSubmit={handleSubmit} className={styles.formSection}>
-            <h2 className={styles.header}>Create Intelligence Report</h2>
+            <div className={styles.headerRow}>
+              <h2 className={styles.header}>Create Intelligence Report</h2>
+              <button 
+                type="button"
+                onClick={() => openIntelDashboard({ filterMode: 'ALL' })}
+                className={styles.dashboardButton}
+                title="Open Intel Dashboard"
+              >
+                📊 Intel Dashboard
+              </button>
+            </div>
             
             <div className={styles.formFields}>
               <input
