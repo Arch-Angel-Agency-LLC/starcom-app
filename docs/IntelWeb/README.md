@@ -24,7 +24,6 @@ IntelWeb implements a **Virtual Filesystem** approach to handle intelligence pac
 - [`IMPLEMENTATION-PLAN.md`](./IMPLEMENTATION-PLAN.md) - Development roadmap and milestones
 - [`OBSIDIAN-INTERFACE-REFERENCE.md`](./OBSIDIAN-INTERFACE-REFERENCE.md) - UI component specifications
 - [`VIRTUAL-FILESYSTEM.md`](./VIRTUAL-FILESYSTEM.md) - Package management and storage architecture
-- [`LONG-ISLAND-CASE-EXAMPLE.md`](./LONG-ISLAND-CASE-EXAMPLE.md) - Reference implementation example
 
 ## Quick Start
 
@@ -34,5 +33,4 @@ The IntelWeb transformation addresses the architectural issue where the NodeWeb 
 
 - **NodeWeb Application**: `/src/applications/nodeweb/NodeWebApplication.tsx`
 - **IntelAnalyzer**: `/src/components/IntelAnalyzer/` (now handles report viewing)
-- **Long Island Case Data**: `/src/data/The Long Island Case/` (reference vault)
 - **Enhanced Application Router**: `/src/components/Router/EnhancedApplicationRouter.tsx`

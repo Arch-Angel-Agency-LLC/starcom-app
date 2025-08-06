@@ -183,6 +183,7 @@ export class SpaceAssetsDataProvider implements DataProvider<SpaceAssetsDataType
       throw new Error(`CelesTrak endpoint not found: ${key}`);
     }
 
+    console.log(`🌐 SpaceAssetsDataProvider: Fetching real data from CelesTrak: ${endpoint.url}`);
     const response = await fetch(endpoint.url);
     if (!response.ok) {
       throw new Error(`Failed to fetch CelesTrak data: ${response.status}`);
@@ -193,6 +194,11 @@ export class SpaceAssetsDataProvider implements DataProvider<SpaceAssetsDataType
     // Validate CelesTrak TLE structure
     if (!Array.isArray(data)) {
       throw new Error('Invalid CelesTrak data format: expected array');
+    }
+
+    console.log(`✅ SpaceAssetsDataProvider: Successfully loaded ${data.length} real satellites from CelesTrak for '${key}'`);
+    if (data.length > 0) {
+      console.log(`📡 Sample satellite from CelesTrak: ${data[0].OBJECT_NAME} (ID: ${data[0].NORAD_CAT_ID})`);
     }
 
     return data;

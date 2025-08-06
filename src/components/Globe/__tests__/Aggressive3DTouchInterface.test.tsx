@@ -57,6 +57,9 @@ let currentInteractionState = {
 
 // TODO: Implement dependency vulnerability scanning and update automation - PRIORITY: MEDIUM
 // Mock the hook with factory function to avoid hoisting issues
+// NOTE: This test file needs updating after consolidation - useIntel3DInteraction hook was removed
+// DISABLED: Hook-based mocking no longer needed after architectural consolidation
+/*
 vi.mock('../../../hooks/useIntel3DInteraction', () => ({
   useIntel3DInteraction: vi.fn((props) => {
     const { enabled, containerRef } = props;

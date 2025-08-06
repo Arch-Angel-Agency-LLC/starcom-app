@@ -1037,7 +1037,7 @@ export function useSIWS(): UseSIWSReturn {
         'solflare_stable': currentAnalysis.solflare_analysis.window_solflare_exists === initialAnalysis.solflare_analysis.window_solflare_exists,
         'adapter_stable': currentAnalysis.adapter_availability.current_wallet_adapter === initialAnalysis.adapter_availability.current_wallet_adapter
       });
-    }, 5000); // Check every 5 seconds
+    }, 30000); // Check every 30 seconds (reduced from 5s for performance)
     
     return () => clearInterval(healthCheckInterval);
   }, [wallet]);

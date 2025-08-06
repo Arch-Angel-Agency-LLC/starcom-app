@@ -9,7 +9,6 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { IntelReportPackage } from '../../types/IntelReportPackage';
 import { VirtualFileSystem, VirtualFile } from '../../types/DataPack';
 import { VirtualFileSystemManager } from '../../services/VirtualFileSystemManager';
-import { loadComprehensiveLongIslandCase } from '../../services/ComprehensiveLongIslandCaseLoader';
 import { IntelGraph } from './components/Graph/IntelGraph';
 import GraphErrorBoundary from './components/ErrorBoundary/GraphErrorBoundary';
 import { IntelWebLeftSideBar } from './components/IntelWebLeftSideBar';
@@ -111,29 +110,6 @@ export const IntelWebApplication: React.FC<IntelWebApplicationProps> = ({
       setState(prev => ({ ...prev, loading: false }));
     }
   }, [initialPackage, loadPackage]);
-
-  // Load Long Island Case vault specifically
-  const loadLongIslandCase = useCallback(async () => {
-    try {
-      setState(prev => ({ ...prev, loading: true, error: null }));
-      
-      const longIslandVault = loadComprehensiveLongIslandCase();
-      
-      setState(prev => ({
-        ...prev,
-        vault: longIslandVault,
-        loading: false,
-        currentPackage: null // No package, just vault data
-      }));
-      
-    } catch (error) {
-      setState(prev => ({
-        ...prev,
-        error: error instanceof Error ? error.message : 'Failed to load Long Island Case',
-        loading: false
-      }));
-    }
-  }, []);
 
   // Demo vault loader for testing (simplified version)
   const loadDemoVault = useCallback(async () => {
@@ -352,12 +328,6 @@ Current threat level: **ELEVATED**
           <h2>IntelWeb - Intelligence Vault Explorer</h2>
           <p>Load an Intelligence Package to begin analysis</p>
           <div className="demo-actions">
-            <button className="demo-button" onClick={loadLongIslandCase}>
-              📁 Load The Long Island Case
-            </button>
-            <p className="demo-description">
-              Load the real investigation files from The Long Island Case
-            </p>
             <button className="demo-button" onClick={loadDemoVault}>
               📁 Load Demo Intelligence Vault
             </button>

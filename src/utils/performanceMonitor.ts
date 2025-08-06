@@ -11,6 +11,14 @@ export interface PerformanceMetric {
   metadata?: Record<string, unknown>;
 }
 
+export interface ComponentMetrics {
+  componentMounts: number;
+  componentUnmounts: number;
+  renderCycles: number;
+  memoryUsage?: number;
+  timestamp: number;
+}
+
 export interface PerformanceReport {
   metrics: PerformanceMetric[];
   totalOperations: number;
@@ -213,3 +221,72 @@ export const timeFunction = <T>(
   fn: () => T | Promise<T>,
   metadata?: Record<string, unknown>
 ) => performanceMonitor.timeFunction(name, fn, metadata);
+
+// Component mounting/unmounting tracking for development
+class ComponentPerformanceTracker {
+  private componentMetrics: Map<string, ComponentMetrics> = new Map();
+  private isDevelopment = process.env.NODE_ENV === 'development';
+
+  trackComponentMount(componentName: string): void {
+    if (!this.isDevelopment) return;
+
+    const current = this.componentMetrics.get(componentName) || {
+      componentMounts: 0,
+      componentUnmounts: 0,
+      renderCycles: 0,
+      timestamp: Date.now()
+    };
+
+    this.componentMetrics.set(componentName, {
+      ...current,
+      componentMounts: current.componentMounts + 1,
+      timestamp: Date.now()
+    });
+
+    // Warn if too many mounts in short period
+    if (current.componentMounts > 10) {
+      console.warn(`🚨 PERFORMANCE: ${componentName} has mounted ${current.componentMounts} times`);
+    }
+  }
+
+  trackComponentUnmount(componentName: string): void {
+    if (!this.isDevelopment) return;
+
+    const current = this.componentMetrics.get(componentName);
+    if (!current) return;
+
+    this.componentMetrics.set(componentName, {
+      ...current,
+      componentUnmounts: current.componentUnmounts + 1,
+      timestamp: Date.now()
+    });
+  }
+
+  logComponentSummary(): void {
+    if (!this.isDevelopment) return;
+
+    console.group('📊 COMPONENT PERFORMANCE SUMMARY');
+    
+    for (const [componentName, metrics] of this.componentMetrics) {
+      const mountUnmountRatio = metrics.componentUnmounts > 0 
+        ? (metrics.componentMounts / metrics.componentUnmounts).toFixed(2)
+        : 'N/A';
+
+      console.log(`${componentName}:`, {
+        mounts: metrics.componentMounts,
+        unmounts: metrics.componentUnmounts,
+        ratio: mountUnmountRatio,
+        lastActivity: new Date(metrics.timestamp).toLocaleTimeString()
+      });
+
+      // Flag problematic components
+      if (metrics.componentMounts > 5) {
+        console.warn(`⚠️ ${componentName} shows signs of mounting storms`);
+      }
+    }
+
+    console.groupEnd();
+  }
+}
+
+export const componentTracker = new ComponentPerformanceTracker();

@@ -1,7 +1,7 @@
 // src/hooks/useIntelReport3DMarkers.ts
 // Hook for managing Intel Report 3D markers in the Globe
 
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, useMemo } from 'react';
 import * as THREE from 'three';
 import { IntelReportOverlayMarker } from '../interfaces/IntelReportOverlay';
 import { assetLoader } from '../utils/assetLoader';
@@ -216,18 +216,10 @@ export const useIntelReport3DMarkers = (
     };
   }, [scene]);
 
-  // Create model instances for each Intel Report
-  useEffect(() => {
-    // Clear existing models first
-    setModels(prevModels => {
-      prevModels.forEach(model => {
-        groupRef.current.remove(model.positionContainer);
-      });
-      return [];
-    });
-
+  // Memoize model creation to prevent recreation storms
+  const memoizedModels = useMemo(() => {
     if (!gltfModel || !reports.length) {
-      return;
+      return [];
     }
 
     const newModels: ModelInstance[] = reports.map((report) => {
@@ -254,8 +246,6 @@ export const useIntelReport3DMarkers = (
       mesh.rotation.set(0, 0, 0);
       rotationContainer.add(mesh);
       
-      groupRef.current.add(positionContainer);
-      
       return {
         positionContainer,
         orientationContainer,
@@ -268,8 +258,26 @@ export const useIntelReport3DMarkers = (
       };
     });
 
-    setModels(newModels);
+    return newModels;
   }, [gltfModel, reports, globeRadius, hoverAltitude]);
+
+  // Update models state and scene when memoizedModels change
+  useEffect(() => {
+    // Clear existing models first
+    setModels(prevModels => {
+      prevModels.forEach(model => {
+        groupRef.current.remove(model.positionContainer);
+      });
+      return [];
+    });
+
+    // Add new models to scene
+    memoizedModels.forEach(model => {
+      groupRef.current.add(model.positionContainer);
+    });
+
+    setModels(memoizedModels);
+  }, [memoizedModels]);
 
   // Animation loop
   useEffect(() => {

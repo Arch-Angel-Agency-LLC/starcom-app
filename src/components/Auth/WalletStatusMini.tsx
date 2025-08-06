@@ -1168,32 +1168,39 @@ const WalletStatusMini: React.FC = () => {
     }
   };
 
-  // Debug logging for connection issues
+  // Debug logging for connection issues - throttled to prevent spam
   useEffect(() => {
-    console.log('WalletStatusMini Debug:', {
-      connectionStatus,
-      address: address ? `${address.slice(0, 8)}...` : null,
-      isAuthenticated,
-      error,
-      authError,
-      session: !!session,
-      isWalletConnected,
-      buttonState: buttonState.className,
-      buttonLabel: buttonState.label,
-      isSigningIn,
-      isManualSigning,
-      retryCount: signingFailureCount.current, // Added retry count tracking
-      showForceReset,
-      autoResetCountdown,
-      inQuagmire,
-      consecutiveErrors: consecutiveErrorCount.current,
-      persistentErrorDuration: persistentErrorStartTime.current ? Date.now() - persistentErrorStartTime.current : 0,
-      timeSinceLastSignAttempt: lastSignInAttempt.current ? Date.now() - lastSignInAttempt.current : 0,
-      // Auto-auth state
-      autoAuthDisabled,
-      authFailureCount
-    });
-  }, [connectionStatus, address, isAuthenticated, error, authError, session, isWalletConnected, buttonState, isSigningIn, isManualSigning, showForceReset, autoResetCountdown, inQuagmire, autoAuthDisabled, authFailureCount]);
+    // Only log when there are actual errors or significant state changes
+    const hasErrors = error || authError || inQuagmire;
+    const isConnecting = isSigningIn || isManualSigning;
+    const isSignificantState = hasErrors || isConnecting || showForceReset;
+    
+    if (isSignificantState) {
+      console.log('WalletStatusMini Debug:', {
+        connectionStatus,
+        address: address ? `${address.slice(0, 8)}...` : null,
+        isAuthenticated,
+        error,
+        authError,
+        session: !!session,
+        isWalletConnected,
+        buttonState: buttonState.className,
+        buttonLabel: buttonState.label,
+        isSigningIn,
+        isManualSigning,
+        retryCount: signingFailureCount.current,
+        showForceReset,
+        autoResetCountdown,
+        inQuagmire,
+        consecutiveErrors: consecutiveErrorCount.current,
+        persistentErrorDuration: persistentErrorStartTime.current ? Date.now() - persistentErrorStartTime.current : 0,
+        timeSinceLastSignAttempt: lastSignInAttempt.current ? Date.now() - lastSignInAttempt.current : 0,
+        autoAuthDisabled,
+        authFailureCount
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [error, authError, inQuagmire, isSigningIn, isManualSigning, showForceReset]); // Deliberately limited to error states to reduce logging spam
   const wrongNetwork = false; // TODO: Implement actual network validation
 
   // Show enhanced connect button for all non-authenticated states

@@ -23,9 +23,15 @@ const mockHookResult = {
   getModelScreenPosition: vi.fn(() => ({ x: 100, y: 100 }))
 };
 
+// NOTE: This test file needs updating after consolidation - useIntel3DInteraction hook was removed
+// and its functionality merged directly into Enhanced3DGlobeInteractivity component
+
+// DISABLED: Hook-based mocking no longer needed after architectural consolidation
+/*
 vi.mock('../../../hooks/useIntel3DInteraction', () => ({
   useIntel3DInteraction: vi.fn(() => mockHookResult)
 }));
+*/
 
 // Mock UI components
 vi.mock('../../ui/IntelReportTooltip/IntelReportTooltip', () => ({

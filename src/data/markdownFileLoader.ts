@@ -1,82 +1,67 @@
 /**
- * Markdown File Loader for Long Island Case Investigation
+ * Markdown File Loader for Demo Investigation Data
  * 
- * This module provides access to the actual markdown content from 
- * src/data/The Long Island Case/ directory
+ * This module provides access to demo markdown content for 
+ * intelligence analysis demonstrations
  */
 
-// Real markdown content from the investigation files
+// Demo markdown content for development and testing
 export const markdownContentMap: Record<string, string> = {
-  'People/Stephanie Mininni.md': `34 Years Old
+  'People/Demo Person Alpha.md': `# Demo Person Alpha
 
-Stephanie.Killeen.39
-@truarkga39x
+Age: 25
+Location: Demo City
+Occupation: Software Engineer
 
-Stephanie Mininni claims she was "Molested, Groomed and Trafficked" _and is now trauma responding to awakening repressed memories._
+## Background
+Demo Person Alpha is a fictional character created for intelligence analysis demonstration purposes. 
 
-Stephanie posted 6 videos talking about what's been going on
-1. When Steph did her post on Facebook on June 20th, [[James Puchett]] put the "Laughing" reaction to it!!!
+## Connections
+- Connected to [[Demo Organization Beta]]
+- Works with [[Demo Person Gamma]]
+- Lives in [[Demo Location Delta]]
 
-Claims she was "Manipulated to make suicide videos"
-she was on **Suboxone** (claims of relapse... but relapse isn't possible with **Suboxone**)
+## Notes
+This is sample investigative data for demonstration purposes only. No real individuals are represented in this data.
 
-Went to the #5thPrecinct [[Suffolk County Police Department]] to report after making her videos.
-After she went back home and was *(captured?)* taken to the Hospital [[CPEP]]?
+#demo #person #investigation`,
 
-#Mininni #whistleblower
+  'People/Demo Person Beta.md': `# Demo Person Beta
 
-[[Patchogue]] [[Long Island, NY]] 
+Age: 30
+Location: Demo City
+Occupation: Project Manager
 
-- [[Anthony Killeen]] is a nurse at [[Stony Brook]]- that is where Stephanie was brought for emergency psych. *"He has the ability to not only access her medical records but I am sure has some influence on those who provided her treatment."* 
-- Stephanie was ***not*** brought to Stony Brook from the police. 
-- #5thPrecinct[[Suffolk County Police Department]] took her statement and stated they'll investigate. Her mother called called the cops later that day with false accusations. 
-- Stephanie agreed to go to the hospital because she wanted to prove she was not on drugs. Her toxicology report was clean at [[Stony Brook Hospital]]
+## Background
+Demo Person Beta is another fictional character for testing intelligence analysis workflows.
 
-*Still no posts online from Stephanie...*
+## Connections
+- Manages [[Demo Person Alpha]]
+- Associates with [[Demo Organization Echo]]
+- Frequent visitor to [[Demo Location Foxtrot]]
 
-[[Nicholas Tedesco]] claims friendship and that they met together in [[CPEP]] and that Stephanie gave him a letter... [[Ian Killeen]] talks about "receiving" such letters... did [[Nicholas Tedesco]] get that letter from [[Ian Killeen]]? 
+## Analysis Notes
+Sample analytical notes about connections and patterns. This demonstrates how intelligence analysts might document relationships and observations.
 
+#demo #person #management`,
 
-**Calls out:**
-Brother: [[Steven Mininni]]
-Mother: [[Patricia Mininni]] *(Molested both [[Steven Mininni]] and Stephanie Mininni)*
-Father: [[Alfred J Mininni]] *(Mafia Boss - Mob Boss)* *("They were murdered"... Who else??? Another family? Did Alfred have another family?)*
+  'Organizations/Demo Organization Alpha.md': `# Demo Organization Alpha
 
-**Calls out:**
-Husband: [[Ian Killeen]]
-[[Linda Gulli Killeen]]
-[[Anthony Killeen]]
+Type: Technology Company
+Location: Demo City Business District
+Founded: 2020
 
-"These two families have been working together this whole time"
-#Mininni #Killeen 
+## Overview
+A fictional organization created for intelligence analysis demonstration and testing.
 
-She was advised not to make a TikTok Video
-She Completely Agrees to go to a Police Station
-She has been a Drug Addict since a Teenager, not knowing why
-She was going to go into treatment to process this
+## Key Personnel
+- [[Demo Person Alpha]] - Software Engineer
+- [[Demo Person Beta]] - Project Manager
 
-The Fact that her Mother In Law wouldn't take her mom off the pickup list after telling her everything... She had to call the school. (Pickup list for her son)
+## Operations
+Sample operational data for demonstration purposes.
 
-Specifically calls out all the #Masciottas as the Traffickers who killed Steph's Dad and are now going after her. Steph believes the #Masciottas created all of this.`,
-
-  'People/Ian Killeen.md': `Ian's Mom: [[Linda Gulli Killeen]]
-Ian's Uncle: [[Roy Gulli Killeen]]
-
-#nurse 
-
-Ians patients "WRITE HIM LETTERS"
-[[Nicholas Tedesco]] read that letter that was apparently from Steph... given to Nick by Ian???
-
-![[SM_Ian_Killeen_Good_Samaritan_Hospital.png]]`,
-
-  'People/Anthony Killeen.md': `#Killeen 
-#nurse 
-#medical
-
-- Anthony Killeen is a nurse at [[Stony Brook Hospital]]- that is where [[Stephanie Mininni]] was brought for emergency psych. He has the ability to not only access her medical records but I am sure has some influence on those who provided her treatment. 
-- Stephanie was not brought to Stony Brook from the police. They took her statement and stated they'll investigate. 
-- Her mother called called the cops later that day with false accusations. Stephanie agreed to go bc she wanted to prove she was not on drugs. 
-- Her toxicology report was clean at [[Stony Brook Hospital]]`,
+#demo #organization #technology`,
 };
 
 /**

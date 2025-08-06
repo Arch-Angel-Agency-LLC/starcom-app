@@ -428,41 +428,142 @@ const GlobeView: React.FC = () => {
   }, [visualizationMode.mode, visualizationMode.subMode]);
 
   // =============================================================================
-  // NETWORK INFRASTRUCTURE INTEGRATION - New mode integration
+  // SATELLITES INTEGRATION - Real satellite tracking (MVP)
   // =============================================================================
   useEffect(() => {
     if (!globeRef.current) return;
 
     const globeObj = globeRef.current as unknown as { scene: () => THREE.Scene };
     const scene = globeObj?.scene();
-    const infraGroup = networkInfraGroupRef.current;
+    const satellitesGroup = networkInfraGroupRef.current; // Reuse existing group
 
-    if (visualizationMode.mode === 'CyberCommand' && visualizationMode.subMode === 'NetworkInfrastructure') {
-      console.log('🌐 NETWORK INFRASTRUCTURE MODE ACTIVATED - New Integration Point');
-      console.log('📊 Data Source: NetworkInfrastructureService (to be created)');
-      console.log('🎯 Ready for: ISP nodes, fiber cables, data centers, backbone infrastructure');
+    if (visualizationMode.mode === 'CyberCommand' && visualizationMode.subMode === 'Satellites') {
+      console.log('🛰️ SATELLITES MODE ACTIVATED - Enhanced satellite tracking');
+      console.log('📊 Data Source: CelesTrak with intelligent curation');
+      console.log('🎯 Showing: ~100 carefully selected satellites from 21K+ database');
       
-      // Add infraGroup to scene
-      if (scene && infraGroup && !scene.children.includes(infraGroup)) {
-        scene.add(infraGroup);
-        console.log('🌐 Network Infrastructure visualization group added to Globe scene');
+      // Add satellitesGroup to scene
+      if (scene && satellitesGroup && !scene.children.includes(satellitesGroup)) {
+        scene.add(satellitesGroup);
+        console.log('🛰️ Satellites visualization group added to Globe scene');
         
-        // TODO: Create NetworkInfrastructureService
-        // TODO: Add fiber optic cable visualization
-        // TODO: Add data center markers
-        // TODO: Add ISP node visualization
+        // Load satellite data with new service
+        import('../../services/Satellites/SatelliteVisualizationService').then(({ satelliteVisualizationService }) => {
+          // Initialize service if not already done
+          satelliteVisualizationService.initialize().then(() => {
+            return satelliteVisualizationService.getSatelliteData();
+          }).then(satellites => {
+            console.log(`🛰️ Loaded ${satellites.length} satellites for visualization`);
+            
+            // Clear previous satellites
+            while (satellitesGroup.children.length > 0) {
+              const child = satellitesGroup.children[0];
+              satellitesGroup.remove(child);
+              if (child instanceof THREE.Mesh) {
+                child.geometry?.dispose();
+                if (child.material instanceof THREE.Material) {
+                  child.material.dispose();
+                }
+              }
+            }
+            
+            // Use Three.js InstancedMesh for better performance with many satellites
+            const maxSatellites = Math.max(100, satellites.length);
+            const geometry = new THREE.SphereGeometry(0.3, 8, 6); // Small, low-poly spheres
+            const material = new THREE.MeshBasicMaterial({ 
+              transparent: true,
+              opacity: 0.8
+            });
+            
+            const instancedMesh = new THREE.InstancedMesh(geometry, material, maxSatellites);
+            const tempMatrix = new THREE.Matrix4();
+            const tempColor = new THREE.Color();
+            
+            // Create satellite markers using instanced rendering
+            satellites.forEach((satellite, index) => {
+              const { lat, lng, altitude, type } = satellite;
+              
+              // Convert lat/lng/alt to 3D position
+              const phi = (90 - lat) * (Math.PI / 180);
+              const theta = (lng + 180) * (Math.PI / 180);
+              const radius = 100 + (altitude / 1000); // Scale altitude for visibility
+              
+              const position = new THREE.Vector3(
+                -radius * Math.sin(phi) * Math.cos(theta),
+                radius * Math.cos(phi),
+                radius * Math.sin(phi) * Math.sin(theta)
+              );
+              
+              // Set instance matrix (position and scale)
+              const scale = type === 'space_station' ? 2.0 : 
+                           type === 'scientific' ? 1.5 :
+                           type === 'gps_satellite' ? 1.2 : 1.0;
+              
+              tempMatrix.compose(position, new THREE.Quaternion(), new THREE.Vector3(scale, scale, scale));
+              instancedMesh.setMatrixAt(index, tempMatrix);
+              
+              // Set instance color
+              const color = type === 'space_station' ? 0x00ff88 : // Green for stations
+                           type === 'scientific' ? 0xff8800 : // Orange for scientific
+                           type === 'gps_satellite' ? 0x4488ff : // Blue for GPS
+                           type === 'starlink' ? 0xaaaaaa : // Gray for Starlink
+                           type === 'weather' ? 0x88ff44 : // Light green for weather
+                           type === 'communication' ? 0xff4488 : // Pink for communication
+                           0xffffff; // White for others
+              
+              tempColor.setHex(color);
+              instancedMesh.setColorAt(index, tempColor);
+              
+              // Store metadata for interaction (will be used in Phase 3)
+              if (index === 0) {
+                instancedMesh.userData = {
+                  type: 'satelliteGroup',
+                  satellites: satellites.map(sat => ({
+                    id: sat.id,
+                    name: sat.name,
+                    type: sat.type,
+                    altitude: sat.altitude,
+                    position: { lat: sat.lat, lng: sat.lng }
+                  }))
+                };
+              }
+            });
+            
+            // Update instance matrices and colors
+            instancedMesh.instanceMatrix.needsUpdate = true;
+            if (instancedMesh.instanceColor) {
+              instancedMesh.instanceColor.needsUpdate = true;
+            }
+            
+            satellitesGroup.add(instancedMesh);
+            console.log(`🛰️ Created instanced satellite visualization with ${satellites.length} satellites`);
+          }).catch(error => {
+            console.error('🛰️ Failed to load satellite data:', error);
+            
+            // Fallback: Show a few demo satellites
+            const fallbackGeometry = new THREE.SphereGeometry(0.5, 8, 6);
+            const fallbackMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff88 });
+            
+            const issMesh = new THREE.Mesh(fallbackGeometry, fallbackMaterial);
+            issMesh.position.set(0, 110, 0); // Above Earth
+            issMesh.userData = { type: 'satellite', name: 'ISS (Fallback)', id: 'iss-fallback' };
+            satellitesGroup.add(issMesh);
+            
+            console.log('🛰️ Added fallback satellite visualization');
+          });
+        });
       }
     } else {
       // Remove from scene if mode changed
-      if (scene && infraGroup && scene.children.includes(infraGroup)) {
-        scene.remove(infraGroup);
-        console.log('🌐 Network Infrastructure visualization group removed from Globe scene');
+      if (scene && satellitesGroup && scene.children.includes(satellitesGroup)) {
+        scene.remove(satellitesGroup);
+        console.log('🛰️ Satellites visualization group removed from Globe scene');
       }
     }
 
     return () => {
-      if (scene && infraGroup) {
-        scene.remove(infraGroup);
+      if (scene && satellitesGroup) {
+        scene.remove(satellitesGroup);
       }
     };
   }, [globeRef, visualizationMode.mode, visualizationMode.subMode]);
@@ -1013,8 +1114,14 @@ const GlobeView: React.FC = () => {
     
     if (!shouldShowSpaceWeather) {
       // Clear space weather markers when mode changed or no data
-      setGlobeData(prevData => prevData.filter((d: { type?: string }) => d.type !== 'space-weather'));
-      console.log('Space weather data cleared - not in EcoNatural/SpaceWeather mode');
+      setGlobeData(prevData => {
+        const filtered = prevData.filter((d: { type?: string }) => d.type !== 'space-weather');
+        // Only log if we actually removed data to prevent spam
+        if (filtered.length !== prevData.length) {
+          console.log('Space weather data cleared - not in EcoNatural/SpaceWeather mode');
+        }
+        return filtered;
+      });
       return;
     }
     
@@ -1248,7 +1355,7 @@ const GlobeView: React.FC = () => {
   );
 };
 
-export default GlobeView;
+export default React.memo(GlobeView);
 // AI-NOTE: Refactored to use GlobeEngine. See globe-engine-api.artifact for integration details.
 // Artifact references:
 // - Overlay UI/UX: globe-overlays.artifact (UI/UX Guidelines)

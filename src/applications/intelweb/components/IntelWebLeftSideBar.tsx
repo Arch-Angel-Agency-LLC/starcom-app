@@ -119,7 +119,7 @@ export const IntelWebLeftSideBar: React.FC<IntelWebLeftSideBarProps> = ({
   return (
     <div className="intel-web-left-sidebar">
       <div className="vault-header">
-        <h3>The Long Island Case</h3>
+        <h3>Demo Intelligence Vault</h3>
         <div className="vault-stats">
           {vault.fileIndex.size} files
         </div>

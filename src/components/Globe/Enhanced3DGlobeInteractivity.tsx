@@ -1,14 +1,16 @@
 /**
- * Enhanced3DGlobeInteractivity - Game-inspired 3D interaction for Intel Reports
+ * Enhanced3DGlobeInteractivity - UNIFIED 3D interaction for Intel Reports
  * 
  * This component provides a complete 3D interaction system for Intel Report models
- * using the Intel3DInteractionManager and React hooks.
+ * with consolidated mouse handling to eliminate infinite loops.
+ * 
+ * ARCHITECTURAL CHANGE: Removed useIntel3DInteraction hook dependency and merged
+ * logic directly to eliminate competing event systems.
  */
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import * as THREE from 'three';
 import { IntelReportOverlayMarker } from '../../interfaces/IntelReportOverlay';
-import { useIntel3DInteraction } from '../../hooks/useIntel3DInteraction';
 import { useGlobeRightClickInteraction } from '../../hooks/useGlobeRightClickInteraction';
 import { IntelReportTooltip } from '../ui/IntelReportTooltip/IntelReportTooltip';
 import { IntelReportPopup } from '../ui/IntelReportPopup/IntelReportPopup';
@@ -69,7 +71,6 @@ export const Enhanced3DGlobeInteractivity: React.FC<Enhanced3DGlobeInteractivity
 
   // New features state
   const [mousePositionIndicator, setMousePositionIndicator] = useState<THREE.Mesh | null>(null);
-  const [globeHoverPosition, setGlobeHoverPosition] = useState<{ lat: number; lng: number } | null>(null);
   const connectionLinesRef = useRef<THREE.Group>(new THREE.Group());
   const mouseRef = useRef<THREE.Vector2>(new THREE.Vector2());
 
@@ -77,19 +78,78 @@ export const Enhanced3DGlobeInteractivity: React.FC<Enhanced3DGlobeInteractivity
   const isIntelReportsMode = visualizationMode.mode === 'CyberCommand' && 
                             visualizationMode.subMode === 'IntelReports';
 
-  // Use the 3D interaction hook (for existing model interactions)
-  const {
-    hoveredModel,
-    clickedModel,
-    mousePosition,
-    clearClickedState,
-    getModelScreenPosition
-  } = useIntel3DInteraction({
-    globeRef,
-    containerRef,
-    models,
-    enabled: isIntelReportsMode
+  // UNIFIED STATE MANAGEMENT - Direct state instead of hook
+  const [unifiedInteractionState, setUnifiedInteractionState] = useState({
+    // Mouse interaction state
+    hoveredModel: null as ModelInstance | null,
+    clickedModel: null as ModelInstance | null,
+    mousePosition: { x: 0, y: 0 },
+    
+    // Drag/click detection state (game development pattern)
+    isMouseDown: false,
+    dragStartPos: { x: 0, y: 0 },
+    currentPos: { x: 0, y: 0 },
+    dragDistance: 0,
+    mouseDownTime: 0,
+    isDragging: false,
+    hasDraggedPastThreshold: false,
+    
+    // Globe hover state
+    globeHoverPosition: null as { lat: number; lng: number } | null
   });
+
+  // Configuration for drag/click detection
+  const dragThreshold = 5; // pixels
+  const timeThreshold = 300; // ms
+
+  // Refs for high-frequency updates that don't need React re-renders
+  const currentMousePosRef = useRef({ x: 0, y: 0 });
+  const lastMouseStateUpdateRef = useRef(0);
+  const isDraggingRef = useRef(false);
+  const currentCursorRef = useRef<string>('grab');
+  const raycasterRef = useRef<THREE.Raycaster>(new THREE.Raycaster()); // Reuse raycaster for performance
+  
+  // Advanced throttling configuration
+  const MOUSE_STATE_UPDATE_THROTTLE = 100; // Only update React state every 100ms
+  const HOVER_DETECTION_THROTTLE = 50; // Hover detection can be more frequent
+  const DRAG_DETECTION_THROTTLE = 16; // Drag detection at ~60fps for responsiveness
+  
+  // Performance tracking refs
+  const lastHoverDetectionRef = useRef(0);
+  const lastDragDetectionRef = useRef(0);
+  const frameSkipCounterRef = useRef(0);
+  
+  // Performance monitoring (development only)
+  const performanceStatsRef = useRef({
+    totalMouseMoves: 0,
+    skippedFrames: 0,
+    reactStateUpdates: 0,
+    hoverDetections: 0,
+    lastResetTime: Date.now()
+  });
+
+  // Direct cursor management without React re-renders
+  const updateCursor = useCallback((newCursor: string) => {
+    if (currentCursorRef.current !== newCursor && containerRef.current) {
+      currentCursorRef.current = newCursor;
+      containerRef.current.style.cursor = newCursor;
+    }
+  }, [containerRef]);
+
+  // Screen position tracking for UI positioning
+  const [screenPositions, _setScreenPositions] = useState<Map<string, THREE.Vector2>>(new Map());
+
+  // Helper functions for model interactions
+  const clearClickedState = useCallback(() => {
+    setUnifiedInteractionState(prev => ({
+      ...prev,
+      clickedModel: null
+    }));
+  }, []);
+
+  const getModelScreenPosition = useCallback((modelId: string): THREE.Vector2 | null => {
+    return screenPositions.get(modelId) || null;
+  }, [screenPositions]);
 
   // Handle context menu actions with enhanced offline Intel Report support
   const handleCustomContextAction = useCallback(async (
@@ -272,23 +332,23 @@ export const Enhanced3DGlobeInteractivity: React.FC<Enhanced3DGlobeInteractivity
     onContextAction: handleCustomContextAction
   });
   useEffect(() => {
-    const shouldShowTooltip = isIntelReportsMode && hoveredModel !== null;
+    const shouldShowTooltip = isIntelReportsMode && unifiedInteractionState.hoveredModel !== null;
     setTooltipVisible(shouldShowTooltip);
-  }, [hoveredModel, isIntelReportsMode]);
+  }, [unifiedInteractionState.hoveredModel, isIntelReportsMode]);
 
   // Update popup visibility and selected report based on clicked state
   useEffect(() => {
-    if (clickedModel) {
-      setSelectedReport(clickedModel.report);
+    if (unifiedInteractionState.clickedModel) {
+      setSelectedReport(unifiedInteractionState.clickedModel.report);
       setPopupVisible(true);
     }
-  }, [clickedModel]);
+  }, [unifiedInteractionState.clickedModel]);
 
   // Notify parent of hover changes
   useEffect(() => {
-    const reportId = hoveredModel?.report?.pubkey || null;
+    const reportId = unifiedInteractionState.hoveredModel?.report?.pubkey || null;
     onHoverChange?.(reportId);
-  }, [hoveredModel, onHoverChange]);
+  }, [unifiedInteractionState.hoveredModel, onHoverChange]);
 
   // Handle popup close
   const handlePopupClose = () => {
@@ -320,12 +380,12 @@ export const Enhanced3DGlobeInteractivity: React.FC<Enhanced3DGlobeInteractivity
 
   // Calculate tooltip position
   const getTooltipPosition = () => {
-    if (!hoveredModel) {
-      return mousePosition;
+    if (!unifiedInteractionState.hoveredModel) {
+      return unifiedInteractionState.mousePosition;
     }
 
     // Try to get the model's screen position for more accurate tooltip placement
-    const screenPos = getModelScreenPosition(hoveredModel.report.pubkey);
+    const screenPos = getModelScreenPosition(unifiedInteractionState.hoveredModel.report.pubkey);
     if (screenPos) {
       return {
         x: screenPos.x + 15, // Offset to avoid overlapping the model
@@ -335,8 +395,8 @@ export const Enhanced3DGlobeInteractivity: React.FC<Enhanced3DGlobeInteractivity
 
     // Fallback to mouse position
     return {
-      x: mousePosition.x + 15,
-      y: mousePosition.y - 10
+      x: unifiedInteractionState.mousePosition.x + 15,
+      y: unifiedInteractionState.mousePosition.y - 10
     };
   };
 
@@ -468,92 +528,410 @@ export const Enhanced3DGlobeInteractivity: React.FC<Enhanced3DGlobeInteractivity
   // Note: Intel Report creation is now handled through the right-click context menu
   // to avoid interference with globe drag interactions
 
-  // Enhanced mouse event handler for globe interaction
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container || !isIntelReportsMode) return;
+  // UNIFIED COMPREHENSIVE THROTTLED MOUSE HANDLER
+  // This is a complete rewrite that consolidates all mouse interactions with advanced throttling
+  const handleUnifiedMouseMove = useCallback((event: MouseEvent) => {
+    if (!isIntelReportsMode || !containerRef.current || !globeRef.current) return;
 
-    const handleMouseMove = (event: MouseEvent) => {
-      if (!globeRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    const currentTime = Date.now();
 
-      const rect = container.getBoundingClientRect();
-      const x = event.clientX - rect.left;
-      const y = event.clientY - rect.top;
+    // PERFORMANCE MONITORING (development only)
+    if (process.env.NODE_ENV === 'development') {
+      performanceStatsRef.current.totalMouseMoves++;
+      
+      // Reset stats every 10 seconds
+      if (currentTime - performanceStatsRef.current.lastResetTime > 10000) {
+        console.log('🔧 Mouse Handler Performance Stats (10s):', {
+          totalMoves: performanceStatsRef.current.totalMouseMoves,
+          skippedFrames: performanceStatsRef.current.skippedFrames,
+          reactUpdates: performanceStatsRef.current.reactStateUpdates,
+          hoverDetections: performanceStatsRef.current.hoverDetections,
+          efficiency: `${(100 - (performanceStatsRef.current.skippedFrames / performanceStatsRef.current.totalMouseMoves * 100)).toFixed(1)}%`
+        });
+        
+        performanceStatsRef.current = {
+          totalMouseMoves: 0,
+          skippedFrames: 0,
+          reactStateUpdates: 0,
+          hoverDetections: 0,
+          lastResetTime: currentTime
+        };
+      }
+    }
 
-      // Normalize mouse coordinates to [-1, 1] range
-      mouseRef.current.x = (x / rect.width) * 2 - 1;
-      mouseRef.current.y = -(y / rect.height) * 2 + 1;
+    // LEVEL 1: ALWAYS update mouse position ref (no React re-render, essential for tooltips)
+    currentMousePosRef.current = {
+      x: event.clientX, // Global coordinates for tooltips
+      y: event.clientY
+    };
 
+    // LEVEL 2: DRAG DETECTION (high frequency ~60fps for responsive dragging)
+    const isDraggingPlanet = isDraggingRef.current;
+    let shouldUpdateDragState = false;
+    
+    if (currentTime - lastDragDetectionRef.current >= DRAG_DETECTION_THROTTLE) {
+      shouldUpdateDragState = true;
+      lastDragDetectionRef.current = currentTime;
+    }
+
+    // LEVEL 3: REACT STATE UPDATES (low frequency 100ms to prevent infinite loops)
+    let shouldUpdateReactState = false;
+    if (!isDraggingPlanet && currentTime - lastMouseStateUpdateRef.current >= MOUSE_STATE_UPDATE_THROTTLE) {
+      shouldUpdateReactState = true;
+      lastMouseStateUpdateRef.current = currentTime;
+    }
+
+    // LEVEL 4: HOVER DETECTION (medium frequency 50ms for good responsiveness)
+    let shouldUpdateHoverState = false;
+    if (!isDraggingPlanet && currentTime - lastHoverDetectionRef.current >= HOVER_DETECTION_THROTTLE) {
+      shouldUpdateHoverState = true;
+      lastHoverDetectionRef.current = currentTime;
+    }
+
+    // PERFORMANCE TRACKING: Skip frames if called too frequently
+    frameSkipCounterRef.current++;
+    if (frameSkipCounterRef.current % 3 === 0) { // Process every 3rd call for heavy operations
+      frameSkipCounterRef.current = 0;
+    } else if (!shouldUpdateDragState && !shouldUpdateReactState) {
+      if (process.env.NODE_ENV === 'development') {
+        performanceStatsRef.current.skippedFrames++;
+      }
+      return; // Skip this frame entirely if no updates are needed
+    }
+
+    // === DRAG STATE PROCESSING ===
+    if (shouldUpdateDragState && shouldUpdateReactState) {
+      if (process.env.NODE_ENV === 'development') {
+        performanceStatsRef.current.reactStateUpdates++;
+      }
+      setUnifiedInteractionState(prev => {
+        let newState = { ...prev };
+        
+        // Update drag detection if mouse is down
+        if (prev.isMouseDown) {
+          const dragDistance = Math.sqrt(
+            Math.pow(x - prev.dragStartPos.x, 2) + 
+            Math.pow(y - prev.dragStartPos.y, 2)
+          );
+          
+          const isDragging = dragDistance > dragThreshold;
+          const hasDraggedPastThreshold = prev.hasDraggedPastThreshold || isDragging;
+          
+          // Update the ref immediately for other systems
+          isDraggingRef.current = hasDraggedPastThreshold;
+          
+          newState = {
+            ...newState,
+            currentPos: { x, y },
+            dragDistance,
+            isDragging,
+            hasDraggedPastThreshold
+          };
+
+          // Debug logging (throttled)
+          if (isDragging && !prev.isDragging) {
+            console.log('🖱️ COMPREHENSIVE Handler - Drag detected:', { dragDistance, dragThreshold });
+          }
+        }
+
+        // Update mouse position
+        newState.mousePosition = { ...currentMousePosRef.current };
+        return newState;
+      });
+    }
+
+    // === EARLY EXIT: Skip expensive 3D operations during dragging ===
+    if (isDraggingPlanet) {
+      return;
+    }
+
+    // === 3D INTERSECTION AND HOVER DETECTION ===
+    if (shouldUpdateHoverState) {
+      if (process.env.NODE_ENV === 'development') {
+        performanceStatsRef.current.hoverDetections++;
+      }
       const globeObj = globeRef.current;
       const scene = globeObj?.scene();
       const camera = globeObj?.camera();
 
       if (!scene || !camera) return;
 
-      // Update raycaster for globe intersection detection
-      const raycaster = new THREE.Raycaster();
-      raycaster.setFromCamera(mouseRef.current, camera);
+      // Normalize mouse coordinates to [-1, 1] range
+      mouseRef.current.x = (x / rect.width) * 2 - 1;
+      mouseRef.current.y = -(y / rect.height) * 2 + 1;
 
-      // Find globe mesh (sphere geometry) for surface position
-      let globeMesh: THREE.Mesh | null = null;
-      scene.traverse((child) => {
-        if (child instanceof THREE.Mesh && 
-            child.geometry instanceof THREE.SphereGeometry) {
-          globeMesh = child;
-        }
-      });
+      // Update reused raycaster
+      raycasterRef.current.setFromCamera(mouseRef.current, camera);
 
-      if (!globeMesh) {
-        if (mousePositionIndicator) {
-          mousePositionIndicator.visible = false;
+      // PRIORITY 1: Intel model intersection detection
+      let hoveredIntelModel: ModelInstance | null = null;
+      for (const model of models) {
+        if (model.mesh) {
+          const intersects = raycasterRef.current.intersectObject(model.mesh, true);
+          if (intersects.length > 0) {
+            hoveredIntelModel = model;
+            break; // First hit wins
+          }
         }
-        setGlobeHoverPosition(null);
-        return;
       }
 
-      // Check for globe surface intersection
-      const globeIntersects = raycaster.intersectObject(globeMesh);
-      
-      if (globeIntersects.length > 0) {
-        // Mouse is over globe surface
-        const intersectionPoint = globeIntersects[0].point;
-        
-        // Convert 3D point to lat/lng for hover position
-        const radius = 100; // Globe radius
-        const lat = 90 - (Math.acos(intersectionPoint.y / radius) * 180 / Math.PI);
-        const lng = ((270 + (Math.atan2(intersectionPoint.x, intersectionPoint.z) * 180 / Math.PI)) % 360) - 180;
-        
-        setGlobeHoverPosition({ lat, lng });
+      // PRIORITY 2: Globe surface intersection (only if no intel model hovered)
+      let newGlobeHoverPosition: { lat: number; lng: number } | null = null;
+      if (!hoveredIntelModel) {
+        let globeMesh: THREE.Mesh | null = null;
+        scene.traverse((child) => {
+          if (child instanceof THREE.Mesh && child.geometry instanceof THREE.SphereGeometry) {
+            globeMesh = child;
+          }
+        });
 
-        // Update mouse position indicator
-        if (mousePositionIndicator) {
-          mousePositionIndicator.position.copy(intersectionPoint);
-          // Offset slightly above surface
-          mousePositionIndicator.position.normalize().multiplyScalar(radius + 1);
-          mousePositionIndicator.visible = true;
+        if (globeMesh) {
+          const globeIntersects = raycasterRef.current.intersectObject(globeMesh);
+          if (globeIntersects.length > 0) {
+            const intersectionPoint = globeIntersects[0].point;
+            const radius = 100; // Globe radius
+            const lat = 90 - (Math.acos(intersectionPoint.y / radius) * 180 / Math.PI);
+            const lng = ((270 + (Math.atan2(intersectionPoint.x, intersectionPoint.z) * 180 / Math.PI)) % 360) - 180;
+            
+            newGlobeHoverPosition = { lat, lng };
+
+            // Update mouse position indicator
+            if (mousePositionIndicator) {
+              mousePositionIndicator.position.copy(intersectionPoint);
+              mousePositionIndicator.position.normalize().multiplyScalar(radius + 1);
+              mousePositionIndicator.visible = true;
+            }
+          } else if (mousePositionIndicator) {
+            mousePositionIndicator.visible = false;
+          }
         }
+      }
+
+      // BATCHED STATE UPDATE: Update hover states together
+      if (shouldUpdateReactState) {
+        setUnifiedInteractionState(prev => ({
+          ...prev,
+          hoveredModel: hoveredIntelModel,
+          globeHoverPosition: newGlobeHoverPosition
+        }));
+      }
+
+      // IMMEDIATE CURSOR UPDATE: Don't wait for React state
+      if (hoveredIntelModel) {
+        updateCursor('pointer');
       } else {
-        // Mouse is not over globe
-        setGlobeHoverPosition(null);
-        if (mousePositionIndicator) {
-          mousePositionIndicator.visible = false;
-        }
+        updateCursor('grab');
       }
-    };
+    }
+  }, [
+    isIntelReportsMode, 
+    containerRef, 
+    globeRef, 
+    models, 
+    dragThreshold, 
+    mousePositionIndicator, 
+    updateCursor,
+    // Throttling constants (these never change, but including for completeness)
+    MOUSE_STATE_UPDATE_THROTTLE,
+    HOVER_DETECTION_THROTTLE,
+    DRAG_DETECTION_THROTTLE
+  ]);
 
-    container.addEventListener('mousemove', handleMouseMove);
+  // COMPREHENSIVE MOUSE DOWN HANDLER
+  const handleUnifiedMouseDown = useCallback((event: MouseEvent) => {
+    if (!isIntelReportsMode || !containerRef.current) return;
+    
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    
+    console.log('🖱️ COMPREHENSIVE Handler - Mouse Down:', { x, y, timestamp: Date.now() });
+    
+    // Reset frame skip counter for immediate drag detection
+    frameSkipCounterRef.current = 0;
+    
+    // Batch all mouse down state updates
+    setUnifiedInteractionState(prev => ({
+      ...prev,
+      isMouseDown: true,
+      dragStartPos: { x, y },
+      currentPos: { x, y },
+      dragDistance: 0,
+      mouseDownTime: Date.now(),
+      isDragging: false,
+      hasDraggedPastThreshold: false
+    }));
+  }, [isIntelReportsMode, containerRef]);
+
+  // COMPREHENSIVE MOUSE UP HANDLER
+  const handleUnifiedMouseUp = useCallback((event: MouseEvent) => {
+    if (!isIntelReportsMode) return;
+    
+    console.debug('🖱️ COMPREHENSIVE Handler - Mouse up event at:', event.clientX, event.clientY);
+    
+    // Reset dragging ref immediately
+    isDraggingRef.current = false;
+    
+    setUnifiedInteractionState(prev => {
+      if (!prev.isMouseDown) return prev;
+      
+      const currentTime = Date.now();
+      const timeSinceMouseDown = currentTime - prev.mouseDownTime;
+      
+      // Determine if this was a click or drag based on distance and time
+      const wasClick = !prev.hasDraggedPastThreshold && timeSinceMouseDown < timeThreshold;
+      
+      console.log('🖱️ COMPREHENSIVE Handler - Mouse Up Analysis:', {
+        dragDistance: prev.dragDistance,
+        dragThreshold,
+        timeSinceMouseDown,
+        timeThreshold,
+        hasDraggedPastThreshold: prev.hasDraggedPastThreshold,
+        wasClick,
+        hoveredModel: prev.hoveredModel?.report?.title || 'none',
+        globePosition: prev.globeHoverPosition
+      });
+      
+      // Handle click actions
+      if (wasClick && prev.hoveredModel) {
+        console.log('✅ COMPREHENSIVE Handler - Processing intel model click:', prev.hoveredModel.report.title);
+        return {
+          ...prev,
+          clickedModel: prev.hoveredModel,
+          isMouseDown: false,
+          isDragging: false,
+          hasDraggedPastThreshold: false
+        };
+      } else if (wasClick && prev.globeHoverPosition) {
+        console.log('✅ COMPREHENSIVE Handler - Globe click at:', prev.globeHoverPosition);
+        // Globe click - handled via context menu
+      }
+      
+      // Reset interaction state
+      return {
+        ...prev,
+        isMouseDown: false,
+        isDragging: false,
+        hasDraggedPastThreshold: false,
+        dragDistance: 0
+      };
+    });
+  }, [isIntelReportsMode, timeThreshold, dragThreshold]);
+
+  // Set up unified mouse event listeners
+  useEffect(() => {
+    if (!isIntelReportsMode || !containerRef.current) return;
+
+    const container = containerRef.current;
+    
+    container.addEventListener('mousemove', handleUnifiedMouseMove);
+    container.addEventListener('mousedown', handleUnifiedMouseDown);
+    container.addEventListener('mouseup', handleUnifiedMouseUp);
+    container.addEventListener('mouseleave', handleUnifiedMouseUp); // Reset on mouse leave
 
     return () => {
-      container.removeEventListener('mousemove', handleMouseMove);
+      container.removeEventListener('mousemove', handleUnifiedMouseMove);
+      container.removeEventListener('mousedown', handleUnifiedMouseDown);
+      container.removeEventListener('mouseup', handleUnifiedMouseUp);
+      container.removeEventListener('mouseleave', handleUnifiedMouseUp);
     };
-  }, [containerRef, isIntelReportsMode, globeRef, mousePositionIndicator, hoveredModel, globeHoverPosition]);
+  }, [isIntelReportsMode, containerRef, handleUnifiedMouseMove, handleUnifiedMouseDown, handleUnifiedMouseUp]);
+
+  // Update screen positions for UI positioning (from original useIntel3DInteraction logic)
+  useEffect(() => {
+    if (!isIntelReportsMode || !globeRef.current || !containerRef.current || !models.length) return;
+
+    let animationFrameId: number;
+    let lastUpdateTime = 0;
+    const UPDATE_THROTTLE = 500; // Update every 500ms
+    let lastScreenPositions = new Map<string, THREE.Vector2>();
+    let isAnimationRunning = false;
+
+    const updateScreenPositions = (currentTime: number = 0) => {
+      if (!isAnimationRunning) return;
+      
+      if (currentTime - lastUpdateTime < UPDATE_THROTTLE) {
+        animationFrameId = requestAnimationFrame(updateScreenPositions);
+        return;
+      }
+      
+      lastUpdateTime = currentTime;
+      
+      const globeObj = globeRef.current as unknown as { camera: () => THREE.Camera; };
+      const camera = globeObj?.camera();
+      const container = containerRef.current;
+      
+      if (camera && container && models.length > 0) {
+        const rect = container.getBoundingClientRect();
+        
+        // Calculate screen positions for models
+        const newScreenPositions = new Map<string, THREE.Vector2>();
+        let hasSignificantChanges = false;
+        
+        models.forEach(modelInstance => {
+          if (modelInstance.mesh && modelInstance.report?.pubkey) {
+            // Get world position of the model
+            const worldPos = new THREE.Vector3();
+            modelInstance.mesh.getWorldPosition(worldPos);
+            
+            // Project to screen coordinates
+            const screenPos = worldPos.clone().project(camera);
+            const x = (screenPos.x * 0.5 + 0.5) * rect.width;
+            const y = (screenPos.y * -0.5 + 0.5) * rect.height;
+            
+            const currentPos = lastScreenPositions.get(modelInstance.report.pubkey);
+            const newPos = new THREE.Vector2(x, y);
+            
+            // Only update if position changed significantly (> 15 pixels)
+            if (!currentPos || 
+                Math.abs(currentPos.x - newPos.x) > 15 || 
+                Math.abs(currentPos.y - newPos.y) > 15) {
+              newScreenPositions.set(modelInstance.report.pubkey, newPos);
+              hasSignificantChanges = true;
+            } else {
+              newScreenPositions.set(modelInstance.report.pubkey, currentPos);
+            }
+          }
+        });
+        
+        // Only update state if there are significant changes
+        if (hasSignificantChanges) {
+          lastScreenPositions = new Map(newScreenPositions);
+          _setScreenPositions(newScreenPositions);
+        }
+      }
+      
+      if (isAnimationRunning) {
+        animationFrameId = requestAnimationFrame(updateScreenPositions);
+      }
+    };
+
+    isAnimationRunning = true;
+    animationFrameId = requestAnimationFrame(updateScreenPositions);
+
+    return () => {
+      isAnimationRunning = false;
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+    };
+  }, [isIntelReportsMode, globeRef, containerRef, models]); // Include models for proper dependency tracking
+
+  // Set initial cursor
+  useEffect(() => {
+    if (!isIntelReportsMode || !containerRef.current) return;
+    updateCursor('grab');
+  }, [isIntelReportsMode, containerRef, updateCursor]);
 
   return (
     <>
       {/* Tooltip for hover state */}
       {isIntelReportsMode && (
         <IntelReportTooltip
-          report={hoveredModel?.report || null}
+          report={unifiedInteractionState.hoveredModel?.report || null}
           position={getTooltipPosition()}
           visible={tooltipVisible}
           onClose={() => {
@@ -600,9 +978,9 @@ export const Enhanced3DGlobeInteractivity: React.FC<Enhanced3DGlobeInteractivity
           overflow: 'hidden'
         }}
       >
-        {hoveredModel && isIntelReportsMode && (
+        {unifiedInteractionState.hoveredModel && isIntelReportsMode && (
           <div>
-            Intel Report: {hoveredModel.report.title}
+            Intel Report: {unifiedInteractionState.hoveredModel.report.title}
           </div>
         )}
       </div>
@@ -624,11 +1002,13 @@ export const Enhanced3DGlobeInteractivity: React.FC<Enhanced3DGlobeInteractivity
             zIndex: 10000
           }}
         >
-          <div>3D Interaction Debug:</div>
+          <div>🎮 UNIFIED 3D Interaction Debug:</div>
           <div>Mode: {visualizationMode.mode}/{visualizationMode.subMode}</div>
           <div>Models: {models.length}</div>
-          <div>Hovered: {hoveredModel ? hoveredModel.report.title : 'None'}</div>
-          <div>Clicked: {clickedModel ? clickedModel.report.title : 'None'}</div>
+          <div>Hovered: {unifiedInteractionState.hoveredModel ? unifiedInteractionState.hoveredModel.report.title : 'None'}</div>
+          <div>Clicked: {unifiedInteractionState.clickedModel ? unifiedInteractionState.clickedModel.report.title : 'None'}</div>
+          <div>Dragging: {unifiedInteractionState.isDragging ? 'Yes' : 'No'}</div>
+          <div>Globe Pos: {unifiedInteractionState.globeHoverPosition ? `${unifiedInteractionState.globeHoverPosition.lat.toFixed(2)}, ${unifiedInteractionState.globeHoverPosition.lng.toFixed(2)}` : 'None'}</div>
           <div>Tooltip: {tooltipVisible ? 'Visible' : 'Hidden'}</div>
           <div>Popup: {popupVisible ? 'Visible' : 'Hidden'}</div>
         </div>

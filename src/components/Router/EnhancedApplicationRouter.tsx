@@ -1,4 +1,4 @@
-import React, { useState, useCallback, ReactNode } from 'react';
+import React, { useState, useCallback, useMemo, ReactNode } from 'react';
 import { EnhancedApplicationRouterContext } from '../../context/EnhancedApplicationRouterContext';
 
 // Import actual application components
@@ -248,7 +248,8 @@ export const EnhancedApplicationRouterProvider: React.FC<{ children: ReactNode }
     return applicationStates.get(appId);
   }, []);
 
-  const contextValue: EnhancedApplicationRouterContextType = {
+  // Memoize context value to prevent unnecessary re-renders
+  const contextValue: EnhancedApplicationRouterContextType = useMemo(() => ({
     currentApp: state.currentApp,
     presentationMode: state.presentationMode,
     context: state.context,
@@ -265,7 +266,21 @@ export const EnhancedApplicationRouterProvider: React.FC<{ children: ReactNode }
     
     preserveState,
     restoreState
-  };
+  }), [
+    state.currentApp,
+    state.presentationMode,
+    state.context,
+    state.history,
+    navigateToApp,
+    goBack,
+    setContext,
+    getContext,
+    registerApplication,
+    getApplication,
+    getAllApplications,
+    preserveState,
+    restoreState
+  ]);
 
   return (
     <EnhancedApplicationRouterContext.Provider value={contextValue}>

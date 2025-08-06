@@ -33,25 +33,39 @@ export const GlobePerformanceMonitor: React.FC<GlobePerformanceMonitorProps> = (
   useEffect(() => {
     if (!enabled) return;
 
+    let frameCountRef = 0;
+    let lastTime = Date.now();
+    let animationId: number;
+
     const updateMetrics = () => {
       const now = Date.now();
-      frameCountRef.current++;
+      frameCountRef++;
       
-      if (now - lastTimeRef.current >= 1000) {
-        const fps = Math.round((frameCountRef.current * 1000) / (now - lastTimeRef.current));
+      // Only update metrics every 2 seconds to prevent excessive state updates
+      if (now - lastTime >= 2000) {
+        const fps = Math.round((frameCountRef * 1000) / (now - lastTime));
         
         // Get memory usage if available
         const memory = (performance as Performance & { memory?: { usedJSHeapSize: number } }).memory;
         const memoryUsage = memory ? Math.round(memory.usedJSHeapSize / 1024 / 1024) : 0;
         
-        setMetrics({
-          fps,
-          memoryUsage,
-          renderTime: now - lastTimeRef.current,
-          lastUpdate: now
+        // Only update state if metrics have changed significantly
+        setMetrics(prev => {
+          const fpsChanged = Math.abs(prev.fps - fps) > 5;
+          const memoryChanged = Math.abs(prev.memoryUsage - memoryUsage) > 20; // 20MB threshold
+          
+          if (fpsChanged || memoryChanged) {
+            return {
+              fps,
+              memoryUsage,
+              renderTime: now - lastTime,
+              lastUpdate: now
+            };
+          }
+          return prev;
         });
 
-        // Check for performance issues
+        // Check for performance issues (but don't spam)
         if (fps < 30) {
           onPerformanceIssue?.(`Low FPS detected: ${fps} in ${visualizationMode.mode}/${visualizationMode.subMode}`);
         }
@@ -60,18 +74,18 @@ export const GlobePerformanceMonitor: React.FC<GlobePerformanceMonitorProps> = (
           onPerformanceIssue?.(`High memory usage: ${memoryUsage}MB in ${visualizationMode.mode}/${visualizationMode.subMode}`);
         }
 
-        frameCountRef.current = 0;
-        lastTimeRef.current = now;
+        frameCountRef = 0;
+        lastTime = now;
       }
 
-      animationFrameRef.current = requestAnimationFrame(updateMetrics);
+      animationId = requestAnimationFrame(updateMetrics);
     };
 
-    animationFrameRef.current = requestAnimationFrame(updateMetrics);
+    animationId = requestAnimationFrame(updateMetrics);
 
     return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
+      if (animationId) {
+        cancelAnimationFrame(animationId);
       }
     };
   }, [enabled, visualizationMode.mode, visualizationMode.subMode, onPerformanceIssue]);

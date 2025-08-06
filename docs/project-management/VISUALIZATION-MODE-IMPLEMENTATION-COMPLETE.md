@@ -42,7 +42,7 @@ Successfully implemented visualization mode respect in the Starcom app so that s
 
 ### CyberCommand Mode
 - **IntelReports**: Shows 3D Intel Report models on globe + Intel Reports status in RightSideBar
-- **NetworkInfrastructure**: Shows global internet infrastructure, data centers, submarine cables
+- **Satellites**: Shows real satellite positions (Space Stations & GPS constellation)
 - **CyberThreats**: Shows cyber threat zones, malware origins, botnet command centers
 - **CommHubs**: Shows satellite ground stations, communication towers, SIGINT facilities
 - **CyberAttacks**: Shows real-time cyber attacks, attack vectors, target analysis

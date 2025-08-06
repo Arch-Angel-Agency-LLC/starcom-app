@@ -1,3 +1,0 @@
-#McCann 
-
-[[Sound Avenue Bistro]]

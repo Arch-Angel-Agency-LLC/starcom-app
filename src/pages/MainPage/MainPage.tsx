@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Outlet, useParams, useLocation } from 'react-router-dom';
 import styles from './MainPage.module.css';
 import GlobalHeader from '../../components/MainPage/GlobalHeader';
@@ -8,19 +8,30 @@ import MainCenter from '../../components/MainPage/MainCenter';
 import { ApplicationRenderer } from '../../components/Router/ApplicationRenderer';
 import { useEnhancedApplicationRouter } from '../../hooks/useEnhancedApplicationRouter';
 import { SecureChatManager } from '../../components/SecureChat';
+import { componentTracker } from '../../utils/performanceMonitor';
 
 const MainPage: React.FC = () => {
   const { currentApp, context, navigateToApp } = useEnhancedApplicationRouter();
   const params = useParams();
   const location = useLocation();
+  const [hasAutoNavigated, setHasAutoNavigated] = useState(false);
   
-  // Auto-navigate to CyberCommand when visiting the root URL
+  // Track component mounting for performance monitoring
   useEffect(() => {
-    if (location.pathname === '/' && !currentApp) {
-      console.log('🏠 MainPage: Auto-navigating to CyberCommand Globe on root URL');
+    componentTracker.trackComponentMount('MainPage');
+    return () => {
+      componentTracker.trackComponentUnmount('MainPage');
+    };
+  }, []);
+  
+  // Auto-navigate to CyberCommand when visiting the root URL (STABILIZED)
+  useEffect(() => {
+    if (location.pathname === '/' && !currentApp && !hasAutoNavigated) {
+      console.log('🏠 MainPage: Auto-navigating to CyberCommand Globe on root URL (one-time)');
+      setHasAutoNavigated(true);
       navigateToApp('cybercommand', 'standalone');
     }
-  }, [location.pathname, currentApp, navigateToApp]);
+  }, [location.pathname, currentApp, navigateToApp, hasAutoNavigated]);
   
   // DIAGNOSTIC: Log current application state
   console.log('🏠 MainPage: Enhanced Router state', { 

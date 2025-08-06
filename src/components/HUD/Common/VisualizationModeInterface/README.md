@@ -41,7 +41,7 @@ VisualizationModeInterface/
 - **IntelReports** (📑): Intelligence Analysis & Reports
 - **CyberThreats** (🛡️): Threat Detection & Analysis
 - **CyberAttacks** (⚡): Active Attack Monitoring
-- **NetworkInfrastructure** (🌐): Network Topology & Health
+- **Satellites** (🛰️): Real-time Satellite Tracking (Space Stations & GPS)
 - **CommHubs** (📡): Communication Network Analysis
 
 #### GeoPolitical Secondary Modes

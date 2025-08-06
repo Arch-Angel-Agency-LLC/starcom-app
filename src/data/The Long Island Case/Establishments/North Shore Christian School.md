@@ -1,2 +1,0 @@
-[[Linda Gulli Killeen]]
-

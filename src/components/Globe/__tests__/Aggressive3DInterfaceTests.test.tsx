@@ -31,6 +31,9 @@ const mockHookState = {
 };
 
 // Mock the hook but with full event tracking
+// NOTE: This test file needs updating after consolidation - useIntel3DInteraction hook was removed
+// DISABLED: Hook-based mocking no longer needed after architectural consolidation
+/*
 vi.mock('../../../hooks/useIntel3DInteraction', () => ({
   useIntel3DInteraction: vi.fn((props) => {
     const { enabled } = props;

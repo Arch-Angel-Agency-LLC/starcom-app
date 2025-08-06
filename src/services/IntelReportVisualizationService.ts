@@ -133,6 +133,8 @@ export class IntelReportVisualizationService {
   private cache: IntelReportOverlayMarker[] = [];
   private lastFetch: Date | null = null;
   private cacheTimeout = 5 * 60 * 1000; // 5 minutes
+  private lastFilteredResult: IntelReportOverlayMarker[] = [];
+  private lastOptionsHash: string = '';
 
   /**
    * Fetch Intel Reports for visualization on the globe
@@ -141,9 +143,20 @@ export class IntelReportVisualizationService {
     options: IntelReportVisualizationOptions = {}
   ): Promise<IntelReportOverlayMarker[]> {
     try {
+      // Create options hash for memoization
+      const optionsHash = JSON.stringify(options);
+      
       // Check cache first
       if (this.isCacheValid()) {
-        return this.applyFilters(this.cache, options);
+        // Return same reference if options haven't changed
+        if (optionsHash === this.lastOptionsHash && this.lastFilteredResult.length > 0) {
+          return this.lastFilteredResult;
+        }
+        
+        const filtered = this.applyFilters(this.cache, options);
+        this.lastFilteredResult = filtered;
+        this.lastOptionsHash = optionsHash;
+        return filtered;
       }
 
       console.log('Fetching Intel Reports for 3D visualization...');
@@ -162,7 +175,10 @@ export class IntelReportVisualizationService {
 
       console.log(`Loaded ${markers.length} Intel Report markers for 3D visualization`);
       
-      return this.applyFilters(markers, options);
+      const filtered = this.applyFilters(markers, options);
+      this.lastFilteredResult = filtered;
+      this.lastOptionsHash = JSON.stringify(options);
+      return filtered;
     } catch (error) {
       console.error('Error fetching Intel Reports for visualization:', error);
       

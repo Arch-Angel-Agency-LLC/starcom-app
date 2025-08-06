@@ -15,7 +15,7 @@ This document defines the technical architecture, coding standards, and implemen
 ├─────────────────────────────────────────────────────────────┤
 │                  Visualization Layer                        │
 ├─────────────────────────────────────────────────────────────┤
-│ IntelReports │ CyberAttacks │ CyberThreats │ NetworkInfra │ │
+│ IntelReports │ CyberAttacks │ CyberThreats │ Satellites │   │
 ├─────────────────────────────────────────────────────────────┤
 │                    Shared Services Layer                    │
 ├─────────────────────────────────────────────────────────────┤
@@ -40,14 +40,14 @@ src/
 │   │   └── visualizations/            # Mode-specific visualization components
 │   │       ├── CyberAttacksVisualization.tsx
 │   │       ├── CyberThreatsVisualization.tsx
-│   │       ├── NetworkInfrastructureVisualization.tsx
+│   │       ├── SatellitesVisualization.tsx
 │   │       └── CommHubsVisualization.tsx
 │   └── HUD/
 │       └── Settings/
 │           └── CyberCommandSettings/
 │               ├── CyberAttacksSettings.tsx
 │               ├── CyberThreatsSettings.tsx
-│               ├── NetworkInfrastructureSettings.tsx
+│               ├── SatellitesSettings.tsx
 │               └── CommHubsSettings.tsx
 ├── services/
 │   ├── CyberCommandDataService.ts     # Unified data service
@@ -59,10 +59,10 @@ src/
 │   │   ├── ThreatIntelligenceService.ts
 │   │   ├── ThreatCorrelationEngine.ts
 │   │   └── AttributionAnalyzer.ts
-│   ├── NetworkInfrastructure/
-│   │   ├── InfrastructureDataService.ts
-│   │   ├── TopologyAnalyzer.ts
-│   │   └── CapacityMonitor.ts
+│   ├── Satellites/
+│   │   ├── SatelliteVisualizationService.ts
+│   │   ├── OrbitalMechanicsCalculator.ts
+│   │   └── SpaceAssetTracker.ts
 │   └── CommHubs/
 │       ├── CommunicationFacilityService.ts
 │       ├── CoverageCalculator.ts
@@ -71,7 +71,7 @@ src/
 │   ├── CyberCommandVisualization.ts   # Common types
 │   ├── CyberAttacks.ts
 │   ├── CyberThreats.ts
-│   ├── NetworkInfrastructure.ts
+│   ├── Satellites.ts
 │   └── CommHubs.ts
 ├── hooks/
 │   ├── useCyberCommandSettings.ts     # Extended for all modes

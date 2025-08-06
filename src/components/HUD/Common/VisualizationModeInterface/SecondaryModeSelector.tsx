@@ -42,9 +42,9 @@ const SECONDARY_MODES = {
       tooltip: 'Cyber Attacks - Active Attack Monitoring'
     },
     {
-      subMode: 'NetworkInfrastructure' as const,
-      emoji: '🌐',
-      tooltip: 'Network Infrastructure - Network Topology & Health'
+      subMode: 'Satellites' as const,
+      emoji: '🛰️',
+      tooltip: 'Satellites - Space Stations & GPS Constellation'
     },
     {
       subMode: 'CommHubs' as const,

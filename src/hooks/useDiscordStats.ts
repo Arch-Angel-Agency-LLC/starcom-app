@@ -38,27 +38,31 @@ export const useDiscordStats = (
       console.log('🔄 Discord: Fetching server stats...');
       const serverStats = await DiscordService.getServerStats();
       
-      // Detect member changes and notify
-      if (stats && serverStats.presence_count > stats.presence_count) {
-        const newMembers = serverStats.presence_count - stats.presence_count;
-        if (newMembers === 1) {
-          // Try to identify the new member
-          const newMember = serverStats.members.find(m => 
-            !stats.members.some(existing => existing.id === m.id)
-          );
-          DiscordNotifications.showMemberJoined(
-            newMember?.username || 'An operative',
-            serverStats.presence_count
-          );
+      // Use functional state update to avoid dependency on stats
+      setStats(prevStats => {
+        // Detect member changes and notify
+        if (prevStats && serverStats.presence_count > prevStats.presence_count) {
+          const newMembers = serverStats.presence_count - prevStats.presence_count;
+          if (newMembers === 1) {
+            // Try to identify the new member
+            const newMember = serverStats.members.find(m => 
+              !prevStats.members.some(existing => existing.id === m.id)
+            );
+            DiscordNotifications.showMemberJoined(
+              newMember?.username || 'An operative',
+              serverStats.presence_count
+            );
+          }
         }
-      }
 
-      // Detect high activity (threshold: 50+ online)
-      if (serverStats.presence_count >= 50 && (!stats || stats.presence_count < 50)) {
-        DiscordNotifications.showHighActivity(serverStats.presence_count);
-      }
+        // Detect high activity (threshold: 50+ online)
+        if (serverStats.presence_count >= 50 && (!prevStats || prevStats.presence_count < 50)) {
+          DiscordNotifications.showHighActivity(serverStats.presence_count);
+        }
+        
+        return serverStats;
+      });
       
-      setStats(serverStats);
       setLastUpdated(new Date());
       console.log('🎉 Discord: Server stats fetch completed successfully', {
         onlineCount: serverStats.presence_count,
@@ -72,7 +76,7 @@ export const useDiscordStats = (
     } finally {
       setIsLoading(false);
     }
-  }, [stats]); // Add stats as dependency
+  }, []); // Remove stats dependency to prevent infinite loops
 
   const refresh = useCallback(async () => {
     await fetchStats(); // Force refresh
