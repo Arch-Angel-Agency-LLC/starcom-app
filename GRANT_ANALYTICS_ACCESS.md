@@ -4,7 +4,7 @@
 
 **Application:** Starcom Intelligence Platform  
 **Analytics Platform:** Google Analytics 4  
-**Measurement ID:** G-421VR6Q67J  
+**Measurement ID:** G-XXXXXXXXXX  
 
 ### 🔗 Access Information
 
@@ -22,13 +22,13 @@ https://analytics.google.com/analytics/web/#/p[PROPERTY-ID]/reports/realtime
 
 **✅ Live Public Dashboard (No Login Required):**
 ```
-https://lookerstudio.google.com/s/tjL7zN4Fim4
+https://lookerstudio.google.com/s/YOUR_DASHBOARD_ID_HERE
 ```
 *Direct access - anyone can view real-time Starcom platform metrics*
 
 **Option B: Embedded Analytics Widget**
 ```html
-<iframe src="https://lookerstudio.google.com/embed/reporting/tjL7zN4Fim4" 
+<iframe src="https://lookerstudio.google.com/embed/reporting/YOUR_DASHBOARD_ID_HERE" 
         width="100%" height="600"></iframe>
 ```
 

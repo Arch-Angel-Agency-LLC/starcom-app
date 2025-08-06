@@ -10,7 +10,7 @@ The Starcom App has successfully implemented a comprehensive social platform int
 **Public Analytics Dashboard**: https://lookerstudio.google.com/s/tjL7zN4Fim4
 
 #### Google Analytics 4 Integration
-- **Measurement ID**: G-421VR6Q67J
+- **Measurement ID**: G-XXXXXXXXXX
 - **Real-time tracking**: User engagement, feature usage, navigation patterns
 - **Investor-focused events**: Platform adoption, feature utilization, community growth
 - **Security considerations**: No PII collection, GDPR compliant
