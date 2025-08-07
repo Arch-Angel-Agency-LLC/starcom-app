@@ -16,6 +16,7 @@ import { SecureChatProvider } from "./communication/context/SecureChatContext";
 import { EnhancedApplicationRouterProvider } from "./components/Router/EnhancedApplicationRouter";
 import RouteSynchronizer from "./components/Navigation/RouteSynchronizer";
 import AnalyticsTracker from "./components/Analytics/AnalyticsTracker";
+import { googleAnalyticsService } from "./services/GoogleAnalyticsService";
 import SettingsInitializer from "./components/SettingsInitializer";
 import SettingsStatusIndicator from "./components/SettingsStatusIndicator";
 import PreloaderManager from "./components/Preloader/PreloaderManager";
@@ -46,6 +47,15 @@ const AppContent: React.FC = () => {
       initConsoleErrorMonitoring();
       initializeErrorHandling();
       initPointerEventsDebugging();
+    }
+    
+    // Initialize Google Analytics service
+    try {
+      // Track app initialization
+      googleAnalyticsService.trackEvent('app_initialized', 'Application');
+      debugLogger.info(DebugCategory.COMPONENT_LOAD, 'Google Analytics service initialized');
+    } catch (error) {
+      debugLogger.warn(DebugCategory.COMPONENT_LOAD, 'Google Analytics initialization failed:', error);
     }
     
     return () => {

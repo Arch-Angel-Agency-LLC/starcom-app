@@ -412,12 +412,12 @@
 }
 
 .githubButton {
-  color: #00ffff !important;
+  color: #2dba4e !important;
   position: relative;
 }
 
 .githubButton:hover {
-  background-color: rgba(0, 255, 255, 0.2) !important;
+  background-color: rgba(45, 186, 78, 0.2) !important;
 }
 
 .githubButton .developerIndicator {
@@ -426,7 +426,7 @@
   right: 2px;
   width: 6px;
   height: 6px;
-  background: #00ffff;
+  background: #2dba4e;
   border-radius: 50%;
   animation: developerGlow 3s infinite;
 }
@@ -434,14 +434,61 @@
 @keyframes developerGlow {
   0% { 
     opacity: 1; 
-    box-shadow: 0 0 0 0 rgba(0, 255, 255, 0.7);
+    box-shadow: 0 0 0 0 rgba(45, 186, 78, 0.7);
   }
   50% { 
     opacity: 0.8; 
-    box-shadow: 0 0 0 3px rgba(0, 255, 255, 0.3);
+    box-shadow: 0 0 0 3px rgba(45, 186, 78, 0.3);
   }
   100% { 
     opacity: 1; 
-    box-shadow: 0 0 0 0 rgba(0, 255, 255, 0.7);
+    box-shadow: 0 0 0 0 rgba(45, 186, 78, 0.7);
+  }
+}
+
+/* Discord Button Styles */
+.discordButtonContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.discordButton {
+  color: #5865f2 !important;
+  position: relative;
+}
+
+.discordButton:hover {
+  background-color: rgba(88, 101, 242, 0.2) !important;
+}
+
+.discordButton .connectionIndicator {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: #5865f2;
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 4px;
+  border-radius: 8px;
+  border: 2px solid #1a1a1a;
+  min-width: 16px;
+  text-align: center;
+  animation: discordPulse 2s infinite;
+}
+
+@keyframes discordPulse {
+  0% { 
+    opacity: 1; 
+    transform: scale(1);
+  }
+  50% { 
+    opacity: 0.8; 
+    transform: scale(1.1);
+  }
+  100% { 
+    opacity: 1; 
+    transform: scale(1);
   }
 }

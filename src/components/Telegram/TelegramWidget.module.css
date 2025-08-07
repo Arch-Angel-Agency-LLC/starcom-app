@@ -18,9 +18,11 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 20px;
+  padding: 14px 18px;
   background: linear-gradient(135deg, #0088cc, #005999);
   color: white;
+  height: 52px;
+  flex-shrink: 0;
 }
 
 .title {
@@ -272,11 +274,13 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 12px 20px;
+  padding: 10px 18px;
   background: #0f0f0f;
   border-top: 1px solid #0088cc;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: #888;
+  height: 38px;
+  flex-shrink: 0;
 }
 
 .secureIndicator {
@@ -348,4 +352,200 @@
 .activityIcon {
   font-size: 1rem;
   opacity: 0.8;
+}
+
+/* Real Data Styles */
+.dataSourceIndicator {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.realDataBadge {
+  background: rgba(34, 197, 94, 0.2);
+  color: #10b981;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.fallbackDataBadge {
+  background: rgba(251, 191, 36, 0.2);
+  color: #f59e0b;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.error {
+  text-align: center;
+  padding: 20px;
+  color: #fbbf24;
+}
+
+.error p {
+  margin-bottom: 12px;
+}
+
+.configInstructions {
+  text-align: left;
+  margin: 16px 0;
+  padding: 16px;
+  background: rgba(251, 191, 36, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.setupSteps {
+  margin: 12px 0;
+  padding-left: 20px;
+  color: #e0f3ff;
+}
+
+.setupSteps li {
+  margin-bottom: 4px;
+  font-size: 0.9rem;
+}
+
+.envExample {
+  margin-top: 12px;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.8rem;
+  color: #0088cc;
+}
+
+.helpText {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.channelId {
+  font-size: 0.8rem;
+  color: #0088cc;
+  font-family: monospace;
+}
+
+/* Administrators Section */
+.adminsSection {
+  margin-bottom: 20px;
+}
+
+.adminsSection h3 {
+  margin-bottom: 12px;
+  color: white;
+  font-size: 0.95rem;
+}
+
+.adminsList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.adminItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.adminName {
+  color: #e0f3ff;
+  flex: 1;
+}
+
+.adminRole {
+  opacity: 0.8;
+}
+
+/* Real Activity Section */
+.activitySection {
+  margin-bottom: 20px;
+}
+
+.activitySection h3 {
+  margin-bottom: 12px;
+  color: white;
+  font-size: 0.95rem;
+}
+
+.activityList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.activityContent {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.activityUser {
+  font-weight: 500;
+  color: #0088cc;
+  font-size: 0.85rem;
+}
+
+.activityText {
+  color: #e0f3ff;
+  font-size: 0.8rem;
+}
+
+.activityTime {
+  color: #94a3b8;
+  font-size: 0.75rem;
+}
+
+/* Footer Uplink Indicator */
+.uplinkIndicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.glowingGreenDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 6px #10b981, 0 0 12px rgba(16, 185, 129, 0.5);
+  animation: glowGreen 2s ease-in-out infinite alternate;
+}
+
+.glowingRedDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
+  box-shadow: 0 0 6px #ef4444, 0 0 12px rgba(239, 68, 68, 0.5);
+  animation: glowRed 2s ease-in-out infinite alternate;
+}
+
+@keyframes glowGreen {
+  from {
+    box-shadow: 0 0 6px #10b981, 0 0 12px rgba(16, 185, 129, 0.5);
+  }
+  to {
+    box-shadow: 0 0 10px #10b981, 0 0 20px rgba(16, 185, 129, 0.8);
+  }
+}
+
+@keyframes glowRed {
+  from {
+    box-shadow: 0 0 6px #ef4444, 0 0 12px rgba(239, 68, 68, 0.5);
+  }
+  to {
+    box-shadow: 0 0 10px #ef4444, 0 0 20px rgba(239, 68, 68, 0.8);
+  }
 }

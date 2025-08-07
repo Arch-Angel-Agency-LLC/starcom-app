@@ -66,6 +66,22 @@ export default defineConfig(({ mode }) => {
         return () => {
           server.middlewares.use((req, res, next) => {
             const url = req.url || '';
+            
+            // Handle Google Analytics API endpoint
+            if (url === '/api/analytics/realtime' && req.method === 'GET') {
+              res.setHeader('Content-Type', 'application/json');
+              res.setHeader('Access-Control-Allow-Origin', '*');
+              
+              // For now, return a note about server-side implementation needed
+              res.statusCode = 501;
+              res.end(JSON.stringify({
+                error: 'Google Analytics API requires server-side implementation',
+                message: 'Real GA4 data fetching needs backend with proper JWT signing and OAuth flow',
+                note: 'Service account credentials are available but need secure server-side handling'
+              }));
+              return;
+            }
+            
             if (EXCLUDED_DIRS.some(dir => url.includes(`/${dir}/`))) {
               res.statusCode = 404;
               res.end('Not found');

@@ -1,0 +1,476 @@
+/* Discord Widget Styles */
+.discordWidget {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 360px;
+  max-height: 600px;
+  background: linear-gradient(135deg, #36393f 0%, #2f3136 100%);
+  border: 1px solid #5865f2;
+  border-radius: 12px;
+  box-shadow: 
+    0 8px 32px rgba(88, 101, 242, 0.3),
+    0 0 0 1px rgba(88, 101, 242, 0.1);
+  z-index: 1000;
+  overflow: hidden;
+  animation: slideIn 0.3s ease-out;
+  backdrop-filter: blur(20px);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  background: linear-gradient(135deg, #5865f2 0%, #4752c4 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  height: 52px;
+  flex-shrink: 0;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  color: white;
+  font-size: 16px;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.closeButton:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.content {
+  padding: 20px;
+  max-height: 440px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #5865f2 transparent;
+  background: #1a1a1a;
+  color: #ffffff;
+}
+
+.content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.content::-webkit-scrollbar-thumb {
+  background: #5865f2;
+  border-radius: 3px;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  color: #b9bbbe;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #40444b;
+  border-top: 3px solid #5865f2;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Server Section */
+.serverSection {
+  margin-bottom: 24px;
+  padding: 16px;
+  background: #2a2a2a;
+  border-radius: 12px;
+  border: 1px solid #5865f2;
+}
+
+.serverHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.serverIcon {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #5865f2, #4752c4);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  box-shadow: 0 4px 12px rgba(88, 101, 242, 0.3);
+}
+
+.serverInfo h3 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.memberCount {
+  margin: 4px 0 0 0;
+  color: #b9bbbe;
+  font-size: 14px;
+}
+
+.totalMembers {
+  color: #72767d;
+  font-weight: 400;
+}
+
+.statusIndicator {
+  margin-left: auto;
+}
+
+.onlineStatus {
+  color: #43b581;
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(67, 181, 129, 0.1);
+  padding: 4px 8px;
+  border-radius: 12px;
+  border: 1px solid #43b581;
+}
+
+.errorStatus {
+  color: #f04747;
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(240, 71, 71, 0.1);
+  padding: 4px 8px;
+  border-radius: 12px;
+  border: 1px solid #f04747;
+}
+
+.serverDescription {
+  color: #b9bbbe;
+  font-size: 14px;
+  line-height: 1.4;
+  margin: 0 0 16px 0;
+}
+
+.primaryButton {
+  width: 100%;
+  background: linear-gradient(135deg, #5865f2, #4752c4);
+  color: white;
+  border: none;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.primaryButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(88, 101, 242, 0.4);
+}
+
+/* Channels Section */
+.channelsSection {
+  padding: 20px;
+  border-bottom: 1px solid #40444b;
+}
+
+.channelsSection h3 {
+  margin: 0 0 12px 0;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.channelsList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.channelItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.channelItem:hover {
+  background: rgba(88, 101, 242, 0.1);
+  transform: translateX(4px);
+}
+
+.channelIcon {
+  color: #72767d;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.channelName {
+  color: #b9bbbe;
+  font-size: 14px;
+}
+
+/* Members Section */
+.membersSection {
+  margin-bottom: 24px;
+  padding: 16px;
+  background: #2a2a2a;
+  border-radius: 12px;
+  border: 1px solid #5865f2;
+}
+
+.membersSection h3 {
+  margin: 0 0 12px 0;
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.membersList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.memberItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.memberItem:hover {
+  background: rgba(88, 101, 242, 0.1);
+  transform: translateX(4px);
+}
+
+.memberStatus {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  border: 2px solid #36393f;
+}
+
+.memberName {
+  color: #b9bbbe;
+  font-size: 14px;
+  font-weight: 500;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Actions Section */
+.actionsSection {
+  margin-bottom: 24px;
+}
+
+.actionsSection h3 {
+  margin: 0 0 12px 0;
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 10px;
+  margin-top: auto;
+}
+
+.actionButton {
+  flex: 1;
+  background: linear-gradient(135deg, #36393f, #40444b);
+  color: #dcddde;
+  border: 1px solid #40444b;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  text-align: center;
+}
+
+.actionButton:hover {
+  background: linear-gradient(135deg, #5865f2, #4752c4);
+  border-color: #5865f2;
+  color: white;
+  transform: translateY(-1px);
+}
+
+.actionButton:active {
+  transform: translateY(0);
+}
+
+/* Stats Section */
+.statsSection {
+  padding: 20px;
+}
+
+.statsSection h3 {
+  margin: 0 0 12px 0;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.statsList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.statItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+}
+
+.statIcon {
+  font-size: 16px;
+}
+
+.statLabel {
+  flex: 1;
+  color: #b9bbbe;
+  font-size: 14px;
+}
+
+.statValue {
+  color: #5865f2;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* Footer */
+.footer {
+  padding: 10px 18px;
+  background: #2f3136;
+  border-top: 1px solid #40444b;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  font-size: 0.75rem;
+  color: #72767d;
+  height: 38px;
+  flex-shrink: 0;
+}
+
+.discordIndicator {
+  font-size: 14px;
+}
+
+/* Footer Uplink Indicator */
+.uplinkIndicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.glowingGreenDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 6px #10b981, 0 0 12px rgba(16, 185, 129, 0.5);
+  animation: glowGreen 2s ease-in-out infinite alternate;
+}
+
+.glowingRedDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
+  box-shadow: 0 0 6px #ef4444, 0 0 12px rgba(239, 68, 68, 0.5);
+  animation: glowRed 2s ease-in-out infinite alternate;
+}
+
+@keyframes glowGreen {
+  from {
+    box-shadow: 0 0 6px #10b981, 0 0 12px rgba(16, 185, 129, 0.5);
+  }
+  to {
+    box-shadow: 0 0 10px #10b981, 0 0 20px rgba(16, 185, 129, 0.8);
+  }
+}
+
+@keyframes glowRed {
+  from {
+    box-shadow: 0 0 6px #ef4444, 0 0 12px rgba(239, 68, 68, 0.5);
+  }
+  to {
+    box-shadow: 0 0 10px #ef4444, 0 0 20px rgba(239, 68, 68, 0.8);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .discordWidget {
+    width: 320px;
+    max-height: 500px;
+  }
+  
+  .content {
+    max-height: 420px;
+  }
+  
+  .actionButtons {
+    flex-direction: column;
+  }
+}

@@ -16,6 +16,35 @@ interface TelegramChatInfo {
   type: string;
 }
 
+interface TelegramUpdate {
+  message?: {
+    message_id: number;
+    from: {
+      first_name: string;
+      username?: string;
+    };
+    date: number;
+    text?: string;
+  };
+  chat_member?: {
+    status: string;
+    user: {
+      first_name: string;
+      username?: string;
+    };
+    date: number;
+  };
+}
+
+interface TelegramAdministrator {
+  user: {
+    first_name: string;
+    username?: string;
+    is_bot: boolean;
+  };
+  status: string;
+}
+
 // Real Telegram configuration
 const TELEGRAM_CONFIG = {
   channelUrl: 'https://t.me/starcomintelgroup',
@@ -26,10 +55,11 @@ const TELEGRAM_CONFIG = {
 
 const TelegramWidget: React.FC<TelegramWidgetProps> = ({ isOpen, onClose }) => {
   const [chatInfo, setChatInfo] = useState<TelegramChatInfo | null>(null);
+  const [admins, setAdmins] = useState<TelegramAdministrator[]>([]);
+  const [recentUpdates, setRecentUpdates] = useState<TelegramUpdate[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [hasRealData, setHasRealData] = useState(false);
-  const [lastMemberCount, setLastMemberCount] = useState<number | null>(null);
 
   // Fetch real Telegram data
   const fetchTelegramData = async () => {
@@ -68,10 +98,36 @@ const TelegramWidget: React.FC<TelegramWidgetProps> = ({ isOpen, onClose }) => {
       const memberData = await memberResponse.json();
       
       if (memberData.ok && chatData.result) {
-        const newMemberCount = memberData.result;
-        setLastMemberCount(prev => prev); // Keep track of previous count
-        setChatInfo(prev => prev ? { ...prev, member_count: newMemberCount } : null);
-        setLastMemberCount(newMemberCount);
+        setChatInfo(prev => prev ? { ...prev, member_count: memberData.result } : null);
+      }
+
+      // Get administrators
+      const adminResponse = await fetch(
+        `https://api.telegram.org/bot${TELEGRAM_CONFIG.botToken}/getChatAdministrators?chat_id=${TELEGRAM_CONFIG.channelId}`
+      );
+      const adminData = await adminResponse.json();
+      
+      if (adminData.ok) {
+        // Filter out bots except for official bots
+        const humanAdmins = adminData.result.filter((admin: TelegramAdministrator) => 
+          !admin.user.is_bot || admin.user.username?.includes('starcom')
+        );
+        setAdmins(humanAdmins.slice(0, 5)); // Show only first 5
+      }
+
+      // Get recent updates (if bot has permission)
+      const updatesResponse = await fetch(
+        `https://api.telegram.org/bot${TELEGRAM_CONFIG.botToken}/getUpdates?limit=10`
+      );
+      const updatesData = await updatesResponse.json();
+      
+      if (updatesData.ok) {
+        // Filter for relevant channel updates
+        const channelUpdates = updatesData.result.filter((update: { message?: { chat?: { id?: number } }; chat_member?: { chat?: { id?: number } } }) => 
+          update.message?.chat?.id?.toString() === TELEGRAM_CONFIG.channelId ||
+          update.chat_member?.chat?.id?.toString() === TELEGRAM_CONFIG.channelId
+        );
+        setRecentUpdates(channelUpdates.slice(0, 3)); // Show only last 3
       }
 
     } catch (err) {
@@ -90,41 +146,19 @@ const TelegramWidget: React.FC<TelegramWidgetProps> = ({ isOpen, onClose }) => {
     }
   }, [isOpen]);
 
-  // Real-time member count updates
-  useEffect(() => {
-    if (!isOpen || !hasRealData) return;
-
-    const updateMemberCount = async () => {
-      try {
-        const memberResponse = await fetch(
-          `https://api.telegram.org/bot${TELEGRAM_CONFIG.botToken}/getChatMemberCount?chat_id=${TELEGRAM_CONFIG.channelId}`
-        );
-        const memberData = await memberResponse.json();
-        
-        if (memberData.ok) {
-          const newCount = memberData.result;
-          setChatInfo(prev => {
-            if (prev && prev.member_count !== newCount) {
-              // Member count changed - update with visual feedback
-              setLastMemberCount(prev.member_count || 0);
-              return { ...prev, member_count: newCount };
-            }
-            return prev;
-          });
-        }
-      } catch (_err) {
-        // Silently fail - don't disrupt user experience
-      }
-    };
-
-    // Update member count every 30 seconds
-    const interval = setInterval(updateMemberCount, 30000);
-    return () => clearInterval(interval);
-  }, [isOpen, hasRealData]);
-
   const handleJoinChannel = () => {
     trackInvestorEvents.navigationClick('telegram-channel-join');
     window.open(TELEGRAM_CONFIG.channelUrl, '_blank');
+  };
+
+  const formatLastActivity = (timestamp: number) => {
+    const now = Date.now() / 1000;
+    const diff = now - timestamp;
+    
+    if (diff < 60) return 'Just now';
+    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+    return `${Math.floor(diff / 86400)}d ago`;
   };
 
   if (!isOpen) return null;
@@ -138,11 +172,11 @@ const TelegramWidget: React.FC<TelegramWidgetProps> = ({ isOpen, onClose }) => {
             height="20" 
             viewBox="0 0 24 24" 
             fill="currentColor"
-            style={{ marginRight: '8px', color: '#ffffff' }}
+            style={{ marginRight: '8px', color: hasRealData ? '#0088cc' : '#999' }}
           >
             <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
           </svg>
-          Telegram
+          Telegram Intelligence
         </div>
         <button 
           className={styles.closeButton}
@@ -192,6 +226,14 @@ const TelegramWidget: React.FC<TelegramWidgetProps> = ({ isOpen, onClose }) => {
           </div>
         ) : (
           <>
+            <div className={styles.dataSourceIndicator}>
+              {hasRealData ? (
+                <span className={styles.realDataBadge}>🟢 Live Telegram API</span>
+              ) : (
+                <span className={styles.fallbackDataBadge}>🟡 No Bot Connection</span>
+              )}
+            </div>
+
             {/* Real Channel Info */}
             {chatInfo && (
               <div className={styles.channelSection}>
@@ -199,25 +241,16 @@ const TelegramWidget: React.FC<TelegramWidgetProps> = ({ isOpen, onClose }) => {
                   <div className={styles.channelInfo}>
                     <h3>{chatInfo.title}</h3>
                     <p className={styles.memberCount}>
-                      {chatInfo.member_count ? (
-                        <>
-                          <span className={lastMemberCount !== null && lastMemberCount !== chatInfo.member_count ? styles.memberCountUpdated : ''}>
-                            {chatInfo.member_count.toLocaleString()} members
-                          </span>
-                          {lastMemberCount !== null && lastMemberCount !== chatInfo.member_count && (
-                            <span className={styles.memberChange}>
-                              {chatInfo.member_count > lastMemberCount ? ' 📈' : ' 📉'}
-                            </span>
-                          )}
-                        </>
-                      ) : (
+                      {chatInfo.member_count ? 
+                        `${chatInfo.member_count.toLocaleString()} members` : 
                         'Private group'
-                      )}
+                      }
                     </p>
                     <p className={styles.channelId}>
                       {TELEGRAM_CONFIG.channelUsername}
                     </p>
                   </div>
+                  <div className={styles.liveIndicator}>LIVE</div>
                 </div>
                 
                 {chatInfo.description && (
@@ -230,8 +263,75 @@ const TelegramWidget: React.FC<TelegramWidgetProps> = ({ isOpen, onClose }) => {
                   className={styles.primaryButton}
                   onClick={handleJoinChannel}
                 >
-                  🔗 Join Channel
+                  � Join Channel
                 </button>
+              </div>
+            )}
+
+            {/* Real Administrators */}
+            {admins.length > 0 && (
+              <div className={styles.adminsSection}>
+                <h3>Administrators ({admins.length})</h3>
+                <div className={styles.adminsList}>
+                  {admins.map((admin, index) => (
+                    <div key={index} className={styles.adminItem}>
+                      <span className={styles.adminName}>
+                        {admin.user.first_name}
+                        {admin.user.username && ` @${admin.user.username}`}
+                      </span>
+                      <span className={styles.adminRole}>
+                        {admin.status === 'creator' ? '👑' : '⭐'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Real Recent Activity */}
+            {recentUpdates.length > 0 && (
+              <div className={styles.activitySection}>
+                <h3>Recent Activity</h3>
+                <div className={styles.activityList}>
+                  {recentUpdates.map((update, index) => (
+                    <div key={index} className={styles.activityItem}>
+                      {update.message ? (
+                        <>
+                          <span className={styles.activityIcon}>💬</span>
+                          <div className={styles.activityContent}>
+                            <span className={styles.activityUser}>
+                              {update.message.from.first_name}
+                            </span>
+                            <span className={styles.activityText}>
+                              {update.message.text?.substring(0, 50)}
+                              {update.message.text && update.message.text.length > 50 ? '...' : ''}
+                            </span>
+                            <span className={styles.activityTime}>
+                              {formatLastActivity(update.message.date)}
+                            </span>
+                          </div>
+                        </>
+                      ) : update.chat_member ? (
+                        <>
+                          <span className={styles.activityIcon}>
+                            {update.chat_member.status === 'member' ? '👋' : '📤'}
+                          </span>
+                          <div className={styles.activityContent}>
+                            <span className={styles.activityUser}>
+                              {update.chat_member.user.first_name}
+                            </span>
+                            <span className={styles.activityText}>
+                              {update.chat_member.status === 'member' ? 'joined' : 'left'} the channel
+                            </span>
+                            <span className={styles.activityTime}>
+                              {formatLastActivity(update.chat_member.date)}
+                            </span>
+                          </div>
+                        </>
+                      ) : null}
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </>
@@ -239,12 +339,12 @@ const TelegramWidget: React.FC<TelegramWidgetProps> = ({ isOpen, onClose }) => {
       </div>
 
       <div className={styles.footer}>
-        <div className={styles.uplinkIndicator}>
-          <span className={hasRealData ? styles.glowingGreenDot : styles.glowingRedDot}></span>
-          <span>
-            {hasRealData ? 'Telegram Uplink Online' : 'Uplink Offline'}
-          </span>
-        </div>
+        <span className={styles.secureIndicator}>
+          {hasRealData ? '🔗' : '⚠️'}
+        </span>
+        <span>
+          {hasRealData ? 'Connected to Telegram API' : 'Bot not configured'}
+        </span>
       </div>
     </div>
   );

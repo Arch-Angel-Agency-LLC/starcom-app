@@ -1,26 +1,33 @@
-/* GitHub Widget Styles */
+/* GitHub Widget Styles - Streamlined Design */
+
 .githubWidget {
   position: absolute;
   top: 100%;
   right: 0;
-  width: 400px;
-  max-height: 80vh;
-  background: linear-gradient(135deg, #0d1117, #21262d);
+  width: 380px;
+  height: 480px;
+  background: linear-gradient(135deg, #0d1117, #161b22);
   border: 1px solid #30363d;
   border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(13, 17, 23, 0.6);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   z-index: 1000;
   overflow: hidden;
-  backdrop-filter: blur(10px);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
 }
 
+/* Header */
 .header {
+  background: linear-gradient(135deg, #238636, #2ea043);
+  color: white;
+  padding: 14px 18px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 20px;
-  background: linear-gradient(135deg, #f85149, #da3633);
-  color: white;
+  border-bottom: 1px solid rgba(46, 160, 67, 0.2);
+  height: 52px;
+  flex-shrink: 0;
 }
 
 .title {
@@ -28,18 +35,14 @@
   align-items: center;
   gap: 8px;
   font-weight: 600;
-  font-size: 1rem;
-}
-
-.icon {
-  font-size: 1.2rem;
+  font-size: 0.95rem;
 }
 
 .closeButton {
   background: none;
   border: none;
   color: white;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   cursor: pointer;
   padding: 4px;
   border-radius: 4px;
@@ -47,14 +50,16 @@
 }
 
 .closeButton:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.15);
 }
 
+/* Content */
 .content {
-  max-height: calc(80vh - 120px);
-  overflow-y: auto;
-  padding: 20px;
-  color: #e6edf3;
+  flex: 1;
+  overflow: hidden;
+  padding: 16px;
+  color: #f0f6fc;
+  min-height: 0;
 }
 
 .loading {
@@ -62,18 +67,17 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px 20px;
+  height: 100%;
   text-align: center;
 }
 
 .spinner {
-  width: 32px;
-  height: 32px;
-  border: 3px solid rgba(248, 81, 73, 0.3);
-  border-top: 3px solid #f85149;
+  width: 28px;
+  height: 28px;
+  border: 3px solid rgba(46, 160, 67, 0.3);
+  border-top: 3px solid #2ea043;
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  margin-bottom: 16px;
 }
 
 @keyframes spin {
@@ -81,23 +85,27 @@
   100% { transform: rotate(360deg); }
 }
 
-/* Repository Section */
+/* Repository Section - Main Container */
 .repoSection {
-  margin-bottom: 24px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #30363d;
+  background: linear-gradient(135deg, #161b22, #1c2128);
+  border-radius: 10px;
+  border: 1px solid #30363d;
+  padding: 16px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
 .repoHeader {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
+  gap: 10px;
 }
 
 .repoIcon {
-  font-size: 1.5rem;
-  color: #58a6ff;
+  font-size: 1.3rem;
+  color: #7c3aed;
 }
 
 .repoInfo {
@@ -105,275 +113,185 @@
 }
 
 .repoInfo h3 {
-  margin: 0;
-  font-size: 1.1rem;
+  margin: 0 0 3px 0;
+  font-size: 1rem;
+  color: #f0f6fc;
   font-weight: 600;
-  color: #e6edf3;
 }
 
 .repoPath {
   margin: 0;
-  font-size: 0.85rem;
-  color: #8b949e;
-  font-family: 'Courier New', monospace;
+  font-size: 0.8rem;
+  color: #7d8590;
 }
 
 .languageBadge {
-  background: #238636;
+  background: linear-gradient(135deg, #7c3aed, #8b5cf6);
   color: white;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 0.75rem;
+  padding: 3px 8px;
+  border-radius: 10px;
+  font-size: 0.7rem;
   font-weight: 500;
 }
 
-.repoDescription {
-  color: #8b949e;
-  font-size: 0.9rem;
-  line-height: 1.5;
-  margin-bottom: 16px;
-}
-
-.primaryButton {
-  background: linear-gradient(135deg, #238636, #2ea043);
-  color: white;
-  border: none;
-  padding: 12px 20px;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s ease;
-  width: 100%;
-}
-
-.primaryButton:hover {
-  background: linear-gradient(135deg, #2ea043, #238636);
-}
-
-/* Community & Version Section */
-.communitySection {
-  padding: 1.5rem;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  border-radius: 12px;
-  margin-bottom: 1.5rem;
-  border: 1px solid #2a2a3e;
-}
-
-.versionStatus {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-  padding: 0.75rem;
-  background: rgba(0, 255, 255, 0.1);
-  border-radius: 8px;
-  border: 1px solid rgba(0, 255, 255, 0.2);
-}
-
-.versionBadge {
-  font-family: 'Courier New', monospace;
-  font-weight: bold;
-  color: #00ffff;
-  background: rgba(0, 255, 255, 0.15);
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  border: 1px solid rgba(0, 255, 255, 0.3);
-  font-size: 0.9rem;
-}
-
-.statusText {
-  font-size: 0.9rem;
-  color: #ffffff;
-  font-weight: 500;
-}
-
-.communityProgress {
-  margin-top: 1rem;
-}
-
-.progressHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5rem;
-  font-size: 0.9rem;
-  color: #cccccc;
-  font-weight: 500;
-}
-
-.progressBar {
-  width: 100%;
-  height: 8px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
-  overflow: hidden;
-  margin-bottom: 1rem;
-}
-
-.progressFill {
-  height: 100%;
-  background: linear-gradient(90deg, #00ffff 0%, #ff6b6b 100%);
-  border-radius: 4px;
-  transition: width 0.3s ease;
-}
-
-.communityMessage {
-  color: #ffffff;
-  text-align: center;
-  margin: 0;
-  font-size: 0.95rem;
-  line-height: 1.4;
-}
-
-.communityMessage strong {
-  color: #00ffff;
-  font-weight: 600;
-}
-
-/* Repository Statistics Section */
-.statsSection {
-  margin-bottom: 24px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #30363d;
-}
-
-.statsSection h3 {
-  margin: 0 0 16px 0;
-  font-size: 1rem;
-  color: #e6edf3;
-}
-
+/* Stats Grid */
 .statsGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
 }
 
 .statItem {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px;
-  background: rgba(48, 54, 61, 0.3);
+  background: linear-gradient(135deg, #0d1117, #161b22);
+  border: 1px solid #21262d;
   border-radius: 8px;
-  border: 1px solid #30363d;
+  padding: 8px 6px;
+  text-align: center;
+  transition: all 0.2s ease;
 }
 
-.statIcon {
-  font-size: 1.2rem;
-  opacity: 0.8;
-}
-
-.statInfo {
-  display: flex;
-  flex-direction: column;
+.statItem:hover {
+  border-color: #30363d;
+  background: linear-gradient(135deg, #161b22, #1c2128);
 }
 
 .statNumber {
-  font-size: 1.1rem;
+  display: block;
+  font-size: 1rem;
   font-weight: 600;
-  color: #e6edf3;
+  color: #2ea043;
+  margin-bottom: 2px;
 }
 
 .statLabel {
+  font-size: 0.7rem;
+  color: #7d8590;
+  font-weight: 500;
+}
+
+/* Activity Section */
+.activitySection {
+  background: linear-gradient(135deg, #0d1117, #161b22);
+  border: 1px solid #21262d;
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.activityIcon {
+  font-size: 0.9rem;
+  opacity: 0.8;
+  color: #f78166;
+}
+
+.activityText {
   font-size: 0.8rem;
-  color: #8b949e;
+  color: #7d8590;
 }
 
-/* Contribution Section */
-.contributionSection {
-  margin-bottom: 24px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #30363d;
-}
-
-.contributionSection h3 {
-  margin: 0 0 16px 0;
-  font-size: 1rem;
-  color: #e6edf3;
-}
-
+/* Action Buttons */
 .actionButtons {
   display: flex;
-  gap: 12px;
+  gap: 10px;
+  margin-top: auto;
 }
 
 .actionButton {
   flex: 1;
-  background: rgba(48, 54, 61, 0.5);
-  color: #e6edf3;
+  background: linear-gradient(135deg, #21262d, #30363d);
+  color: #f0f6fc;
   border: 1px solid #30363d;
-  padding: 10px 16px;
+  padding: 10px 14px;
   border-radius: 8px;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   cursor: pointer;
   transition: all 0.2s ease;
+  font-weight: 500;
 }
 
 .actionButton:hover {
-  background: rgba(48, 54, 61, 0.8);
-  border-color: #58a6ff;
-  color: #58a6ff;
+  background: linear-gradient(135deg, #238636, #2ea043);
+  border-color: #2ea043;
+  color: white;
+  transform: translateY(-1px);
 }
 
-/* Activity Section */
-.activitySection h3 {
-  margin: 0 0 16px 0;
-  font-size: 1rem;
-  color: #e6edf3;
+.actionButton:active {
+  transform: translateY(0);
 }
 
-.activityPreview {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.activityItem {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  background: rgba(48, 54, 61, 0.2);
-  border-radius: 6px;
-  font-size: 0.9rem;
-  color: #8b949e;
-}
-
-.activityIcon {
-  font-size: 1rem;
-  opacity: 0.8;
-}
-
+/* Footer */
 .footer {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 8px;
-  padding: 12px 20px;
-  background: rgba(13, 17, 23, 0.8);
-  border-top: 1px solid #30363d;
-  font-size: 0.85rem;
-  color: #8b949e;
+  padding: 10px 18px;
+  background: linear-gradient(135deg, #0d1117, #161b22);
+  border-top: 1px solid #21262d;
+  font-size: 0.75rem;
+  color: #7d8590;
+  flex-shrink: 0;
+  height: 38px;
 }
 
-.openSourceIndicator {
-  font-size: 1rem;
+.uplinkIndicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-/* Scrollbar styling */
-.content::-webkit-scrollbar {
+.glowingGreenDot {
   width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #2ea043;
+  box-shadow: 0 0 4px #2ea043, 0 0 8px rgba(46, 160, 67, 0.5);
+  animation: glowGreen 2s ease-in-out infinite alternate;
+}
+
+.glowingRedDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #f85149;
+  box-shadow: 0 0 4px #f85149, 0 0 8px rgba(248, 81, 73, 0.5);
+  animation: glowRed 2s ease-in-out infinite alternate;
+}
+
+@keyframes glowGreen {
+  from {
+    box-shadow: 0 0 3px #2ea043, 0 0 6px rgba(46, 160, 67, 0.4);
+  }
+  to {
+    box-shadow: 0 0 6px #2ea043, 0 0 12px rgba(46, 160, 67, 0.7);
+  }
+}
+
+@keyframes glowRed {
+  from {
+    box-shadow: 0 0 3px #f85149, 0 0 6px rgba(248, 81, 73, 0.4);
+  }
+  to {
+    box-shadow: 0 0 6px #f85149, 0 0 12px rgba(248, 81, 73, 0.7);
+  }
+}
+
+/* Scrollbar styling (if needed) */
+.content::-webkit-scrollbar {
+  width: 4px;
 }
 
 .content::-webkit-scrollbar-track {
-  background: rgba(48, 54, 61, 0.3);
-  border-radius: 3px;
+  background: rgba(46, 160, 67, 0.1);
+  border-radius: 2px;
 }
 
 .content::-webkit-scrollbar-thumb {
   background: #30363d;
-  border-radius: 3px;
+  border-radius: 2px;
 }
 
 .content::-webkit-scrollbar-thumb:hover {

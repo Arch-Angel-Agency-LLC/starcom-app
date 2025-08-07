@@ -12,7 +12,6 @@ const GITHUB_CONFIG = {
   repoUrl: 'https://github.com/Arch-Angel-Agency-LLC/starcom-app',
   repoOwner: 'Arch-Angel-Agency-LLC',
   repoName: 'starcom-app',
-  description: 'Open-source Earth Alliance Intelligence Platform - transparent development for global security.',
   communityGoal: 100 // Target star count
 };
 
@@ -28,10 +27,6 @@ const GitHubWidget: React.FC<GitHubWidgetProps> = ({ isOpen, onClose }) => {
   });
   const [isLoading, setIsLoading] = useState(true);
   const versionStatus = getVersionStatus();
-
-  // Calculate community progress
-  const communityProgress = Math.min((repoStats.stars / GITHUB_CONFIG.communityGoal) * 100, 100);
-  const remainingStars = Math.max(GITHUB_CONFIG.communityGoal - repoStats.stars, 0);
 
   useEffect(() => {
     if (isOpen) {
@@ -89,19 +84,14 @@ const GitHubWidget: React.FC<GitHubWidgetProps> = ({ isOpen, onClose }) => {
     }
   }, [isOpen, versionStatus.formattedDisplay]);
 
-  const handleViewRepository = () => {
-    trackInvestorEvents.navigationClick('github-repository-view');
-    window.open(GITHUB_CONFIG.repoUrl, '_blank');
-  };
-
   const handleViewIssues = () => {
-    trackInvestorEvents.navigationClick('github-issues-view');
-    window.open(`${GITHUB_CONFIG.repoUrl}/issues`, '_blank');
+    trackInvestorEvents.navigationClick('github-repository-view');
+    window.open(`${GITHUB_CONFIG.repoUrl}/`, '_blank');
   };
 
   const handleContribute = () => {
-    trackInvestorEvents.navigationClick('github-contribute');
-    window.open(`${GITHUB_CONFIG.repoUrl}/blob/main/CONTRIBUTING.md`, '_blank');
+    trackInvestorEvents.navigationClick('github-discussions');
+    window.open(`${GITHUB_CONFIG.repoUrl}/discussions/`, '_blank');
   };
 
   if (!isOpen) return null;
@@ -110,8 +100,16 @@ const GitHubWidget: React.FC<GitHubWidgetProps> = ({ isOpen, onClose }) => {
     <div className={styles.githubWidget}>
       <div className={styles.header}>
         <div className={styles.title}>
-          <span className={styles.icon}>🐙</span>
-          Open Source Hub
+          <svg 
+            width="20" 
+            height="20" 
+            viewBox="0 0 24 24" 
+            fill="currentColor"
+            style={{ marginRight: '8px', color: '#ffffff' }}
+          >
+            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+          </svg>
+          Github
         </div>
         <button 
           className={styles.closeButton}
@@ -130,7 +128,7 @@ const GitHubWidget: React.FC<GitHubWidgetProps> = ({ isOpen, onClose }) => {
           </div>
         ) : (
           <>
-            {/* Repository Info Section */}
+            {/* Repository Section - Main Container like Discord/Telegram */}
             <div className={styles.repoSection}>
               <div className={styles.repoHeader}>
                 <div className={styles.repoIcon}>📂</div>
@@ -140,117 +138,47 @@ const GitHubWidget: React.FC<GitHubWidgetProps> = ({ isOpen, onClose }) => {
                 </div>
                 <div className={styles.languageBadge}>{repoStats.language}</div>
               </div>
-              
-              <p className={styles.repoDescription}>
-                {GITHUB_CONFIG.description}
-              </p>
-              
-              <button 
-                className={styles.primaryButton}
-                onClick={handleViewRepository}
-              >
-                🚀 View Repository
-              </button>
-            </div>
 
-            {/* Community & Version Status */}
-            <div className={styles.communitySection}>
-              <h3>Community & Development</h3>
-              <div className={styles.versionStatus}>
-                <span className={styles.versionBadge}>{repoStats.latestRelease}</span>
-                <span className={styles.statusText}>
-                  {versionStatus.hasUpdate ? '🟡 Update Available' : '🟢 Latest Version'}
-                </span>
-              </div>
-              
-              <div className={styles.communityProgress}>
-                <div className={styles.progressHeader}>
-                  <span>Community Goal Progress</span>
-                  <span>{repoStats.stars}/{GITHUB_CONFIG.communityGoal} ⭐</span>
-                </div>
-                <div className={styles.progressBar}>
-                  <div 
-                    className={styles.progressFill} 
-                    style={{ width: `${communityProgress}%` }}
-                  ></div>
-                </div>
-                <p className={styles.communityMessage}>
-                  Join <strong>{repoStats.stars + repoStats.forks + repoStats.watchers}</strong> developers 
-                  supporting the Earth Alliance Starcom Initiative!
-                </p>
-              </div>
-            </div>
-
-            {/* Repository Statistics */}
-            <div className={styles.statsSection}>
-              <h3>Repository Statistics</h3>
+              {/* Stats Grid - Clean 2x2 layout */}
               <div className={styles.statsGrid}>
                 <div className={styles.statItem}>
-                  <span className={styles.statIcon}>⭐</span>
-                  <div className={styles.statInfo}>
-                    <span className={styles.statNumber}>{repoStats.stars}</span>
-                    <span className={styles.statLabel}>Stars</span>
-                  </div>
+                  <span className={styles.statNumber}>{repoStats.stars}</span>
+                  <span className={styles.statLabel}>Stars</span>
                 </div>
                 <div className={styles.statItem}>
-                  <span className={styles.statIcon}>🔀</span>
-                  <div className={styles.statInfo}>
-                    <span className={styles.statNumber}>{repoStats.forks}</span>
-                    <span className={styles.statLabel}>Forks</span>
-                  </div>
+                  <span className={styles.statNumber}>{repoStats.forks}</span>
+                  <span className={styles.statLabel}>Forks</span>
                 </div>
                 <div className={styles.statItem}>
-                  <span className={styles.statIcon}>👁️</span>
-                  <div className={styles.statInfo}>
-                    <span className={styles.statNumber}>{repoStats.watchers}</span>
-                    <span className={styles.statLabel}>Watchers</span>
-                  </div>
+                  <span className={styles.statNumber}>{repoStats.watchers}</span>
+                  <span className={styles.statLabel}>Watchers</span>
                 </div>
                 <div className={styles.statItem}>
-                  <span className={styles.statIcon}>🔧</span>
-                  <div className={styles.statInfo}>
-                    <span className={styles.statNumber}>{repoStats.issues}</span>
-                    <span className={styles.statLabel}>Issues</span>
-                  </div>
+                  <span className={styles.statNumber}>{repoStats.issues}</span>
+                  <span className={styles.statLabel}>Issues</span>
                 </div>
               </div>
-            </div>
 
-            {/* Contribution Hub */}
-            <div className={styles.contributionSection}>
-              <h3>Open Source Collaboration</h3>
+              {/* Activity Section - Clean single line */}
+              <div className={styles.activitySection}>
+                <span className={styles.activityIcon}>📝</span>
+                <span className={styles.activityText}>Last updated: {repoStats.lastCommit}</span>
+              </div>
+
+              {/* Action Buttons - Integrated like Discord/Telegram */}
               <div className={styles.actionButtons}>
                 <button 
                   className={styles.actionButton}
                   onClick={handleViewIssues}
                 >
-                  🔧 View Issues
+                  Codebase 💻
                 </button>
                 <button 
                   className={styles.actionButton}
                   onClick={handleContribute}
                 >
-                  💡 Contribute Code
+                  Community 👩🏽‍💻
                 </button>
-              </div>
-            </div>
-
-            {/* Development Activity */}
-            <div className={styles.activitySection}>
-              <h3>Development Activity</h3>
-              <div className={styles.activityPreview}>
-                <div className={styles.activityItem}>
-                  <span className={styles.activityIcon}>📝</span>
-                  <span>Last updated: {repoStats.lastCommit}</span>
-                </div>
-                <div className={styles.activityItem}>
-                  <span className={styles.activityIcon}>🔄</span>
-                  <span>Continuous integration active</span>
-                </div>
-                <div className={styles.activityItem}>
-                  <span className={styles.activityIcon}>🛡️</span>
-                  <span>Security auditing enabled</span>
-                </div>
               </div>
             </div>
           </>
@@ -258,8 +186,12 @@ const GitHubWidget: React.FC<GitHubWidgetProps> = ({ isOpen, onClose }) => {
       </div>
 
       <div className={styles.footer}>
-        <span className={styles.openSourceIndicator}>📖</span>
-        <span>Transparent Development for Earth Alliance</span>
+        <div className={styles.uplinkIndicator}>
+          <span className={!isLoading && repoStats.stars !== undefined ? styles.glowingGreenDot : styles.glowingRedDot}></span>
+          <span>
+            {!isLoading && repoStats.stars !== undefined ? 'Github Uplink Online' : 'Uplink Offline'}
+          </span>
+        </div>
       </div>
     </div>
   );

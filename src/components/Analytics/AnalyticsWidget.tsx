@@ -1,13 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { trackInvestorEvents } from '../../utils/analytics';
+import { googleAnalyticsService } from '../../services/GoogleAnalyticsService';
 import styles from './AnalyticsWidget.module.css';
-
-interface AnalyticsMetric {
-  label: string;
-  value: string;
-  change: string;
-  positive: boolean;
-}
 
 interface AnalyticsWidgetProps {
   isOpen: boolean;
@@ -15,49 +9,41 @@ interface AnalyticsWidgetProps {
 }
 
 const AnalyticsWidget: React.FC<AnalyticsWidgetProps> = ({ isOpen, onClose }) => {
-  const [metrics, setMetrics] = useState<AnalyticsMetric[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [iframeError, setIframeError] = useState(false);
+  
+  // Looker Studio dashboard configuration
+  const LOOKER_STUDIO_EMBED_URL = 'https://lookerstudio.google.com/embed/reporting/tjL7zN4Fim4';
 
-  // Simulate fetching analytics data
+  // Track analytics widget usage
   useEffect(() => {
     if (isOpen) {
-      setIsLoading(true);
+      // Track page view with the Google Analytics service
+      googleAnalyticsService.trackPageView();
+      googleAnalyticsService.trackEvent('widget_opened', 'Analytics');
       
       // Track analytics widget usage
       trackInvestorEvents.featureUsed('analytics-widget');
       
-      // Simulate API call delay
-      setTimeout(() => {
-        setMetrics([
-          {
-            label: 'Active Users',
-            value: Math.floor(Math.random() * 500 + 100).toString(),
-            change: `+${Math.floor(Math.random() * 30 + 10)}%`,
-            positive: true
-          },
-          {
-            label: 'Session Duration',
-            value: `${(Math.random() * 3 + 2).toFixed(1)}m`,
-            change: `+${Math.floor(Math.random() * 25 + 5)}%`,
-            positive: true
-          },
-          {
-            label: 'Page Views',
-            value: Math.floor(Math.random() * 2000 + 500).toString(),
-            change: `+${Math.floor(Math.random() * 40 + 15)}%`,
-            positive: true
-          },
-          {
-            label: 'Engagement Rate',
-            value: `${(85 + Math.random() * 10).toFixed(1)}%`,
-            change: `+${Math.floor(Math.random() * 15 + 5)}%`,
-            positive: true
-          }
-        ]);
+      // Set loading timeout for iframe
+      const timer = setTimeout(() => {
         setIsLoading(false);
-      }, 1000);
+      }, 2000);
+      
+      return () => clearTimeout(timer);
     }
   }, [isOpen]);
+
+  // Handle iframe load events
+  const handleIframeLoad = () => {
+    setIsLoading(false);
+    setIframeError(false);
+  };
+
+  const handleIframeError = () => {
+    setIframeError(true);
+    setIsLoading(false);
+  };
 
   const handleViewFullDashboard = () => {
     trackInvestorEvents.navigationClick('full-analytics-dashboard');
@@ -70,8 +56,19 @@ const AnalyticsWidget: React.FC<AnalyticsWidgetProps> = ({ isOpen, onClose }) =>
     <div className={styles.analyticsWidget}>
       <div className={styles.header}>
         <div className={styles.title}>
-          <span className={styles.icon}>📊</span>
-          Platform Analytics
+          <svg 
+            className={styles.icon}
+            width="20" 
+            height="20" 
+            viewBox="0 0 24 24" 
+            fill="currentColor"
+          >
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+          </svg>
+          Google Analytics
         </div>
         <button 
           className={styles.closeButton}
@@ -86,41 +83,58 @@ const AnalyticsWidget: React.FC<AnalyticsWidgetProps> = ({ isOpen, onClose }) =>
         {isLoading ? (
           <div className={styles.loading}>
             <div className={styles.spinner}></div>
-            <p>Loading analytics data...</p>
+            <p>Checking dashboard access...</p>
           </div>
         ) : (
           <>
-            <div className={styles.metricsGrid}>
-              {metrics.map((metric, index) => (
-                <div key={index} className={styles.metricCard}>
-                  <div className={styles.metricValue}>{metric.value}</div>
-                  <div className={styles.metricLabel}>{metric.label}</div>
-                  <div 
-                    className={`${styles.metricChange} ${
-                      metric.positive ? styles.positive : styles.negative
-                    }`}
-                  >
-                    {metric.change}
-                  </div>
-                </div>
-              ))}
+            <div className={styles.dataSourceIndicator}>
+              <span className={styles.fallbackDataBadge}>� Dashboard Requires Authentication</span>
             </div>
-
-            <div className={styles.embeddedSection}>
-              <h3>Real-time Activity</h3>
-              <div className={styles.embedContainer}>
+            
+            {!iframeError ? (
+              <div className={styles.dashboardContainer}>
                 <iframe
-                  src="https://lookerstudio.google.com/embed/reporting/tjL7zN4Fim4/page/p_tjL7zN4Fim4"
-                  width="100%"
-                  height="300"
+                  src={LOOKER_STUDIO_EMBED_URL}
+                  className={styles.dashboardIframe}
+                  onLoad={handleIframeLoad}
+                  onError={handleIframeError}
                   frameBorder="0"
-                  style={{ borderRadius: '8px' }}
-                  title="Starcom Analytics Dashboard"
+                  style={{ border: 0 }}
                   allowFullScreen
-                  sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+                  title="Google Analytics Dashboard"
                 />
+                <div className={styles.authNotice}>
+                  <p>📋 Dashboard requires Google account access</p>
+                  <button 
+                    className={styles.secondaryButton}
+                    onClick={handleViewFullDashboard}
+                  >
+                    🔗 Open in New Tab
+                  </button>
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className={styles.errorContainer}>
+                <h3>📊 Analytics Dashboard Access</h3>
+                <p>The embedded dashboard requires authentication.</p>
+                <p>Click below to view the full Google Analytics dashboard:</p>
+                <button 
+                  className={styles.primaryButton}
+                  onClick={handleViewFullDashboard}
+                >
+                  📈 View Analytics Dashboard
+                </button>
+                <div className={styles.instructionBox}>
+                  <h4>💡 To Enable Public Access:</h4>
+                  <ol>
+                    <li>Open the Looker Studio dashboard</li>
+                    <li>Click "Share" → "Manage access"</li>
+                    <li>Set to "Anyone on the internet"</li>
+                    <li>Enable "Embed report" in File menu</li>
+                  </ol>
+                </div>
+              </div>
+            )}
 
             <div className={styles.actions}>
               <button 
@@ -130,7 +144,7 @@ const AnalyticsWidget: React.FC<AnalyticsWidgetProps> = ({ isOpen, onClose }) =>
                 📈 View Full Dashboard
               </button>
               <p className={styles.helpText}>
-                Real-time platform metrics • Updated automatically
+                Real Google Analytics data from Looker Studio
               </p>
             </div>
           </>
@@ -139,7 +153,7 @@ const AnalyticsWidget: React.FC<AnalyticsWidgetProps> = ({ isOpen, onClose }) =>
 
       <div className={styles.footer}>
         <span className={styles.liveIndicator}></span>
-        <span>Live data from Google Analytics</span>
+        <span>Real-time data from Google Analytics via Looker Studio</span>
       </div>
     </div>
   );
