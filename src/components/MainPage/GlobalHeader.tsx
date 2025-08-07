@@ -7,6 +7,7 @@ import TelegramWidget from '../Telegram/TelegramWidget';
 import GitHubWidget from '../GitHub/GitHubWidget';
 import DiscordWidget from '../Discord/DiscordWidget';
 import { trackInvestorEvents } from '../../utils/analytics';
+import { googleAnalyticsService } from '../../services/GoogleAnalyticsService';
 import styles from './GlobalHeader.module.css';
 
 const wingCommanderLogo = '/assets/images/WingCommanderLogo-288x162.gif';
@@ -229,12 +230,25 @@ const GlobalHeader: React.FC = () => {
           <button 
             className={`${styles.iconButton} ${onlineCount > 0 ? styles.hasNotifications : ''}`}
             onClick={() => {
+              // ANALYTICS: Enhanced widget tracking (Tier 1 - User engagement)
+              const widgetAction = showDiscord ? 'close' : 'open';
+              const sessionWidgetCount = parseInt(sessionStorage.getItem('starcom_widget_interactions') || '0') + 1;
+              sessionStorage.setItem('starcom_widget_interactions', sessionWidgetCount.toString());
+              
+              trackInvestorEvents.featureUsed('discord-button');
+              googleAnalyticsService.trackEvent('widget_interaction', 'engagement', `discord_${widgetAction}`);
+              googleAnalyticsService.trackEvent('session_widget_usage', 'engagement', 'widget_count', sessionWidgetCount);
+              
+              // Track user engagement patterns
+              if (onlineCount > 0) {
+                googleAnalyticsService.trackEvent('community_engagement', 'social', 'discord_with_users', onlineCount);
+              }
+              
               if (showDiscord) {
                 setShowDiscord(false);
               } else {
                 openDiscordWidget();
               }
-              trackInvestorEvents.featureUsed('discord-button');
             }}
             aria-label={`Discord (${onlineCount} online)`}
           >
@@ -260,12 +274,20 @@ const GlobalHeader: React.FC = () => {
           <button 
             className={`${styles.iconButton} ${styles.telegramButton}`}
             onClick={() => {
+              // ANALYTICS: Enhanced widget tracking (Tier 1 - User engagement)
+              const widgetAction = showTelegram ? 'close' : 'open';
+              const sessionWidgetCount = parseInt(sessionStorage.getItem('starcom_widget_interactions') || '0') + 1;
+              sessionStorage.setItem('starcom_widget_interactions', sessionWidgetCount.toString());
+              
+              trackInvestorEvents.featureUsed('telegram-button');
+              googleAnalyticsService.trackEvent('widget_interaction', 'engagement', `telegram_${widgetAction}`);
+              googleAnalyticsService.trackEvent('secure_communication', 'feature_usage', 'telegram_access');
+              
               if (showTelegram) {
                 setShowTelegram(false);
               } else {
                 openTelegramWidget();
               }
-              trackInvestorEvents.featureUsed('telegram-button');
             }}
             aria-label="Secure Communications"
           >
@@ -290,12 +312,20 @@ const GlobalHeader: React.FC = () => {
           <button 
             className={`${styles.iconButton} ${styles.githubButton}`}
             onClick={() => {
+              // ANALYTICS: Enhanced widget tracking (Tier 1 - User engagement)
+              const widgetAction = showGitHub ? 'close' : 'open';
+              const sessionWidgetCount = parseInt(sessionStorage.getItem('starcom_widget_interactions') || '0') + 1;
+              sessionStorage.setItem('starcom_widget_interactions', sessionWidgetCount.toString());
+              
+              trackInvestorEvents.featureUsed('github-button');
+              googleAnalyticsService.trackEvent('widget_interaction', 'engagement', `github_${widgetAction}`);
+              googleAnalyticsService.trackEvent('developer_engagement', 'feature_usage', 'github_access');
+              
               if (showGitHub) {
                 setShowGitHub(false);
               } else {
                 openGitHubWidget();
               }
-              trackInvestorEvents.featureUsed('github-button');
             }}
             aria-label="Open Source Repository"
           >

@@ -1,5 +1,7 @@
 import React, { useState, useCallback, useMemo, ReactNode } from 'react';
 import { EnhancedApplicationRouterContext } from '../../context/EnhancedApplicationRouterContext';
+import { trackInvestorEvents } from '../../utils/analytics';
+import { googleAnalyticsService } from '../../services/GoogleAnalyticsService';
 
 // Import actual application components
 import CyberCommandApplication from '../../applications/cybercommand/CyberCommandApplication';
@@ -78,8 +80,25 @@ export interface EnhancedApplicationRouterContextType {
 // Application registry - stores registered applications
 const applicationRegistry = new Map<ApplicationId, ApplicationConfig>();
 
-// State preservation - stores application states
+// Application state preservation - stores application states
 const applicationStates = new Map<ApplicationId, ApplicationStateData>();
+
+// Analytics tracking utilities
+const getAppUsageHistory = (): Set<ApplicationId> => {
+  const stored = sessionStorage.getItem('starcom_app_usage');
+  return stored ? new Set(JSON.parse(stored)) : new Set();
+};
+
+const updateAppUsageHistory = (appId: ApplicationId): void => {
+  const history = getAppUsageHistory();
+  history.add(appId);
+  sessionStorage.setItem('starcom_app_usage', JSON.stringify(Array.from(history)));
+};
+
+const getTimeInApp = (appId: ApplicationId): number => {
+  const startTime = sessionStorage.getItem(`starcom_app_start_${appId}`);
+  return startTime ? Date.now() - parseInt(startTime) : 0;
+};
 
 // Default application configurations
 const defaultApplications: ApplicationConfig[] = [
@@ -188,6 +207,55 @@ export const EnhancedApplicationRouterProvider: React.FC<{ children: ReactNode }
       return;
     }
 
+    // ANALYTICS: Track application navigation (Tier 1 - Highest ROI)
+    const previousApp = state.currentApp;
+    const timeInPreviousApp = previousApp ? getTimeInApp(previousApp) : 0;
+    const appUsageHistory = getAppUsageHistory();
+    const isReturningUser = appUsageHistory.has(appId);
+    const sessionAppCount = appUsageHistory.size + (isReturningUser ? 0 : 1);
+    
+    // Track core application usage (CRITICAL for investor metrics)
+    trackInvestorEvents.featureUsed(`application-${appId}`);
+    googleAnalyticsService.trackEvent('app_navigation', 'core_usage', appId, 1);
+    
+    // Enhanced tracking with custom events for detailed context
+    googleAnalyticsService.trackEvent('app_navigation_detailed', 'engagement', appId);
+    googleAnalyticsService.trackEvent('session_app_count', 'engagement', sessionAppCount.toString(), sessionAppCount);
+    
+    // Track first-time vs returning app usage
+    if (isReturningUser) {
+      trackInvestorEvents.featureUsed('app-return-user');
+      googleAnalyticsService.trackEvent('app_usage_pattern', 'retention', 'returning_user');
+    } else {
+      trackInvestorEvents.featureUsed('app-first-time-user');
+      googleAnalyticsService.trackEvent('app_usage_pattern', 'acquisition', 'new_user');
+      updateAppUsageHistory(appId);
+    }
+
+    // Track presentation mode usage (useful for UX insights)
+    if (targetMode !== 'standalone') {
+      trackInvestorEvents.featureUsed(`app-mode-${targetMode}`);
+      googleAnalyticsService.trackEvent('presentation_mode', 'ux_behavior', targetMode);
+    }
+
+    // Track session depth (engagement quality)
+    if (sessionAppCount === 1) {
+      trackInvestorEvents.featureUsed('session-first-app');
+      googleAnalyticsService.trackEvent('session_depth', 'engagement', 'first_app');
+    } else if (sessionAppCount >= 3) {
+      trackInvestorEvents.featureUsed('session-deep-engagement');
+      googleAnalyticsService.trackEvent('session_depth', 'engagement', 'deep_engagement', sessionAppCount);
+    }
+
+    // Track previous app exit duration (retention insight)
+    if (previousApp && timeInPreviousApp > 0) {
+      const durationMinutes = Math.round(timeInPreviousApp / 60000);
+      googleAnalyticsService.trackEvent('app_session_duration', 'engagement', previousApp, durationMinutes);
+    }
+
+    // Set app start time for duration tracking
+    sessionStorage.setItem(`starcom_app_start_${appId}`, Date.now().toString());
+
     setState(prevState => ({
       ...prevState,
       currentApp: appId,
@@ -197,7 +265,7 @@ export const EnhancedApplicationRouterProvider: React.FC<{ children: ReactNode }
         ? [...prevState.history.slice(-9), prevState.currentApp] // Keep last 10
         : prevState.history
     }));
-  }, []);
+  }, [state.currentApp]);
 
   const goBack = useCallback(() => {
     setState(prevState => {

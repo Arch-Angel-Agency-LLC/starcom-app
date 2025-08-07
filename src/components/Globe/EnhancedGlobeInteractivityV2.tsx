@@ -5,6 +5,8 @@ import React, { useRef, useEffect, useState, useCallback } from 'react';
 import * as THREE from 'three';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { Connection, Transaction } from '@solana/web3.js';
+import { trackInvestorEvents } from '../../utils/analytics';
+import { googleAnalyticsService } from '../../services/GoogleAnalyticsService';
 
 // New interaction system
 import { InteractionMode } from '../../systems/interaction/InteractionModeSystem';
@@ -203,16 +205,30 @@ export const EnhancedGlobeInteractivityV2: React.FC<EnhancedGlobeInteractivityV2
     allowedModes,
     onCursorChange: setCursor,
     onModeChange: (mode, config) => {
+      // ANALYTICS: Track interaction mode changes (Tier 1 - Core feature usage)
+      trackInvestorEvents.featureUsed(`globe-mode-${mode}`);
+      googleAnalyticsService.trackEvent('globe_interaction_mode', 'core_feature', mode);
+      
       if (enableDebugMode) {
         console.log(`🎮 Mode changed to: ${mode}`, config);
       }
     },
     onIntelReportCreate: handleCreateIntelReport,
     onIntelReportSelect: (reportId) => {
+      // ANALYTICS: Track intel report selection (high-value interaction)
+      trackInvestorEvents.featureUsed('intel-report-select');
+      googleAnalyticsService.trackEvent('intel_report_interaction', 'engagement', 'select');
+      
       console.log('📋 Intel Report selected:', reportId);
       // Handle selection logic here
     },
     onIntelReportHover: (reportId) => {
+      // ANALYTICS: Track globe interaction engagement (Tier 1 - Core feature)
+      if (reportId) {
+        trackInvestorEvents.featureUsed('globe-intel-hover');
+        googleAnalyticsService.trackEvent('globe_interaction', 'core_feature', 'intel_hover');
+      }
+      
       onHoverChange?.(reportId);
       if (enableDebugMode && reportId) {
         console.log('👁️ Intel Report hovered:', reportId);

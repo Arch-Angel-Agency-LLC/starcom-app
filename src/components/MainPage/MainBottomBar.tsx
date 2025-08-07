@@ -2,6 +2,8 @@ import React, { useCallback, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useEnhancedApplicationRouter } from '../../hooks/useEnhancedApplicationRouter';
 import { ApplicationId } from '../Router/EnhancedApplicationRouter';
+import { trackInvestorEvents } from '../../utils/analytics';
+import { googleAnalyticsService } from '../../services/GoogleAnalyticsService';
 import styles from './MainBottomBar.module.css';
 
 interface NavItem {
@@ -129,6 +131,36 @@ const MainBottomBar: React.FC = () => {
       currentApp: currentApp
     });
 
+    // ANALYTICS: Track primary navigation usage (Tier 1 - Critical for investors)
+    // Core navigation tracking (CRITICAL for investor metrics)
+    trackInvestorEvents.navigationClick(`bottom-bar-${item.id}`);
+    googleAnalyticsService.trackEvent('primary_navigation', 'engagement', item.label, 1);
+    
+    // Category-based navigation insights
+    googleAnalyticsService.trackEvent('navigation_category', 'ux_behavior', item.category);
+    
+    // Track navigation patterns for UX optimization
+    if (currentApp && currentApp !== item.id) {
+      googleAnalyticsService.trackEvent('app_switching', 'engagement', `${currentApp}_to_${item.id}`);
+      trackInvestorEvents.featureUsed('cross-app-navigation');
+    }
+
+    // Track category-specific usage patterns
+    switch (item.category) {
+      case 'primary':
+        trackInvestorEvents.featureUsed('primary-navigation');
+        break;
+      case 'intel':
+        trackInvestorEvents.featureUsed('intelligence-tools');
+        break;
+      case 'collab':
+        trackInvestorEvents.featureUsed('collaboration-tools');
+        break;
+      case 'special':
+        trackInvestorEvents.featureUsed('market-exchange');
+        break;
+    }
+
     // Use the Enhanced Application Router for ALL applications, including CyberCommand
     const applicationConfig = allApplications.find(app => app.id === item.id);
     if (applicationConfig) {
@@ -137,8 +169,15 @@ const MainBottomBar: React.FC = () => {
         mode: applicationConfig.defaultMode
       });
       
+      // Add navigation context for analytics
+      const navigationContext = {
+        navigationMethod: 'bottom-bar',
+        category: item.category,
+        userIntent: 'primary-navigation'
+      };
+      
       // Navigate to the application using the Enhanced Application Router
-      navigateToApp(item.id, applicationConfig.defaultMode);
+      navigateToApp(item.id, applicationConfig.defaultMode, navigationContext);
       
       // Also update the URL for consistency (especially for CyberCommand/Globe)
       if (item.id === 'cybercommand') {
@@ -146,6 +185,8 @@ const MainBottomBar: React.FC = () => {
       }
     } else {
       console.warn('🔘 MainBottomBar: Application not found in registry:', item.id);
+      // Track configuration errors for debugging
+      googleAnalyticsService.trackEvent('navigation_error', 'error', `app_not_found_${item.id}`);
     }
   }, [navigate, navigateToApp, allApplications, currentApp]);
 
