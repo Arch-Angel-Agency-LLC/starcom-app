@@ -10,15 +10,26 @@ export interface WorldTerritoriesData { features: Array<{ id: string; rings: [nu
 export class NationalTerritoriesService {
   private cache: Map<string, unknown> = new Map();
 
+  private borderFileForLOD(lod: 0 | 1 | 2) { return `/geopolitical/world-borders-lod${lod}.geojson`; }
+  private territoryFileForLOD(lod: 0 | 1 | 2) { return `/geopolitical/world-territories-lod${lod}.geojson`; }
+
   async loadBorders(url = '/geopolitical/world-borders.geojson'): Promise<LineFeature[]> {
     if (this.cache.has(url)) return this.cache.get(url) as LineFeature[];
     const res = await fetch(url);
     const geo = await res.json();
     const features: LineFeature[] = (geo.features || [])
-      .filter((f: any) => f.geometry?.type === 'LineString')
-      .map((f: any) => ({ id: f.properties?.name || f.id || 'border', coordinates: f.geometry.coordinates }));
+      .filter((f: any) => f.geometry?.type === 'LineString' || f.geometry?.type === 'MultiLineString')
+      .flatMap((f: any) => {
+        if (f.geometry.type === 'LineString') return [{ id: f.properties?.BRK_A3 || f.id || 'border', coordinates: f.geometry.coordinates }];
+        if (f.geometry.type === 'MultiLineString') return f.geometry.coordinates.map((coords: any, idx: number) => ({ id: (f.properties?.BRK_A3 || f.id || 'border') + ':' + idx, coordinates: coords }));
+        return [];
+      });
     this.cache.set(url, features);
     return features;
+  }
+
+  async loadBordersLOD(lod: 0 | 1 | 2): Promise<LineFeature[]> {
+    return this.loadBorders(this.borderFileForLOD(lod));
   }
 
   async loadTerritories(url = '/geopolitical/world-territories.geojson'): Promise<PolygonFeature[]> {
@@ -26,15 +37,18 @@ export class NationalTerritoriesService {
     const res = await fetch(url);
     const geo = await res.json();
     const features: PolygonFeature[] = (geo.features || [])
-      .filter((f: any) => f.geometry?.type === 'Polygon')
-      .map((f: any) => ({ id: f.properties?.name || f.id || 'territory', rings: f.geometry.coordinates }));
+      .filter((f: any) => f.geometry?.type === 'Polygon' || f.geometry?.type === 'MultiPolygon')
+      .map((f: any) => ({ id: f.properties?.ADM0_A3 || f.id || 'territory', rings: (f.geometry.type === 'Polygon' ? f.geometry.coordinates : f.geometry.coordinates[0]) }));
     this.cache.set(url, features);
     return features;
   }
 
+  async loadTerritoriesLOD(lod: 0 | 1 | 2): Promise<PolygonFeature[]> {
+    return this.loadTerritories(this.territoryFileForLOD(lod));
+  }
+
   buildBorders(features: LineFeature[], cfg: GeoPoliticalConfig['nationalTerritories']): THREE.Group {
     const group = GeometryFactory.buildBorderLines(features, { color: 0xffffff, opacity: cfg.borderVisibility / 100 });
-    // Replace per-line material colors with scheme-driven colors
     group.children.forEach(child => {
       if (child instanceof THREE.Line) {
         const params = resolveBorderMaterialConfig(cfg, child.name);
@@ -45,7 +59,6 @@ export class NationalTerritoriesService {
   }
 
   buildTerritories(features: PolygonFeature[], cfg: GeoPoliticalConfig['nationalTerritories']): THREE.Group {
-    // Basic fill: use color scheme hashed by feature id
     return GeometryFactory.buildTerritoryPolygons(features, { color: 0x0044ff, opacity: cfg.territoryColors.opacity / 100 });
   }
 }
