@@ -1,0 +1,37 @@
+import React from 'react';
+import { useGeoPoliticalSettings } from '../../../../hooks/useGeoPoliticalSettings';
+
+// Tall narrow settings container for National Territories sub-mode
+// MVP: reuse existing hook; later can add advanced controls (LOD lock, hysteresis toggle, hash verify)
+
+export const NationalTerritoriesSettingsContainer: React.FC = () => {
+  const { config, updateNationalTerritories } = useGeoPoliticalSettings();
+  const nt = config.nationalTerritories;
+  return (
+    <div className="gp-settings-section">
+      <h4 className="gp-settings-title">National Territories</h4>
+      <label className="gp-settings-label">Border Visibility {nt.borderVisibility}%
+        <input type="range" min={0} max={100} value={nt.borderVisibility} onChange={e=>updateNationalTerritories({ borderVisibility: parseInt(e.target.value,10) })} />
+      </label>
+      <label className="gp-settings-label">Border Thickness {nt.borderThickness.toFixed(1)}
+        <input type="range" min={0.5} max={5} step={0.1} value={nt.borderThickness} onChange={e=>updateNationalTerritories({ borderThickness: parseFloat(e.target.value) })} />
+      </label>
+      <label className="gp-settings-label">Territory Opacity {nt.territoryColors.opacity}%
+        <input type="range" min={0} max={100} value={nt.territoryColors.opacity} onChange={e=>updateNationalTerritories({ territoryColors: { ...nt.territoryColors, opacity: parseInt(e.target.value,10) } })} />
+      </label>
+      <label className="gp-settings-label">Color Scheme
+        <select value={nt.territoryColors.colorScheme} onChange={e=>updateNationalTerritories({ territoryColors: { ...nt.territoryColors, colorScheme: e.target.value as any } })}>
+          <option value="default">Default</option>
+          <option value="political">Political</option>
+          <option value="economic">Economic</option>
+          <option value="population">Population</option>
+        </select>
+      </label>
+      <label><input type="checkbox" checked={nt.showDisputedTerritories} onChange={e=>updateNationalTerritories({ showDisputedTerritories: e.target.checked })} /> Show Disputed</label>
+      <label><input type="checkbox" checked={nt.showMaritimeBorders} onChange={e=>updateNationalTerritories({ showMaritimeBorders: e.target.checked })} /> Maritime Borders</label>
+      <label><input type="checkbox" checked={nt.highlightOnHover} onChange={e=>updateNationalTerritories({ highlightOnHover: e.target.checked })} /> Highlight Hover</label>
+    </div>
+  );
+};
+
+export default NationalTerritoriesSettingsContainer;
