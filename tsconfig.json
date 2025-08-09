@@ -6,7 +6,8 @@
   "files": [],
   "references": [
     { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
+    { "path": "./tsconfig.node.json" },
+    { "path": "./tsconfig.netrunner.json" }
   ],
   "exclude": ["jest.config.ts"]
 }

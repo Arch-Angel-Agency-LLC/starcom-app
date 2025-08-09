@@ -15,6 +15,13 @@ import { IntelReportDataPack } from './IntelReportDataPack';
  * - IntelReport: Lightweight metadata (stored on-chain in NFT)
  * - IntelReportDataPack: Heavy content (stored off-chain, encrypted)
  */
+// ===== FREEZE NOTICE =====
+// This interface (IntelReportPackage) and subordinate types are FROZEN while
+// the marketplace/fin-tech work is paused. Do not add fields without updating:
+// - docs/intelMarketExchange/PARKING_LOT.md
+// - docs/intelMarketExchange/DECENTRALIZATION_TRANSITION.md (resume plan)
+// Rationale: Deterministic signing + future on-chain anchoring depend on stable schema.
+// ==========================
 export interface IntelReportPackage {
   // Package identification
   packageId: string;

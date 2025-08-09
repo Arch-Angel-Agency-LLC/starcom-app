@@ -1,0 +1,22 @@
+[
+  {
+    "id": "listing-1754721747706-7laq2j",
+    "createdAt": "2025-08-09T06:42:27.706Z",
+    "cid": "bafy1",
+    "name": "Alpha Report",
+    "price": 5,
+    "tags": [
+      "osint"
+    ]
+  },
+  {
+    "id": "listing-1754721747706-gv11qm",
+    "createdAt": "2025-08-09T06:42:27.706Z",
+    "cid": "bafy2",
+    "name": "Bravo Dossier",
+    "price": 7,
+    "tags": [
+      "sigint"
+    ]
+  }
+]

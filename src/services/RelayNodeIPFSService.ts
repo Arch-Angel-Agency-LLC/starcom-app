@@ -282,8 +282,50 @@ export class RelayNodeIPFSService implements EventEmitter {
     data: IntelPackage | CyberTeam | CyberInvestigation | Evidence | Uint8Array,
     options: UploadOptions
   ): Promise<IPFSUploadResult> {
+    // Try serverless pin API if enabled via env
+    try {
+      if ((import.meta.env?.VITE_PIN_API || '') === 'true') {
+        // Optional runtime-configured provider
+        let providerHeader = undefined as string | undefined;
+        try {
+          const cfgMod = await import('../config/runtimeConfig');
+          const cfg = await cfgMod.loadRuntimeConfig();
+          const pref = cfg.storage?.pinProvider;
+          if (pref && pref !== 'none') providerHeader = pref;
+        } catch {
+          // ignore runtime config loading issues; header remains unset
+        }
+        const payload = data instanceof Uint8Array ? { binary: Array.from(data) } : data;
+        const response = await fetch('/api/pin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...(providerHeader ? { 'x-pin-provider': providerHeader } : {}) },
+          body: JSON.stringify({ content: payload, options: { ...options, ...(providerHeader ? { pinProvider: providerHeader } : {}) } })
+        });
+        if (response.ok) {
+          const res = await response.json();
+          if (res.cid) {
+            return {
+              hash: res.cid,
+              size: res.size || JSON.stringify(payload).length,
+              url: `https://ipfs.io/ipfs/${res.cid}`,
+              timestamp: new Date(),
+              success: true,
+              pqcEncrypted: options.encryptWithPQC !== false,
+              didVerified: false,
+              otkUsed: 'serverless-pin',
+              securityLevel: 'CLASSICAL',
+              auditTrail: [],
+              classificationLevel: (options.classification || 'CONFIDENTIAL') as 'UNCLASSIFIED' | 'CONFIDENTIAL' | 'SECRET' | 'TOP_SECRET' | 'SCI'
+            };
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('Serverless pin API unavailable, falling back to mock IPFS:', e);
+    }
     // Handle binary data - convert to a mock package for storage
     if (data instanceof Uint8Array) {
+      // Wrap binary as a minimal IntelPackage compliant with types
       const mockPackage: IntelPackage = {
         id: `binary-${Date.now()}`,
         name: 'Binary Data',
@@ -294,16 +336,16 @@ export class RelayNodeIPFSService implements EventEmitter {
         updatedAt: new Date(),
         reportIds: [],
         tags: ['binary', 'relay-node'],
-        classification: options.classification as 'UNCLASSIFIED' | 'CONFIDENTIAL' | 'SECRET' | 'TOP_SECRET' || 'CONFIDENTIAL',
         status: 'ACTIVE',
         affectedSystems: [],
         threatActors: [],
         ioCs: [],
         timeline: [],
         collaborators: [],
-        sharedWith: []
+        sharedWith: [],
+        // Store a note of binary content length in metadata via tags
       };
-      
+
       return await this.fallbackIPFS.uploadIntelPackage(
         mockPackage,
         options.creator || 'unknown',
@@ -368,7 +410,10 @@ export class RelayNodeIPFSService implements EventEmitter {
     // Convert data to blob
     let blob: Blob;
     if (data instanceof Uint8Array) {
-      blob = new Blob([data]);
+      // Normalize to a standalone ArrayBuffer (avoids SharedArrayBuffer types)
+      const ab = new ArrayBuffer(data.byteLength);
+      new Uint8Array(ab).set(data);
+      blob = new Blob([ab], { type: 'application/octet-stream' });
     } else {
       blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
     }

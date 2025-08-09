@@ -1,7 +1,12 @@
 import { Connection, PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js';
+import { loadRuntimeConfig } from '../../config/runtimeConfig';
 
-// 🚨🚨🚨 SOLANA WALLET SERVICE DEBUGGING
-console.log('🔍 SolanaWalletService.ts loaded - will monitor wallet service calls');
+type ImportMetaWithEnv = { env?: Record<string, string> };
+const metaEnv = (import.meta as unknown as ImportMetaWithEnv).env || {};
+const SOLANA_DEBUG = metaEnv.VITE_SOLANA_DEBUG === 'true';
+if (SOLANA_DEBUG) {
+  console.log('🔍 SolanaWalletService.ts loaded - debug logging enabled');
+}
 
 /**
  * SolanaWalletService - Core service for interacting with Solana wallets
@@ -87,3 +92,23 @@ export class SolanaWalletService {
 
 // Export singleton instance
 export const solanaWalletService = new SolanaWalletService();
+
+// Attempt to align RPC endpoint with runtime config (non-blocking)
+(async () => {
+  try {
+    const cfg = await loadRuntimeConfig();
+    const cluster = cfg.network?.solanaCluster || 'devnet';
+    const endpoints = cfg.network?.rpcEndpoints || [];
+    const preferred = endpoints[0] || (cluster === 'mainnet-beta'
+      ? 'https://api.mainnet-beta.solana.com'
+      : cluster === 'testnet'
+        ? 'https://api.testnet.solana.com'
+        : 'https://api.devnet.solana.com');
+    if (preferred && preferred !== solanaWalletService.getEndpoint()) {
+  if (SOLANA_DEBUG) console.log('🔧 SolanaWalletService applying runtime RPC endpoint:', preferred);
+      solanaWalletService.setEndpoint(preferred);
+    }
+  } catch (e) {
+    console.warn('SolanaWalletService: failed to apply runtime RPC endpoint, using default.', e);
+  }
+})();

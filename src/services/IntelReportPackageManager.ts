@@ -16,12 +16,17 @@ import {
   LoadPackageOptions,
   PackageValidationResult,
   StorageLocation,
-  MarketplaceMetadata
+  MarketplaceMetadata,
+  PackageSignature,
+  PackageEncryption,
+  PackageAccessControl,
+  DistributionMetadata
 } from '../types/IntelReportPackage';
 import { IntelReportDataPack } from '../types/IntelReportDataPack';
 import { DataPack } from '../types/DataPack';
 import { IntelReportData } from '../models/IntelReportData';
 import { VirtualFileSystemManager } from './VirtualFileSystemManager';
+import { cryptoService } from './crypto/CryptoService';
 
 /**
  * Main service for managing Intelligence Report Packages
@@ -51,8 +56,8 @@ export class IntelReportPackageManager {
       // 2. Create IntelReportDataPack with Obsidian vault structure
       const dataPack = await this.createIntelReportDataPack(sourceIntelReport, options);
       
-      // 3. Generate security signatures
-      const signature = await this.generatePackageSignature(metadata, dataPack);
+  // 3. (Initial) placeholder signature (will be regenerated after final storage mutations)
+  let signature = await this.generatePackageSignature(metadata, dataPack);
       
       // 4. Apply encryption if requested
       const encryption = options.encryption?.enabled 
@@ -85,12 +90,16 @@ export class IntelReportPackageManager {
         marketplace
       };
       
-      // 9. Store in local cache
+      // 9. Store in local cache (pre-upload)
       this.packages.set(intelPackage.packageId, intelPackage);
       
-      // 10. Upload to IPFS/distributed storage
+      // 10. Upload to IPFS/distributed storage (may mutate metadata e.g., dataPackLocation)
       if (options.storage.primary === 'ipfs') {
         await this.uploadToIPFS(intelPackage);
+        // Re-sign now that metadata includes final storage location
+        signature = await this.generatePackageSignature(intelPackage.metadata, dataPack);
+        intelPackage.signature = signature;
+        intelPackage.updatedAt = new Date().toISOString();
       }
       
       return intelPackage;
@@ -201,8 +210,8 @@ export class IntelReportPackageManager {
    * Get package for IntelWeb graph visualization
    */
   async getPackageForIntelWeb(packageId: string): Promise<{
-    entities: any[];
-    relationships: any[];
+    entities: unknown[];
+    relationships: unknown[];
     metadata: IntelReport;
   }> {
     const intelPackage = await this.loadPackage(packageId, {
@@ -315,7 +324,7 @@ export class IntelReportPackageManager {
   
   private async createIntelReportDataPack(
     sourceReport: IntelReportData, 
-    options: CreatePackageOptions
+    _options: CreatePackageOptions
   ): Promise<IntelReportDataPack> {
     // Create base DataPack structure
     const baseDataPack: DataPack = {
@@ -454,19 +463,34 @@ export class IntelReportPackageManager {
     return intelDataPack;
   }
   
-  private async generatePackageSignature(metadata: IntelReport, dataPack: IntelReportDataPack): Promise<any> {
-    // TODO: Implement digital signature generation
-    return {
-      algorithm: 'ed25519',
-      signature: 'placeholder-signature',
-      publicKey: 'placeholder-public-key',
-      signedAt: new Date().toISOString(),
-      signedBy: metadata.author,
-      contentHash: await this.generateHash(JSON.stringify({ metadata, dataPack }))
-    };
+  private async generatePackageSignature(metadata: IntelReport, dataPack: IntelReportDataPack): Promise<PackageSignature> {
+    try {
+      const { publicKey, privateKey } = await cryptoService.getOrCreateLocalKeyPair();
+  // We sign only a reduced subset (metadata + manifest + contentHash) to keep signature deterministic
+  // and avoid embedding large content blobs in the signed payload.
+      const signedPayload = { metadata, dataPack: { id: dataPack.id, manifest: dataPack.manifest, contentHash: dataPack.contentHash } };
+      const { signature, contentHash } = await cryptoService.signJson(signedPayload, privateKey);
+      return {
+        algorithm: 'ed25519',
+        signature,
+        publicKey,
+        signedAt: new Date().toISOString(),
+        signedBy: metadata.author,
+        contentHash
+      };
+  } catch (_e) {
+      return {
+        algorithm: 'ed25519',
+        signature: 'placeholder-signature',
+        publicKey: 'placeholder-public-key',
+        signedAt: new Date().toISOString(),
+        signedBy: metadata.author,
+        contentHash: await this.generateHash(JSON.stringify({ metadata, dataPack }))
+      };
+    }
   }
   
-  private async generateEncryptionConfig(options: any): Promise<any> {
+  private async generateEncryptionConfig(_options: unknown): Promise<PackageEncryption> {
     // TODO: Implement encryption configuration
     return {
       algorithm: 'aes-256-gcm',
@@ -480,7 +504,7 @@ export class IntelReportPackageManager {
     };
   }
   
-  private createAccessControl(options?: any): any {
+  private createAccessControl(options?: Partial<PackageAccessControl>): PackageAccessControl {
     return {
       publicRead: options?.publicRead || false,
       publicDownload: options?.publicDownload || false,
@@ -491,7 +515,7 @@ export class IntelReportPackageManager {
     };
   }
   
-  private async setupDistribution(dataPack: IntelReportDataPack, storageOptions: any): Promise<any> {
+  private async setupDistribution(_dataPack: IntelReportDataPack, storageOptions: { primary: StorageLocation['type']; pin: boolean }): Promise<DistributionMetadata> {
     const primaryLocation: StorageLocation = {
       type: storageOptions.primary,
       address: 'placeholder-address',
@@ -516,7 +540,7 @@ export class IntelReportPackageManager {
     };
   }
   
-  private async createMarketplaceMetadata(options: any): Promise<MarketplaceMetadata> {
+  private async createMarketplaceMetadata(options: { price?: number; currency?: MarketplaceMetadata['price']['currency']; royalties?: number; }): Promise<MarketplaceMetadata> {
     return {
       listed: true,
       price: {
@@ -539,34 +563,143 @@ export class IntelReportPackageManager {
   }
   
   private async validatePackage(intelPackage: IntelReportPackage, options: LoadPackageOptions): Promise<PackageValidationResult> {
-    // TODO: Implement comprehensive package validation
+    const start = performance.now();
+    const errors: { code: string; message: string; field?: string; severity: 'critical' | 'major' | 'minor'; }[] = [];
+    const warnings: { code: string; message: string; field?: string; recommendation?: string; }[] = [];
+
+    // Basic metadata checks
+  const metadataValid = Boolean(intelPackage.metadata?.title) && typeof intelPackage.metadata?.dataPackHash === 'string';
+    if (!metadataValid) {
+      errors.push({ code: 'META_INVALID', message: 'Metadata incomplete', severity: 'major' });
+    }
+
+    // Data pack presence
+    const dataPackValid = !!intelPackage.dataPack?.id;
+    if (!dataPackValid) {
+      errors.push({ code: 'DATAPACK_MISSING', message: 'Data pack missing', severity: 'critical' });
+    }
+
+    // Integrity (placeholder: compare stored hash if present)
+    let integrityValid = true;
+    if (intelPackage.dataPack?.contentHash && intelPackage.metadata?.dataPackHash && intelPackage.metadata.dataPackHash !== intelPackage.dataPack.contentHash) {
+      integrityValid = false;
+      errors.push({ code: 'HASH_MISMATCH', message: 'Data pack hash mismatch', severity: 'critical' });
+    }
+
+    // Signature verification if requested
+    let signatureValid = true;
+    if (options.verifySignature) {
+      try {
+        const payload = { metadata: intelPackage.metadata, dataPack: { id: intelPackage.dataPack.id, manifest: intelPackage.dataPack.manifest, contentHash: intelPackage.dataPack.contentHash } };
+        signatureValid = await cryptoService.verifyJson(payload, intelPackage.signature.signature, intelPackage.signature.publicKey);
+        if (!signatureValid) {
+          errors.push({ code: 'BAD_SIGNATURE', message: 'Signature verification failed', severity: 'critical' });
+        }
+      } catch (err) {
+        signatureValid = false;
+        errors.push({ code: 'SIG_ERROR', message: 'Signature verification error: ' + (err instanceof Error ? err.message : 'unknown'), severity: 'critical' });
+      }
+    }
+
+    const accessAllowed = true; // Placeholder (access control evaluation to be implemented)
+    const valid = errors.length === 0;
+    const validationTime = Math.round(performance.now() - start);
+    const securityScore = valid ? 0.95 : 0.4; // Simple heuristic placeholder
+
     return {
-      valid: true,
-      errors: [],
-      warnings: [],
-      metadataValid: true,
-      dataPackValid: true,
-      signatureValid: true,
-      integrityValid: true,
-      accessAllowed: true,
-      validationTime: 50,
-      securityScore: 0.95,
-      riskFactors: []
+      valid,
+      errors,
+      warnings,
+      metadataValid,
+      dataPackValid,
+      signatureValid,
+      integrityValid,
+      accessAllowed,
+      validationTime,
+      securityScore,
+      riskFactors: errors.map(e => e.code)
     };
   }
   
-  private async decryptPackage(intelPackage: IntelReportPackage, password: string): Promise<void> {
+  private async decryptPackage(_intelPackage: IntelReportPackage, _password: string): Promise<void> {
     // TODO: Implement package decryption
   }
   
-  private async loadFromStorage(packageId: string): Promise<IntelReportPackage | null> {
+  private async loadFromStorage(_packageId: string): Promise<IntelReportPackage | null> {
     // TODO: Implement loading from IPFS/distributed storage
     return null;
   }
   
   private async uploadToIPFS(intelPackage: IntelReportPackage): Promise<string> {
-    // TODO: Implement IPFS upload
-    return 'placeholder-ipfs-hash';
+    // Minimal MVP: pin a compact manifest to IPFS via serverless /api/pin
+    const manifest = {
+      packageId: intelPackage.packageId,
+      version: intelPackage.version,
+      metadata: {
+        title: intelPackage.metadata.title,
+        classification: intelPackage.metadata.classification,
+        dataPackHash: intelPackage.metadata.dataPackHash
+      },
+      dataPack: {
+        id: intelPackage.dataPack.id,
+        contentHash: intelPackage.dataPack.contentHash,
+        manifest: intelPackage.dataPack.manifest
+      }
+    };
+
+    const resp = await fetch('/api/pin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: manifest })
+    });
+    if (!resp.ok) {
+      const text = await resp.text();
+      throw new Error(`IPFS pin failed: ${resp.status} ${text || ''}`);
+    }
+    const result: { cid: string; size?: number } = await resp.json();
+    const cid = result.cid;
+
+    // Update distribution and metadata pointers
+    if (intelPackage.distribution && intelPackage.distribution.primaryLocation) {
+      intelPackage.distribution.primaryLocation.address = `ipfs://${cid}`;
+      intelPackage.distribution.primaryLocation.pinned = true;
+    }
+    intelPackage.metadata.dataPackLocation = cid;
+    intelPackage.updatedAt = new Date().toISOString();
+    return cid;
+  }
+
+  /**
+   * Load a compact manifest JSON previously pinned under the given CID.
+   * This does not reconstruct a full IntelReportPackage; it is a
+   * lightweight helper for round-trip verification and previews.
+   */
+  public async loadManifestFromCID(
+    cid: string,
+    gateway: string = 'https://ipfs.io/ipfs'
+  ): Promise<{
+    packageId: string;
+    version: string;
+    metadata: { title: string; classification: string; dataPackHash?: string };
+    dataPack: { id: string; contentHash: string; manifest: unknown };
+  }> {
+    const url = `${gateway.replace(/\/$/, '')}/${cid}`;
+    const resp = await fetch(url, { method: 'GET' });
+    if (!resp.ok) {
+      const text = await resp.text();
+      throw new Error(`Fetch CID failed: ${resp.status} ${text || ''}`);
+    }
+    const json = (await resp.json()) as {
+      packageId: string;
+      version: string;
+      metadata: { title: string; classification: string; dataPackHash?: string };
+      dataPack: { id: string; contentHash: string; manifest: unknown };
+    };
+    // Minimal validation
+    if (!json?.packageId || !json?.version || !json?.metadata || !json?.dataPack) {
+      throw new Error('Invalid manifest content');
+    }
+    return json;
   }
   
   private getRegionFromCoordinates(lat: number, lng: number): string {

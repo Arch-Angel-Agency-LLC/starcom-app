@@ -4,7 +4,7 @@
     "jsx": "react-jsx",
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "types": ["node", "react", "react-dom", "jest", "vitest"]
+  "types": ["node", "vite/client", "react", "react-dom", "jest", "vitest"]
   },
   "include": [
     "src/pages/NetRunner/**/*",

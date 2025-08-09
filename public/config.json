@@ -1,0 +1,18 @@
+{
+  "target": "vercel",
+  "routerMode": "browser",
+  "features": {
+    "analyticsEnabled": false,
+    "relayNodeDetection": true,
+    "serverlessPin": false,
+    "marketplaceServerlessMVP": true
+  },
+  "network": {
+    "solanaCluster": "devnet",
+    "rpcEndpoints": ["https://api.devnet.solana.com"]
+  },
+  "storage": {
+    "ipfsGateways": ["https://ipfs.io/ipfs/", "https://cloudflare-ipfs.com/ipfs/"],
+    "pinProvider": "none"
+  }
+}

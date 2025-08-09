@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { BrowserRouter } from "react-router-dom";
+import RouterProvider from "./routes/RouterProvider";
 import AppRoutes from "./routes/routes";
 import { WASMProvider, useWASM } from "./context/WASMContext";
 import { DashboardProvider } from "./context/DashboardContext";
@@ -19,6 +19,7 @@ import AnalyticsTracker from "./components/Analytics/AnalyticsTracker";
 import { googleAnalyticsService } from "./services/GoogleAnalyticsService";
 import SettingsInitializer from "./components/SettingsInitializer";
 import SettingsStatusIndicator from "./components/SettingsStatusIndicator";
+import StorageStatusBadge from "./components/Status/StorageStatusBadge";
 import PreloaderManager from "./components/Preloader/PreloaderManager";
 import WalletDiagnostic from "./components/Debug/WalletDiagnostic";
 import DebugControlPanel from "./components/Debug/DebugControlPanel";
@@ -120,14 +121,15 @@ const AppContent: React.FC = () => {
   return (
     <>
       <SettingsInitializer />
-      <BrowserRouter>
+  <RouterProvider>
         <EnhancedApplicationRouterProvider>
           <AnalyticsTracker />
           <RouteSynchronizer />
           <AppRoutes />
         </EnhancedApplicationRouterProvider>
-      </BrowserRouter>
+  </RouterProvider>
       <SettingsStatusIndicator />
+  <StorageStatusBadge />
       {/* Wallet Diagnostics - Only shown when feature flag is enabled */}
       <WalletDiagnostic />
       {/* Debug Control Panel - Toggle with Ctrl+Shift+D */}

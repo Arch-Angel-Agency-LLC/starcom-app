@@ -1,7 +1,9 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import { fetchMarketData } from '../api/market';
-import { MarketplaceContextType, MarketData } from '../interfaces/Marketplace';
+import React, { useReducer, useEffect } from 'react';
+import { ListingsService } from '../services/market/ListingsService';
+import { MarketData } from '../interfaces/Marketplace';
 import { handleError } from '../utils/errorHandler';
+import { MarketplaceContext } from './MarketplaceContextObject';
+import { fetchMarketData } from '../api/market';
 
 interface MarketplaceState {
   marketData: MarketData[];
@@ -33,19 +35,30 @@ const marketplaceReducer = (state: MarketplaceState, action: MarketplaceAction):
   }
 };
 
-const MarketplaceContext = createContext<MarketplaceContextType | undefined>(undefined);
-
 export const MarketplaceProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(marketplaceReducer, initialState);
 
   const refreshMarketData = async () => {
     dispatch({ type: 'FETCH_START' });
     try {
-      const data = await fetchMarketData();
+      const listings = await ListingsService.list();
+      const data: MarketData[] = listings.map(l => ({
+        id: l.id,
+        name: l.name,
+        price: l.price,
+        // No on-chain volume yet; set to 0 for MVP
+        volume: 0
+      }));
       dispatch({ type: 'FETCH_SUCCESS', payload: data });
     } catch (err) {
-      const errorMessage = handleError(err);
-      dispatch({ type: 'FETCH_ERROR', payload: errorMessage });
+      // Fallback to mock market endpoint if available
+      try {
+        const fallbackData = await fetchMarketData();
+        dispatch({ type: 'FETCH_SUCCESS', payload: fallbackData as MarketData[] });
+  } catch (_e) {
+        const errorMessage = handleError(err);
+        dispatch({ type: 'FETCH_ERROR', payload: errorMessage });
+      }
     }
   };
 
@@ -60,10 +73,4 @@ export const MarketplaceProvider: React.FC<{ children: React.ReactNode }> = ({ c
   );
 };
 
-export const useMarketplace = (): MarketplaceContextType => {
-  const context = useContext(MarketplaceContext);
-  if (!context) {
-    throw new Error('useMarketplace must be used within a MarketplaceProvider');
-  }
-  return context;
-};
+// Hook moved to hooks/useMarketplace.ts to satisfy Fast Refresh constraints

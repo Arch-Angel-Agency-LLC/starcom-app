@@ -1222,12 +1222,27 @@ export class IPFSContentOrchestrator {
   }
 
   /**
-   * Stubbed upload for IntelPackage to IPFS (no-op for local testing)
+   * Back-compat helper: delegate static upload call to the orchestrator instance.
+   * Accepts any serializable data; uses generic options.
    */
-  public static async uploadIntelPackage(_data: unknown): Promise<void> {
-    // stubbed, do nothing
-    return Promise.resolve();
+  public static async uploadIntelPackage(data: unknown): Promise<{ hash: string } | void> {
+    try {
+      const orchestrator = IPFSContentOrchestrator.getInstance();
+      const creator = 'unknown';
+      const teamContext = 'default';
+      const classification = 'CONFIDENTIAL' as const;
+      const { uploadResult } = await orchestrator.storeContent(
+        data as import('../types/cyberInvestigation').IntelPackage |
+          import('../types/cyberInvestigation').CyberTeam |
+          import('../types/cyberInvestigation').CyberInvestigation |
+          Uint8Array,
+        { teamContext, creator, classification }
+      );
+      return { hash: uploadResult.hash };
+    } catch (e) {
+      console.warn('Static uploadIntelPackage failed, ignoring:', e);
+    }
   }
 }
 
-export const ipfsOrchestrator = new IPFSContentOrchestrator();
+export const ipfsOrchestrator = IPFSContentOrchestrator.getInstance();

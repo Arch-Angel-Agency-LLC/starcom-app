@@ -348,8 +348,8 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
 
       const walletAddress = solanaWallet.publicKey.toString();
 
-      // Perform SIWS authentication
-      await siwsSignIn();
+  // Perform SIWS authentication
+  await siwsSignIn();
 
       // Perform advanced security checks
       const enhancedSecurity = await performAdvancedAuthSecurity(walletAddress);
@@ -382,6 +382,60 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         clearance,
         pqcEnabled: enhancedSecurity.pqcAuthEnabled
       });
+
+      // Serverless pin health pre-check (only once per session)
+      const healthKey = 'serverless_pin_ok';
+      try {
+        if ((import.meta.env?.VITE_PIN_API || '') === 'true' && localStorage.getItem(healthKey) == null) {
+          const probe = await fetch('/api/pin', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content: { type: 'health_probe', ts: Date.now() } })
+          });
+          localStorage.setItem(healthKey, probe.ok ? 'true' : 'false');
+        }
+      } catch {
+        localStorage.setItem(healthKey, 'false');
+      }
+
+      // Opportunistically pin a login receipt to IPFS when serverless pin is enabled
+      try {
+        if ((import.meta.env?.VITE_PIN_API || '') === 'true' && localStorage.getItem(healthKey) !== 'false') {
+          // Defer to runtime config for provider preference when available
+          let providerHeader: string | undefined;
+          try {
+            const cfgMod = await import('../../config/runtimeConfig');
+            const cfg = await cfgMod.loadRuntimeConfig();
+            const pref = cfg.storage?.pinProvider;
+            if (pref && pref !== 'none') providerHeader = pref;
+          } catch {/* ignore */}
+
+          const receipt = {
+            type: 'signin_receipt',
+            ts: Date.now(),
+            address: walletAddress,
+            security: {
+              pqc: enhancedSecurity.pqcAuthEnabled,
+              did: enhancedSecurity.didVerified,
+              level: enhancedSecurity.securityLevel
+            }
+          };
+          const pinResp = await fetch('/api/pin', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(providerHeader ? { 'x-pin-provider': providerHeader } : {})
+            },
+            body: JSON.stringify({ content: receipt, options: { classification: 'CONFIDENTIAL' } })
+          }).catch(() => null);
+          if (pinResp && pinResp.ok) {
+            try {
+              const data = await pinResp.json();
+              if (data?.cid) localStorage.setItem('last_login_cid', data.cid);
+            } catch {/* ignore */}
+          }
+        }
+      } catch {/* non-fatal */}
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Authentication failed';

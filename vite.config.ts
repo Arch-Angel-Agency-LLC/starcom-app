@@ -16,12 +16,17 @@ export default defineConfig(({ mode }) => {
   // Environment-specific configuration
   const isProduction = mode === 'production';
   const isDevelopment = mode === 'development';
+  const target = process.env.VITE_TARGET || '';
+  const isIPFS = target === 'ipfs';
   
   return {
+  // Use relative base for IPFS builds so assets resolve under /ipfs/<CID>/
+  base: isIPFS ? './' : '/',
   assetsInclude: ['**/*.glb', '**/*.gltf'], // Include 3D model files as assets
   define: {
     global: 'globalThis',
     'process.env': {},
+    'import.meta.env.VITE_TARGET': JSON.stringify(target),
     // Environment variables for feature flag defaults
     __STARCOM_PROD__: isProduction,
     __STARCOM_DEV__: isDevelopment,

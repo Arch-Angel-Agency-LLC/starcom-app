@@ -9,7 +9,9 @@
   "scripts": {
     "dev": "vite",
     "dev:clean": "rm -rf node_modules/.vite && VITE_ENTRY=index.html vite --force",
-    "build": "NODE_OPTIONS='--max-old-space-size=8192' vite build",
+  "build": "NODE_OPTIONS='--max-old-space-size=8192' vite build",
+  "build:ipfs": "VITE_TARGET=ipfs VITE_ROUTER_MODE=hash NODE_OPTIONS='--max-old-space-size=8192' vite build",
+  "build:vercel:pin": "VITE_PIN_API=true NODE_OPTIONS='--max-old-space-size=8192' vite build",
     "build:vercel": "NODE_OPTIONS='--max-old-space-size=8192' vite build --mode production",
     "build:strict": "NODE_OPTIONS='--max-old-space-size=8192' tsc -b && NODE_OPTIONS='--max-old-space-size=8192' vite build",
     "build:local": "NODE_OPTIONS='--max-old-space-size=8192' vite build",
