@@ -1,0 +1,11 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "TEST-BORDER-SEGMENT",
+      "properties": {"name": "Test Segment"},
+      "geometry": {"type": "LineString", "coordinates": [[0,0],[10,0],[10,10]]}
+    }
+  ]
+}

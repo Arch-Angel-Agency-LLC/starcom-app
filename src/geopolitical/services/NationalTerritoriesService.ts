@@ -10,7 +10,7 @@ export interface WorldTerritoriesData { features: Array<{ id: string; rings: [nu
 export class NationalTerritoriesService {
   private cache: Map<string, unknown> = new Map();
 
-  async loadBorders(url = '/borders.geojson'): Promise<LineFeature[]> {
+  async loadBorders(url = '/geopolitical/world-borders.geojson'): Promise<LineFeature[]> {
     if (this.cache.has(url)) return this.cache.get(url) as LineFeature[];
     const res = await fetch(url);
     const geo = await res.json();
@@ -21,7 +21,7 @@ export class NationalTerritoriesService {
     return features;
   }
 
-  async loadTerritories(url = '/territories.geojson'): Promise<PolygonFeature[]> {
+  async loadTerritories(url = '/geopolitical/world-territories.geojson'): Promise<PolygonFeature[]> {
     if (this.cache.has(url)) return this.cache.get(url) as PolygonFeature[];
     const res = await fetch(url);
     const geo = await res.json();
