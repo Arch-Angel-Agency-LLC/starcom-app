@@ -20,6 +20,12 @@ import { ThreatIntelligenceService } from '../../services/CyberThreats/ThreatInt
 import { RealTimeAttackService } from '../../services/CyberAttacks/RealTimeAttackService';
 import type { CyberThreatData } from '../../types/CyberThreats';
 import type { CyberAttackData } from '../../types/CyberAttacks';
+import { useGeoPoliticalSettings } from '../../hooks/useGeoPoliticalSettings';
+import { useNationalTerritories3D } from '../../geopolitical/hooks/useNationalTerritories3D';
+
+// TS shim for process env in browser build (debug flags) - safe no-op in prod bundlers
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+declare const process: any;
 
 // Define ModelInstance interface locally since it's used in multiple files
 interface ModelInstance {
@@ -40,8 +46,6 @@ const GlobeView: React.FC = () => {
   const { hasGlobeLoadedBefore, markGlobeAsLoaded, setGlobeInitialized } = useGlobeLoading();
   const [globeEngine, setGlobeEngine] = useState<GlobeEngine | null>(null);
   const [material, setMaterial] = useState<THREE.Material | null>(null);
-  const bordersRef = useRef<THREE.Group>(new THREE.Group()); // Initialized for NationalTerritories
-  const territoriesRef = useRef<THREE.Group>(new THREE.Group()); // Initialized for future territory fill
   
   // Intel Report 3D markers state
   const [intelReports, setIntelReports] = useState<IntelReportOverlayMarker[]>([]);
@@ -267,7 +271,7 @@ const GlobeView: React.FC = () => {
   // =============================================================================
   useEffect(() => {
     let mounted = true;
-    let dataRefreshInterval: NodeJS.Timeout | null = null;
+    let dataRefreshInterval: number | null = null;
 
     if (visualizationMode.mode === 'CyberCommand' && visualizationMode.subMode === 'CyberThreats') {
       console.log('🔒 CYBER THREATS MODE ACTIVATED - Loading real threat data');
@@ -353,7 +357,7 @@ const GlobeView: React.FC = () => {
   // =============================================================================
   useEffect(() => {
     let mounted = true;
-    let dataRefreshInterval: NodeJS.Timeout | null = null;
+    let dataRefreshInterval: number | null = null;
 
     if (visualizationMode.mode === 'CyberCommand' && visualizationMode.subMode === 'CyberAttacks') {
       console.log('⚡ CYBER ATTACKS MODE ACTIVATED - Loading real attack data');
@@ -1026,214 +1030,22 @@ const GlobeView: React.FC = () => {
     };
   }, [globeRef, cyberAttacksData, visualizationMode.mode, visualizationMode.subMode]);
 
+  // GeoPolitical settings
+  const { config: geoPoliticalConfig } = useGeoPoliticalSettings();
+  // Attach NationalTerritories layer via new hook (registry-driven)
+  const nationalTerritories = useNationalTerritories3D({
+    enabled: visualizationMode.mode === 'GeoPolitical' && visualizationMode.subMode === 'NationalTerritories',
+    scene: globeRef.current ? (globeRef.current as unknown as { scene: () => THREE.Scene }).scene() : null,
+    config: geoPoliticalConfig.nationalTerritories
+  });
+  // Optional: log loading/error states
   useEffect(() => {
-    if (!globeRef.current) return;
-    // GlobeMethods type does not expose .scene(), so we cast to the correct type
-    const globeObj = globeRef.current as unknown as { scene: () => THREE.Scene };
-    const scene = globeObj && globeObj.scene();
-    const bordersGroup = bordersRef.current;
-    const territoriesGroup = territoriesRef.current;
+    if (nationalTerritories.error) console.error('NationalTerritories error:', nationalTerritories.error);
+  }, [nationalTerritories.error]);
 
-    // Only manage geopolitical groups when in GeoPolitical primary mode
-    const geoModeActive = visualizationMode.mode === 'GeoPolitical' && visualizationMode.subMode === 'NationalTerritories';
-
-    // Helper to dispose group children
-    const disposeChildren = (group: THREE.Group) => {
-      while (group.children.length > 0) {
-        const child = group.children[0];
-        group.remove(child);
-        if (child instanceof THREE.Line || child instanceof THREE.Mesh) {
-          if ((child as any).geometry) {
-            (child as any).geometry.dispose?.();
-          }
-          const mat = (child as any).material;
-            if (mat) {
-              if (Array.isArray(mat)) mat.forEach(m => m.dispose?.()); else mat.dispose?.();
-            }
-        }
-      }
-    };
-
-    // Basic loader for prototype borders (Phase 1)
-    const loadBorderGeometry = async () => {
-      if (!bordersGroup) return;
-      // Avoid duplicate loads if already populated
-      if (bordersGroup.children.length > 0) return;
-      try {
-        console.log('🗺️ NationalTerritories: Loading /borders.geojson');
-        const res = await fetch('/borders.geojson');
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const geojson = await res.json();
-        disposeChildren(bordersGroup);
-        const radius = 100.2; // Slightly above globe surface
-        (geojson.features || []).forEach((feature: any) => {
-          if (feature?.geometry?.type === 'LineString') {
-            const coords: number[][] = feature.geometry.coordinates;
-            if (!Array.isArray(coords)) return;
-            const pts = coords.map(coord => {
-              const lng = (coord[0] || 0) * Math.PI / 180;
-              const lat = (coord[1] || 0) * Math.PI / 180;
-              return new THREE.Vector3(
-                -radius * Math.cos(lat) * Math.cos(lng),
-                radius * Math.sin(lat),
-                radius * Math.cos(lat) * Math.sin(lng)
-              );
-            });
-            if (pts.length < 2) return;
-            const geom = new THREE.BufferGeometry().setFromPoints(pts);
-            const mat = new THREE.LineBasicMaterial({ color: 0x00ff41, transparent: true, opacity: 0.85 });
-            const line = new THREE.Line(geom, mat);
-            bordersGroup.add(line);
-          }
-        });
-        console.log(`🗺️ NationalTerritories: Rendered ${bordersGroup.children.length} border line(s)`);
-      } catch (e) {
-        console.error('🗺️ NationalTerritories: Failed to load borders', e);
-      }
-    };
-
-    if (geoModeActive) {
-      if (scene && bordersGroup && !scene.children.includes(bordersGroup)) {
-        scene.add(bordersGroup);
-        console.log('🗺️ NationalTerritories: Borders group added to scene');
-        loadBorderGeometry();
-      }
-      if (scene && territoriesGroup && !scene.children.includes(territoriesGroup)) {
-        scene.add(territoriesGroup); // Empty placeholder for future territory fills
-      }
-    } else {
-      // Remove / cleanup when leaving mode
-      if (scene && bordersGroup && scene.children.includes(bordersGroup)) {
-        scene.remove(bordersGroup);
-        disposeChildren(bordersGroup);
-        console.log('🗺️ NationalTerritories: Borders group removed');
-      }
-      if (scene && territoriesGroup && scene.children.includes(territoriesGroup)) {
-        scene.remove(territoriesGroup);
-        disposeChildren(territoriesGroup);
-      }
-    }
-
-    return () => {
-      // Cleanup on unmount
-      if (scene && bordersGroup && scene.children.includes(bordersGroup)) {
-        scene.remove(bordersGroup);
-        disposeChildren(bordersGroup);
-      }
-      if (scene && territoriesGroup && scene.children.includes(territoriesGroup)) {
-        scene.remove(territoriesGroup);
-        disposeChildren(territoriesGroup);
-      }
-    };
-  }, [globeRef, visualizationMode.mode, visualizationMode.subMode]);
-
-  // Add debounce utility for resize handling
-  // AI-NOTE: Fix for stack overflow caused by recursive resize event dispatch
-  const debounceRef = useRef<NodeJS.Timeout | null>(null);
-  
-  useEffect(() => {
-    function handleResize() {
-      // Clear any existing timeout to debounce resize calls
-      if (debounceRef.current) {
-        clearTimeout(debounceRef.current);
-      }
-      
-      debounceRef.current = setTimeout(() => {
-        // Force Globe to re-render with new window dimensions
-        if (globeRef.current) {
-          // Access the internal controls to trigger a re-render without dispatching events
-          const globeInstance = globeRef.current as unknown as { controls?: { update: () => void } };
-          if (globeInstance.controls && typeof globeInstance.controls.update === 'function') {
-            globeInstance.controls.update();
-          }
-        }
-      }, 100); // Debounce resize calls by 100ms
-    }
-
-    // Handle page visibility changes
-    function handleVisibilityChange() {
-      if (!document.hidden) {
-        // Page became visible, refresh globe
-        setTimeout(() => {
-          handleResize();
-        }, 100);
-      }
-    }
-
-    window.addEventListener('resize', handleResize);
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    
-    // Initial sizing
-    setTimeout(handleResize, 50);
-    setTimeout(handleResize, 200);
-
-    return () => {
-      // Clear any pending debounced resize calls
-      if (debounceRef.current) {
-        clearTimeout(debounceRef.current);
-      }
-      window.removeEventListener('resize', handleResize);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, []);
-
-  // Space weather data visualization effect - only show when EcoNatural + SpaceWeather mode
-  useEffect(() => {
-    if (!globeEngine) return;
-    
-    // Only show space weather data when in the correct visualization mode
-    const shouldShowSpaceWeather = (
-      visualizationMode.mode === 'EcoNatural' && 
-      visualizationMode.subMode === 'SpaceWeather' &&
-      visualizationVectors.length > 0
-    );
-    
-    if (!shouldShowSpaceWeather) {
-      // Clear space weather markers when mode changed or no data
-      setGlobeData(prevData => {
-        const filtered = prevData.filter((d: { type?: string }) => d.type !== 'space-weather');
-        // Only log if we actually removed data to prevent spam
-        if (filtered.length !== prevData.length) {
-          console.log('Space weather data cleared - not in EcoNatural/SpaceWeather mode');
-        }
-        return filtered;
-      });
-      return;
-    }
-    
-    // Use pre-processed visualization vectors from context
-    const spaceWeatherMarkers = visualizationVectors.map(vector => ({
-      lat: vector.latitude,
-      lng: vector.longitude,
-      size: vector.size,
-      color: vector.color,
-      label: `E-Field: ${vector.magnitude.toFixed(2)} V/m`,
-      magnitude: vector.magnitude,
-      direction: vector.direction,
-      quality: vector.quality,
-      type: 'space-weather' // Add type for filtering and rendering
-    }));
-    
-    // Update the overlay data using the new method
-    globeEngine.updateSpaceWeatherVisualization(spaceWeatherMarkers);
-    
-    // CRITICAL: Merge space weather data into globe's point data for actual rendering
-    setGlobeData(prevData => {
-      // Remove existing space weather markers
-      const nonSpaceWeatherData = prevData.filter((d: { type?: string }) => d.type !== 'space-weather');
-      // Add new space weather markers
-      return [...nonSpaceWeatherData, ...spaceWeatherMarkers];
-    });
-    
-    console.log(`Updated space weather visualization with ${spaceWeatherMarkers.length} markers for EcoNatural/SpaceWeather mode`);
-    
-  }, [globeEngine, visualizationVectors, visualizationMode.mode, visualizationMode.subMode]);
-
-  // Handle intel report creation from context menu
+  // Reintroduced handleCreateIntelReport after integration edit
   const handleCreateIntelReport = (geoLocation: { lat: number; lng: number }) => {
     const { lat, lng } = geoLocation;
-    
-    // Create a new intel report
     const newReport: IntelReportOverlayMarker = {
       pubkey: `report-${Date.now()}`,
       title: `Intel Report - ${lat.toFixed(4)}, ${lng.toFixed(4)}`,
@@ -1244,12 +1056,8 @@ const GlobeView: React.FC = () => {
       longitude: lng,
       tags: ['user-created', 'context-menu']
     };
-    
-    // Add to existing reports
     setIntelReports(prev => [...prev, newReport]);
-    
     console.log('📝 Intel report created from context menu:', newReport);
-    alert(`Intel report created at: ${lat.toFixed(4)}, ${lng.toFixed(4)}`);
   };
 
   // =============================================================================
