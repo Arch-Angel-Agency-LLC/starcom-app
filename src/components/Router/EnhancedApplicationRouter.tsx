@@ -18,7 +18,7 @@ export type ApplicationId =
   | 'intelanalyzer'
   | 'inteldashboard'
   | 'timemap'
-  | 'nodeweb'
+  | 'intelweb' // renamed from nodeweb
   | 'teamworkspace'
   | 'marketexchange';
 
@@ -130,7 +130,7 @@ const defaultApplications: ApplicationConfig[] = [
     component: TimeMapApplication
   },
   {
-    id: 'nodeweb',
+    id: 'intelweb', // renamed from nodeweb
     name: 'IntelWeb',
     icon: '🕸️',
     description: 'Intelligence connections and relationship mapping',

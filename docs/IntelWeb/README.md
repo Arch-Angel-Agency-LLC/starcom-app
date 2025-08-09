@@ -1,5 +1,13 @@
 # IntelWeb Documentation
 
+## Recent Changes (2025-08-08)
+- Removed security classifications from IntelWeb UI and graph filtering (OSINT-focused UX)
+- Default node coloring is by type only; no clearance concepts are displayed
+- Edge Types in controls now match emitted types: reference, spatial, temporal
+- Layout persistence key is now namespaced per-vault to avoid cross-case collisions
+- Added Time Window quick filters (24h / 7d / 30d / All) in Filters tab
+- Wired edge click handler (logs predicate/provenance for now); richer panel coming next
+
 ## Overview
 
 IntelWeb is a graph-based relationship visualization tool within the Starcom application that transforms the NodeWeb application from a simple intel report viewer into an Obsidian-style knowledge graph interface. It enables analysts to explore intelligence data as an interactive network of entities, relationships, and connections.

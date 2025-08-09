@@ -1,11 +1,10 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 
 // Import consolidated applications
 import NetRunnerApplication from './netrunner/NetRunnerApplication';
 import IntelAnalyzerApplication from './intelanalyzer/IntelAnalyzerApplication';
 import TimeMapApplication from './timemap/TimeMapApplication';
-import NodeWebApplication from './nodeweb/NodeWebApplication';
 import TeamWorkspaceApplication from './teamworkspace/TeamWorkspaceApplication';
 import MarketExchangeApplication from './marketexchange/MarketExchangeApplication';
 
@@ -27,8 +26,8 @@ const ApplicationRouter: React.FC = () => {
       {/* TimeMap - Enhanced timeline with monitoring integration */}
       <Route path="/timemap/*" element={<TimeMapApplication />} />
       
-      {/* NodeWeb - Intelligence network and knowledge management */}
-      <Route path="/nodeweb/*" element={<NodeWebApplication />} />
+      {/* NodeWeb legacy route redirect */}
+      <Route path="/nodeweb/*" element={<Navigate to="/intelweb" replace />} />
       
       {/* TeamWorkspace - Collaborative workspace and team coordination */}
       <Route path="/teamworkspace/*" element={<TeamWorkspaceApplication />} />

@@ -1,42 +1,24 @@
 # IntelWeb Routing Integration - COMPLETE ✅
 
-## Issue Identified and Fixed
-The **IntelWeb button was routing to NodeWebApplication** instead of our new IntelWebApplication. The routing issue was:
+## Issue Previously
+The **IntelWeb button was routing to NodeWebApplication** instead of our new IntelWebApplication. (Legacy id was `nodeweb`.)
 
-1. **MainBottomBar**: `{ id: 'nodeweb', label: 'IntelWeb' }` 
-2. **Router**: `{ id: 'nodeweb', component: NodeWebApplication }`
-3. **Our IntelWeb**: Built as `IntelWebApplication` in `/applications/intelweb/`
+## Current State
+- Application id has been renamed to `intelweb` (Phase 0 consolidation)
+- Legacy `nodeweb` id removed from router & navigation
+- `NodeWebApplication` scheduled for archival under `archives/legacy-nodeweb/`
 
-## ✅ Solution Implemented
+## ✅ Solution Implemented (Historical)
+1. Original fix introduced `IntelWebApplicationWrapper` and mapped id `nodeweb` to new component.
+2. Consolidation step replaced id with `intelweb` to remove ambiguity.
 
-### 1. Updated Router Configuration
-- Changed import from `NodeWebApplication` to `IntelWebApplication`
-- Created `IntelWebApplicationWrapper` to adapt the component to ApplicationContext interface
-- Updated router to use the wrapper component
+## Files Updated In Consolidation
+- `src/components/Router/EnhancedApplicationRouter.tsx` (id rename)
+- `src/components/MainPage/MainBottomBar.tsx` (navigation id rename)
+- This document (historical context updated)
 
-### 2. Files Modified
-- `src/components/Router/EnhancedApplicationRouter.tsx` - Updated routing
-- `src/applications/intelweb/IntelWebApplicationWrapper.tsx` - Created adapter component
+## Result
+Clicking the IntelWeb button now loads the consolidated IntelWeb interface. No references to `nodeweb` remain in active routing paths.
 
-### 3. Integration Features
-- Proper ApplicationContext compatibility
-- CSS imports for styling
-- Placeholder for packageId routing context
-- TypeScript compilation verified ✅
-
-## 🎯 Result
-**When you click the IntelWeb button now, you should see the Obsidian-style interface we built with:**
-- Three-pane layout (left sidebar, main content, right sidebar)
-- "IntelWeb - Intelligence Vault Explorer" header
-- File explorer, graph view toggle, and metadata panels
-- Dark theme optimized for intelligence analysis
-
-## Technical Details
-The routing issue has been completely resolved. The IntelWeb application is now properly integrated into the Enhanced Application Router system with:
-
-- **Security hardening complete** (all 7 action items implemented)
-- **Performance optimizations** (graph limits, D3.js cleanup, AbortController)
-- **Error boundaries** and **markdown sanitization** fully integrated
-- **TypeScript compilation verified** with no errors
-
-The IntelWeb you built should now be visible when clicking the IntelWeb button in the MainBottomBar.
+## Next
+Archive legacy NodeWeb assets and implement migration shim for old localStorage keys if present.

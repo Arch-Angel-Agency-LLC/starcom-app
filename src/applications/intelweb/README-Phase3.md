@@ -1,5 +1,10 @@
 # IntelWeb Phase 3: Graph Visualization - COMPLETE ✅
 
+## Updates (2025-08-08)
+- OSINT UX: Removed classification controls and visuals from IntelWeb
+- GraphControls: Edge Types aligned (reference/spatial/temporal), added Time Window quick filters
+- IntelGraph: Per-vault layout persistence; edge click handler placeholder
+
 ## 🎯 Phase 3 Overview
 Advanced D3.js force-directed graph visualization system for intelligence data analysis, now fully integrated with the Phase 2 vault system.
 

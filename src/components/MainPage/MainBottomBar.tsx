@@ -67,7 +67,7 @@ const MainBottomBar: React.FC = () => {
       category: 'intel'
     },
     { 
-      id: 'nodeweb', 
+      id: 'intelweb', // renamed from nodeweb
       label: 'IntelWeb', 
       icon: '🕸️',
       tooltip: 'Intelligence connections and relationship mapping',

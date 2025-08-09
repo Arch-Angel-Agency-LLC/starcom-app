@@ -19,23 +19,26 @@ import './components/ErrorBoundary/GraphErrorBoundary.css';
 interface IntelWebApplicationProps {
   packageId?: string;
   initialPackage?: IntelReportPackage;
+  // New: allow direct injection of a prepared VirtualFileSystem
+  initialVault?: VirtualFileSystem;
 }
 
 interface IntelWebState {
   currentPackage: IntelReportPackage | null;
   vault: VirtualFileSystem | null;
   selectedFile: VirtualFile | null;
-  rightSidebarTab: 'graph' | 'file' | 'metadata';
+  rightSidebarTab: 'graph' | 'file' | 'metadata' | 'node' | 'edge';
   loading: boolean;
   error: string | null;
 }
 
 export const IntelWebApplication: React.FC<IntelWebApplicationProps> = ({
-  initialPackage
+  initialPackage,
+  initialVault
 }) => {
   const [state, setState] = useState<IntelWebState>({
     currentPackage: null,
-    vault: null,
+    vault: initialVault || null,
     selectedFile: null,
     rightSidebarTab: 'graph',
     loading: false, // Start with loading false, only set to true when actually loading a package
@@ -54,6 +57,13 @@ export const IntelWebApplication: React.FC<IntelWebApplicationProps> = ({
       }
     };
   }, []);
+
+  // If an initialVault arrives later, set it
+  useEffect(() => {
+    if (initialVault) {
+      setState(prev => ({ ...prev, vault: initialVault, loading: false, error: null }));
+    }
+  }, [initialVault]);
 
   const loadPackage = useCallback(async (pkg: IntelReportPackage) => {
     // Abort any previous operation
@@ -106,7 +116,7 @@ export const IntelWebApplication: React.FC<IntelWebApplicationProps> = ({
     if (initialPackage) {
       loadPackage(initialPackage);
     } else {
-      // No initial package provided, go directly to empty state
+      // No initial package provided, ensure not loading
       setState(prev => ({ ...prev, loading: false }));
     }
   }, [initialPackage, loadPackage]);
@@ -129,7 +139,6 @@ export const IntelWebApplication: React.FC<IntelWebApplicationProps> = ({
           createdAt: new Date().toISOString(),
           modifiedAt: new Date().toISOString(),
           content: `---
-classification: SECRET
 confidence: 0.85
 sources: 
   - HUMINT-2024-0157
@@ -158,7 +167,6 @@ Classification: **SECRET** - restricted distribution.
 ## Geolocation
 Coordinates: \`40.7128, -74.0060\` (Manhattan)`,
           frontmatter: {
-            classification: 'SECRET',
             confidence: 0.85,
             sources: ['HUMINT-2024-0157', 'OSINT-Social-Media'],
             coordinates: [40.7128, -74.0060],
@@ -178,7 +186,6 @@ Coordinates: \`40.7128, -74.0060\` (Manhattan)`,
           createdAt: new Date().toISOString(),
           modifiedAt: new Date().toISOString(),
           content: `---
-classification: CONFIDENTIAL
 confidence: 0.75
 type: organization
 tags: [entities, corporations, surveillance]
@@ -196,7 +203,6 @@ Multi-national corporation with suspicious financial patterns.
 ## Related Operations
 - [[Operation Nightfall]] - Primary surveillance target`,
           frontmatter: {
-            classification: 'CONFIDENTIAL',
             confidence: 0.75,
             type: 'organization',
             tags: ['entities', 'corporations', 'surveillance']
@@ -214,7 +220,6 @@ Multi-national corporation with suspicious financial patterns.
           createdAt: new Date().toISOString(),
           modifiedAt: new Date().toISOString(),
           content: `---
-classification: SECRET
 confidence: 0.90
 tags: [analysis, threat-assessment, intelligence]
 ---
@@ -234,7 +239,6 @@ Current threat level: **ELEVATED**
 - Increased cybersecurity monitoring
 - Supply chain audits`,
           frontmatter: {
-            classification: 'SECRET',
             confidence: 0.90,
             tags: ['analysis', 'threat-assessment', 'intelligence']
           },
@@ -301,6 +305,29 @@ Current threat level: **ELEVATED**
       }));
     }
   }, []);
+
+  // Persist right sidebar active tab (namespaced once vault loaded)
+  useEffect(() => {
+    if (!state.vault) return;
+    try {
+      const ids = Array.from(state.vault.fileIndex.keys()).sort().join('|');
+      let hash = 0; for (let i = 0; i < ids.length; i++) { hash = ((hash << 5) - hash) + ids.charCodeAt(i); hash |= 0; }
+      const key = `intelweb:v1:${hash}:ui:activeTab`;
+      const saved = localStorage.getItem(key) as IntelWebState['rightSidebarTab'] | null;
+      if (saved && ['graph','file','metadata','node','edge'].includes(saved)) {
+        setState(prev => ({ ...prev, rightSidebarTab: saved }));
+      }
+    } catch {}
+  }, [state.vault]);
+  useEffect(() => {
+    if (!state.vault) return;
+    try {
+      const ids = Array.from(state.vault.fileIndex.keys()).sort().join('|');
+      let hash = 0; for (let i = 0; i < ids.length; i++) { hash = ((hash << 5) - hash) + ids.charCodeAt(i); hash |= 0; }
+      const key = `intelweb:v1:${hash}:ui:activeTab`;
+      localStorage.setItem(key, state.rightSidebarTab);
+    } catch {}
+  }, [state.rightSidebarTab, state.vault]);
 
   if (state.loading) {
     return (
