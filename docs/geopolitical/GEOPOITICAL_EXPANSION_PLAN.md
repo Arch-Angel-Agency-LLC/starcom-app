@@ -19,7 +19,7 @@
 |------|--------|-------|
 | Mode Switching | ✅ | Submodes: NationalTerritories, DiplomaticEvents, ResourceZones enumerated |
 | Settings Hook | ✅ | `useGeoPoliticalSettings` complete with persistence |
-| NationalTerritories Visual | ⚠️ | Prototype borders only; sample geojson; no settings link |
+| NationalTerritories Visual | ⚠️ | Borders via new service/hook; sample geojson; fills pending |
 | DiplomaticEvents Visual | ❌ | Only config shell |
 | ResourceZones Visual | ❌ | Only config shell |
 | Borders Dataset | ⚠️ | Sample `/borders.geojson` (1 feature) |
@@ -27,7 +27,7 @@
 | GlobeEngine Overlays | 💤 | Fetches borders/territories but unused for rendering |
 | Disposal / Registry | ✅ | Projection, disposal utils, LayerRegistry implemented (commit 993aee8) |
 | Projection Utility | ✅ | `latLonToVector3` added |
-| Geometry Utilities | 🚧 | GeometryFactory pending |
+| Geometry Utilities | ✅ | GeometryFactory (lines + basic polygons) implemented |
 | Dataset Versioning | ❌ | No manifest/checksum |
 | Label System | ❌ | Not implemented |
 | Tests | ❌ | No geopolitics-specific tests |
@@ -50,14 +50,14 @@ Legend: ✅ Complete, ⚠️ Partial / Weak, ❌ Missing, 💤 Legacy / Unintegr
 | ProjectionUtil | lat/lon → Vector3 | `latLonToVector3.ts` | ✅ |
 | GreatCircleUtil | Arc segmentation + cache | `greatCircle.ts` | Pending |
 | PolygonSimplifier | DP simplification + LOD tolerance | `polygonSimplifier.ts` | Pending |
-| GeometryFactory | Create merged line & polygon meshes | `geometryFactory.ts` | Pending |
+| GeometryFactory | Create merged line & polygon meshes | `geometryFactory.ts` | ✅ |
 | LayerRegistry | Register/enable/order/cleanup groups | `LayerRegistry.ts` | ✅ |
-| MaterialTheme | Resolve border/fill materials from settings | `materialTheme.ts` | Pending |
+| MaterialTheme | Resolve border/fill materials from settings | `materialTheme.ts` | ✅ (borders) |
 | DatasetManifest | Validate dataset metadata & checksum | `/public/geopolitical/manifest.json` | Pending |
 | LabelManager (skeleton) | Future label overlay | `LabelManager.ts` | Pending |
 | DisposalHelper | Dispose group children uniformly | `disposal.ts` | ✅ |
 
-Execution Order (updated): GeometryFactory → MaterialTheme → NationalTerritories hook refactor → Dataset manifest.
+Execution Order (updated): GeometryFactory → MaterialTheme → NationalTerritories hook refactor (done) → Dataset manifest.
 
 ---
 ## 5. Submode Expansion Roadmap
@@ -171,11 +171,11 @@ Day 9: Documentation, final QA, perf baselines
 - [x] ProjectionUtil
 - [x] DisposalHelper
 - [x] LayerRegistry
-- [ ] GeometryFactory (lines, polygons basic)
-- [ ] MaterialTheme (borders/fills)
-- [ ] NationalTerritories Hook + Service refactor
+- [x] GeometryFactory (lines, polygons basic)
+- [x] MaterialTheme (borders/fills basic)
+- [x] NationalTerritories Hook + Service refactor (borders only)
 - [ ] Natural Earth borders dataset added
-- [ ] Settings integration (opacity/thickness)
+- [ ] Settings integration (opacity/thickness full incl. dynamic thickness solution)
 - [ ] Territory fills + LOD
 - [ ] DiplomaticEvents Hook + Service
 - [ ] Instanced markers + temporal filter
@@ -208,7 +208,7 @@ All prerequisites satisfied for Infra-0 start. Proceed with utility extraction a
 
 ---
 ## 16. Progress Notes
-Infra-0 partial: Projection + disposal + registry landed (commit 993aee8). Proceeding with GeometryFactory implementation next.
+Infra-0 partial: Projection + disposal + registry landed (commit 993aee8). GeometryFactory, MaterialTheme, Service + Hook integrated (commit c4e59e9 & 031d642). Next: dataset upgrade & territory fills.
 
 ---
 *End of Plan*
