@@ -1,5 +1,21 @@
 # Decentralization Transition Plan
 
+> Resume Snapshot (Tag: `marketplace-mvp-freeze`)
+> If you're picking this up after the pivot, start here:
+> 1. Read this section, then delete it once work resumes.
+> 2. Current state: Serverless endpoints (`/api/listings`, `/api/purchases`, `/api/pin`) are TRANSITIONAL ONLY and gated by `features.marketplaceServerlessMVP`.
+> 3. Cryptographic package signing & manifest re-sign after IPFS upload is implemented (`IntelReportPackageManager`).
+> 4. Actionable Next Tasks (when resuming decentralization):
+>    - Implement on-chain Listing Anchor program: store { seller, price, manifestHash }.
+>    - Client: generate + pin listing manifest (already partially supported) and display anchor vs unanchored state.
+>    - Replace `/api/purchases` with trustless payment detection + local key sealing.
+>    - Add chain scan -> listings projection (optional indexer) & remove `/api/listings`.
+>    - Remove `/api/pin` once client pin reliability confirmed + gateway redundancy added.
+> 5. Guardrails: Do NOT enable `marketplaceServerlessMVP` in production; add CI policy if not yet in place.
+> 6. Security Focus On Resume: anchor integrity, anti-replay for purchases, deterministic manifest hashing.
+> 7. Cleanup On Completion: Delete transitional endpoints + this resume block.
+
+
 This document outlines how the Intelligence Market Exchange migrates from transitional serverless endpoints to a fully dApp-oriented architecture relying on on-chain state + content addressed storage.
 
 ## Current Transitional Endpoints
