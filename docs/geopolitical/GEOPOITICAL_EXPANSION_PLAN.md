@@ -3,7 +3,7 @@
 **Project:** Starcom App  
 **Date:** August 9, 2025  
 **Author:** AI Planning Module  
-**Status:** Approved for Implementation  
+**Status:** Approved for Implementation (Progress: Infra-0 partial complete)  
 **Scope:** Elevate GeoPolitical primary mode from single prototype layer to multi-layer strategic analysis system with scalable infrastructure.
 
 ---
@@ -11,7 +11,7 @@
 - Provide actionable geopolitical context (sovereignty, events, resources) inside the 3D globe.
 - Reuse performance-optimized patterns from CyberCommand domain.
 - Establish reusable infrastructure (layers, geometry, datasets, time context) before feature sprawl.
-- Guarantee low overhead: \<= 8ms CPU prep, minimal draw call inflation.
+- Guarantee low overhead: <= 8ms CPU prep, minimal draw call inflation.
 
 ---
 ## 2. Current Baseline (Audit)
@@ -25,9 +25,9 @@
 | Borders Dataset | ⚠️ | Sample `/borders.geojson` (1 feature) |
 | Territories Dataset | ⚠️ | Sample placeholder |
 | GlobeEngine Overlays | 💤 | Fetches borders/territories but unused for rendering |
-| Disposal / Registry | ❌ | No unified layer registry; manual add/remove |
-| Projection Utility | 🚧 | Inline math duplicated potential |
-| Geometry Utilities | ❌ | No factory; ad-hoc creation |
+| Disposal / Registry | ✅ | Projection, disposal utils, LayerRegistry implemented (commit 993aee8) |
+| Projection Utility | ✅ | `latLonToVector3` added |
+| Geometry Utilities | 🚧 | GeometryFactory pending |
 | Dataset Versioning | ❌ | No manifest/checksum |
 | Label System | ❌ | Not implemented |
 | Tests | ❌ | No geopolitics-specific tests |
@@ -45,19 +45,19 @@ Legend: ✅ Complete, ⚠️ Partial / Weak, ❌ Missing, 💤 Legacy / Unintegr
 
 ---
 ## 4. Foundational Infrastructure (Phase Infra-0)
-| Component | Purpose | Deliverable |
-|-----------|---------|-------------|
-| ProjectionUtil | lat/lon → Vector3 | `latLonToVector3.ts` |
-| GreatCircleUtil | Arc segmentation + cache | `greatCircle.ts` |
-| PolygonSimplifier | DP simplification + LOD tolerance | `polygonSimplifier.ts` |
-| GeometryFactory | Create merged line & polygon meshes | `geometryFactory.ts` |
-| LayerRegistry | Register/enable/order/cleanup groups | `LayerRegistry.ts` |
-| MaterialTheme | Resolve border/fill materials from settings | `materialTheme.ts` |
-| DatasetManifest | Validate dataset metadata & checksum | `/public/geopolitical/manifest.json` |
-| LabelManager (skeleton) | Optional future label overlay | `LabelManager.ts` |
-| DisposalHelper | Dispose group children uniformly | `disposal.ts` |
+| Component | Purpose | Deliverable | Status |
+|-----------|---------|-------------|--------|
+| ProjectionUtil | lat/lon → Vector3 | `latLonToVector3.ts` | ✅ |
+| GreatCircleUtil | Arc segmentation + cache | `greatCircle.ts` | Pending |
+| PolygonSimplifier | DP simplification + LOD tolerance | `polygonSimplifier.ts` | Pending |
+| GeometryFactory | Create merged line & polygon meshes | `geometryFactory.ts` | Pending |
+| LayerRegistry | Register/enable/order/cleanup groups | `LayerRegistry.ts` | ✅ |
+| MaterialTheme | Resolve border/fill materials from settings | `materialTheme.ts` | Pending |
+| DatasetManifest | Validate dataset metadata & checksum | `/public/geopolitical/manifest.json` | Pending |
+| LabelManager (skeleton) | Future label overlay | `LabelManager.ts` | Pending |
+| DisposalHelper | Dispose group children uniformly | `disposal.ts` | ✅ |
 
-Execution Order: Projection → Disposal → LayerRegistry → GeometryFactory → MaterialTheme → Hook refactor.
+Execution Order (updated): GeometryFactory → MaterialTheme → NationalTerritories hook refactor → Dataset manifest.
 
 ---
 ## 5. Submode Expansion Roadmap
@@ -156,21 +156,21 @@ Budget Targets:
 
 ---
 ## 11. Implementation Timeline (Working Days)
-Day 1: Projection + Disposal + LayerRegistry skeleton, refactor NationalTerritories registration
-Day 2: Natural Earth integration + GeometryFactory lines + settings hookup
-Day 3: Territory fills, LOD simplification, performance tuning
-Day 4: DiplomaticEvents service + instanced markers + temporal filter
-Day 5: DiplomaticEvents connection arcs + polishing + tests
-Day 6: ResourceZones dataset integration + zone polygons + opacity controls
-Day 7: Trade routes arcs + conflict highlight + tests
-Day 8: Optimization pass + alliance optional stub + manifest hash validation
+Day 1: Projection + Disposal + LayerRegistry skeleton, refactor NationalTerritories registration  
+Day 2: Natural Earth integration + GeometryFactory lines + settings hookup  
+Day 3: Territory fills, LOD simplification, performance tuning  
+Day 4: DiplomaticEvents service + instanced markers + temporal filter  
+Day 5: DiplomaticEvents connection arcs + polishing + tests  
+Day 6: ResourceZones dataset integration + zone polygons + opacity controls  
+Day 7: Trade routes arcs + conflict highlight + tests  
+Day 8: Optimization pass + alliance optional stub + manifest hash validation  
 Day 9: Documentation, final QA, perf baselines
 
 ---
 ## 12. Deliverables Checklist
-- [ ] ProjectionUtil
-- [ ] DisposalHelper
-- [ ] LayerRegistry
+- [x] ProjectionUtil
+- [x] DisposalHelper
+- [x] LayerRegistry
 - [ ] GeometryFactory (lines, polygons basic)
 - [ ] MaterialTheme (borders/fills)
 - [ ] NationalTerritories Hook + Service refactor
@@ -205,6 +205,10 @@ Day 9: Documentation, final QA, perf baselines
 ---
 ## 15. Go / No-Go
 All prerequisites satisfied for Infra-0 start. Proceed with utility extraction and NationalTerritories refactor.
+
+---
+## 16. Progress Notes
+Infra-0 partial: Projection + disposal + registry landed (commit 993aee8). Proceeding with GeometryFactory implementation next.
 
 ---
 *End of Plan*
