@@ -10,6 +10,7 @@
  */
 
 import { Intel } from '../../../models/Intel/Intel';
+import { Intelligence } from '../../../models/Intel/Intelligence';
 import { storageOrchestrator } from '../../../core/intel/storage/storageOrchestrator';
 import { ScanResult, Technology } from './WebsiteScanner';
 import { WebsiteScannerService } from './WebsiteScanner';
@@ -20,6 +21,9 @@ import {
   URLValidationError,
   ContentRetrievalError
 } from '../../../core/intel/errors/NetRunnerErrorTypes';
+
+// Feature flag imports
+import { isNetRunnerIntelEnabled, logIntelFlagContext } from '../../../config/netrunnerIntelFeatureFlag';
 
 /**
  * Enhanced scan result that includes Intel objects
@@ -96,7 +100,7 @@ export class EnhancedWebsiteScanner {
         return {
           ...originalResult,
           intelObjects: [],
-          intelligenceObjects: [],
+          processedIntelObjects: [],
           bridgeMetadata: {
             totalIntelGenerated: 0,
             processingDuration: 0,
@@ -106,25 +110,33 @@ export class EnhancedWebsiteScanner {
         };
       }
       
-      // Step 2: Generate Intel objects from OSINT data
-      onProgress?.(80, 'Generating Intel objects...');
-      const intelObjects = this.generateIntelObjects(originalResult);
+      // Step 2: Generate Intel objects from OSINT data (guarded by feature flag)
+      if (isNetRunnerIntelEnabled()) {
+        onProgress?.(80, 'Generating Intel objects (flag enabled)...');
+        logIntelFlagContext('EnhancedWebsiteScanner.scan: generating Intel objects');
+      } else {
+        onProgress?.(80, 'Intel generation skipped (feature disabled)...');
+      }
+      const intelObjects = isNetRunnerIntelEnabled() ? this.generateIntelObjects(originalResult) : [];
       
-      // Step 3: Process Intel into Intelligence
-      onProgress?.(90, 'Processing Intelligence analysis...');
-      const intelligenceObjects = this.generateIntelligenceObjects(intelObjects);
+      // Step 3: Process Intel for additional analysis (only if generation occurred)
+      if (isNetRunnerIntelEnabled()) {
+        onProgress?.(90, 'Processing Intel analysis...');
+      }
+      const processedIntelObjects = isNetRunnerIntelEnabled() ? this.processIntelObjects(intelObjects) : [];
       
-      // Step 4: Store if requested
-      if (storeIntel) {
+      // Step 4: Store if requested (and feature enabled)
+      if (storeIntel && isNetRunnerIntelEnabled()) {
         onProgress?.(95, 'Storing Intel data...');
-        await this.storeIntelData(intelObjects, intelligenceObjects);
+        logIntelFlagContext('EnhancedWebsiteScanner.scan: storing Intel objects');
+        await this.storeIntelData(intelObjects, processedIntelObjects);
       }
       
       // Step 5: Calculate bridge metadata
       const processingDuration = performance.now() - startTime;
       const bridgeMetadata = this.calculateBridgeMetadata(
         intelObjects, 
-        intelligenceObjects, 
+        processedIntelObjects, 
         processingDuration
       );
       
@@ -135,8 +147,8 @@ export class EnhancedWebsiteScanner {
         intelObjects: intelObjects.filter(intel => 
           this.calculateConfidenceScore(intel) >= confidenceThreshold
         ),
-        intelligenceObjects: intelligenceObjects.filter(intelligence => 
-          intelligence.confidence >= confidenceThreshold
+        processedIntelObjects: processedIntelObjects.filter(intel => 
+          this.calculateConfidenceScore(intel) >= confidenceThreshold
         ),
         bridgeMetadata
       };
@@ -160,13 +172,17 @@ export class EnhancedWebsiteScanner {
       const intel: Intel = {
         id: `intel-email-${baseTimestamp}-${index}`,
         source: 'OSINT',
-        classification: 'UNCLASS',
         reliability: this.assessEmailReliability(email),
         timestamp: baseTimestamp,
         collectedBy,
         data: email,
         tags: ['email', 'contact', 'osint', 'netrunner'],
         verified: false,
+        qualityAssessment: {
+          sourceQuality: 'unverified',
+          visibility: 'public',
+          sensitivity: 'open'
+        },
         bridgeMetadata: {
           transformationId: `netrunner-email-${baseTimestamp}-${index}`,
           transformedAt: baseTimestamp,
@@ -184,13 +200,17 @@ export class EnhancedWebsiteScanner {
       const intel: Intel = {
         id: `intel-social-${baseTimestamp}-${index}`,
         source: 'OSINT',
-        classification: 'UNCLASS', 
         reliability: this.assessSocialReliability(),
         timestamp: baseTimestamp,
         collectedBy,
         data: social,
         tags: ['social-media', 'person', 'osint', 'netrunner', this.getSocialPlatform(social)],
         verified: false,
+        qualityAssessment: {
+          sourceQuality: 'unverified',
+          visibility: 'public',
+          sensitivity: 'open'
+        },
         bridgeMetadata: {
           transformationId: `netrunner-social-${baseTimestamp}-${index}`,
           transformedAt: baseTimestamp,
@@ -208,13 +228,17 @@ export class EnhancedWebsiteScanner {
       const intel: Intel = {
         id: `intel-tech-${baseTimestamp}-${index}`,
         source: 'OSINT',
-        classification: 'UNCLASS',
         reliability: this.assessTechReliability(tech),
         timestamp: baseTimestamp,
         collectedBy,
         data: `${tech.name}${tech.version ? ` v${tech.version}` : ''}`,
         tags: ['technology', 'infrastructure', 'osint', 'netrunner', tech.category],
         verified: tech.confidence > 80,
+        qualityAssessment: {
+          sourceQuality: 'unverified',
+          visibility: 'public',
+          sensitivity: 'open'
+        },
         bridgeMetadata: {
           transformationId: `netrunner-tech-${baseTimestamp}-${index}`,
           transformedAt: baseTimestamp,
@@ -232,13 +256,17 @@ export class EnhancedWebsiteScanner {
       const intel: Intel = {
         id: `intel-subdomain-${baseTimestamp}-${index}`,
         source: 'OSINT',
-        classification: 'UNCLASS',
         reliability: 'B', // Subdomains are generally reliable
         timestamp: baseTimestamp,
         collectedBy,
         data: subdomain,
         tags: ['subdomain', 'infrastructure', 'domain', 'osint', 'netrunner'],
         verified: false,
+        qualityAssessment: {
+          sourceQuality: 'unverified',
+          visibility: 'public',
+          sensitivity: 'open'
+        },
         bridgeMetadata: {
           transformationId: `netrunner-subdomain-${baseTimestamp}-${index}`,
           transformedAt: baseTimestamp,
@@ -256,13 +284,17 @@ export class EnhancedWebsiteScanner {
       const intel: Intel = {
         id: `intel-server-${baseTimestamp}-${index}`,
         source: 'OSINT',
-        classification: 'UNCLASS',
         reliability: 'A', // Server info is highly reliable
         timestamp: baseTimestamp,
         collectedBy,
         data: serverInfo,
         tags: ['server', 'infrastructure', 'headers', 'osint', 'netrunner'],
         verified: true, // Server headers are verified data
+        qualityAssessment: {
+          sourceQuality: 'verified',
+          visibility: 'public',
+          sensitivity: 'open'
+        },
         bridgeMetadata: {
           transformationId: `netrunner-server-${baseTimestamp}-${index}`,
           transformedAt: baseTimestamp,
@@ -279,46 +311,46 @@ export class EnhancedWebsiteScanner {
   }
   
   /**
-   * Generate Intelligence objects from Intel with analysis
+   * Process Intel objects for additional analysis and enhancement
    */
-  private generateIntelligenceObjects(intelObjects: Intel[]): Intelligence[] {
+  private processIntelObjects(intelObjects: Intel[]): Intel[] {
     return intelObjects.map(intel => {
-      const intelligence: Intelligence = {
+      const processedIntel: Intel = {
         ...intel,
-        id: `intelligence-${intel.id}`,
-        derivedFrom: {
-          rawData: [intel.id],
-          observations: []
-        },
-        confidence: this.calculateConfidenceScore(intel),
-        implications: this.generateImplications(intel),
-        recommendations: this.generateRecommendations(intel)
+        id: `processed-${intel.id}`,
+        verified: true,
+        bridgeMetadata: {
+          ...intel.bridgeMetadata,
+          processingStage: 'processed',
+          transformedAt: Date.now(),
+          transformedBy: 'enhanced-website-scanner',
+          qualityScore: this.calculateConfidenceScore(intel),
+          enhancedFields: ['verified', 'bridgeMetadata']
+        }
       };
       
-      return intelligence;
+      return processedIntel;
     });
   }
   
   /**
    * Store Intel data using enhanced storage system
    */
-  private async storeIntelData(intelObjects: Intel[], intelligenceObjects: Intelligence[]): Promise<void> {
+  private async storeIntelData(intelObjects: Intel[], processedIntelObjects: Intel[]): Promise<void> {
     try {
-      // Store Intel objects
+      // Store raw Intel objects
       const intelResult = await storageOrchestrator.batchStoreIntel(intelObjects);
       if (!intelResult.success) {
         console.error('Failed to store Intel objects:', intelResult.error);
       }
       
-      // Store Intelligence objects
-      for (const intelligence of intelligenceObjects) {
-        const result = await storageOrchestrator.storeIntelligence(intelligence);
-        if (!result.success) {
-          console.error('Failed to store Intelligence object:', result.error);
-        }
+      // Store processed Intel objects
+      const processedResult = await storageOrchestrator.batchStoreIntel(processedIntelObjects);
+      if (!processedResult.success) {
+        console.error('Failed to store processed Intel objects:', processedResult.error);
       }
       
-      console.log(`✅ Stored ${intelObjects.length} Intel and ${intelligenceObjects.length} Intelligence objects`);
+      console.log(`✅ Stored ${intelObjects.length} raw Intel and ${processedIntelObjects.length} processed Intel objects`);
     } catch (error) {
       console.error('Error storing Intel data:', error);
     }
@@ -481,7 +513,7 @@ export class EnhancedWebsiteScanner {
   
   private calculateBridgeMetadata(
     intelObjects: Intel[], 
-    intelligenceObjects: Intelligence[], 
+    processedIntelObjects: Intel[], 
     processingDuration: number
   ) {
     const reliabilityDistribution: Record<string, number> = {};
@@ -495,7 +527,7 @@ export class EnhancedWebsiteScanner {
     ) / intelObjects.length;
     
     return {
-      totalIntelGenerated: intelObjects.length,
+      totalIntelGenerated: intelObjects.length + processedIntelObjects.length,
       processingDuration,
       qualityScore: Math.round(avgQuality),
       reliabilityDistribution

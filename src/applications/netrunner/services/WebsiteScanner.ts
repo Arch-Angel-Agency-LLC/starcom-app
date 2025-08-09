@@ -8,6 +8,11 @@
  * @date July 12, 2025
  */
 
+// Intel integration imports
+import { storageOrchestrator } from '../../../core/intel/storage/storageOrchestrator';
+import { Intel } from '../../../models/Intel/Intel';
+import { isNetRunnerIntelEnabled, logIntelFlagContext } from '../../../config/netrunnerIntelFeatureFlag';
+
 export interface ScanResult {
   url: string;
   title: string;
@@ -91,7 +96,8 @@ export class WebsiteScannerService {
    */
   async scanWebsite(
     url: string, 
-    onProgress?: (progress: number, status: string) => void
+    onProgress?: (progress: number, status: string) => void,
+    options: { storeIntel?: boolean } = {}
   ): Promise<ScanResult> {
     const startTime = Date.now();
     const normalizedUrl = this.normalizeUrl(url);
@@ -151,7 +157,30 @@ export class WebsiteScannerService {
       onProgress?.(80, 'Identifying technologies...');
       result.osintData.technologies = this.detectTechnologies(html, doc);
 
-      // Step 6: Finalize
+      // Step 6: Store Intel data if requested (guarded by feature flag so merge is safe when disabled)
+      const { storeIntel = true } = options;
+      if (storeIntel && isNetRunnerIntelEnabled()) {
+        try {
+          onProgress?.(90, 'Storing Intel data...');
+          logIntelFlagContext('WebsiteScannerService.scanWebsite: transforming + storing Intel objects');
+          const intelObjects = this.transformToIntel(result);
+          if (intelObjects.length > 0) {
+            const storageResult = await storageOrchestrator.batchStoreIntel(intelObjects);
+            if (storageResult.success) {
+              console.log(`✅ Stored ${intelObjects.length} Intel objects from scan`);
+            } else {
+              console.error('❌ Failed to store Intel objects:', storageResult.error);
+            }
+          }
+        } catch (storageError) {
+          console.error('❌ Error during Intel storage (feature flag path):', storageError);
+          // Continue scan; feature is experimental.
+        }
+      } else {
+        // Intel path disabled: skip transformation/storage entirely for performance & safety
+      }
+
+      // Step 7: Finalize
       onProgress?.(100, 'Scan completed');
       result.status = 'completed';
       result.progress = 100;
@@ -559,6 +588,203 @@ export class WebsiteScannerService {
     }
 
     return technologies;
+  }
+
+  /**
+   * Transform scan result to Intel objects for storage integration
+   */
+  private transformToIntel(scanResult: ScanResult): Intel[] {
+    const intelObjects: Intel[] = [];
+    const baseTimestamp = Date.now();
+    const collectedBy = 'netrunner-websitescanner';
+    
+    try {
+      // Generate Intel from emails
+      scanResult.osintData.emails.forEach((email, index) => {
+        const intel: Intel = {
+          id: `intel-email-${baseTimestamp}-${index}`,
+          source: 'OSINT',
+          qualityAssessment: {
+            sourceQuality: 'unverified',
+            visibility: 'public',
+            sensitivity: 'open'
+          },
+          reliability: this.assessEmailReliability(email),
+          timestamp: baseTimestamp,
+          collectedBy,
+          location: scanResult.url,
+          data: {
+            email,
+            source_url: scanResult.url,
+            scan_timestamp: scanResult.timestamp,
+            extraction_method: 'html_parsing'
+          },
+          tags: ['email', 'contact', 'osint', 'netrunner', 'website-scan'],
+          verified: false,
+          bridgeMetadata: {
+            transformationId: `netrunner-email-${baseTimestamp}-${index}`,
+            transformedAt: baseTimestamp,
+            transformationVersion: '1.0.0',
+            preservedFields: ['data', 'source', 'timestamp'],
+            enhancedFields: ['reliability', 'tags', 'qualityAssessment']
+          }
+        };
+        intelObjects.push(intel);
+      });
+
+      // Generate Intel from social media links
+      scanResult.osintData.socialMedia.forEach((social, index) => {
+        const intel: Intel = {
+          id: `intel-social-${baseTimestamp}-${index}`,
+          source: 'OSINT',
+          qualityAssessment: {
+            sourceQuality: 'unverified',
+            visibility: 'public',
+            sensitivity: 'open'
+          },
+          reliability: 'C', // Fairly reliable for public social media
+          timestamp: baseTimestamp,
+          collectedBy,
+          location: scanResult.url,
+          data: {
+            social_media_url: social,
+            platform: this.getSocialPlatform(social),
+            source_url: scanResult.url,
+            scan_timestamp: scanResult.timestamp,
+            extraction_method: 'html_parsing'
+          },
+          tags: ['social-media', 'osint', 'netrunner', 'website-scan', this.getSocialPlatform(social)],
+          verified: false,
+          bridgeMetadata: {
+            transformationId: `netrunner-social-${baseTimestamp}-${index}`,
+            transformedAt: baseTimestamp,
+            transformationVersion: '1.0.0',
+            preservedFields: ['data', 'source', 'timestamp'],
+            enhancedFields: ['reliability', 'tags', 'qualityAssessment']
+          }
+        };
+        intelObjects.push(intel);
+      });
+
+      // Generate Intel from technologies
+      scanResult.osintData.technologies.forEach((tech, index) => {
+        const intel: Intel = {
+          id: `intel-tech-${baseTimestamp}-${index}`,
+          source: 'OSINT',
+          qualityAssessment: {
+            sourceQuality: 'unverified',
+            visibility: 'public',
+            sensitivity: 'open'
+          },
+          reliability: tech.confidence > 80 ? 'B' : 'C',
+          timestamp: baseTimestamp,
+          collectedBy,
+          location: scanResult.url,
+          data: {
+            technology: tech.name,
+            version: tech.version,
+            category: tech.category,
+            confidence: tech.confidence,
+            source_url: scanResult.url,
+            scan_timestamp: scanResult.timestamp,
+            detection_method: 'signature_analysis'
+          },
+          tags: ['technology', 'infrastructure', 'osint', 'netrunner', 'website-scan', tech.category],
+          verified: false,
+          bridgeMetadata: {
+            transformationId: `netrunner-tech-${baseTimestamp}-${index}`,
+            transformedAt: baseTimestamp,
+            transformationVersion: '1.0.0',
+            preservedFields: ['data', 'source', 'timestamp'],
+            enhancedFields: ['reliability', 'tags', 'qualityAssessment']
+          }
+        };
+        intelObjects.push(intel);
+      });
+
+      // Generate Intel from vulnerabilities
+      scanResult.vulnerabilities.forEach((vuln, index) => {
+        const intel: Intel = {
+          id: `intel-vuln-${baseTimestamp}-${index}`,
+          source: 'OSINT',
+          qualityAssessment: {
+            sourceQuality: 'reliable',
+            visibility: vuln.severity === 'critical' ? 'limited' : 'public',
+            sensitivity: vuln.severity === 'critical' ? 'protected' : 'careful'
+          },
+          reliability: 'B', // Usually reliable for vulnerability scans
+          timestamp: baseTimestamp,
+          collectedBy,
+          location: scanResult.url,
+          data: {
+            vulnerability: {
+              id: vuln.id,
+              title: vuln.title,
+              type: vuln.type,
+              severity: vuln.severity,
+              description: vuln.description,
+              location: vuln.location,
+              impact: vuln.impact,
+              recommendation: vuln.recommendation,
+              cve: vuln.cve,
+              score: vuln.score
+            },
+            source_url: scanResult.url,
+            scan_timestamp: scanResult.timestamp,
+            detection_method: 'security_analysis'
+          },
+          tags: ['vulnerability', 'security', 'osint', 'netrunner', 'website-scan', vuln.severity],
+          verified: false,
+          bridgeMetadata: {
+            transformationId: `netrunner-vuln-${baseTimestamp}-${index}`,
+            transformedAt: baseTimestamp,
+            transformationVersion: '1.0.0',
+            preservedFields: ['data', 'source', 'timestamp'],
+            enhancedFields: ['reliability', 'tags', 'qualityAssessment']
+          }
+        };
+        intelObjects.push(intel);
+      });
+
+    } catch (error) {
+      console.error('Error transforming scan result to Intel objects:', error);
+    }
+
+    return intelObjects;
+  }
+
+  /**
+   * Assess email reliability based on format and domain
+   */
+  private assessEmailReliability(email: string): 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'X' {
+    // Basic email validation and domain assessment
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return 'E'; // Unreliable - invalid format
+    }
+    
+    const domain = email.split('@')[1]?.toLowerCase();
+    const commonDomains = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com'];
+    
+    if (commonDomains.includes(domain)) {
+      return 'C'; // Fairly reliable - common public domain
+    }
+    
+    return 'B'; // Usually reliable - appears to be organizational email
+  }
+
+  /**
+   * Extract social media platform from URL
+   */
+  private getSocialPlatform(url: string): string {
+    const urlLower = url.toLowerCase();
+    if (urlLower.includes('twitter.com') || urlLower.includes('x.com')) return 'twitter';
+    if (urlLower.includes('facebook.com')) return 'facebook';
+    if (urlLower.includes('linkedin.com')) return 'linkedin';
+    if (urlLower.includes('instagram.com')) return 'instagram';
+    if (urlLower.includes('youtube.com')) return 'youtube';
+    if (urlLower.includes('tiktok.com')) return 'tiktok';
+    return 'unknown';
   }
 }
 
