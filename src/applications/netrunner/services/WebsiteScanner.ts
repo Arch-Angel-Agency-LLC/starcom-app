@@ -11,6 +11,7 @@
 // Intel integration imports
 import { storageOrchestrator } from '../../../core/intel/storage/storageOrchestrator';
 import { Intel } from '../../../models/Intel/Intel';
+import { isNetRunnerIntelEnabled, logIntelFlagContext } from '../../../config/netrunnerIntelFeatureFlag';
 
 export interface ScanResult {
   url: string;
@@ -156,11 +157,12 @@ export class WebsiteScannerService {
       onProgress?.(80, 'Identifying technologies...');
       result.osintData.technologies = this.detectTechnologies(html, doc);
 
-      // Step 6: Store Intel data if requested
+      // Step 6: Store Intel data if requested (guarded by feature flag so merge is safe when disabled)
       const { storeIntel = true } = options;
-      if (storeIntel) {
+      if (storeIntel && isNetRunnerIntelEnabled()) {
         try {
           onProgress?.(90, 'Storing Intel data...');
+          logIntelFlagContext('WebsiteScannerService.scanWebsite: transforming + storing Intel objects');
           const intelObjects = this.transformToIntel(result);
           if (intelObjects.length > 0) {
             const storageResult = await storageOrchestrator.batchStoreIntel(intelObjects);
@@ -171,9 +173,11 @@ export class WebsiteScannerService {
             }
           }
         } catch (storageError) {
-          console.error('❌ Error during Intel storage:', storageError);
-          // Continue with scan completion - storage failure shouldn't break the scan
+          console.error('❌ Error during Intel storage (feature flag path):', storageError);
+          // Continue scan; feature is experimental.
         }
+      } else {
+        // Intel path disabled: skip transformation/storage entirely for performance & safety
       }
 
       // Step 7: Finalize

@@ -11,6 +11,7 @@
 
 import { OsintBot } from '../integration/BotRosterIntegration';
 import { IntelType } from '../tools/NetRunnerPowerTools';
+import { isNetRunnerIntelEnabled, logIntelFlagContext } from '../../../config/netrunnerIntelFeatureFlag';
 
 // Intel integration imports
 import { storageOrchestrator } from '../../../core/intel/storage/storageOrchestrator';
@@ -304,12 +305,19 @@ export class BotMissionExecutor {
 
       // Transform and store Intel (NetRunner Phase 1 Integration)
       try {
-        const intelObjects = this.transformMissionToIntel(result);
-        await storageOrchestrator.batchStoreIntel(intelObjects);
-        console.log(`📊 Intel Storage: Stored ${intelObjects.length} Intel objects from mission ${missionId}`);
+        // Feature flag guard: ensure experimental Intel storage can be merged safely while disabled
+        if (isNetRunnerIntelEnabled()) {
+          logIntelFlagContext('BotMissionExecutor.executeEnhancedMission: storing mission Intel');
+          const intelObjects = this.transformMissionToIntel(result);
+          await storageOrchestrator.batchStoreIntel(intelObjects);
+          console.log(`📊 Intel Storage: Stored ${intelObjects.length} Intel objects from mission ${missionId}`);
+        } else {
+          // Inert path: still build intel objects count lazily if desired later (skip now for perf)
+          // NOTE: If future analysis needs counts while disabled, compute here without storing.
+        }
       } catch (storageError) {
-        console.error(`⚠️ Intel Storage Warning: Failed to store Intel for mission ${missionId}:`, storageError);
-        // Don't fail the mission due to storage issues, just log the warning
+        console.error(`⚠️ Intel Storage Warning (flag may be enabled): Failed to store Intel for mission ${missionId}:`, storageError);
+        // Do not fail mission due to experimental storage issue.
       }
 
       console.log(`✅ Enhanced Mission ${missionId} completed: ${result.status} (${duration}ms)`);

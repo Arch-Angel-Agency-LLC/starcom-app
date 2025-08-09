@@ -22,6 +22,9 @@ import {
   ContentRetrievalError
 } from '../../../core/intel/errors/NetRunnerErrorTypes';
 
+// Feature flag imports
+import { isNetRunnerIntelEnabled, logIntelFlagContext } from '../../../config/netrunnerIntelFeatureFlag';
+
 /**
  * Enhanced scan result that includes Intel objects
  */
@@ -107,17 +110,25 @@ export class EnhancedWebsiteScanner {
         };
       }
       
-      // Step 2: Generate Intel objects from OSINT data
-      onProgress?.(80, 'Generating Intel objects...');
-      const intelObjects = this.generateIntelObjects(originalResult);
+      // Step 2: Generate Intel objects from OSINT data (guarded by feature flag)
+      if (isNetRunnerIntelEnabled()) {
+        onProgress?.(80, 'Generating Intel objects (flag enabled)...');
+        logIntelFlagContext('EnhancedWebsiteScanner.scan: generating Intel objects');
+      } else {
+        onProgress?.(80, 'Intel generation skipped (feature disabled)...');
+      }
+      const intelObjects = isNetRunnerIntelEnabled() ? this.generateIntelObjects(originalResult) : [];
       
-      // Step 3: Process Intel for additional analysis (future Intelligence integration)
-      onProgress?.(90, 'Processing Intel analysis...');
-      const processedIntelObjects = this.processIntelObjects(intelObjects);
+      // Step 3: Process Intel for additional analysis (only if generation occurred)
+      if (isNetRunnerIntelEnabled()) {
+        onProgress?.(90, 'Processing Intel analysis...');
+      }
+      const processedIntelObjects = isNetRunnerIntelEnabled() ? this.processIntelObjects(intelObjects) : [];
       
-      // Step 4: Store if requested
-      if (storeIntel) {
+      // Step 4: Store if requested (and feature enabled)
+      if (storeIntel && isNetRunnerIntelEnabled()) {
         onProgress?.(95, 'Storing Intel data...');
+        logIntelFlagContext('EnhancedWebsiteScanner.scan: storing Intel objects');
         await this.storeIntelData(intelObjects, processedIntelObjects);
       }
       
