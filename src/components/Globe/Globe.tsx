@@ -40,8 +40,8 @@ const GlobeView: React.FC = () => {
   const { hasGlobeLoadedBefore, markGlobeAsLoaded, setGlobeInitialized } = useGlobeLoading();
   const [globeEngine, setGlobeEngine] = useState<GlobeEngine | null>(null);
   const [material, setMaterial] = useState<THREE.Material | null>(null);
-  const bordersRef = useRef<THREE.Group>(null);
-  const territoriesRef = useRef<THREE.Group>(null);
+  const bordersRef = useRef<THREE.Group>(new THREE.Group()); // Initialized for NationalTerritories
+  const territoriesRef = useRef<THREE.Group>(new THREE.Group()); // Initialized for future territory fill
   
   // Intel Report 3D markers state
   const [intelReports, setIntelReports] = useState<IntelReportOverlayMarker[]>([]);
@@ -1033,23 +1033,99 @@ const GlobeView: React.FC = () => {
     const scene = globeObj && globeObj.scene();
     const bordersGroup = bordersRef.current;
     const territoriesGroup = territoriesRef.current;
-    const intelGroup = intelMarkerGroupRef.current;
-    
-    if (scene && bordersGroup && !scene.children.includes(bordersGroup)) {
-      scene.add(bordersGroup);
-    }
-    if (scene && territoriesGroup && !scene.children.includes(territoriesGroup)) {
-      scene.add(territoriesGroup);
-    }
-    if (scene && intelGroup && !scene.children.includes(intelGroup)) {
-      scene.add(intelGroup);
-    }
-    
-    return () => {
-      if (scene && bordersGroup) scene.remove(bordersGroup);
-      if (scene && territoriesGroup) scene.remove(territoriesGroup);
+
+    // Only manage geopolitical groups when in GeoPolitical primary mode
+    const geoModeActive = visualizationMode.mode === 'GeoPolitical' && visualizationMode.subMode === 'NationalTerritories';
+
+    // Helper to dispose group children
+    const disposeChildren = (group: THREE.Group) => {
+      while (group.children.length > 0) {
+        const child = group.children[0];
+        group.remove(child);
+        if (child instanceof THREE.Line || child instanceof THREE.Mesh) {
+          if ((child as any).geometry) {
+            (child as any).geometry.dispose?.();
+          }
+          const mat = (child as any).material;
+            if (mat) {
+              if (Array.isArray(mat)) mat.forEach(m => m.dispose?.()); else mat.dispose?.();
+            }
+        }
+      }
     };
-  }, [globeRef, bordersRef, territoriesRef, globeEngine]);
+
+    // Basic loader for prototype borders (Phase 1)
+    const loadBorderGeometry = async () => {
+      if (!bordersGroup) return;
+      // Avoid duplicate loads if already populated
+      if (bordersGroup.children.length > 0) return;
+      try {
+        console.log('🗺️ NationalTerritories: Loading /borders.geojson');
+        const res = await fetch('/borders.geojson');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const geojson = await res.json();
+        disposeChildren(bordersGroup);
+        const radius = 100.2; // Slightly above globe surface
+        (geojson.features || []).forEach((feature: any) => {
+          if (feature?.geometry?.type === 'LineString') {
+            const coords: number[][] = feature.geometry.coordinates;
+            if (!Array.isArray(coords)) return;
+            const pts = coords.map(coord => {
+              const lng = (coord[0] || 0) * Math.PI / 180;
+              const lat = (coord[1] || 0) * Math.PI / 180;
+              return new THREE.Vector3(
+                -radius * Math.cos(lat) * Math.cos(lng),
+                radius * Math.sin(lat),
+                radius * Math.cos(lat) * Math.sin(lng)
+              );
+            });
+            if (pts.length < 2) return;
+            const geom = new THREE.BufferGeometry().setFromPoints(pts);
+            const mat = new THREE.LineBasicMaterial({ color: 0x00ff41, transparent: true, opacity: 0.85 });
+            const line = new THREE.Line(geom, mat);
+            bordersGroup.add(line);
+          }
+        });
+        console.log(`🗺️ NationalTerritories: Rendered ${bordersGroup.children.length} border line(s)`);
+      } catch (e) {
+        console.error('🗺️ NationalTerritories: Failed to load borders', e);
+      }
+    };
+
+    if (geoModeActive) {
+      if (scene && bordersGroup && !scene.children.includes(bordersGroup)) {
+        scene.add(bordersGroup);
+        console.log('🗺️ NationalTerritories: Borders group added to scene');
+        loadBorderGeometry();
+      }
+      if (scene && territoriesGroup && !scene.children.includes(territoriesGroup)) {
+        scene.add(territoriesGroup); // Empty placeholder for future territory fills
+      }
+    } else {
+      // Remove / cleanup when leaving mode
+      if (scene && bordersGroup && scene.children.includes(bordersGroup)) {
+        scene.remove(bordersGroup);
+        disposeChildren(bordersGroup);
+        console.log('🗺️ NationalTerritories: Borders group removed');
+      }
+      if (scene && territoriesGroup && scene.children.includes(territoriesGroup)) {
+        scene.remove(territoriesGroup);
+        disposeChildren(territoriesGroup);
+      }
+    }
+
+    return () => {
+      // Cleanup on unmount
+      if (scene && bordersGroup && scene.children.includes(bordersGroup)) {
+        scene.remove(bordersGroup);
+        disposeChildren(bordersGroup);
+      }
+      if (scene && territoriesGroup && scene.children.includes(territoriesGroup)) {
+        scene.remove(territoriesGroup);
+        disposeChildren(territoriesGroup);
+      }
+    };
+  }, [globeRef, visualizationMode.mode, visualizationMode.subMode]);
 
   // Add debounce utility for resize handling
   // AI-NOTE: Fix for stack overflow caused by recursive resize event dispatch
