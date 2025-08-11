@@ -57,7 +57,9 @@
     "mock-api": "node scripts/mock-api-server.js",
     "test:mint": "tsx scripts/testMint.ts",
     "test:team": "vitest run src/context/__tests__ src/components/TeamDashboard/__tests__ src/pages/MyTeams/__tests__ src/pages/TeamIntel/__tests__",
-    "test:e2e": "playwright test tests/e2e"
+    "test:e2e": "playwright test tests/e2e",
+    "geo:fetch": "bash scripts/fetch_geopolitical_data.sh",
+    "geo:hash": "tsx scripts/generate-geopolitical-hashes.ts"
   },
   "dependencies": {
     "@chainsafe/libp2p-noise": "^16.1.4",
@@ -185,6 +187,7 @@
     "@types/dat.gui": "^0.7.13",
     "@types/jest": "^29.5.11",
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/jszip": "^3.4.0",
     "@types/leaflet": "^1.9.19",
     "@types/node": "^22.16.0",
     "@types/pngjs": "^6.0.5",
@@ -227,6 +230,7 @@
     "vitest": "^3.2.3",
     "vm-browserify": "^1.1.2",
     "webpack-bundle-analyzer": "^4.10.2",
-    "ws": "^8.18.3"
+    "ws": "^8.18.3",
+    "mapshaper": "^0.6.76"
   }
 }

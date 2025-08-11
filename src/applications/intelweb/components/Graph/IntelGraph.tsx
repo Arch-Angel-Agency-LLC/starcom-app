@@ -5,17 +5,17 @@
  * Supports 2D/3D modes and optimized for 1000+ nodes
  */
 
-import React, { useRef, useEffect, useState, useCallback } from 'react';
+import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react';
 import * as d3 from 'd3';
 import { VirtualFileSystem, VirtualFile } from '../../../../types/DataPack';
 import { GraphEngine2D } from './GraphEngine2D';
 import { GraphControls } from './GraphControls';
+import { GraphContext } from './GraphContext';
 
 // Graph data interfaces
 export interface IntelNode extends d3.SimulationNodeDatum {
   id: string;
   type: 'report' | 'entity' | 'location' | 'event' | 'source';
-  classification: 'UNCLASSIFIED' | 'CONFIDENTIAL' | 'SECRET' | 'TOP_SECRET';
   confidence: number; // 0-1, affects node opacity
   title: string;
   description?: string;
@@ -23,6 +23,7 @@ export interface IntelNode extends d3.SimulationNodeDatum {
   location?: [number, number]; // lat, lng
   tags: string[];
   metadata: Record<string, unknown>;
+  degree?: number; // computed structural degree (for sizing / label LOD)
   
   // Graph properties
   x?: number;
@@ -62,7 +63,6 @@ export interface GraphData {
 export type IntelGraphData = GraphData;
 
 export interface GraphFilters {
-  classifications: string[];
   confidenceRange: [number, number];
   nodeTypes: string[];
   edgeTypes: string[];
@@ -83,6 +83,7 @@ export interface PhysicsSettings {
 
 export interface IntelGraphProps {
   vault: VirtualFileSystem;
+  initialGraph?: GraphData; // new optional injected graph data
   selectedFile?: VirtualFile | null;
   onFileSelect?: (file: VirtualFile) => void;
   onNodeSelect?: (node: IntelNode) => void;
@@ -93,6 +94,7 @@ export interface IntelGraphProps {
 
 export const IntelGraph: React.FC<IntelGraphProps> = ({
   vault,
+  initialGraph,
   selectedFile: _selectedFile,
   onFileSelect,
   onNodeSelect,
@@ -101,14 +103,20 @@ export const IntelGraph: React.FC<IntelGraphProps> = ({
   className = ''
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [graphMode, setGraphMode] = useState<'2d' | '3d'>('2d');
+  const [graphMode, setGraphMode] = useState<'2d' | '3d'>('2d'); // 3D disabled until engine implemented (Phase 4+)
   const [graphData, setGraphData] = useState<GraphData>({ nodes: [], edges: [] });
+  const [fullGraph, setFullGraph] = useState<GraphData | null>(null); // base filtered graph prior to isolate
+  const [activeGraph, setActiveGraph] = useState<GraphData | null>(null); // graph after isolate (or full)
+  const [isolateState, setIsolateState] = useState<{ rootId: string | null; depth: number; active: boolean }>({ rootId: null, depth: 1, active: false });
+  const [sizingMode, setSizingMode] = useState<'degree' | 'confidence'>('degree');
+  const degreeCalcRef = useRef<string>('');
+  const storageVersion = 'v1';
   const [filters, setFilters] = useState<GraphFilters>({
-    classifications: ['UNCLASSIFIED', 'CONFIDENTIAL', 'SECRET'],
+    // Removed classification filters for OSINT use
     confidenceRange: [0.3, 1.0],
-    nodeTypes: ['report', 'entity', 'location', 'event'],
-    edgeTypes: ['reference', 'temporal', 'spatial', 'causal']
-  });
+    nodeTypes: ['report', 'entity', 'location', 'event', 'source'],
+    edgeTypes: ['reference', 'temporal', 'spatial']
+  } as any);
   const [physics, setPhysics] = useState<PhysicsSettings>({
     charge: -300,
     linkDistance: 80,
@@ -120,7 +128,59 @@ export const IntelGraph: React.FC<IntelGraphProps> = ({
     theta: 0.8
   });
   const [selectedNode, setSelectedNode] = useState<IntelNode | null>(null);
+  const [selectedEdge, setSelectedEdge] = useState<IntelEdge | null>(null);
   const [_highlightedNode, setHighlightedNode] = useState<string | null>(null);
+  const [frozen, setFrozen] = useState(false);
+
+  // Persist/restore node positions (simple localStorage by file id)
+  const POSITION_KEY = React.useMemo(() => {
+    try {
+      const ids = Array.from(vault.fileIndex.keys()).sort().join('|');
+      let hash = 0;
+      for (let i = 0; i < ids.length; i++) { hash = ((hash << 5) - hash) + ids.charCodeAt(i); hash |= 0; }
+      return `intelweb:${storageVersion}:${hash}:positions`;
+    } catch { return `intelweb:${storageVersion}:default:positions`; }
+  }, [vault]);
+
+  // migrate legacy key once
+  useEffect(() => {
+    try {
+      const migrated = localStorage.getItem(`${POSITION_KEY}:migrated`);
+      if (!migrated) {
+        const legacyKey = POSITION_KEY.replace(`intelweb:${storageVersion}:`, 'intelweb.');
+        const legacy = localStorage.getItem(legacyKey);
+        if (legacy) {
+          const existing = localStorage.getItem(POSITION_KEY);
+          if (!existing) localStorage.setItem(POSITION_KEY, legacy);
+          console.log('[IntelWeb] Migrated node positions to namespaced key');
+        }
+        localStorage.setItem(`${POSITION_KEY}:migrated`, '1');
+      }
+    } catch {}
+  }, [POSITION_KEY]);
+
+  const savePositions = useCallback((data: GraphData) => {
+    const positions: Record<string, { x: number; y: number }> = {};
+    data.nodes.forEach(n => {
+      if (typeof n.x === 'number' && typeof n.y === 'number') positions[n.id] = { x: n.x, y: n.y };
+    });
+    try { localStorage.setItem(POSITION_KEY, JSON.stringify(positions)); } catch {}
+  }, [POSITION_KEY]);
+
+  const resetPositions = useCallback(() => {
+    try { localStorage.removeItem(POSITION_KEY); } catch {}
+    setFrozen(false);
+    setGraphData(prev => ({ ...prev, nodes: prev.nodes.map(n => ({ ...n, fx: null, fy: null })) }));
+  }, [POSITION_KEY]);
+
+  const loadPositions = useCallback((): Record<string, { x: number; y: number }> => {
+    try {
+      const raw = localStorage.getItem(POSITION_KEY);
+      return raw ? JSON.parse(raw) : {};
+    } catch {
+      return {};
+    }
+  }, [POSITION_KEY]);
 
   // Graph size limits for performance
   const MAX_NODES = 5000;
@@ -132,39 +192,25 @@ export const IntelGraph: React.FC<IntelGraphProps> = ({
     const nodes: IntelNode[] = [];
     const edges: IntelEdge[] = [];
     const nodeMap = new Map<string, IntelNode>();
+    const edgeSet = new Set<string>();
 
     const filesArray = Array.from(vault.fileIndex.values());
-    
-    // Check if dataset is too large
     if (filesArray.length > MAX_NODES) {
       console.warn(`Graph too large: ${filesArray.length} nodes exceeds limit of ${MAX_NODES}. Truncating...`);
     }
-
-    // Limit the number of files processed
     const limitedFiles = filesArray.slice(0, MAX_NODES);
 
     // Create nodes from files
-    limitedFiles.forEach((file, _index) => {
+    limitedFiles.forEach((file) => {
       const nodeId = file.path;
-      const _fileExtension = file.extension || '';
-      
-      // Determine node type based on file properties with type safety
       let nodeType: IntelNode['type'] = 'report';
       if (file.frontmatter?.type === 'entity') nodeType = 'entity';
       else if (file.frontmatter?.type === 'location') nodeType = 'location';
       else if (file.frontmatter?.type === 'event') nodeType = 'event';
       else if (file.frontmatter?.type === 'source') nodeType = 'source';
-      
-      // Determine classification with type safety
-      const rawClassification = file.frontmatter?.classification;
-      const validClassifications = ['UNCLASSIFIED', 'CONFIDENTIAL', 'SECRET', 'TOP_SECRET'] as const;
-      const classification: IntelNode['classification'] = 
-        typeof rawClassification === 'string' && 
-        (validClassifications as readonly string[]).includes(rawClassification)
-          ? rawClassification as IntelNode['classification']
-          : 'UNCLASSIFIED';
-      
-      // Calculate confidence based on frontmatter with type safety
+
+      // Removed classification handling
+
       const rawConfidence = file.frontmatter?.confidence;
       const confidence = typeof rawConfidence === 'number' && rawConfidence >= 0 && rawConfidence <= 1
         ? rawConfidence
@@ -173,7 +219,7 @@ export const IntelGraph: React.FC<IntelGraphProps> = ({
       const node: IntelNode = {
         id: nodeId,
         type: nodeType,
-        classification,
+        // classification removed
         confidence,
         title: file.name,
         description: file.frontmatter?.description || '',
@@ -182,9 +228,7 @@ export const IntelGraph: React.FC<IntelGraphProps> = ({
         tags: file.hashtags || [],
         metadata: file.frontmatter || {},
         file,
-        
-        // Visual properties
-        color: getNodeColor(nodeType, classification),
+        color: getNodeColor(nodeType),
         size: Math.max(8, Math.min(20, (confidence * 15) + 5)),
         group: nodeType
       };
@@ -193,80 +237,69 @@ export const IntelGraph: React.FC<IntelGraphProps> = ({
       nodeMap.set(nodeId, node);
     });
 
-    // Create edges from file references and relationships
+    // Prefer explicit relationshipGraph edges
+    if (vault.relationshipGraph && vault.relationshipGraph.length > 0) {
+      vault.relationshipGraph.forEach(relationship => {
+        const sourceId = relationship.source;
+        const targetId = relationship.target;
+        const sourceNode = nodeMap.get(sourceId);
+        const targetNode = nodeMap.get(targetId);
+        if (!sourceNode || !targetNode) return;
+
+        const predicate = (relationship.metadata && (relationship.metadata as any).predicate) as string | undefined;
+        let edgeType: IntelEdge['type'] = 'reference';
+        if (predicate === 'located_at' || predicate === 'observed_at') edgeType = 'spatial';
+        else if (predicate === 'temporal' || predicate === 'occurred_at') edgeType = 'temporal';
+
+        const edgeId = `${sourceId}-${targetId}-${predicate || relationship.type}`;
+        if (!edgeSet.has(edgeId)) {
+          edgeSet.add(edgeId);
+          edges.push({
+            id: edgeId,
+            source: sourceId,
+            target: targetId,
+            type: edgeType,
+            weight: relationship.strength || 0.5,
+            confidence: Math.min(sourceNode.confidence, targetNode.confidence),
+            metadata: relationship.metadata || {}
+          });
+        }
+      });
+    }
+
+    // Add wikilink-derived edges only if not already present
     nodes.forEach(node => {
       const file = node.file!;
-      
-      // Parse content for references to other files
-      if (file.content && typeof file.content === 'string') {
-        const references = extractFileReferences(file.content, vault);
-        references.forEach(refPath => {
-          const targetNode = nodeMap.get(refPath);
-          if (targetNode && targetNode.id !== node.id) {
-            const edgeId = `${node.id}->${targetNode.id}`;
-            
-            if (!edges.find(e => e.id === edgeId)) {
-              edges.push({
-                id: edgeId,
-                source: node.id,
-                target: targetNode.id,
-                type: 'reference',
-                weight: 0.5,
-                confidence: Math.min(node.confidence, targetNode.confidence),
-                metadata: {}
-              });
-            }
-          }
-        });
-      }
-
-      // Use explicit relationships from the vault relationship graph
-      if (vault.relationshipGraph) {
-        vault.relationshipGraph.forEach(relationship => {
-          if (relationship.source === node.id || relationship.target === node.id) {
-            const sourceId = relationship.source;
-            const targetId = relationship.target;
-            const sourceNode = nodeMap.get(sourceId);
-            const targetNode = nodeMap.get(targetId);
-            
-            if (sourceNode && targetNode) {
-              const edgeId = `${sourceId}-${targetId}`;
-              
-              if (!edges.find(e => e.id === edgeId)) {
-                edges.push({
-                  id: edgeId,
-                  source: sourceId,
-                  target: targetId,
-                  type: 'reference',
-                  weight: relationship.strength || 0.5,
-                  confidence: Math.min(sourceNode.confidence, targetNode.confidence),
-                  metadata: relationship.metadata || {}
-                });
-              }
-            }
-          }
-        });
-      }
+      if (typeof file.content !== 'string') return;
+      const references = extractFileReferences(file.content, vault);
+      references.forEach(refPath => {
+        const targetNode = nodeMap.get(refPath);
+        if (!targetNode || targetNode.id === node.id) return;
+        const edgeId = `${node.id}->${targetNode.id}`;
+        if (!edgeSet.has(edgeId)) {
+          edgeSet.add(edgeId);
+          edges.push({
+            id: edgeId,
+            source: node.id,
+            target: targetNode.id,
+            type: 'reference',
+            weight: 0.5,
+            confidence: Math.min(node.confidence, targetNode.confidence),
+            metadata: { derivedFrom: 'wikilink' }
+          });
+        }
+      });
     });
 
-    console.log(`🔗 Graph created: ${nodes.length} nodes, ${edges.length} edges (wikilink-based only)`);
+    console.log(`🔗 Graph created: ${nodes.length} nodes, ${edges.length} edges`);
     return { nodes, edges };
   }, []);
 
   // Filter graph data based on current filters
   const filterGraphData = useCallback((data: GraphData, filters: GraphFilters): GraphData => {
     const filteredNodes = data.nodes.filter(node => {
-      // Classification filter
-      if (!filters.classifications.includes(node.classification)) return false;
-      
-      // Confidence filter
-      if (node.confidence < filters.confidenceRange[0] || 
-          node.confidence > filters.confidenceRange[1]) return false;
-      
-      // Node type filter
+      if (node.confidence < filters.confidenceRange[0] || node.confidence > filters.confidenceRange[1]) return false;
       if (!filters.nodeTypes.includes(node.type)) return false;
-      
-      // Search query filter
       if (filters.searchQuery) {
         const query = filters.searchQuery.toLowerCase();
         if (!node.title.toLowerCase().includes(query) &&
@@ -275,13 +308,10 @@ export const IntelGraph: React.FC<IntelGraphProps> = ({
           return false;
         }
       }
-      
-      // Time range filter
-      if (filters.timeRange && node.timestamp) {
-        if (node.timestamp < filters.timeRange[0] || 
-            node.timestamp > filters.timeRange[1]) return false;
-      }
-      
+      // NOTE: Do NOT exclude nodes outside timeRange; they will be visually dimmed in engine (temporal context) instead of removed.
+      // if (filters.timeRange && node.timestamp) {
+      //   if (node.timestamp < filters.timeRange[0] || node.timestamp > filters.timeRange[1]) return false;
+      // }
       return true;
     });
 
@@ -289,208 +319,323 @@ export const IntelGraph: React.FC<IntelGraphProps> = ({
     const filteredEdges = data.edges.filter(edge => {
       const sourceId = typeof edge.source === 'string' ? edge.source : edge.source.id;
       const targetId = typeof edge.target === 'string' ? edge.target : edge.target.id;
-      
-      // Only include edges between filtered nodes
       if (!nodeIds.has(sourceId) || !nodeIds.has(targetId)) return false;
-      
-      // Edge type filter
       if (!filters.edgeTypes.includes(edge.type)) return false;
-      
-      // Edge confidence filter
-      if (edge.confidence < filters.confidenceRange[0] || 
-          edge.confidence > filters.confidenceRange[1]) return false;
-      
+      if (edge.confidence < filters.confidenceRange[0] || edge.confidence > filters.confidenceRange[1]) return false;
       return true;
     });
 
     return { nodes: filteredNodes, edges: filteredEdges };
   }, []);
 
-  // Update graph data when vault or filters change
+  // Compute graph when vault/filters change
   useEffect(() => {
+    if (initialGraph) {
+      console.log('[IntelWeb] Using injected initialGraph (bypassing vault conversion)');
+      const filtered = filterGraphData(initialGraph, filters);
+      setGraphData(filtered);
+      setFullGraph(filtered);
+      setActiveGraph(filtered); // initially same
+      return;
+    }
     const rawData = convertVaultToGraph(vault);
     const filteredData = filterGraphData(rawData, filters);
     setGraphData(filteredData);
-  }, [vault, filters, convertVaultToGraph, filterGraphData]);
+    setFullGraph(filteredData);
+    setActiveGraph(prev => (isolateState.active ? prev : filteredData)); // if isolate active, keep until recompute
+  }, [vault, filters, convertVaultToGraph, filterGraphData, initialGraph, isolateState.active]);
 
-  // Handle node interactions
+  // Degree computation + sizing + metrics dispatch (after filtering)
+  useEffect(() => {
+    if (!graphData.nodes.length) return;
+    const key = `${graphData.nodes.length}|${graphData.edges.length}|${filters.searchQuery || ''}|${filters.nodeTypes.join(',')}|${filters.edgeTypes.join(',')}`;
+    if (degreeCalcRef.current === key) return; // avoid repeat on same dataset
+    degreeCalcRef.current = key;
+
+    const degreeMap = new Map<string, number>();
+    graphData.edges.forEach(e => {
+      const s = typeof e.source === 'string' ? e.source : e.source.id;
+      const t = typeof e.target === 'string' ? e.target : e.target.id;
+      degreeMap.set(s, (degreeMap.get(s) || 0) + 1);
+      degreeMap.set(t, (degreeMap.get(t) || 0) + 1);
+    });
+
+    const updatedNodes = graphData.nodes.map(n => {
+      const d = degreeMap.get(n.id) || 0;
+      const base = 8;
+      const k = 6;
+      let size = base + Math.log2(d + 1) * k;
+      size = Math.max(8, Math.min(34, size));
+      const derivedSize = sizingMode === 'degree' ? size : Math.max(8, Math.min(34, 8 + (n.confidence * 26)));
+      return { ...n, size: derivedSize, degree: d };
+    });
+
+    const degrees = Array.from(degreeMap.values());
+    const minDegree = degrees.length ? Math.min(...degrees) : 0;
+    const maxDegree = degrees.length ? Math.max(...degrees) : 0;
+    const avgDegree = degrees.length ? degrees.reduce((a,b)=>a+b,0) / degrees.length : 0;
+    const topNodes = [...graphData.nodes]
+      .map(n => ({ id: n.id, title: n.title, degree: degreeMap.get(n.id) || 0 }))
+      .sort((a,b) => b.degree - a.degree)
+      .slice(0,5);
+
+    setGraphData(prev => ({ ...prev, nodes: updatedNodes }));
+
+    try {
+      window.dispatchEvent(new CustomEvent('intelweb:graphMetrics', { detail: {
+        minDegree, maxDegree, avgDegree, topNodes,
+        nodeCount: graphData.nodes.length,
+        edgeCount: graphData.edges.length
+      }}));
+    } catch {}
+  }, [graphData, filters, sizingMode]);
+
+  // Apply saved positions once nodes exist
+  useEffect(() => {
+    if (!graphData.nodes.length) return;
+    const saved = loadPositions();
+    if (!saved) return;
+    setGraphData(prev => {
+      const nodes = prev.nodes.map(n => {
+        const p = saved[n.id];
+        if (p) {
+          return { ...n, x: p.x, y: p.y, fx: frozen ? p.x : n.fx, fy: frozen ? p.y : n.fy };
+        }
+        return n;
+      });
+      return { ...prev, nodes };
+    });
+  }, [graphData.nodes.length, frozen, loadPositions]);
+
+  // When toggling frozen, persist or release positions
+  useEffect(() => {
+    if (frozen) {
+      savePositions(graphData);
+      setGraphData(prev => ({
+        ...prev,
+        nodes: prev.nodes.map(n => ({ ...n, fx: n.x, fy: n.y }))
+      }));
+    } else {
+      setGraphData(prev => ({
+        ...prev,
+        nodes: prev.nodes.map(n => ({ ...n, fx: null, fy: null }))
+      }));
+    }
+  }, [frozen, savePositions, graphData]);
+
+  const applyIsolate = useCallback((rootId: string, depth: number) => {
+    if (!fullGraph) return;
+    const t0 = performance.now();
+    const adj = new Map<string, Set<string>>();
+    fullGraph.edges.forEach(e => {
+      const s = typeof e.source === 'string' ? e.source : e.source.id;
+      const t = typeof e.target === 'string' ? e.target : e.target.id;
+      if (!adj.has(s)) adj.set(s, new Set());
+      if (!adj.has(t)) adj.set(t, new Set());
+      adj.get(s)!.add(t); adj.get(t)!.add(s);
+    });
+    const visited = new Set<string>();
+    const queue: { id: string; d: number }[] = [{ id: rootId, d: 0 }];
+    visited.add(rootId);
+    while (queue.length) {
+      const { id, d } = queue.shift()!;
+      if (d >= depth) continue;
+      const nbrs = adj.get(id);
+      if (!nbrs) continue;
+      for (const n of nbrs) {
+        if (!visited.has(n)) { visited.add(n); queue.push({ id: n, d: d + 1 }); }
+      }
+    }
+    const newNodes = fullGraph.nodes.filter(n => visited.has(n.id));
+    const nodeSet = new Set(newNodes.map(n => n.id));
+    const newEdges = fullGraph.edges.filter(e => {
+      const s = typeof e.source === 'string' ? e.source : e.source.id;
+      const t = typeof e.target === 'string' ? e.target : e.target.id;
+      return nodeSet.has(s) && nodeSet.has(t);
+    });
+    const subGraph = { nodes: newNodes, edges: newEdges };
+    setActiveGraph(subGraph);
+    setIsolateState({ rootId, depth, active: true });
+    try { window.dispatchEvent(new CustomEvent('intelweb:isolateStateChanged', { detail: { rootId, depth, active: true } })); } catch {}
+    const t1 = performance.now();
+    const dt = t1 - t0;
+    if (dt > 1) console.log(`[IntelWeb][Perf] BFS isolate root=${rootId} depth=${depth} took ${dt.toFixed(2)}ms (nodes=${newNodes.length} edges=${newEdges.length})`);
+  }, [fullGraph]);
+
+  const clearIsolate = useCallback(() => {
+    if (fullGraph) setActiveGraph(fullGraph);
+    setIsolateState({ rootId: null, depth: 1, active: false });
+    try { window.dispatchEvent(new CustomEvent('intelweb:isolateStateChanged', { detail: { rootId: null, depth: 1, active: false } })); } catch {}
+  }, [fullGraph]);
+
+  // Isolate mode effects (after applyIsolate defined)
+  useEffect(() => {
+    if (!fullGraph || !isolateState.active) {
+      setActiveGraph(fullGraph);
+      return;
+    }
+    if (isolateState.rootId) applyIsolate(isolateState.rootId, isolateState.depth);
+  }, [fullGraph, isolateState, applyIsolate]);
+
+  // Event bridge for sidebar / other components to request isolate
+  useEffect(() => {
+    const handler = (e: any) => {
+      const { rootId, depth } = e.detail || {};
+      if (!rootId) return;
+      applyIsolate(rootId, typeof depth === 'number' ? depth : 2);
+    };
+    const clearHandler = () => clearIsolate();
+    window.addEventListener('intelweb:requestIsolate', handler);
+    window.addEventListener('intelweb:clearIsolate', clearHandler);
+    return () => {
+      window.removeEventListener('intelweb:requestIsolate', handler);
+      window.removeEventListener('intelweb:clearIsolate', clearHandler);
+    };
+  }, [applyIsolate, clearIsolate]);
+
+  // Handlers
   const handleNodeClick = useCallback((node: IntelNode) => {
+    setSelectedEdge(null);
     setSelectedNode(node);
     onNodeSelect?.(node);
-    
-    if (node.file && onFileSelect) {
-      onFileSelect(node.file);
-    }
+    if (node.file && onFileSelect) onFileSelect(node.file);
+    try {
+      window.dispatchEvent(new CustomEvent('intelweb:nodeSelected', { detail: node }));
+    } catch {}
   }, [onNodeSelect, onFileSelect]);
 
   const _handleNodeHover = useCallback((nodeId: string | null) => {
     setHighlightedNode(nodeId);
   }, []);
 
-  // Handle control updates
-  const handleFiltersChange = useCallback((newFilters: GraphFilters) => {
-    setFilters(newFilters);
-  }, []);
+  const handleFiltersChange = useCallback((newFilters: GraphFilters) => setFilters(newFilters), []);
+  const handlePhysicsChange = useCallback((newPhysics: PhysicsSettings) => setPhysics(newPhysics), []);
+  const handleModeChange = useCallback((mode: '2D' | '3D') => setGraphMode(mode.toLowerCase() as '2d' | '3d'), []);
 
-  const handlePhysicsChange = useCallback((newPhysics: PhysicsSettings) => {
-    setPhysics(newPhysics);
-  }, []);
+  const selectedNodes: IntelNode[] = selectedNode ? [selectedNode] : [];
 
-  const handleModeChange = useCallback((mode: '2D' | '3D') => {
-    setGraphMode(mode.toLowerCase() as '2d' | '3d');
-  }, []);
+  // Helper functions
+  function getNodeColor(type: IntelNode['type']): string {
+    const baseColors = {
+      report: '#4CAF50',
+      entity: '#2196F3', 
+      location: '#FF9800',
+      event: '#9C27B0',
+      source: '#607D8B'
+    };
+    
+    const baseColor = baseColors[type] || '#9E9E9E';
+    
+    return baseColor;
+  }
+
+  function extractFileReferences(content: string, vault: VirtualFileSystem): string[] {
+    const references: string[] = [];
+    
+    // Look for Obsidian-style wikilinks: [[Entity Name]]
+    const wikilinkMatches = content.match(/\[\[([^\]]+)\]\]/g);
+    if (wikilinkMatches) {
+      wikilinkMatches.forEach(link => {
+        const match = link.match(/\[\[([^\]]+)\]\]/);
+        if (match) {
+          const entityName = match[1].trim();
+          
+          // Find file that matches this entity name (without .md extension)
+          const matchingPath = Array.from(vault.fileIndex.keys()).find(filePath => {
+            const fileName = filePath.split('/').pop()?.replace('.md', '');
+            return fileName === entityName;
+          });
+          
+          if (matchingPath) {
+            references.push(matchingPath);
+          }
+        }
+      });
+    }
+    
+    // Look for markdown-style links: [text](path) - keep for other references
+    const markdownLinks = content.match(/\[([^\]]+)\]\(([^)]+)\)/g);
+    if (markdownLinks) {
+      markdownLinks.forEach(link => {
+        const match = link.match(/\[([^\]]+)\]\(([^)]+)\)/);
+        if (match) {
+          const path = match[2];
+          if (vault.fileIndex.has(path)) {
+            references.push(path);
+          }
+        }
+      });
+    }
+    
+    return [...new Set(references)]; // Remove duplicates
+  }
 
   return (
-    <div 
-      ref={containerRef}
-      className={`intel-graph ${className}`}
-      style={{
-        position: 'relative',
-        width: '100%',
-        height: '100%',
-        backgroundColor: 'var(--intel-bg-secondary)',
-        border: '1px solid var(--intel-border)',
-        borderRadius: '8px',
-        overflow: 'hidden'
-      }}
-    >
-      {/* Graph Controls */}
-      <GraphControls
-        filters={filters}
-        physics={physics}
-        mode={graphMode.toUpperCase() as '2D' | '3D'}
-        nodeCount={graphData.nodes.length}
-        edgeCount={graphData.edges.length}
-        onFiltersChange={handleFiltersChange}
-        onPhysicsChange={handlePhysicsChange}
-        onModeChange={handleModeChange}
-      />
-
-      {/* Graph Visualization */}
-      <div style={{ 
-        position: 'absolute',
-        top: '60px',
-        left: '0',
-        right: '0',
-        bottom: '0',
-        overflow: 'hidden'
+    <div ref={containerRef} className={`intel-graph-container ${className}`}>
+      <GraphContext.Provider value={{
+        filters,
+        setFilters,
+        physics,
+        setPhysics,
+        graphMode,
+        setGraphMode,
+        frozen,
+        setFrozen,
+        nodeCount: (activeGraph || graphData).nodes.length,
+        edgeCount: (activeGraph || graphData).edges.length,
+        saveLayout: () => savePositions(graphData),
+        resetLayout: resetPositions,
+        timestamps: (activeGraph || graphData).nodes.map(n => n.timestamp).filter(Boolean) as Date[],
+        vaultHash: POSITION_KEY,
+        fullGraph,
+        activeGraph: activeGraph || graphData,
+        isolateState,
+        applyIsolate,
+        clearIsolate,
+        sizingMode,
+        setSizingMode
       }}>
-        {graphMode === '3d' ? (
-          <div style={{ 
-            position: 'absolute', 
-            top: '50%', 
-            left: '50%', 
-            transform: 'translate(-50%, -50%)',
-            color: 'var(--intel-text-dim)',
-            fontSize: '1.1rem'
-          }}>
-            3D Graph Engine - Coming Soon
+        {/* Header */}
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 56px 0 12px', background: 'var(--intel-bg-primary)', borderBottom: '1px solid var(--intel-border)', zIndex: 2 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontWeight: 700, color: 'var(--intel-text)' }}>Intel Graph</span>
+            <span style={{ color: 'var(--intel-text-dim', fontSize: '0.9rem' }}>{graphData.nodes.length} nodes · {graphData.edges.length} edges</span>
           </div>
-        ) : (
-          <GraphEngine2D
-            data={graphData}
-            physics={physics}
-            selectedNodes={selectedNode ? [selectedNode] : []}
-            selectedFile={_selectedFile}
-            onNodeClick={handleNodeClick}
-            onEdgeClick={() => {}}
-            containerRef={containerRef}
-          />
-        )}
-      </div>
-
-      {/* Selected Node Details */}
-      {selectedNode && (
-        <div style={{
-          position: 'absolute',
-          top: '70px',
-          right: '10px',
-          width: '300px',
-          backgroundColor: 'var(--intel-bg-primary)',
-          border: '1px solid var(--intel-border)',
-          borderRadius: '6px',
-          padding: '12px',
-          fontSize: '0.9rem',
-          color: 'var(--intel-text)',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-          zIndex: 100
-        }}>
-          <div style={{ 
-            fontSize: '1rem', 
-            fontWeight: 'bold',
-            marginBottom: '8px',
-            color: 'var(--intel-accent)'
-          }}>
-            {selectedNode.title}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <button onClick={() => setFrozen(f => !f)} title={frozen ? 'Unfreeze layout' : 'Freeze layout'}>
+              {frozen ? 'Unfreeze' : 'Freeze'}
+            </button>
+            <button onClick={() => savePositions(graphData)} title="Save layout">Save</button>
+            <button onClick={resetPositions} title="Reset layout">Reset</button>
           </div>
-          
-          <div style={{ marginBottom: '6px' }}>
-            <span style={{ color: 'var(--intel-text-dim)' }}>Type:</span> {selectedNode.type}
-          </div>
-          
-          <div style={{ marginBottom: '6px' }}>
-            <span style={{ color: 'var(--intel-text-dim)' }}>Classification:</span>{' '}
-            <span style={{ 
-              color: getClassificationColor(selectedNode.classification),
-              fontWeight: 'bold'
-            }}>
-              {selectedNode.classification}
-            </span>
-          </div>
-          
-          <div style={{ marginBottom: '6px' }}>
-            <span style={{ color: 'var(--intel-text-dim)' }}>Confidence:</span>{' '}
-            {Math.round(selectedNode.confidence * 100)}%
-          </div>
-          
-          {selectedNode.timestamp && (
-            <div style={{ marginBottom: '6px' }}>
-              <span style={{ color: 'var(--intel-text-dim)' }}>Date:</span>{' '}
-              {selectedNode.timestamp.toLocaleDateString()}
-            </div>
-          )}
-          
-          {selectedNode.tags.length > 0 && (
-            <div style={{ marginBottom: '6px' }}>
-              <span style={{ color: 'var(--intel-text-dim)' }}>Tags:</span>{' '}
-              {selectedNode.tags.join(', ')}
-            </div>
-          )}
-          
-          {selectedNode.description && (
-            <div style={{ 
-              marginTop: '8px',
-              fontSize: '0.85rem',
-              color: 'var(--intel-text-dim)',
-              lineHeight: '1.4'
-            }}>
-              {selectedNode.description}
-            </div>
-          )}
-          
-          <button
-            onClick={() => setSelectedNode(null)}
-            style={{
-              position: 'absolute',
-              top: '8px',
-              right: '8px',
-              background: 'none',
-              border: 'none',
-              color: 'var(--intel-text-dim)',
-              cursor: 'pointer',
-              fontSize: '16px'
-            }}
-          >
-            ×
-          </button>
         </div>
-      )}
+
+        {/* Controls */}
+        <GraphControls />
+        {/* Graph Engine */}
+        <div className="graph-engine-wrapper">
+          {graphMode === '2d' && (
+            <GraphEngine2D
+              containerRef={containerRef}
+              data={activeGraph || graphData}
+              physics={physics}
+              selectedNodes={selectedNodes}
+              selectedFile={_selectedFile}
+              onNodeClick={handleNodeClick}
+              onEdgeClick={(edge) => { setSelectedNode(null); setSelectedEdge(edge); try { window.dispatchEvent(new CustomEvent('intelweb:edgeSelected', { detail: edge })); } catch {} }}
+            />
+          )}
+          {graphMode === '3d' && (
+            <div className="graph-3d-placeholder">3D mode coming soon…</div>
+          )}
+        </div>
+      </GraphContext.Provider>
     </div>
   );
 };
 
 // Helper functions
-function getNodeColor(type: IntelNode['type'], classification: IntelNode['classification']): string {
+function getNodeColor(type: IntelNode['type']): string {
   const baseColors = {
     report: '#4CAF50',
     entity: '#2196F3', 
@@ -499,40 +644,9 @@ function getNodeColor(type: IntelNode['type'], classification: IntelNode['classi
     source: '#607D8B'
   };
   
-  const classificationModifiers = {
-    UNCLASSIFIED: 1.0,
-    CONFIDENTIAL: 0.8,
-    SECRET: 0.6,
-    TOP_SECRET: 0.4
-  };
-  
   const baseColor = baseColors[type] || '#9E9E9E';
-  const modifier = classificationModifiers[classification] || 1.0;
   
-  // Adjust brightness based on classification
-  return adjustColorBrightness(baseColor, modifier);
-}
-
-function getClassificationColor(classification: IntelNode['classification']): string {
-  const colors = {
-    UNCLASSIFIED: '#4CAF50',
-    CONFIDENTIAL: '#FF9800',
-    SECRET: '#F44336',
-    TOP_SECRET: '#9C27B0'
-  };
-  return colors[classification] || '#9E9E9E';
-}
-
-function adjustColorBrightness(hex: string, factor: number): string {
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-  
-  const newR = Math.round(r * factor);
-  const newG = Math.round(g * factor);
-  const newB = Math.round(b * factor);
-  
-  return `rgb(${newR}, ${newG}, ${newB})`;
+  return baseColor;
 }
 
 function extractFileReferences(content: string, vault: VirtualFileSystem): string[] {

@@ -20,7 +20,13 @@ import { ThreatIntelligenceService } from '../../services/CyberThreats/ThreatInt
 import { RealTimeAttackService } from '../../services/CyberAttacks/RealTimeAttackService';
 import type { CyberThreatData } from '../../types/CyberThreats';
 import type { CyberAttackData } from '../../types/CyberAttacks';
-// Space Weather telemetry HUD
+// GeoPolitical + territories integration
+import { useGeoPoliticalSettings } from '../../hooks/useGeoPoliticalSettings';
+import { useNationalTerritories3D } from '../../geopolitical/hooks/useNationalTerritories3D';
+
+// TS shim for process env in browser build (debug flags) - safe no-op in prod bundlers
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+declare const process: any;
 
 // Define ModelInstance interface locally since it's used in multiple files
 interface ModelInstance {
@@ -41,8 +47,6 @@ const GlobeView: React.FC = () => {
   const { hasGlobeLoadedBefore, markGlobeAsLoaded, setGlobeInitialized } = useGlobeLoading();
   const [globeEngine, setGlobeEngine] = useState<GlobeEngine | null>(null);
   const [material, setMaterial] = useState<THREE.Material | null>(null);
-  const bordersRef = useRef<THREE.Group>(null);
-  const territoriesRef = useRef<THREE.Group>(null);
   
   // Intel Report 3D markers state
   const [intelReports, setIntelReports] = useState<IntelReportOverlayMarker[]>([]);
@@ -268,7 +272,7 @@ const GlobeView: React.FC = () => {
   // =============================================================================
   useEffect(() => {
     let mounted = true;
-    let dataRefreshInterval: NodeJS.Timeout | null = null;
+    let dataRefreshInterval: number | null = null;
 
     if (visualizationMode.mode === 'CyberCommand' && visualizationMode.subMode === 'CyberThreats') {
       console.log('🔒 CYBER THREATS MODE ACTIVATED - Loading real threat data');
@@ -354,7 +358,7 @@ const GlobeView: React.FC = () => {
   // =============================================================================
   useEffect(() => {
     let mounted = true;
-    let dataRefreshInterval: NodeJS.Timeout | null = null;
+    let dataRefreshInterval: number | null = null;
 
     if (visualizationMode.mode === 'CyberCommand' && visualizationMode.subMode === 'CyberAttacks') {
       console.log('⚡ CYBER ATTACKS MODE ACTIVATED - Loading real attack data');
@@ -1027,76 +1031,41 @@ const GlobeView: React.FC = () => {
     };
   }, [globeRef, cyberAttacksData, visualizationMode.mode, visualizationMode.subMode]);
 
+  // GeoPolitical settings
+  const { config: geoPoliticalConfig } = useGeoPoliticalSettings();
+  // Attach NationalTerritories layer via new hook (registry-driven)
+  const nationalTerritories = useNationalTerritories3D({
+    enabled: visualizationMode.mode === 'GeoPolitical' && visualizationMode.subMode === 'NationalTerritories',
+    scene: globeRef.current ? (globeRef.current as unknown as { scene: () => THREE.Scene }).scene() : null,
+    config: geoPoliticalConfig.nationalTerritories
+  });
+  // Optional: log loading/error states
   useEffect(() => {
-    if (!globeRef.current) return;
-    // GlobeMethods type does not expose .scene(), so we cast to the correct type
-    const globeObj = globeRef.current as unknown as { scene: () => THREE.Scene };
-    const scene = globeObj && globeObj.scene();
-    const bordersGroup = bordersRef.current;
-    const territoriesGroup = territoriesRef.current;
-    const intelGroup = intelMarkerGroupRef.current;
-    
-    if (scene && bordersGroup && !scene.children.includes(bordersGroup)) {
-      scene.add(bordersGroup);
-    }
-    if (scene && territoriesGroup && !scene.children.includes(territoriesGroup)) {
-      scene.add(territoriesGroup);
-    }
-    if (scene && intelGroup && !scene.children.includes(intelGroup)) {
-      scene.add(intelGroup);
-    }
-    
-    return () => {
-      if (scene && bordersGroup) scene.remove(bordersGroup);
-      if (scene && territoriesGroup) scene.remove(territoriesGroup);
-    };
-  }, [globeRef, bordersRef, territoriesRef, globeEngine]);
+    if (nationalTerritories.error) console.error('NationalTerritories error:', nationalTerritories.error);
+  }, [nationalTerritories.error]);
 
-  // Add debounce utility for resize handling
-  // AI-NOTE: Fix for stack overflow caused by recursive resize event dispatch
+  // Add debounce utility for resize handling (fixes recursive resize event dispatch)
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
-  
+
   useEffect(() => {
     function handleResize() {
-      // Clear any existing timeout to debounce resize calls
-      if (debounceRef.current) {
-        clearTimeout(debounceRef.current);
-      }
-      
+      if (debounceRef.current) clearTimeout(debounceRef.current);
       debounceRef.current = setTimeout(() => {
-        // Force Globe to re-render with new window dimensions
         if (globeRef.current) {
-          // Access the internal controls to trigger a re-render without dispatching events
           const globeInstance = globeRef.current as unknown as { controls?: { update: () => void } };
-          if (globeInstance.controls && typeof globeInstance.controls.update === 'function') {
-            globeInstance.controls.update();
-          }
+          globeInstance.controls?.update?.();
         }
-      }, 100); // Debounce resize calls by 100ms
+      }, 100);
     }
-
-    // Handle page visibility changes
     function handleVisibilityChange() {
-      if (!document.hidden) {
-        // Page became visible, refresh globe
-        setTimeout(() => {
-          handleResize();
-        }, 100);
-      }
+      if (!document.hidden) setTimeout(handleResize, 100);
     }
-
     window.addEventListener('resize', handleResize);
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    
-    // Initial sizing
     setTimeout(handleResize, 50);
     setTimeout(handleResize, 200);
-
     return () => {
-      // Clear any pending debounced resize calls
-      if (debounceRef.current) {
-        clearTimeout(debounceRef.current);
-      }
+      if (debounceRef.current) clearTimeout(debounceRef.current);
       window.removeEventListener('resize', handleResize);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
@@ -1105,61 +1074,41 @@ const GlobeView: React.FC = () => {
   // Space weather data visualization effect - only show when EcoNatural + SpaceWeather mode
   useEffect(() => {
     if (!globeEngine) return;
-    
-    // Only show space weather data when in the correct visualization mode
     const shouldShowSpaceWeather = (
-      visualizationMode.mode === 'EcoNatural' && 
+      visualizationMode.mode === 'EcoNatural' &&
       visualizationMode.subMode === 'SpaceWeather' &&
       visualizationVectors.length > 0
     );
-    
     if (!shouldShowSpaceWeather) {
-      // Clear space weather markers when mode changed or no data
       setGlobeData(prevData => {
         const filtered = prevData.filter((d: { type?: string }) => d.type !== 'space-weather');
-        // Only log if we actually removed data to prevent spam
-        if (filtered.length !== prevData.length) {
-          console.log('Space weather data cleared - not in EcoNatural/SpaceWeather mode');
-        }
+        if (filtered.length !== prevData.length) console.log('Space weather data cleared - not in EcoNatural/SpaceWeather mode');
         return filtered;
       });
       return;
     }
-    
-    // Use pre-processed visualization vectors from context
     const spaceWeatherMarkers = visualizationVectors.map(vector => ({
       lat: vector.latitude,
       lng: vector.longitude,
       size: vector.size,
       color: vector.color,
-      // Phase 0 Unit Correction: display canonical mV/km
       label: `E-Field: ${vector.magnitude.toFixed(2)} mV/km`,
       magnitude: vector.magnitude,
       direction: vector.direction,
       quality: vector.quality,
-      type: 'space-weather' // Add type for filtering and rendering
+      type: 'space-weather'
     }));
-    
-    // Update the overlay data using the new method
     globeEngine.updateSpaceWeatherVisualization(spaceWeatherMarkers);
-    
-    // CRITICAL: Merge space weather data into globe's point data for actual rendering
     setGlobeData(prevData => {
-      // Remove existing space weather markers
-      const nonSpaceWeatherData = prevData.filter((d: { type?: string }) => d.type !== 'space-weather');
-      // Add new space weather markers
-      return [...nonSpaceWeatherData, ...spaceWeatherMarkers];
+      const nonSpace = prevData.filter((d: { type?: string }) => d.type !== 'space-weather');
+      return [...nonSpace, ...spaceWeatherMarkers];
     });
-    
     console.log(`Updated space weather visualization with ${spaceWeatherMarkers.length} markers for EcoNatural/SpaceWeather mode`);
-    
   }, [globeEngine, visualizationVectors, visualizationMode.mode, visualizationMode.subMode]);
 
-  // Handle intel report creation from context menu
+  // Handle intel report creation from context menu (reintroduced after integration)
   const handleCreateIntelReport = (geoLocation: { lat: number; lng: number }) => {
     const { lat, lng } = geoLocation;
-    
-    // Create a new intel report
     const newReport: IntelReportOverlayMarker = {
       pubkey: `report-${Date.now()}`,
       title: `Intel Report - ${lat.toFixed(4)}, ${lng.toFixed(4)}`,
@@ -1170,12 +1119,8 @@ const GlobeView: React.FC = () => {
       longitude: lng,
       tags: ['user-created', 'context-menu']
     };
-    
-    // Add to existing reports
     setIntelReports(prev => [...prev, newReport]);
-    
     console.log('📝 Intel report created from context menu:', newReport);
-    alert(`Intel report created at: ${lat.toFixed(4)}, ${lng.toFixed(4)}`);
   };
 
   // =============================================================================

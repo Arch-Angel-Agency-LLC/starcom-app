@@ -50,15 +50,6 @@ export const IntelWebLeftSideBar: React.FC<IntelWebLeftSideBarProps> = ({
     return tree;
   };
 
-  const getValidClassification = (frontmatter: Record<string, unknown> | undefined): string => {
-    const validClassifications = ['UNCLASSIFIED', 'CONFIDENTIAL', 'SECRET', 'TOP_SECRET'];
-    if (frontmatter && typeof frontmatter.classification === 'string' && 
-        validClassifications.includes(frontmatter.classification)) {
-      return frontmatter.classification;
-    }
-    return 'UNCLASSIFIED';
-  };
-
   const renderFileTree = (tree: TreeNode, path = '', depth = 0): React.ReactNode[] => {
     return Object.entries(tree).map(([name, value]) => {
       const fullPath = path ? `${path}/${name}` : name;
@@ -78,11 +69,6 @@ export const IntelWebLeftSideBar: React.FC<IntelWebLeftSideBarProps> = ({
           >
             <span className="file-icon">📄</span>
             <span className="file-name">{name}</span>
-            {file.frontmatter?.classification && (
-              <span className={`classification ${getValidClassification(file.frontmatter).toLowerCase()}`}>
-                {getValidClassification(file.frontmatter)}
-              </span>
-            )}
           </div>
         );
       } else {

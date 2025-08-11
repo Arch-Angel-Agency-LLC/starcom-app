@@ -1,0 +1,20 @@
+{
+  "datasets": [
+    {
+      "id": "world-borders",
+      "version": "2025.08.09",
+      "file": "world-borders.geojson",
+      "sha256": "be7ce35fbe30e087a360b1131042b64f30041bc43bd26161a0ef8bf0633099e8",
+      "license": "Public Domain (Natural Earth)",
+      "updated": "2025-08-09"
+    },
+    {
+      "id": "world-territories",
+      "version": "2025.08.09",
+      "file": "world-territories.geojson",
+      "sha256": "303b336554353d12f609c4a48897ed3feb379ee8c1c59c6c203b5f876c9c2406",
+      "license": "Public Domain (Natural Earth / derived)",
+      "updated": "2025-08-09"
+    }
+  ]
+}

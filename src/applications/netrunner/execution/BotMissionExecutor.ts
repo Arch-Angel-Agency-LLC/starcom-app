@@ -11,6 +11,12 @@
 
 import { OsintBot } from '../integration/BotRosterIntegration';
 import { IntelType } from '../tools/NetRunnerPowerTools';
+import { isNetRunnerIntelEnabled, logIntelFlagContext } from '../../../config/netrunnerIntelFeatureFlag';
+
+// Intel integration imports
+import { storageOrchestrator } from '../../../core/intel/storage/storageOrchestrator';
+import { Intel } from '../../../models/Intel/Intel';
+import { Intelligence } from '../../../models/Intel/Intelligence';
 
 export interface EnhancedMissionResult {
   missionId: string;
@@ -79,6 +85,147 @@ export class BotMissionExecutor {
       enableDeepAnalysis: true,
       saveIntermediateResults: true
     };
+  }
+
+  /**
+   * Transform mission results into Intel objects for storage
+   */
+  private transformMissionToIntel(result: EnhancedMissionResult): Intel[] {
+    const intel: Intel[] = [];
+    const timestamp = Date.now();
+    const baseMetadata = {
+      botId: result.botId,
+      missionId: result.missionId,
+      target: result.target,
+      duration: result.duration,
+      qualityScore: result.qualityScore,
+      confidenceLevel: result.confidenceLevel
+    };
+
+    // Transform specialized findings into Intel objects
+    if (result.specializedFindings) {
+      // Technical intelligence
+      if (result.specializedFindings.technical) {
+        const techIntel: Intel = {
+          id: `tech-${result.missionId}`,
+          source: 'TECHINT',
+          reliability: result.qualityScore >= 70 ? 'B' : 'C',
+          timestamp,
+          collectedBy: `netrunner-bot-${result.botId}`,
+          data: {
+            findings: result.specializedFindings.technical,
+            metadata: baseMetadata
+          },
+          tags: ['netrunner', 'technical', 'bot-mission'],
+          qualityAssessment: {
+            sourceQuality: 'unverified',
+            visibility: 'public',
+            sensitivity: 'open'
+          }
+        };
+        intel.push(techIntel);
+      }
+
+      // Financial intelligence
+      if (result.specializedFindings.financial) {
+        const finIntel: Intel = {
+          id: `fin-${result.missionId}`,
+          source: 'FININT',
+          reliability: result.qualityScore >= 70 ? 'B' : 'C',
+          timestamp,
+          collectedBy: `netrunner-bot-${result.botId}`,
+          data: {
+            findings: result.specializedFindings.financial,
+            metadata: baseMetadata
+          },
+          tags: ['netrunner', 'financial', 'bot-mission'],
+          qualityAssessment: {
+            sourceQuality: 'unverified',
+            visibility: 'public',
+            sensitivity: 'open'
+          }
+        };
+        intel.push(finIntel);
+      }
+
+      // Social intelligence
+      if (result.specializedFindings.social) {
+        const socialIntel: Intel = {
+          id: `social-${result.missionId}`,
+          source: 'OSINT',
+          reliability: result.qualityScore >= 70 ? 'B' : 'C',
+          timestamp,
+          collectedBy: `netrunner-bot-${result.botId}`,
+          data: {
+            findings: result.specializedFindings.social,
+            metadata: baseMetadata
+          },
+          tags: ['netrunner', 'social', 'bot-mission'],
+          qualityAssessment: {
+            sourceQuality: 'unverified',
+            visibility: 'public',
+            sensitivity: 'open'
+          }
+        };
+        intel.push(socialIntel);
+      }
+
+      // Vulnerability intelligence
+      if (result.specializedFindings.vulnerabilities) {
+        const vulnIntel: Intel = {
+          id: `vuln-${result.missionId}`,
+          source: 'CYBINT',
+          reliability: result.qualityScore >= 70 ? 'B' : 'C',
+          timestamp,
+          collectedBy: `netrunner-bot-${result.botId}`,
+          data: {
+            findings: result.specializedFindings.vulnerabilities,
+            metadata: baseMetadata
+          },
+          tags: ['netrunner', 'security', 'vulnerabilities', 'bot-mission'],
+          qualityAssessment: {
+            sourceQuality: 'unverified',
+            visibility: 'public',
+            sensitivity: 'open'
+          }
+        };
+        intel.push(vulnIntel);
+      }
+    }
+
+    // Create mission summary Intel
+    const summaryIntel: Intel = {
+      id: `summary-${result.missionId}`,
+      source: 'OSINT',
+      reliability: 'A',
+      timestamp,
+      collectedBy: `netrunner-bot-${result.botId}`,
+      data: {
+        missionSummary: {
+          status: result.status,
+          intelCollected: result.intelCollected,
+          operationsPerformed: result.operationsPerformed,
+          toolsUsed: result.toolsUsed || [],
+          processingStages: result.processingStages
+        },
+        metrics: {
+          qualityScore: result.qualityScore,
+          confidenceLevel: result.confidenceLevel,
+          duration: result.duration,
+          rawDataGenerated: result.rawDataGenerated
+        },
+        metadata: baseMetadata
+      },
+      tags: ['netrunner', 'mission-report', 'bot-mission'],
+      qualityAssessment: {
+        sourceQuality: 'verified',
+        visibility: 'public',
+        sensitivity: 'open'
+      }
+    };
+    intel.push(summaryIntel);
+
+    return intel;
   }
 
   /**
@@ -155,6 +302,23 @@ export class BotMissionExecutor {
       
       // Update enhanced metrics
       this.updateEnhancedMetrics(bot.id, result);
+
+      // Transform and store Intel (NetRunner Phase 1 Integration)
+      try {
+        // Feature flag guard: ensure experimental Intel storage can be merged safely while disabled
+        if (isNetRunnerIntelEnabled()) {
+          logIntelFlagContext('BotMissionExecutor.executeEnhancedMission: storing mission Intel');
+          const intelObjects = this.transformMissionToIntel(result);
+          await storageOrchestrator.batchStoreIntel(intelObjects);
+          console.log(`📊 Intel Storage: Stored ${intelObjects.length} Intel objects from mission ${missionId}`);
+        } else {
+          // Inert path: still build intel objects count lazily if desired later (skip now for perf)
+          // NOTE: If future analysis needs counts while disabled, compute here without storing.
+        }
+      } catch (storageError) {
+        console.error(`⚠️ Intel Storage Warning (flag may be enabled): Failed to store Intel for mission ${missionId}:`, storageError);
+        // Do not fail mission due to experimental storage issue.
+      }
 
       console.log(`✅ Enhanced Mission ${missionId} completed: ${result.status} (${duration}ms)`);
       console.log(`📈 Intelligence Quality: ${result.qualityScore}% | Confidence: ${result.confidenceLevel}%`);

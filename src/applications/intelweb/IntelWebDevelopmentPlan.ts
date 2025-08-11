@@ -1,5 +1,6 @@
 /**
- * IntelWeb Development Plan
+ * IntelWeb Development Plan (LEGACY - superseded by Consolidation Plan)
+ * NOTE: Classification-centric features are deprecated for OSINT alignment.
  * 
  * Building an Obsidian-like interface for Intelligence Report management
  * using the DataPack architecture as the vault system.

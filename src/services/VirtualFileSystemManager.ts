@@ -9,7 +9,7 @@
  * - Password-protected packages
  */
 
-import JSZip from 'jszip';
+import matter from 'gray-matter';
 import { 
   DataPack, 
   VirtualFileSystem, 
@@ -359,15 +359,16 @@ class VirtualFileSystemManager {
   
   private async unpackZip(content: string | ArrayBuffer, virtualFs: VirtualFileSystem): Promise<VirtualFileSystem> {
     try {
-      const zip = await JSZip.loadAsync(content);
+      // dynamic import to keep types loose in bundler mode
+      const JSZipMod: any = await import('jszip');
+      const zip = await JSZipMod.default.loadAsync(content);
       
-      // ZIP bomb protection
       const MAX_FILES = 10000;
-      const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB per file
+      const MAX_FILE_SIZE = 50 * 1024 * 1024;
       
-      const fileNames = Object.keys(zip.files);
+      const files = zip.files as Record<string, any>;
+      const fileNames = Object.keys(files);
       
-      // Check file count
       if (fileNames.length > MAX_FILES) {
         throw new DataPackError(
           DataPackErrorType.INVALID_FORMAT,
@@ -375,15 +376,9 @@ class VirtualFileSystemManager {
         );
       }
       
-      const _totalUncompressedSize = 0;
-      
-      // Pre-scan for ZIP bomb indicators and path traversal
-      for (const [_relativePath, zipObject] of Object.entries(zip.files)) {
+      for (const fileName of fileNames) {
+        const zipObject: any = files[fileName];
         if (!zipObject.dir) {
-          // Use available properties from JSZip
-          const fileName = zipObject.name;
-          
-          // Check for suspicious file patterns (path traversal protection)
           if (fileName.includes('..') || fileName.startsWith('/') || fileName.includes('\\')) {
             throw new DataPackError(
               DataPackErrorType.INVALID_FORMAT,
@@ -393,10 +388,9 @@ class VirtualFileSystemManager {
         }
       }
       
-      // Process each file in the ZIP
-      for (const [relativePath, zipObject] of Object.entries(zip.files)) {
+      for (const relativePath of fileNames) {
+        const zipObject: any = files[relativePath];
         if (zipObject.dir) {
-          // It's a directory
           const directory: VirtualDirectory = {
             path: '/' + relativePath,
             name: relativePath.split('/').pop() || '',
@@ -405,20 +399,15 @@ class VirtualFileSystemManager {
             createdAt: zipObject.date?.toISOString() || new Date().toISOString(),
             modifiedAt: zipObject.date?.toISOString() || new Date().toISOString()
           };
-          
           virtualFs.directoryIndex.set(directory.path, directory);
         } else {
-          // It's a file
-          const fileContent = await zipObject.async('string');
-          
-          // Additional safety check after extraction
+          const fileContent: string = await zipObject.async('string');
           if (fileContent.length > MAX_FILE_SIZE) {
             throw new DataPackError(
               DataPackErrorType.INVALID_FORMAT,
               `Extracted file ${relativePath} is too large (${fileContent.length} bytes). Possible ZIP bomb.`
             );
           }
-          
           const file: VirtualFile = {
             path: '/' + relativePath,
             name: relativePath.split('/').pop() || '',
@@ -432,19 +421,18 @@ class VirtualFileSystemManager {
             content: fileContent,
             relationships: []
           };
-          
-          // Parse markdown frontmatter and wikilinks
           if (file.extension === '.md') {
             const parsed = this.parseMarkdown(fileContent);
             file.frontmatter = parsed.frontmatter;
             file.wikilinks = parsed.wikilinks;
             file.hashtags = parsed.hashtags;
-            file.backlinks = []; // Will be populated later
+            file.backlinks = [];
           }
-          
           virtualFs.fileIndex.set(file.path, file);
         }
       }
+      
+      this.buildRelationships(virtualFs);
       
       return virtualFs;
     } catch (error) {
@@ -520,63 +508,49 @@ class VirtualFileSystemManager {
       wikilinks?: string[];
       hashtags?: string[];
     } = {};
-    
-    // Parse frontmatter (YAML between ---)
-    const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---/);
-    if (frontmatterMatch) {
-      try {
-        // Simple YAML parsing (would need a proper YAML parser for production)
-        const yamlContent = frontmatterMatch[1];
-        const lines = yamlContent.split('\n');
-        const frontmatter: Record<string, unknown> = {};
-        
-        for (const line of lines) {
-          const colonIndex = line.indexOf(':');
-          if (colonIndex > 0) {
-            const key = line.substring(0, colonIndex).trim();
-            const value = line.substring(colonIndex + 1).trim();
-            frontmatter[key] = value;
-          }
-        }
-        
-        result.frontmatter = frontmatter;
-      } catch (error) {
-        console.warn('Failed to parse frontmatter:', error);
+
+    try {
+      const parsed = matter(content);
+      if (parsed && parsed.data && Object.keys(parsed.data).length > 0) {
+        result.frontmatter = parsed.data as Record<string, unknown>;
       }
+    } catch (err) {
+      console.warn('Failed to parse frontmatter via gray-matter:', err);
     }
-    
+
     // Extract wikilinks [[Entity Name]]
     const wikilinkMatches = content.match(/\[\[([^\]]+)\]\]/g);
     if (wikilinkMatches) {
       result.wikilinks = wikilinkMatches.map(match => 
-        match.replace(/\[\[|\]\]/g, '').split('|')[0]
+        match.replace(/\[\[|\]\]/g, '').split('|')[0].trim()
       );
     }
-    
+
     // Extract hashtags #tag
     const hashtagMatches = content.match(/#[a-zA-Z0-9_]+/g);
     if (hashtagMatches) {
       result.hashtags = hashtagMatches.map(match => match.substring(1));
     }
-    
+
     return result;
   }
-  
-  private getMimeType(filename: string): string {
-    const extension = filename.split('.').pop()?.toLowerCase();
-    const mimeTypes: Record<string, string> = {
-      'md': 'text/markdown',
-      'txt': 'text/plain',
-      'json': 'application/json',
-      'jpg': 'image/jpeg',
-      'jpeg': 'image/jpeg',
-      'png': 'image/png',
-      'pdf': 'application/pdf'
-    };
-    
-    return mimeTypes[extension || ''] || 'application/octet-stream';
+
+  // Coerce simple YAML scalar types from strings
+  private coerceScalar(value: string): unknown {
+    const v = value.replace(/^['"]|['"]$/g, '');
+    if (/^(true|false)$/i.test(v)) return /^true$/i.test(v);
+    if (/^(null|~)$/i.test(v)) return null;
+    // number
+    const n = Number(v);
+    if (!isNaN(n) && v !== '') return n;
+    // tuple-like coordinates: 40.7, -74.0 (not standard YAML but sometimes used)
+    if (v.includes(',') && !v.includes(':')) {
+      const parts = v.split(',').map(p => p.trim());
+      if (parts.every(p => !isNaN(Number(p)))) return parts.map(p => Number(p));
+    }
+    return v;
   }
-  
+
   private async generateHash(content: string | ArrayBuffer): Promise<string> {
     const encoder = new TextEncoder();
     const data = typeof content === 'string' ? encoder.encode(content) : content;
@@ -627,6 +601,71 @@ class VirtualFileSystemManager {
   private async encryptContent(content: string | ArrayBuffer, _encryption: Record<string, unknown>): Promise<string | ArrayBuffer> {
     // TODO: Implement encryption
     return content;
+  }
+
+  // Build relationshipGraph and backlinks from wikilinks across files
+  private buildRelationships(virtualFs: VirtualFileSystem): void {
+    const edges = new Set<string>();
+    const relationshipGraph = virtualFs.relationshipGraph || [];
+
+    const baseName = (p: string) => {
+      const name = p.split('/').pop() || p;
+      return name.replace(/\.[^.]+$/, '');
+    };
+
+    const byBaseName = new Map<string, string[]>();
+    for (const path of virtualFs.fileIndex.keys()) {
+      const b = baseName(path);
+      const arr = byBaseName.get(b) || [];
+      arr.push(path);
+      byBaseName.set(b, arr);
+    }
+
+    for (const [path, file] of virtualFs.fileIndex) {
+      if (!file.wikilinks || file.wikilinks.length === 0) continue;
+      for (const link of file.wikilinks) {
+        const targets = byBaseName.get(link);
+        if (!targets) continue;
+        for (const targetPath of targets) {
+          if (targetPath === path) continue;
+          const key = `${path}->${targetPath}`;
+          if (edges.has(key)) continue;
+          edges.add(key);
+          relationshipGraph.push({
+            source: path,
+            target: targetPath,
+            type: 'wikilink',
+            strength: 0.5,
+            metadata: { derivedFrom: 'wikilink' }
+          });
+          const target = virtualFs.fileIndex.get(targetPath);
+          if (target) {
+            target.backlinks = target.backlinks || [];
+            if (!target.backlinks.includes(path)) target.backlinks.push(path);
+          }
+        }
+      }
+    }
+
+    virtualFs.relationshipGraph = relationshipGraph;
+  }
+
+  private getMimeType(filePath: string): string {
+    const ext = (filePath.split('.').pop() || '').toLowerCase();
+    switch (ext) {
+      case 'md': return 'text/markdown';
+      case 'txt': return 'text/plain';
+      case 'json': return 'application/json';
+      case 'csv': return 'text/csv';
+      case 'png': return 'image/png';
+      case 'jpg':
+      case 'jpeg': return 'image/jpeg';
+      case 'gif': return 'image/gif';
+      case 'svg': return 'image/svg+xml';
+      case 'webp': return 'image/webp';
+      case 'pdf': return 'application/pdf';
+      default: return 'application/octet-stream';
+    }
   }
 }
 

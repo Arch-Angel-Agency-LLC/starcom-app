@@ -171,33 +171,10 @@
 }
 
 .classification {
-  padding: 2px 6px;
-  border-radius: 3px;
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: uppercase;
-  flex-shrink: 0;
+  /* removed (was classification badge) */
+  display: none;
 }
-
-.classification.unclassified {
-  background: #4a5568;
-  color: #ffffff;
-}
-
-.classification.confidential {
-  background: #d69e2e;
-  color: #1a202c;
-}
-
-.classification.secret {
-  background: #e53e3e;
-  color: #ffffff;
-}
-
-.classification.top_secret {
-  background: #9f7aea;
-  color: #ffffff;
-}
+.classification.unclassified, .classification.confidential, .classification.secret, .classification.top_secret { display: none; }
 
 .folder-contents {
   margin-left: 0;
