@@ -19,6 +19,7 @@ import AnalyticsTracker from "./components/Analytics/AnalyticsTracker";
 import { googleAnalyticsService } from "./services/GoogleAnalyticsService";
 import SettingsInitializer from "./components/SettingsInitializer";
 import SettingsStatusIndicator from "./components/SettingsStatusIndicator";
+import { SpaceWeatherModeLayers } from './components/SpaceWeather/SpaceWeatherModeLayers';
 import StorageStatusBadge from "./components/Status/StorageStatusBadge";
 import PreloaderManager from "./components/Preloader/PreloaderManager";
 import WalletDiagnostic from "./components/Debug/WalletDiagnostic";
@@ -157,6 +158,8 @@ const App: React.FC = () => (
                                   <SecureChatProvider>
                                     <div data-testid="app-root">
                                       <AppContent />
+                                      {/* Mount tertiary space weather mode layers (placeholders) */}
+                                      <SpaceWeatherModeLayers />
                                     </div>
                                   </SecureChatProvider>
                                 </ViewProvider>

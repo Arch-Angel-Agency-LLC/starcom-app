@@ -13,7 +13,7 @@ export default defineConfig({
         deps: {
             inline: [/@testing-library/, 'react', 'react-dom', '@vanilla-extract/sprinkles', '@rainbow-me/rainbowkit', 'wagmi'],
         },
-        include: ['src/**/*.test.ts', 'src/**/*.test.tsx', 'test/**/*.test.ts', 'test/**/*.test.tsx'],
+        include: ['src/**/*.test.ts', 'src/**/*.test.tsx', 'src/**/*.vitest.ts', 'test/**/*.test.ts', 'test/**/*.test.tsx', 'test/**/*.vitest.ts'],
         exclude: [
             'node_modules', 
             'dist',

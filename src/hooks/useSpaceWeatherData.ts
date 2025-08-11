@@ -68,16 +68,26 @@ export const useSpaceWeatherData = (options: UseSpaceWeatherOptions = {}): UseSp
       const interMagProcessed: ProcessedElectricFieldData = {
         timestamp: interMagRaw.time_tag || new Date().toISOString(),
         source: "InterMagEarthScope",
-        vectors: interMagRaw.features.map(f => ({
-          longitude: f.geometry.coordinates[0],
-          latitude: f.geometry.coordinates[1],
-          ex: f.properties.Ex,
-          ey: f.properties.Ey,
-          magnitude: Math.sqrt(f.properties.Ex ** 2 + f.properties.Ey ** 2),
-          direction: Math.atan2(f.properties.Ey, f.properties.Ex) * (180 / Math.PI),
-          quality: f.properties.quality_flag || 1,
-          stationDistance: f.properties.distance_nearest_station || 0
-        })),
+        unit: 'mV/km',
+        vectors: interMagRaw.features.map(f => {
+          const exRaw = f.properties.Ex; // assumed mV/km Phase 0
+          const eyRaw = f.properties.Ey;
+          const magnitudeRaw = Math.sqrt(exRaw ** 2 + eyRaw ** 2);
+          return {
+            longitude: f.geometry.coordinates[0],
+            latitude: f.geometry.coordinates[1],
+            ex: exRaw,
+            ey: eyRaw,
+            magnitude: magnitudeRaw,
+            direction: Math.atan2(f.properties.Ey, f.properties.Ex) * (180 / Math.PI),
+            quality: f.properties.quality_flag || 1,
+            stationDistance: f.properties.distance_nearest_station || 0,
+            unit: 'mV/km' as const,
+            ex_mVkm: exRaw,
+            ey_mVkm: eyRaw,
+            magnitude_mVkm: magnitudeRaw
+          };
+        }),
         coverage: {
           minLat: Math.min(...interMagRaw.features.map(f => f.geometry.coordinates[1])),
           maxLat: Math.max(...interMagRaw.features.map(f => f.geometry.coordinates[1])),
@@ -95,16 +105,26 @@ export const useSpaceWeatherData = (options: UseSpaceWeatherOptions = {}): UseSp
       const usCanadaProcessed: ProcessedElectricFieldData = {
         timestamp: usCanadaRaw.time_tag || new Date().toISOString(),
         source: "US-Canada-1D",
-        vectors: usCanadaRaw.features.map(f => ({
-          longitude: f.geometry.coordinates[0],
-          latitude: f.geometry.coordinates[1],
-          ex: f.properties.Ex,
-          ey: f.properties.Ey,
-          magnitude: Math.sqrt(f.properties.Ex ** 2 + f.properties.Ey ** 2),
-          direction: Math.atan2(f.properties.Ey, f.properties.Ex) * (180 / Math.PI),
-          quality: f.properties.quality_flag || 1,
-          stationDistance: f.properties.distance_nearest_station || 0
-        })),
+        unit: 'mV/km',
+        vectors: usCanadaRaw.features.map(f => {
+          const exRaw = f.properties.Ex;
+          const eyRaw = f.properties.Ey;
+          const magnitudeRaw = Math.sqrt(exRaw ** 2 + eyRaw ** 2);
+          return {
+            longitude: f.geometry.coordinates[0],
+            latitude: f.geometry.coordinates[1],
+            ex: exRaw,
+            ey: eyRaw,
+            magnitude: magnitudeRaw,
+            direction: Math.atan2(f.properties.Ey, f.properties.Ex) * (180 / Math.PI),
+            quality: f.properties.quality_flag || 1,
+            stationDistance: f.properties.distance_nearest_station || 0,
+            unit: 'mV/km' as const,
+            ex_mVkm: exRaw,
+            ey_mVkm: eyRaw,
+            magnitude_mVkm: magnitudeRaw
+          };
+        }),
         coverage: {
           minLat: Math.min(...usCanadaRaw.features.map(f => f.geometry.coordinates[1])),
           maxLat: Math.max(...usCanadaRaw.features.map(f => f.geometry.coordinates[1])),

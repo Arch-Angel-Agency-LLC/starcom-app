@@ -88,8 +88,8 @@ const SpaceWeatherSettings: React.FC<SpaceWeatherSettingsProps> = ({ subMode }) 
         <label className={styles.toggleRow}>
           <input
             type="checkbox"
-            checked={config.spaceWeather.showGemagneticIndex}
-            onChange={(e) => updateSpaceWeather({ showGemagneticIndex: e.target.checked })}
+            checked={config.spaceWeather.showGeomagneticIndex}
+            onChange={(e) => updateSpaceWeather({ showGeomagneticIndex: e.target.checked })}
             className={styles.checkbox}
           />
           <span className={styles.toggleLabel}>🧲 Dst</span>

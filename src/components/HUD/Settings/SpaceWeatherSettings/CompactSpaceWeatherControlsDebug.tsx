@@ -7,7 +7,10 @@ interface CompactSpaceWeatherControlsProps {
   subMode: 'SpaceWeather' | 'EcologicalDisasters' | 'EarthWeather';
 }
 
-const CompactSpaceWeatherControls: React.FC<CompactSpaceWeatherControlsProps> = ({ subMode }) => {
+declare global {
+  interface Window { STARCOM_SPACEWEATHER_ENHANCED_SAMPLING?: boolean }
+}
+const CompactSpaceWeatherControls: React.FC<CompactSpaceWeatherControlsProps> = ({ subMode: _subMode }) => {
   const { config, updateSpaceWeather } = useEcoNaturalSettings();
   const [showAdvanced, setShowAdvanced] = useState(false);
 
@@ -19,7 +22,8 @@ const CompactSpaceWeatherControls: React.FC<CompactSpaceWeatherControlsProps> = 
     lastUpdated,
     refresh,
     interMagData,
-    usCanadaData
+  usCanadaData,
+  telemetry
   } = useSpaceWeatherContext();
 
   // Debug information
@@ -28,7 +32,10 @@ const CompactSpaceWeatherControls: React.FC<CompactSpaceWeatherControlsProps> = 
     vectorCount: visualizationVectors?.length || 0,
     interMagCount: interMagData?.vectors?.length || 0,
     usCanadaCount: usCanadaData?.vectors?.length || 0,
-    totalRawData: (interMagData?.vectors?.length || 0) + (usCanadaData?.vectors?.length || 0)
+  totalRawData: (interMagData?.vectors?.length || 0) + (usCanadaData?.vectors?.length || 0),
+  samplingStrategy: telemetry?.samplingStrategy,
+  sampled: telemetry?.sampled,
+  unit: telemetry?.unit
   };
 
   console.log('🔍 Space Weather Debug Info:', debugInfo);
@@ -53,8 +60,10 @@ const CompactSpaceWeatherControls: React.FC<CompactSpaceWeatherControlsProps> = 
       </div>
 
       {/* Debug panel */}
-      <div style={{ fontSize: '8px', color: '#666', padding: '2px' }}>
+      <div style={{ fontSize: '8px', color: '#666', padding: '2px', lineHeight: 1.2 }}>
         IM:{debugInfo.interMagCount} US:{debugInfo.usCanadaCount} R:{debugInfo.vectorCount}
+        <br /> Samp:{telemetry?.sampled} Strat:{telemetry?.samplingStrategy === 'grid-binning' ? 'GRID' : 'TOPN'}
+        <br /> Unit:{telemetry?.unit}
       </div>
 
       {/* Main toggle for electric fields */}
@@ -172,6 +181,25 @@ const CompactSpaceWeatherControls: React.FC<CompactSpaceWeatherControlsProps> = 
               <div>US-Canada Data: {debugInfo.usCanadaCount} points</div>
               <div>Rendered Vectors: {debugInfo.vectorCount}</div>
               <div>Electric Fields: {config.spaceWeather.showElectricFields ? 'ON' : 'OFF'}</div>
+              <div>Sampling: {telemetry?.samplingStrategy}</div>
+              <div>Sampled Count: {telemetry?.sampled}</div>
+              <div>Unit: {telemetry?.unit}</div>
+            </div>
+
+            <div style={{ marginBottom: '6px' }}>
+              <label className={styles.toggleRow} style={{ fontSize: '10px' }}>
+                <input
+                  type="checkbox"
+                  onChange={(e) => {
+                    window.STARCOM_SPACEWEATHER_ENHANCED_SAMPLING = e.target.checked;
+                    updateSpaceWeather({ enhancedSampling: e.target.checked });
+                    console.log('🧪 Enhanced sampling flag set & persisted:', e.target.checked);
+                    refresh();
+                  }}
+                  defaultChecked={window.STARCOM_SPACEWEATHER_ENHANCED_SAMPLING === true || config.spaceWeather.enhancedSampling === true}
+                />
+                <span className={styles.toggleLabel}>Enhanced Sampling (Grid)</span>
+              </label>
             </div>
             
             <div className={styles.sliderRow}>

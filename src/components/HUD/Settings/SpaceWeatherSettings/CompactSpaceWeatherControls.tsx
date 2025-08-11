@@ -39,7 +39,7 @@ const CompactSpaceWeatherControls: React.FC<CompactSpaceWeatherControlsProps> = 
           vectorIntensity: 20,
           vectorOpacity: 40,
           showElectricFields: true,
-          showGemagneticIndex: false,
+          showGeomagneticIndex: false,
           showSolarWind: false
         });
         break;
@@ -48,7 +48,7 @@ const CompactSpaceWeatherControls: React.FC<CompactSpaceWeatherControlsProps> = 
           vectorIntensity: 50,
           vectorOpacity: 60,
           showElectricFields: true,
-          showGemagneticIndex: true,
+          showGeomagneticIndex: true,
           showSolarWind: true
         });
         break;
@@ -57,7 +57,7 @@ const CompactSpaceWeatherControls: React.FC<CompactSpaceWeatherControlsProps> = 
           vectorIntensity: 75,
           vectorOpacity: 80,
           showElectricFields: true,
-          showGemagneticIndex: true,
+          showGeomagneticIndex: true,
           showSolarWind: true,
           showMagneticField: true,
           showAuroralOval: true
@@ -68,7 +68,7 @@ const CompactSpaceWeatherControls: React.FC<CompactSpaceWeatherControlsProps> = 
           vectorIntensity: 100,
           vectorOpacity: 100,
           showElectricFields: true,
-          showGemagneticIndex: true,
+          showGeomagneticIndex: true,
           showSolarWind: true,
           showMagneticField: true,
           showAuroralOval: true,
@@ -90,7 +90,7 @@ const CompactSpaceWeatherControls: React.FC<CompactSpaceWeatherControlsProps> = 
       case 'geomagnetic':
         updateSpaceWeather({
           showElectricFields: enabled,
-          showGemagneticIndex: enabled,
+          showGeomagneticIndex: enabled,
           showMagneticField: enabled,
           showAuroralOval: enabled
         });

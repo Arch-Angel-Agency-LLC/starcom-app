@@ -148,3 +148,56 @@ The Starcom platform now includes a fully decentralized, serverless collaboratio
 - **Open Source**: 100% transparent implementation
 
 [Learn more about the decentralized collaboration system](./docs/DECENTRALIZED-COLLABORATION.md)
+
+---
+
+## 🛰️ Space Weather Visualization: Feature Flags & Telemetry
+
+The Space Weather module renders electric field vectors with adaptive sampling, gating, and unit normalization (mV/km). Settings persist via `useEcoNaturalSettings`.
+
+Active settings / flags:
+
+- `spaceWeather.activeLayer` – Currently `electricFields` (future layers will register dynamically)
+- `spaceWeather.pipelineEnabled` – Adapter orchestrator (Phase 1) for unified vector sourcing
+- `spaceWeather.enhancedSampling` – Grid/bin sampling fairness prototype
+- Normalization strategy: `spaceWeather.normalization.method` (linear | logarithmic | percentile | statistical | adaptive)
+
+### Upcoming Tertiary Visualization Modes
+A structured expansion will introduce additional layers (geomagnetic index, auroral oval, solar wind, magnetopause, magnetic field lines). Development is tracked in `SPACE_WEATHER_TERTIARY_MODES.md`.
+
+Progress phases:
+1. Telemetry stubs (active flags + placeholders)
+2. Data hook scaffolds (mocked values)
+3. Visualization components (placeholder renderers)
+4. Real data integrations
+5. Performance & degradation alignment
+
+Refer to the tracker for current status and acceptance criteria.
+
+Telemetry fields (via `SpaceWeatherContext`):
+
+- `rawCount` – Vectors before sampling
+- `sampledCount` – After sampling strategy
+- `renderedCount` – After any adaptive degradation
+- `samplingStrategy` – `legacy-topN` or `grid-binning`
+- `unit` – Always `mV/km`
+- `degraded` / `degradationReason` – Adaptive density reduction status
+- `gatingReason` – Why overlay not rendered (e.g. `inactive-layer`, `inactive-mode`, `flag-disabled`)
+- `timingMs.load | sample | normalize` – Phase timings (ms) when available
+
+Gating prerequisites (electric fields must satisfy all):
+
+1. Provider mode: EcoNatural
+2. Sub-mode: spaceWeather
+3. `activeLayer === 'electricFields'`
+4. `showElectricFields === true`
+
+If any fails, vectors array is empty and `gatingReason` is populated.
+
+Planned enhancements:
+
+- Async adapter pipeline activation (`pipelineEnabled`)
+- Layer processor registry (geomagnetic index, solar wind, etc.)
+- Comparative sampling tests (legacy vs enhanced)
+
+For debugging, enable verbose logs (see `DEBUG_CONTROL.md`).

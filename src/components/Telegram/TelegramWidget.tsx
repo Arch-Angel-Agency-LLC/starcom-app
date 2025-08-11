@@ -1,6 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { trackInvestorEvents } from '../../utils/analytics';
 import styles from './TelegramWidget.module.css';
+import { XOR_KEY, SHARD_A, SHARD_B, SHARD_C, gatedAssembleToken, HONEY_TOKENS } from '../../config/telegramShards';
+
+// Runtime config injection interface (for dApp embeddings that can't use build-time env vars)
+declare global {
+  interface Window {
+    STARCOM_TELEGRAM_CONFIG?: {
+      botToken?: string;
+      channelId?: string;
+    };
+  }
+  interface ImportMetaEnv {
+    VITE_TELEGRAM_BOT_TOKEN?: string;
+    VITE_TELEGRAM_CHANNEL_ID?: string;
+    VITE_TELEGRAM_BOT_TOKEN_ENC?: string; // base64 of XOR'd bytes
+  }
+}
 
 interface TelegramWidgetProps {
   isOpen: boolean;
@@ -16,12 +32,93 @@ interface TelegramChatInfo {
   type: string;
 }
 
-// Real Telegram configuration
+// HARD-CODED / OBFUSCATED FALLBACKS
+// NOTE: This is only light obfuscation (not real security). It deters trivial scraping of a plain string.
+// Real protection requires a server proxy so the token never reaches the client.
+// Steps to update with real token (example key=7):
+//   1. In a local Node REPL or browser console run:
+//        const key=7; const t='123456789:ABCdefREALTOKEN'; t.split('').map(c=>c.charCodeAt(0)^key)
+//   2. Replace the BOT_TOKEN_SEGMENTS array below with the resulting numbers.
+//   3. (Optional) Instead set VITE_TELEGRAM_BOT_TOKEN in .env.local OR provide an encoded variant via
+//        VITE_TELEGRAM_BOT_TOKEN_ENC=base64(xorBytes)  (where xorBytes is Uint8Array of the XORed char codes)
+//   4. Rotate occasionally.
+// Using shard-based approach (see src/config/telegramShards.ts)
+const OBF_KEY = XOR_KEY; // shared XOR key (rotate along with shards)
+
+// Channel ID can still be a plain string since it's not sensitive; keep placeholder for detection.
+const HARDCODED_CHANNEL_ID = 'your_real_channel_id_here'; // TODO: replace with real channel id e.g. -1001234567890
+
+function decodeBase64Xor(b64: string, key: number): string {
+  try {
+    const raw = atob(b64);
+    const chars: string[] = [];
+    for (let i = 0; i < raw.length; i++) {
+      chars.push(String.fromCharCode(raw.charCodeAt(i) ^ key));
+    }
+    return chars.join('');
+  } catch {
+    return '';
+  }
+}
+
+// Build the hardcoded bot token via (env > encoded env > obfuscated array > explicit placeholder)
+const HARDCODED_BOT_TOKEN = (() => {
+  // Explicitly avoid keeping final token as a literal in source
+  const encodedEnv = import.meta.env?.VITE_TELEGRAM_BOT_TOKEN_ENC;
+  if (encodedEnv) {
+    const decoded = decodeBase64Xor(encodedEnv, OBF_KEY);
+    if (decoded && !decoded.includes('PLACEHOLDER')) return decoded;
+  }
+  // Shards decoded lazily via gatedAssembleToken; keep placeholder here.
+  return 'your_real_bot_token_here';
+})();
+
+// Lazy bot token resolution with interaction + timing gate + honey token trap
+let botTokenCache: string | null = null;
+let assemblingPromise: Promise<string> | null = null;
+
+async function resolveBotTokenLazy(): Promise<string> {
+  if (botTokenCache) return botTokenCache;
+  // Highest precedence immediate sources
+  const immediate = (typeof window !== 'undefined' && window.STARCOM_TELEGRAM_CONFIG?.botToken?.trim())
+    || import.meta.env.VITE_TELEGRAM_BOT_TOKEN;
+  if (immediate) {
+    botTokenCache = immediate;
+    return immediate;
+  }
+  if (!assemblingPromise) {
+    assemblingPromise = (async () => {
+      const { token, honey } = await gatedAssembleToken([SHARD_A, SHARD_B, SHARD_C], OBF_KEY, {
+        earliestMs: 140,
+        requireInteraction: true,
+        randomDelayRange: [150, 380]
+      });
+      if (honey) {
+        // Optional analytics hook if defined
+        const maybeAny = trackInvestorEvents as unknown as { securityEvent?: (code: string) => void };
+        maybeAny.securityEvent?.('telegram-honey-token-used');
+      }
+      const finalToken = token || HARDCODED_BOT_TOKEN;
+      botTokenCache = finalToken;
+      return finalToken;
+    })();
+  }
+  return assemblingPromise;
+}
+
+// Placeholder indicates pending lazy resolution
+const resolvedBotToken = 'PENDING_INTERACTION';
+
+const resolvedChannelId = (typeof window !== 'undefined' && window.STARCOM_TELEGRAM_CONFIG?.channelId?.trim())
+  || (import.meta.env.VITE_TELEGRAM_CHANNEL_ID as string | undefined)
+  || HARDCODED_CHANNEL_ID;
+
+// Unified Telegram configuration object
 const TELEGRAM_CONFIG = {
   channelUrl: 'https://t.me/starcomintelgroup',
   channelUsername: '@starcomintelgroup',
-  botToken: import.meta.env.VITE_TELEGRAM_BOT_TOKEN || '',
-  channelId: import.meta.env.VITE_TELEGRAM_CHANNEL_ID || '',
+  botToken: resolvedBotToken,
+  channelId: resolvedChannelId,
 };
 
 const TelegramWidget: React.FC<TelegramWidgetProps> = ({ isOpen, onClose }) => {
@@ -33,25 +130,30 @@ const TelegramWidget: React.FC<TelegramWidgetProps> = ({ isOpen, onClose }) => {
 
   // Fetch real Telegram data
   const fetchTelegramData = async () => {
-    // Check if bot token is still placeholder
-    const isPlaceholder = !TELEGRAM_CONFIG.botToken || 
-                         TELEGRAM_CONFIG.botToken === 'your_new_bot_token_here' ||
-                         !TELEGRAM_CONFIG.channelId || 
-                         TELEGRAM_CONFIG.channelId === 'your_channel_id_here';
-
-    if (isPlaceholder) {
-      setError('Bot credentials are placeholder values');
+    // Determine if configuration still uses placeholders (all sources missing or still tagged)
+    const missingToken = !TELEGRAM_CONFIG.botToken 
+      || TELEGRAM_CONFIG.botToken === 'PENDING_INTERACTION'
+      || TELEGRAM_CONFIG.botToken.includes('your_real_bot_token_here')
+      || TELEGRAM_CONFIG.botToken.includes('PLACEHOLDER_TOKEN');
+    const missingChannel = !TELEGRAM_CONFIG.channelId || TELEGRAM_CONFIG.channelId.includes('your_real_channel_id_here');
+    if (missingToken || missingChannel) {
+      setError('Bot credentials not configured');
       setIsLoading(false);
-      return;
+      return; // Abort real fetch until configured
     }
 
     try {
       setError(null);
       
-      // Get chat info including member count
-      const chatResponse = await fetch(
-        `https://api.telegram.org/bot${TELEGRAM_CONFIG.botToken}/getChat?chat_id=${TELEGRAM_CONFIG.channelId}`
-      );
+      // Resolve (may wait for interaction + random delay)
+      const realToken = await resolveBotTokenLazy();
+      if (HONEY_TOKENS.includes(realToken)) {
+        setError('Bot credentials not configured');
+        setIsLoading(false);
+        return;
+      }
+      TELEGRAM_CONFIG.botToken = realToken;
+      const chatResponse = await fetch(`https://api.telegram.org/bot${realToken}/getChat?chat_id=${TELEGRAM_CONFIG.channelId}`);
       const chatData = await chatResponse.json();
       
       if (chatData.ok) {
@@ -62,9 +164,7 @@ const TelegramWidget: React.FC<TelegramWidgetProps> = ({ isOpen, onClose }) => {
       }
 
       // Get member count (separate call for channels)
-      const memberResponse = await fetch(
-        `https://api.telegram.org/bot${TELEGRAM_CONFIG.botToken}/getChatMemberCount?chat_id=${TELEGRAM_CONFIG.channelId}`
-      );
+  const memberResponse = await fetch(`https://api.telegram.org/bot${TELEGRAM_CONFIG.botToken}/getChatMemberCount?chat_id=${TELEGRAM_CONFIG.channelId}`);
       const memberData = await memberResponse.json();
       
       if (memberData.ok && chatData.result) {
@@ -96,9 +196,9 @@ const TelegramWidget: React.FC<TelegramWidgetProps> = ({ isOpen, onClose }) => {
 
     const updateMemberCount = async () => {
       try {
-        const memberResponse = await fetch(
-          `https://api.telegram.org/bot${TELEGRAM_CONFIG.botToken}/getChatMemberCount?chat_id=${TELEGRAM_CONFIG.channelId}`
-        );
+  const realToken = botTokenCache || (await resolveBotTokenLazy());
+  if (HONEY_TOKENS.includes(realToken)) return; // skip updates if honey token path
+  const memberResponse = await fetch(`https://api.telegram.org/bot${realToken}/getChatMemberCount?chat_id=${TELEGRAM_CONFIG.channelId}`);
         const memberData = await memberResponse.json();
         
         if (memberData.ok) {

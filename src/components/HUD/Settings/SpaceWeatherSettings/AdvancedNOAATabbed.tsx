@@ -64,7 +64,7 @@ const AdvancedNOAATabbed: React.FC<AdvancedNOAATabbedProps> = ({ onClose }) => {
     const mapping: Record<string, keyof typeof config.spaceWeather> = {
       electricFields: 'showElectricFields',
       magneticFields: 'showMagneticField',
-      geomagneticIndex: 'showGemagneticIndex',
+  geomagneticIndex: 'showGeomagneticIndex',
       auroralOval: 'showAuroralOval',
       kpIndex: 'showKpIndex',
       solarWind: 'showSolarWind',
@@ -81,7 +81,7 @@ const AdvancedNOAATabbed: React.FC<AdvancedNOAATabbedProps> = ({ onClose }) => {
     const mapping: Record<string, Partial<typeof config.spaceWeather>> = {
       electricFields: { showElectricFields: !config.spaceWeather.showElectricFields },
       magneticFields: { showMagneticField: !config.spaceWeather.showMagneticField },
-      geomagneticIndex: { showGemagneticIndex: !config.spaceWeather.showGemagneticIndex },
+  geomagneticIndex: { showGeomagneticIndex: !config.spaceWeather.showGeomagneticIndex },
       auroralOval: { showAuroralOval: !config.spaceWeather.showAuroralOval },
       kpIndex: { showKpIndex: !config.spaceWeather.showKpIndex },
       solarWind: { showSolarWind: !config.spaceWeather.showSolarWind },

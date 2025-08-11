@@ -1,4 +1,8 @@
 import React, { lazy, Suspense } from 'react';
+import { useVisualizationMode } from '../../../../context/VisualizationModeContext';
+// Replaced old monolithic settings panel with new layer system container
+import { SpaceWeatherLayerSelector } from '../../../SpaceWeather/SpaceWeatherLayerSelector';
+import { SpaceWeatherSettingsContainer } from '../../../SpaceWeather/SpaceWeatherSettingsContainer';
 import { VisualizationModeInterface } from '../../Common/VisualizationModeInterface';
 import styles from './CyberCommandLeftSideBar.module.css';
 
@@ -16,10 +20,18 @@ const PrimaryModeSelector: React.FC = () => {
 };
 
 const SettingsPanel: React.FC = () => {
+  const { visualizationMode } = useVisualizationMode();
+  const showSW = visualizationMode.mode === 'EcoNatural' && visualizationMode.subMode === 'SpaceWeather';
   return (
-    <div className={styles.settingsPanel}>
-      {/* Placeholder for settings */}
-      <div className={styles.settingsPlaceholder}>Settings</div>
+    <div className={styles.settingsPanel} style={{ position: 'relative' }}>
+      {showSW ? (
+        <>
+          <SpaceWeatherLayerSelector />
+          <SpaceWeatherSettingsContainer />
+        </>
+      ) : (
+        <div className={styles.settingsPlaceholder}>Settings</div>
+      )}
     </div>
   );
 };

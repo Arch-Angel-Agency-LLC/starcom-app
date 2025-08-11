@@ -1,11 +1,20 @@
 import React from 'react';
 import { useCyberCommandRightSideBar } from '../../../../context/useCyberCommandRightSideBar';
+import { useVisualizationMode } from '../../../../context/VisualizationModeContext';
+import SpaceWeatherMetricsPanel from '../../../SpaceWeather/SpaceWeatherMetricsPanel';
 import styles from './CyberCommandRightSideBar.module.css';
 
 // Clean tab components for future implementation
 const MissionTab: React.FC = () => {
+  const { visualizationMode } = useVisualizationMode();
+  const showSW = visualizationMode.mode === 'EcoNatural' && visualizationMode.subMode === 'SpaceWeather';
   return (
     <div className={styles.tabContent}>
+      {showSW && (
+        <div style={{ marginBottom: 8 }}>
+          <SpaceWeatherMetricsPanel />
+        </div>
+      )}
       <div className={styles.tabPlaceholder}>Mission Content</div>
     </div>
   );

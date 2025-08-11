@@ -888,16 +888,26 @@ export class NOAADataProvider implements DataProvider<NOAADataTypes> {
    * Implements the same processing logic as legacy useSpaceWeatherData hook
    */
   private transformElectricFieldData(rawData: NOAAElectricFieldData): ProcessedElectricFieldData {
-    const vectors = rawData.features.map(feature => ({
-      longitude: feature.geometry.coordinates[0],
-      latitude: feature.geometry.coordinates[1],
-      ex: feature.properties.Ex,
-      ey: feature.properties.Ey,
-      magnitude: Math.sqrt(feature.properties.Ex ** 2 + feature.properties.Ey ** 2),
-      direction: Math.atan2(feature.properties.Ey, feature.properties.Ex) * (180 / Math.PI),
-      quality: feature.properties.quality_flag || 1,
-      stationDistance: feature.properties.distance_nearest_station || 0
-    }));
+    // NOAA raw Ex/Ey currently interpreted as mV/km per provider docs (legacy ambiguity). Phase 0 enforces canonical mV/km.
+    const vectors = rawData.features.map(feature => {
+      const exRaw = feature.properties.Ex;
+      const eyRaw = feature.properties.Ey;
+      const magnitudeRaw = Math.sqrt(exRaw ** 2 + eyRaw ** 2);
+      return {
+        longitude: feature.geometry.coordinates[0],
+        latitude: feature.geometry.coordinates[1],
+        ex: exRaw,
+        ey: eyRaw,
+        magnitude: magnitudeRaw,
+        direction: Math.atan2(feature.properties.Ey, feature.properties.Ex) * (180 / Math.PI),
+        quality: feature.properties.quality_flag || 1,
+        stationDistance: feature.properties.distance_nearest_station || 0,
+        unit: 'mV/km' as const,
+        ex_mVkm: exRaw,
+        ey_mVkm: eyRaw,
+        magnitude_mVkm: magnitudeRaw
+      };
+    });
 
     const latitudes = vectors.map(v => v.latitude);
     const longitudes = vectors.map(v => v.longitude);
@@ -907,6 +917,7 @@ export class NOAADataProvider implements DataProvider<NOAADataTypes> {
       timestamp: rawData.time_tag || new Date().toISOString(),
       source: rawData.network === 'InterMag' ? 'InterMagEarthScope' : 'US-Canada-1D',
       vectors,
+      unit: 'mV/km',
       coverage: {
         minLat: Math.min(...latitudes),
         maxLat: Math.max(...latitudes),

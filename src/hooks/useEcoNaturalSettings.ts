@@ -7,6 +7,8 @@ import { settingsStorage } from '../utils/settingsStorage';
 export interface EcoNaturalConfig {
   // Space Weather settings (updated for new compact design)
   spaceWeather: {
+  // Tertiary visualization active layer (single-select for now)
+  activeLayer: string; // e.g. 'electricFields'
     // New preset-based configuration
     preset?: 'quiet' | 'moderate' | 'storm' | 'extreme';
     
@@ -15,8 +17,9 @@ export interface EcoNaturalConfig {
     showRadiation?: boolean;
     
     // Existing fields (preserved for compatibility)
-    showElectricFields: boolean;
-    showGemagneticIndex: boolean;
+  showElectricFields: boolean;
+  // Renamed (Aug 2025): showGemagneticIndex -> showGeomagneticIndex (migration retained below)
+  showGeomagneticIndex: boolean;
     showAlerts: boolean;
     vectorIntensity: number; // 0-100
     vectorOpacity: number; // 0-100
@@ -44,6 +47,10 @@ export interface EcoNaturalConfig {
       percentileRange: [number, number]; // e.g., [5, 95]
       clampMax: number | null; // Optional maximum clamp value
     };
+  // Phase 0 feature flag persistence
+  enhancedSampling?: boolean;
+  // Phase 1 pipeline feature flag
+  pipelineEnabled?: boolean;
   };
   
   // Ecological Disasters settings
@@ -116,14 +123,15 @@ export interface EcoNaturalConfig {
 
 const defaultConfig: EcoNaturalConfig = {
   spaceWeather: {
+  activeLayer: 'electricFields',
     // New preset-based defaults
     preset: 'moderate',
     showSolarActivity: true,
     showRadiation: false,
     
     // Existing defaults (preserved)
-    showElectricFields: true,
-    showGemagneticIndex: false,
+  showElectricFields: true,
+  showGeomagneticIndex: false,
     showAlerts: true,
     vectorIntensity: 80,
     vectorOpacity: 60,
@@ -149,7 +157,11 @@ const defaultConfig: EcoNaturalConfig = {
       smoothingFactor: 0.1,
       percentileRange: [10, 90],
       clampMax: null
-    }
+  },
+  // Phase 0 feature flags
+  enhancedSampling: false,
+  // Phase 1 pipeline flag (disabled by default until orchestrator validated)
+  pipelineEnabled: false
   },
   
   ecologicalDisasters: {
@@ -224,13 +236,23 @@ export const useEcoNaturalSettings = () => {
 
   // Load settings from localStorage on mount
   useEffect(() => {
-    const loadedConfig = settingsStorage.loadSettings(STORAGE_KEY, defaultConfig, {
-      version: 1,
-      migrations: {
-        // Add future migration functions here
+    const loadedConfig = settingsStorage.loadSettings(STORAGE_KEY, defaultConfig, { version: 1, migrations: {} });
+    // Simplified migration for Aug 2025 rename (showGemagneticIndex -> showGeomagneticIndex)
+  type PartialSpaceWeather = Partial<EcoNaturalConfig['spaceWeather']> & { [k: string]: unknown };
+  const sw = { ...defaultConfig.spaceWeather, ...(loadedConfig.spaceWeather || {}) } as PartialSpaceWeather as EcoNaturalConfig['spaceWeather'];
+    if (!sw.activeLayer) sw.activeLayer = 'electricFields';
+    // Migration: showGemagneticIndex (typo) -> showGeomagneticIndex
+    const legacyValue = (sw as unknown as Record<string, unknown>).showGemagneticIndex;
+    if (typeof sw.showGeomagneticIndex !== 'boolean') {
+      if (typeof legacyValue === 'boolean') {
+        sw.showGeomagneticIndex = legacyValue;
+      } else {
+        sw.showGeomagneticIndex = defaultConfig.spaceWeather.showGeomagneticIndex;
       }
-    });
-    setConfig(loadedConfig);
+    }
+  // Drop legacy typo key if present
+  if ('showGemagneticIndex' in (sw as unknown as Record<string, unknown>)) delete (sw as unknown as Record<string, unknown>).showGemagneticIndex;
+    setConfig({ ...loadedConfig, spaceWeather: sw });
   }, []);
 
   // Save settings to localStorage when config changes with debouncing

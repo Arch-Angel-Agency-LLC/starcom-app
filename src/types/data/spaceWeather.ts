@@ -36,6 +36,10 @@ export interface ElectricFieldVector {
   direction: number;       // Angle in degrees (0=North, 90=East)
   quality: number;         // Quality flag
   stationDistance: number; // Distance to nearest station
+  unit?: 'mV/km';          // Canonical electric field unit (Phase 0)
+  ex_mVkm?: number;        // Converted components (future-proofing)
+  ey_mVkm?: number;
+  magnitude_mVkm?: number; // Canonical magnitude
 }
 
 export interface SpaceWeatherAlert {
@@ -66,6 +70,7 @@ export interface ProcessedElectricFieldData {
   timestamp: string;
   source: "InterMagEarthScope" | "US-Canada-1D";
   vectors: ElectricFieldVector[];
+  unit?: 'mV/km'; // Canonical display / processing unit
   coverage: {
     minLat: number;
     maxLat: number;

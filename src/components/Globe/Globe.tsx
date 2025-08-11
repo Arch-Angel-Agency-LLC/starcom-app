@@ -20,6 +20,7 @@ import { ThreatIntelligenceService } from '../../services/CyberThreats/ThreatInt
 import { RealTimeAttackService } from '../../services/CyberAttacks/RealTimeAttackService';
 import type { CyberThreatData } from '../../types/CyberThreats';
 import type { CyberAttackData } from '../../types/CyberAttacks';
+// Space Weather telemetry HUD
 
 // Define ModelInstance interface locally since it's used in multiple files
 interface ModelInstance {
@@ -1131,7 +1132,8 @@ const GlobeView: React.FC = () => {
       lng: vector.longitude,
       size: vector.size,
       color: vector.color,
-      label: `E-Field: ${vector.magnitude.toFixed(2)} V/m`,
+      // Phase 0 Unit Correction: display canonical mV/km
+      label: `E-Field: ${vector.magnitude.toFixed(2)} mV/km`,
       magnitude: vector.magnitude,
       direction: vector.direction,
       quality: vector.quality,
@@ -1318,6 +1320,8 @@ const GlobeView: React.FC = () => {
             console.warn('🐌 Globe Performance Issue:', issue);
           }}
         />
+
+  {/* Space Weather Telemetry HUD removed: telemetry now provided in sidebars */}
         
         {/* Cyber Data Loading Indicator */}
         {cyberDataLoading && (
