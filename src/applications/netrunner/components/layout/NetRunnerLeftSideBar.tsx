@@ -33,7 +33,8 @@ import { netRunnerPowerTools } from '../../tools/NetRunnerPowerTools';
 
 // Import Scripts Engine - RE-ENABLED FOR PHASE 1 TESTING
 // Path note: this component resides in components/layout, so engine service is two levels up under scripts/engine
-import { NetRunnerScriptsUIService, UIEventData } from '../../scripts/engine';
+// Using alias for stability in production builds (Vercel)
+import { NetRunnerScriptsUIService, UIEventData } from '@netrunner-engine';
 import { ScriptDefinition } from '../../scripts/types/ScriptTypes';
 
 // BACKUP: Mock service code kept as comment for quick rollback if needed
