@@ -19,7 +19,7 @@ import NewReportPage from '../pages/Reports/NewReportPage';
 // Layout imports
 import BaseLayout from '../layouts/BaseLayout/BaseLayout';
 import { IntelWorkspaceProvider } from '../services/intel/IntelWorkspaceContext';
-import IntelWorkspaceConsole from '../components/intel/IntelWorkspaceConsole';
+import IntelWorkspaceConsole from '../components/Intel/IntelWorkspaceConsole';
 
 /**
  * Main routing component for the application
