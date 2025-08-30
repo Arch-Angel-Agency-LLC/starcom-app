@@ -18,6 +18,8 @@ import NewReportPage from '../pages/Reports/NewReportPage';
 
 // Layout imports
 import BaseLayout from '../layouts/BaseLayout/BaseLayout';
+import { IntelWorkspaceProvider } from '../services/intel/IntelWorkspaceContext';
+import IntelWorkspaceConsole from '../components/intel/IntelWorkspaceConsole';
 
 /**
  * Main routing component for the application
@@ -84,6 +86,16 @@ const AppRoutes: React.FC = () => (
       <ProtectedRoute>
         <BaseLayout>
           <IntelDashboard />
+        </BaseLayout>
+      </ProtectedRoute>
+    } />
+    
+    <Route path="/intel/workspace" element={
+      <ProtectedRoute>
+        <BaseLayout>
+          <IntelWorkspaceProvider>
+            <IntelWorkspaceConsole />
+          </IntelWorkspaceProvider>
         </BaseLayout>
       </ProtectedRoute>
     } />

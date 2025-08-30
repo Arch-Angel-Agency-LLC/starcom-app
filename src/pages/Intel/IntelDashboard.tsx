@@ -1,21 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import styles from './IntelDashboard.module.css';
-
-interface IntelReport {
-  id: string;
-  title: string;
-  content: string;
-  author: string;
-  category: string;
-  tags: string[];
-  latitude?: number;
-  longitude?: number;
-  createdAt: Date;
-  updatedAt: Date;
-  classification: 'UNCLASSIFIED' | 'CONFIDENTIAL' | 'SECRET' | 'TOP_SECRET';
-  status: 'DRAFT' | 'SUBMITTED' | 'REVIEWED' | 'APPROVED' | 'ARCHIVED';
-}
+import { intelReportService } from '../../services/intel/IntelReportService';
+import { IntelReportUI } from '../../types/intel/IntelReportUI';
 
 interface FormErrors {
   title?: string;
@@ -28,7 +15,7 @@ interface FormErrors {
 const IntelDashboard: React.FC = () => {
   const { publicKey } = useWallet();
   
-  const [reports, setReports] = useState<IntelReport[]>([]);
+  const [reports, setReports] = useState<IntelReportUI[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [filterCategory, setFilterCategory] = useState<string>('ALL');
@@ -49,65 +36,28 @@ const IntelDashboard: React.FC = () => {
     longitude: ''
   });
 
-  // Load intel reports
+  // Initial load + migration
   useEffect(() => {
-    const loadReports = async () => {
+    let unsubscribe: (() => void) | undefined;
+    const load = async () => {
       setLoading(true);
       try {
-        // Load from local storage
-        const storedReports = JSON.parse(localStorage.getItem('intel-reports') || '[]');
-        
-        if (storedReports.length > 0) {
-          setReports(storedReports.map((report: Partial<IntelReport>) => ({
-            ...report,
-            createdAt: new Date(report.createdAt),
-            updatedAt: new Date(report.updatedAt)
-          })));
-        } else {
-          // Initialize with mock data
-          const mockReports: IntelReport[] = [
-            {
-              id: 'intel-001',
-              title: 'Threat Actor Infrastructure Analysis',
-              content: 'Detailed analysis of APT group infrastructure including C2 servers, hosting patterns, and TTPs observed in recent campaigns.',
-              author: publicKey?.toString() || 'analyst-001',
-              category: 'THREAT_INTELLIGENCE',
-              tags: ['APT', 'C2', 'Infrastructure', 'TTPs'],
-              classification: 'SECRET',
-              status: 'APPROVED',
-              createdAt: new Date('2024-01-10'),
-              updatedAt: new Date('2024-01-12')
-            },
-            {
-              id: 'intel-002',
-              title: 'Ransomware Campaign OSINT',
-              content: 'Open source intelligence gathering on recent ransomware campaign targeting financial institutions.',
-              author: publicKey?.toString() || 'analyst-002',
-              category: 'OSINT',
-              tags: ['Ransomware', 'Financial', 'Campaign'],
-              latitude: 40.7128,
-              longitude: -74.0060,
-              classification: 'CONFIDENTIAL',
-              status: 'REVIEWED',
-              createdAt: new Date('2024-01-08'),
-              updatedAt: new Date('2024-01-10')
-            }
-          ];
-          setReports(mockReports);
-          localStorage.setItem('intel-reports', JSON.stringify(mockReports));
-        }
-      } catch (error) {
-        console.error('Failed to load intel reports:', error);
-        setNotification({ type: 'error', message: 'Failed to load intel reports. Please try again.' });
+        await intelReportService.migrateLegacyIfNeeded();
+        const list = await intelReportService.listReports();
+        setReports(list);
+        unsubscribe = intelReportService.onChange(setReports);
+      } catch (e) {
+        console.error('Failed to load intel reports', e);
+        setNotification({ type: 'error', message: 'Failed to load intel reports.' });
       } finally {
         setLoading(false);
       }
     };
+    load();
+    return () => { if (unsubscribe) unsubscribe(); };
+  }, []);
 
-    loadReports();
-  }, [publicKey]);
-
-  // Form validation
+  // Form validation (unchanged logic)
   const validateForm = (): boolean => {
     const errors: FormErrors = {};
 
@@ -156,24 +106,15 @@ const IntelDashboard: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      const newReport: IntelReport = {
-        id: `intel-${Date.now()}`,
+      await intelReportService.createReport({
         title: formData.title.trim(),
         content: formData.content.trim(),
-        author: publicKey.toString(),
         category: formData.category,
-        tags: formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
-        latitude: formData.latitude ? parseFloat(formData.latitude) : undefined,
-        longitude: formData.longitude ? parseFloat(formData.longitude) : undefined,
+        tags: formData.tags.split(',').map(t => t.trim()).filter(Boolean),
         classification: formData.classification,
-        status: 'DRAFT',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      };
-
-      const updatedReports = [...reports, newReport];
-      setReports(updatedReports);
-      localStorage.setItem('intel-reports', JSON.stringify(updatedReports));
+        latitude: formData.latitude ? parseFloat(formData.latitude) : undefined,
+        longitude: formData.longitude ? parseFloat(formData.longitude) : undefined
+      }, publicKey.toString());
 
       // Reset form
       setFormData({
@@ -205,7 +146,7 @@ const IntelDashboard: React.FC = () => {
   }, [notification]);
 
   // Filter and sort reports
-  const filteredReports = reports.filter(report => {
+  const filteredReports = useMemo(() => reports.filter(report => {
     if (filterCategory !== 'ALL' && report.category !== filterCategory) return false;
     if (filterStatus !== 'ALL' && report.status !== filterStatus) return false;
     return true;
@@ -214,12 +155,12 @@ const IntelDashboard: React.FC = () => {
       case 'title':
         return a.title.localeCompare(b.title);
       case 'createdAt':
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        return b.createdAt.getTime() - a.createdAt.getTime();
       case 'updatedAt':
       default:
-        return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+        return b.updatedAt.getTime() - a.updatedAt.getTime();
     }
-  });
+  }), [reports, filterCategory, filterStatus, sortBy]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -382,7 +323,7 @@ const IntelDashboard: React.FC = () => {
                   <span className={styles.author}>By {report.author.substring(0, 8)}...</span>
                 </div>
                 <span className={styles.lastUpdated}>
-                  Updated {new Date(report.updatedAt).toLocaleDateString()}
+                  Updated {report.updatedAt.toLocaleDateString()}
                 </span>
               </div>
             </div>

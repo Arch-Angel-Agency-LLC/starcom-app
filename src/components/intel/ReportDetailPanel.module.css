@@ -1,0 +1,24 @@
+.panelRoot { border-left:1px solid #222; background:#101011; width:360px; padding:16px; display:flex; flex-direction:column; gap:12px; }
+.header { display:flex; justify-content:space-between; align-items:center; }
+.title { font-size:15px; font-weight:600; color:#eee; margin:0; }
+.metaRow { display:flex; flex-wrap:wrap; gap:6px; font-size:11px; color:#999; }
+.badge { background:#1f1f22; padding:2px 6px; border-radius:4px; border:1px solid #2d2d31; font-size:10px; letter-spacing:0.5px; }
+.section { border-top:1px solid #1d1d1f; padding-top:8px; }
+.section h4 { margin:0 0 6px; font-size:12px; letter-spacing:0.5px; font-weight:600; color:#ccc; }
+.contentBox { background:#161617; border:1px solid #222; padding:8px; border-radius:6px; font-size:12px; line-height:1.4; white-space:pre-wrap; max-height:160px; overflow:auto; }
+.list { margin:0; padding-left:16px; font-size:12px; color:#ccc; }
+.list li { margin-bottom:4px; }
+.small { font-size:10px; color:#666; }
+.actions { display:flex; gap:8px; }
+.button { background:#222; color:#ccc; border:1px solid #333; border-radius:4px; padding:4px 10px; font-size:11px; cursor:pointer; }
+.button:hover { border-color:#444; }
+.status-DRAFT { background:#444; }
+.status-SUBMITTED { background:#664400; }
+.status-REVIEWED { background:#003d66; }
+.status-APPROVED { background:#014d27; }
+.status-ARCHIVED { background:#333; }
+.priority-ROUTINE { border-color:#333; }
+.priority-PRIORITY { border-color:#885500; }
+.priority-IMMEDIATE { border-color:#aa0000; }
+.tagRow { display:flex; flex-wrap:wrap; gap:4px; }
+.tag { background:#1d1d21; padding:2px 6px; border-radius:4px; font-size:10px; color:#9aa; }
