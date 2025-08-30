@@ -1,0 +1,52 @@
+name: Content Snapshot (MVP)
+
+on:
+  workflow_dispatch:
+    inputs:
+      configPath:
+        description: 'Path to feeds config JSON'
+        required: false
+        default: 'scripts/snapshot/config/feeds.json'
+      outPath:
+        description: 'Output snapshot path'
+        required: false
+        default: 'public/content-snapshots/latest.json'
+
+permissions:
+  contents: write
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Run unit tests
+        run: npm test --silent
+
+      - name: Generate snapshot
+        run: |
+          npx tsx scripts/snapshot/generateSnapshot.ts --config "${{ github.event.inputs.configPath }}" --out "${{ github.event.inputs.outPath }}" --pretty
+
+      - name: Commit snapshot (if changed)
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore(snapshot): update latest.json"
+          file_pattern: |
+            public/content-snapshots/latest.json
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: content-snapshot
+          path: public/content-snapshots/latest.json

@@ -1,0 +1,15 @@
+{
+  "medium": {
+    "feeds": [
+      { "id": "example", "url": "https://medium.com/feed/@example" }
+    ]
+  },
+  "rss": {
+    "feeds": []
+  },
+  "options": {
+    "excerptMaxLength": 200,
+    "requestTimeoutMs": 10000,
+    "userAgent": "StarcomSnapshotBot/0.1 (+https://github.com/Arch-Angel-Agency-LLC/starcom-app)"
+  }
+}

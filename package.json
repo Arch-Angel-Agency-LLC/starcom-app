@@ -59,7 +59,8 @@
     "test:team": "vitest run src/context/__tests__ src/components/TeamDashboard/__tests__ src/pages/MyTeams/__tests__ src/pages/TeamIntel/__tests__",
     "test:e2e": "playwright test tests/e2e",
     "geo:fetch": "bash scripts/fetch_geopolitical_data.sh",
-    "geo:hash": "tsx scripts/generate-geopolitical-hashes.ts"
+    "geo:hash": "tsx scripts/generate-geopolitical-hashes.ts",
+    "snapshot:generate": "tsx scripts/snapshot/generateSnapshot.ts --config scripts/snapshot/config/feeds.json --out public/content-snapshots/latest.json --pretty"
   },
   "dependencies": {
     "@chainsafe/libp2p-noise": "^16.1.4",
