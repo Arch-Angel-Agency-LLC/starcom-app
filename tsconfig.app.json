@@ -27,7 +27,6 @@
       "@hooks/*": ["src/hooks/*"],
       "@utils/*": ["src/utils/*"],
   "@models/*": ["src/models/*"],
-  "@netrunner-engine": ["src/applications/netrunner/scripts/engine/index.ts"],
   "@netrunner-engine/*": ["src/applications/netrunner/scripts/engine/*"]
     },
     "noUnusedLocals": false,
