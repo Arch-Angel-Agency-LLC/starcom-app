@@ -29,7 +29,12 @@ coverage/
 
 # Documentation and scripts (not needed for deployment)
 docs/
-scripts/
+# Restrict ignoring of build/utility scripts to the root-level scripts directory only.
+/scripts/
+# Ensure NetRunner engine "scripts" subtree (nested) is retained (overrides broader patterns just in case)
+!src/applications/netrunner/scripts/
+!src/applications/netrunner/scripts/engine/
+!src/applications/netrunner/scripts/engine/**
 *.sh
 *.md
 !README.md
