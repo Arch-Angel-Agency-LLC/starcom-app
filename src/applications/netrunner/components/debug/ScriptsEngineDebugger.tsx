@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Typography } from '@mui/material';
 // Use engine alias (helps avoid relative path resolution quirks in some environments)
-import { NetRunnerScriptsUIService } from '@netrunner-engine/NetRunnerScriptsUIService.ts';
+import { NetRunnerScriptsUIService } from '@netrunnerEngine';
 
 /**
  * Debug component to test scripts engine functionality directly

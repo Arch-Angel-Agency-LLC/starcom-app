@@ -202,6 +202,7 @@ export default defineConfig(({ mode }) => {
       '@utils': path.resolve(__dirname, './src/utils'),
   // NetRunner engine alias (to avoid deep fragile relative paths on some build environments)
   '@netrunner-engine': path.resolve(__dirname, './src/applications/netrunner/scripts/engine'),
+  '@netrunnerEngine': path.resolve(__dirname, './src/netrunnerEngine.ts'),
       // Polyfill Node.js modules for browser compatibility
       stream: 'stream-browserify',
       util: 'util',

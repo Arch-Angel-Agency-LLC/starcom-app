@@ -9,9 +9,9 @@
   "scripts": {
     "dev": "vite",
     "dev:clean": "rm -rf node_modules/.vite && VITE_ENTRY=index.html vite --force",
-  "build": "NODE_OPTIONS='--max-old-space-size=8192' vite build",
-  "build:ipfs": "VITE_TARGET=ipfs VITE_ROUTER_MODE=hash NODE_OPTIONS='--max-old-space-size=8192' vite build",
-  "build:vercel:pin": "VITE_PIN_API=true NODE_OPTIONS='--max-old-space-size=8192' vite build",
+    "build": "NODE_OPTIONS='--max-old-space-size=8192' vite build",
+    "build:ipfs": "VITE_TARGET=ipfs VITE_ROUTER_MODE=hash NODE_OPTIONS='--max-old-space-size=8192' vite build",
+    "build:vercel:pin": "VITE_PIN_API=true NODE_OPTIONS='--max-old-space-size=8192' vite build",
     "build:vercel": "NODE_OPTIONS='--max-old-space-size=8192' vite build --mode production",
     "build:strict": "NODE_OPTIONS='--max-old-space-size=8192' tsc -b && NODE_OPTIONS='--max-old-space-size=8192' vite build",
     "build:local": "NODE_OPTIONS='--max-old-space-size=8192' vite build",
@@ -180,7 +180,7 @@
     "@eslint/js": "^9.17.0",
     "@metamask/providers": "^21.0.0",
     "@playwright/test": "^1.53.1",
-    "@rollup/plugin-inject": "^5.0.5",
+  "@rollup/plugin-inject": "^5.0.5",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
@@ -216,6 +216,7 @@
     "jest-html-reporters": "^3.1.7",
     "jest-junit": "^16.0.0",
     "jsdom": "^26.1.0",
+    "mapshaper": "^0.6.76",
     "msw": "^2.7.0",
     "path-browserify": "^1.0.1",
     "pixelmatch": "^7.1.0",
@@ -231,7 +232,6 @@
     "vitest": "^3.2.3",
     "vm-browserify": "^1.1.2",
     "webpack-bundle-analyzer": "^4.10.2",
-    "ws": "^8.18.3",
-    "mapshaper": "^0.6.76"
+    "ws": "^8.18.3"
   }
 }

@@ -28,6 +28,7 @@
       "@utils/*": ["src/utils/*"],
   "@models/*": ["src/models/*"],
   "@netrunner-engine/*": ["src/applications/netrunner/scripts/engine/*"]
+  ,"@netrunnerEngine": ["src/netrunnerEngine.ts"]
     },
     "noUnusedLocals": false,
     "noUnusedParameters": false,
