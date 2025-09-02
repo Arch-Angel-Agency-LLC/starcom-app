@@ -18,6 +18,11 @@ export interface GeoPoliticalConfig {
     showMaritimeBorders: boolean;
     labelVisibility: number; // 0-100
     highlightOnHover: boolean;
+    lod?: {
+      mode: 'auto' | 'locked';
+      lockedLevel: 0 | 1 | 2;
+      hysteresis: number; // distance margin (units)
+    };
   };
   
   // Diplomatic Events settings
@@ -85,7 +90,8 @@ const defaultConfig: GeoPoliticalConfig = {
     showDisputedTerritories: true,
     showMaritimeBorders: false,
     labelVisibility: 60,
-    highlightOnHover: true
+    highlightOnHover: true,
+    lod: { mode: 'auto', lockedLevel: 2, hysteresis: 25 }
   },
   
   diplomaticEvents: {
@@ -255,7 +261,8 @@ export const useGeoPoliticalSettings = () => {
     territoryStyle: {
       opacity: config.nationalTerritories.territoryColors.opacity / 100,
       scheme: config.nationalTerritories.territoryColors.colorScheme,
-      thickness: config.nationalTerritories.borderThickness
+      thickness: config.nationalTerritories.borderThickness,
+      lod: config.nationalTerritories.lod
     },
     eventSettings: {
       timeRangeMs: config.diplomaticEvents.timeRange * 24 * 60 * 60 * 1000,

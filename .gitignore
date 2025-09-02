@@ -165,3 +165,6 @@ technical_reference_code_samples/NOAA_directory_scan/noaa_data/*.json
 test-results/screenshots/
 **/*.venv/
 **/backup/
+
+# Ignore EEZ tmp large exports
+data/eez/tmp/*.json

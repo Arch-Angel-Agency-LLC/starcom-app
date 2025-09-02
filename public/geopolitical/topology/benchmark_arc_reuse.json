@@ -1,0 +1,13 @@
+{
+  "arcReuse": {
+    "uniqueArcCount": 947,
+    "totalArcReferences": 1095,
+    "avgReferencesPerArc": 1.1562829989440337,
+    "reuseRatioInterpretation": "Higher avgReferencesPerArc indicates more sharing. Aim >1.35"
+  },
+  "quantization": {
+    "q": 100000,
+    "avgQuantizedSegmentLen": 303.581396881149,
+    "note": "True geographic distortion not computed (need original floats)."
+  }
+}

@@ -1,11 +1,16 @@
 import * as THREE from 'three';
-import { GeoPoliticalConfig } from '../../../hooks/useGeoPoliticalSettings';
+// Corrected path to GeoPoliticalConfig
+import { GeoPoliticalConfig } from '../../hooks/useGeoPoliticalSettings';
 
 export interface BorderMaterialParams {
   color: number;
   opacity: number;
   thickness: number; // placeholder (WebGL line limitation)
+  classification?: BorderClassification;
 }
+
+// Classification enum for boundary styling
+export type BorderClassification = 'international' | 'disputed' | 'line_of_control' | 'indefinite' | 'unknown' | 'maritime_eez' | 'maritime_overlap';
 
 function schemeColor(scheme: string, variant: string): number {
   const maps: Record<string, number[]> = {
@@ -19,11 +24,33 @@ function schemeColor(scheme: string, variant: string): number {
   return arr[idx];
 }
 
-export function resolveBorderMaterialConfig(cfg: GeoPoliticalConfig['nationalTerritories'], featureId: string): BorderMaterialParams {
+// Classification specific base colors (can be theme configurable later)
+const CLASSIFICATION_COLORS: Record<BorderClassification, number> = {
+  international: 0x00ff41,     // vivid green (baseline)
+  disputed: 0xff5555,          // red
+  line_of_control: 0xffcc00,   // amber
+  indefinite: 0x888888,        // neutral gray
+  unknown: 0x555555,          // dark gray
+  maritime_eez: 0x0094ff,     // blue
+  maritime_overlap: 0xff8800   // orange
+};
+
+export function resolveBorderMaterialConfig(
+  cfg: GeoPoliticalConfig['nationalTerritories'],
+  featureId: string,
+  classification: BorderClassification = 'international'
+): BorderMaterialParams {
+  // If international, retain scheme hashing; otherwise override with classification palette
+  const baseColor = classification === 'international'
+    ? schemeColor(cfg.territoryColors.colorScheme, featureId)
+    : CLASSIFICATION_COLORS[classification];
+  // Opacity tweak: disputed / line_of_control slightly higher to stand out
+  const opacityBoost = (classification === 'disputed' || classification === 'line_of_control') ? 0.1 : 0;
   return {
-    color: schemeColor(cfg.territoryColors.colorScheme, featureId),
-    opacity: cfg.borderVisibility / 100,
-    thickness: cfg.borderThickness
+    color: baseColor,
+    opacity: Math.min(1, cfg.borderVisibility / 100 + opacityBoost),
+    thickness: cfg.borderThickness,
+    classification
   };
 }
 

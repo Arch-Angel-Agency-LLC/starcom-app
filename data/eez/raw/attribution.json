@@ -1,0 +1,18 @@
+{
+  "source": "Flanders Marine Institute (VLIZ)",
+  "dataset": "WFS:MarineRegions:eez",
+  "attemptedUrls": [
+    "https://www.marineregions.org/downloads/eez/World_EEZ_v11.zip",
+    "https://www.marineregions.org/downloads.php?file=World_EEZ_v11.zip",
+    "https://marineregions.org/downloads/eez/World_EEZ_v11.zip",
+    "https://marineregions.org/downloads.php?file=World_EEZ_v11.zip",
+    "https://www.marineregions.org/downloads/eez/World_EEZ_v12.zip",
+    "https://www.marineregions.org/downloads.php?file=World_EEZ_v12.zip",
+    "https://marineregions.org/downloads/eez/World_EEZ_v12.zip",
+    "https://marineregions.org/downloads.php?file=World_EEZ_v12.zip"
+  ],
+  "wfsUrl": "https://geo.vliz.be/geoserver/MarineRegions/wfs?service=WFS&version=1.0.0&request=GetFeature&typeName=MarineRegions:eez&outputFormat=application/json&propertyName=MRGID,TERRITORY1,SOVEREIGN1,ISO_SOV1,GEONAME,ISO_TER1",
+  "license": "CC-BY",
+  "retrieved": "2025-08-30T21:34:10.979Z",
+  "method": "WFS fallback"
+}

@@ -1,0 +1,49 @@
+{
+  "lods": {
+    "lod0": {
+      "countsPerClass": {
+        "International": 332,
+        "Disputed": 21,
+        "LineOfControl": 7,
+        "Indefinite": 5,
+        "MaritimeEEZ": 0,
+        "MaritimeOverlap": 0,
+        "InternalPlaceholder": 0,
+        "Unknown": 0
+      },
+      "unknownPct": 0,
+      "total": 365,
+      "hash": "d1ee16ec801bf18a791fcee991cf19d5c833b44050561c8346f39d33092d67b7"
+    },
+    "lod1": {
+      "countsPerClass": {
+        "International": 332,
+        "Disputed": 21,
+        "LineOfControl": 7,
+        "Indefinite": 5,
+        "MaritimeEEZ": 0,
+        "MaritimeOverlap": 0,
+        "InternalPlaceholder": 0,
+        "Unknown": 0
+      },
+      "unknownPct": 0,
+      "total": 365,
+      "hash": "00275cbadfa6ed27d1b4d2be0b76fc1b4567c79ac05a0ff995ca149f9f73dae5"
+    },
+    "lod2": {
+      "countsPerClass": {
+        "International": 332,
+        "Disputed": 21,
+        "LineOfControl": 7,
+        "Indefinite": 5,
+        "MaritimeEEZ": 0,
+        "MaritimeOverlap": 0,
+        "InternalPlaceholder": 0,
+        "Unknown": 0
+      },
+      "unknownPct": 0,
+      "total": 365,
+      "hash": "f1891e22b1b7e36faf784ff612018006a11a72e3bbe61424d75e1bffa3d13ce3"
+    }
+  }
+}

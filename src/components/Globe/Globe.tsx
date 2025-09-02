@@ -23,6 +23,7 @@ import type { CyberAttackData } from '../../types/CyberAttacks';
 // GeoPolitical + territories integration
 import { useGeoPoliticalSettings } from '../../hooks/useGeoPoliticalSettings';
 import { useNationalTerritories3D } from '../../geopolitical/hooks/useNationalTerritories3D';
+import { verifyGeopoliticalAssets } from '../../geopolitical/integrity/verifyGeopoliticalAssets';
 
 // TS shim for process env in browser build (debug flags) - safe no-op in prod bundlers
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -272,7 +273,7 @@ const GlobeView: React.FC = () => {
   // =============================================================================
   useEffect(() => {
     let mounted = true;
-    let dataRefreshInterval: number | null = null;
+  let dataRefreshInterval: ReturnType<typeof setInterval> | null = null;
 
     if (visualizationMode.mode === 'CyberCommand' && visualizationMode.subMode === 'CyberThreats') {
       console.log('🔒 CYBER THREATS MODE ACTIVATED - Loading real threat data');
@@ -358,7 +359,7 @@ const GlobeView: React.FC = () => {
   // =============================================================================
   useEffect(() => {
     let mounted = true;
-    let dataRefreshInterval: number | null = null;
+  let dataRefreshInterval: ReturnType<typeof setInterval> | null = null;
 
     if (visualizationMode.mode === 'CyberCommand' && visualizationMode.subMode === 'CyberAttacks') {
       console.log('⚡ CYBER ATTACKS MODE ACTIVATED - Loading real attack data');
@@ -1032,17 +1033,29 @@ const GlobeView: React.FC = () => {
   }, [globeRef, cyberAttacksData, visualizationMode.mode, visualizationMode.subMode]);
 
   // GeoPolitical settings
-  const { config: geoPoliticalConfig } = useGeoPoliticalSettings();
-  // Attach NationalTerritories layer via new hook (registry-driven)
+  const { config: geoPoliticalConfig, updateNationalTerritories } = useGeoPoliticalSettings();
+  // Always enable borders/territories for ANY GeoPolitical sub-mode
+  const geoEnabled = visualizationMode.mode === 'GeoPolitical';
   const nationalTerritories = useNationalTerritories3D({
-    enabled: visualizationMode.mode === 'GeoPolitical' && visualizationMode.subMode === 'NationalTerritories',
+    enabled: geoEnabled,
     scene: globeRef.current ? (globeRef.current as unknown as { scene: () => THREE.Scene }).scene() : null,
     config: geoPoliticalConfig.nationalTerritories
   });
-  // Optional: log loading/error states
+  useEffect(() => { if (nationalTerritories.error) console.error('NationalTerritories error:', nationalTerritories.error); }, [nationalTerritories.error]);
+
+  // Integrity verification (lazy)
+  const [geoIntegrity, setGeoIntegrity] = useState<{ status: 'idle'|'verifying'|'verified'|'mismatch'|'error'; mismatchCount?: number; artifacts?: { path: string; status: string; bytes: number }[] }>({ status: 'idle' });
+  const [geoPanelOpen, setGeoPanelOpen] = useState(false);
   useEffect(() => {
-    if (nationalTerritories.error) console.error('NationalTerritories error:', nationalTerritories.error);
-  }, [nationalTerritories.error]);
+    if (!geoEnabled) return;
+    if (geoIntegrity.status !== 'idle') return;
+    let cancelled = false;
+    setGeoIntegrity({ status: 'verifying' });
+    verifyGeopoliticalAssets({ includeClasses: ['topology','normalized'], maxBytes: 900000 })
+      .then(r => { if (!cancelled) setGeoIntegrity({ status: r.ok ? 'verified':'mismatch', mismatchCount: r.mismatches.length, artifacts: r.artifacts.map(a => ({ path: a.path, status: a.status, bytes: a.bytes })) }); })
+      .catch(() => { if (!cancelled) setGeoIntegrity({ status: 'error' }); });
+    return () => { cancelled = true; };
+  }, [geoEnabled, geoIntegrity.status]);
 
   // Add debounce utility for resize handling (fixes recursive resize event dispatch)
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
@@ -1202,7 +1215,7 @@ const GlobeView: React.FC = () => {
       minWidth: '100%',
       minHeight: '100%'
     }}>
-      <GlobeLoadingManager 
+  <GlobeLoadingManager 
         material={material} 
         globeEngine={globeEngine}
         fastTrackMode={false} // TODO: Implement user preference for globe loading optimization (cached vs real-time data)
@@ -1298,7 +1311,76 @@ const GlobeView: React.FC = () => {
           } : null}
         /> */}
         
-        {/* Borders and territories overlays would be attached to the Three.js scene here in a custom renderer or with react-three-fiber */}
+        {/* Geopolitical Panel UI */}
+        {geoEnabled && (
+          <div style={{ position: 'absolute', top: 12, right: 12, background: 'rgba(0,0,0,0.55)', padding: '10px 12px', borderRadius: 8, fontSize: 12, lineHeight: 1.4, maxWidth: 260 }}>
+            <div style={{ fontWeight: 600, marginBottom: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }} onClick={() => setGeoPanelOpen(o => !o)}>
+              <span>Geopolitical Layers {geoPanelOpen ? '▾' : '▸'}</span>
+              <span style={{ fontSize: 10, padding: '2px 6px', borderRadius: 4, background: '#222', border: '1px solid #444' }}>
+                {geoIntegrity.status === 'idle' && '—'}
+                {geoIntegrity.status === 'verifying' && 'Verifying'}
+                {geoIntegrity.status === 'verified' && 'Verified'}
+                {geoIntegrity.status === 'mismatch' && `Mismatch${geoIntegrity.mismatchCount ? ' ' + geoIntegrity.mismatchCount : ''}`}
+                {geoIntegrity.status === 'error' && 'Error'}
+              </span>
+            </div>
+            {geoPanelOpen && (
+              <>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginBottom: 6 }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <input type="checkbox" checked={geoEnabled} readOnly /> Borders
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <input
+                      type="checkbox"
+                      checked={geoPoliticalConfig.nationalTerritories.territoryColors.opacity > 0}
+                      onChange={e => updateNationalTerritories({ territoryColors: { ...geoPoliticalConfig.nationalTerritories.territoryColors, opacity: e.target.checked ? 50 : 0 } })}
+                    /> Fills
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <input
+                      type="checkbox"
+                      checked={geoPoliticalConfig.nationalTerritories.showDisputedTerritories}
+                      onChange={e => updateNationalTerritories({ showDisputedTerritories: e.target.checked })}
+                    /> Show Disputed
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <input
+                      type="checkbox"
+                      checked={geoPoliticalConfig.nationalTerritories.highlightOnHover}
+                      onChange={e => updateNationalTerritories({ highlightOnHover: e.target.checked })}
+                    /> Hover Highlight
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ width: 66 }}>Opacity</span>
+                    <input type="range" min={0} max={100} value={geoPoliticalConfig.nationalTerritories.territoryColors.opacity}
+                      onChange={e => updateNationalTerritories({ territoryColors: { ...geoPoliticalConfig.nationalTerritories.territoryColors, opacity: parseInt(e.target.value, 10) } })} style={{ flex: 1 }} />
+                    <span style={{ width: 32, textAlign: 'right' }}>{geoPoliticalConfig.nationalTerritories.territoryColors.opacity}</span>
+                  </label>
+                </div>
+                {geoIntegrity.artifacts && (
+                  <div style={{ maxHeight: 140, overflowY: 'auto', fontSize: 11, borderTop: '1px solid #333', paddingTop: 6, marginBottom: 6 }}>
+                    {geoIntegrity.artifacts.map(a => (
+                      <div key={a.path} style={{ display: 'flex', justifyContent: 'space-between', gap: 6 }}>
+                        <span style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{a.path.replace('public/','')}</span>
+                        <span style={{ color: a.status === 'verified' ? '#55ff55' : a.status === 'mismatch' ? '#ff6666' : '#cccccc' }}>{a.status}</span>
+                        <span style={{ opacity: 0.65 }}>{(a.bytes/1024).toFixed(1)}kB</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 2, marginBottom: 6 }}>
+              <div><span style={{ color: '#00ff41' }}>■</span> Intl</div>
+              <div><span style={{ color: '#ff5555' }}>■</span> Disputed</div>
+              <div><span style={{ color: '#ffcc00' }}>■</span> LoC</div>
+              <div><span style={{ color: '#888888' }}>■</span> Indefinite</div>
+            </div>
+            <div style={{ fontSize: 11, opacity: 0.75 }}>LOD: {geoPoliticalConfig.nationalTerritories.lod?.mode === 'locked' ? `Locked ${geoPoliticalConfig.nationalTerritories.lod.lockedLevel}` : 'Auto'}</div>
+          </div>
+        )}
+        {/* Borders and territories overlays attached in scene via hook */}
       </GlobeLoadingManager>
     </div>
   );

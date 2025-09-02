@@ -1,0 +1,56 @@
+{
+  "generated": "2025-08-30T22:18:22.570Z",
+  "algorithm": [
+    "sha256",
+    "sha1"
+  ],
+  "artifacts": [
+    {
+      "path": "public/geopolitical/normalized/world-borders-lod0.normalized.json",
+      "bytes": 484988,
+      "sha256": "8cfcb5b4fe7dcdcf75132d48c99e44a998d0b462d6d4565ea21648a88d849b11",
+      "sha1": "0fab0498e92b928a34d8c78cf70054465288e1d7",
+      "class": "normalized",
+      "note": "LOD0"
+    },
+    {
+      "path": "public/geopolitical/normalized/world-borders-lod1.normalized.json",
+      "bytes": 556515,
+      "sha256": "257b09cf84aff29e612ba7300bb2fe9aa4a070728810c00108973fbee9e074f9",
+      "sha1": "165ddcfc8856d6a33aa4d95c9bc9aeaff851bfb4",
+      "class": "normalized",
+      "note": "LOD1"
+    },
+    {
+      "path": "public/geopolitical/normalized/world-borders-lod2.normalized.json",
+      "bytes": 699002,
+      "sha256": "9ba6ea79567d662b643277bc51b9e40ba4c651b17f498f778a13bd28029fe3c8",
+      "sha1": "29f65f1838769164ac2e4bfdaec2554299e11b66",
+      "class": "normalized",
+      "note": "LOD2"
+    },
+    {
+      "path": "public/geopolitical/topology/world-borders.topology.json",
+      "bytes": 595273,
+      "sha256": "5ea8569d678c13c07765f874a7d291139462570b7530859ccbb69dd3288011b2",
+      "sha1": "f1939c899fecc388605818f90a080f84dc6dd6ba",
+      "class": "topology",
+      "note": "land borders shared arcs"
+    },
+    {
+      "path": "data/eez/raw/eez_raw.geojson",
+      "bytes": 62082,
+      "sha256": "a1b42e4b1eb59e1649f5ec62c9754f8e785489d2416de72da0bcbbed17ea6c5e",
+      "sha1": "8a7560931121fbcda2b9296e6df25bd7eba80b4f",
+      "class": "raw-eez",
+      "note": "raw EEZ source (deferred if absent)"
+    }
+  ],
+  "summary": {
+    "count": 5,
+    "totalBytes": 2397860
+  },
+  "notes": {
+    "maritimeStatus": "present"
+  }
+}

@@ -7,9 +7,11 @@ import { useGeoPoliticalSettings } from '../../../../hooks/useGeoPoliticalSettin
 export const NationalTerritoriesSettingsContainer: React.FC = () => {
   const { config, updateNationalTerritories } = useGeoPoliticalSettings();
   const nt = config.nationalTerritories;
+  const lod = nt.lod || { mode: 'auto', lockedLevel: 2, hysteresis: 25 };
   return (
     <div className="gp-settings-section">
       <h4 className="gp-settings-title">National Territories</h4>
+      {/* Core visuals */}
       <label className="gp-settings-label">Border Visibility {nt.borderVisibility}%
         <input type="range" min={0} max={100} value={nt.borderVisibility} onChange={e=>updateNationalTerritories({ borderVisibility: parseInt(e.target.value,10) })} />
       </label>
@@ -27,9 +29,47 @@ export const NationalTerritoriesSettingsContainer: React.FC = () => {
           <option value="population">Population</option>
         </select>
       </label>
+      <div className="gp-divider" />
+      {/* LOD Controls */}
+      <fieldset className="gp-settings-fieldset">
+        <legend>LOD</legend>
+        <label>
+          Mode
+          <select value={lod.mode} onChange={e=>updateNationalTerritories({ lod: { ...lod, mode: e.target.value as any } })}>
+            <option value="auto">Auto</option>
+            <option value="locked">Locked</option>
+          </select>
+        </label>
+        {lod.mode === 'locked' && (
+          <label>Locked Level
+            <select value={lod.lockedLevel} onChange={e=>updateNationalTerritories({ lod: { ...lod, lockedLevel: parseInt(e.target.value,10) as any } })}>
+              <option value={0}>LOD0 (far)</option>
+              <option value={1}>LOD1 (mid)</option>
+              <option value={2}>LOD2 (near)</option>
+            </select>
+          </label>
+        )}
+        {lod.mode === 'auto' && (
+          <label>Hysteresis {lod.hysteresis}
+            <input type="range" min={0} max={100} value={lod.hysteresis} onChange={e=>updateNationalTerritories({ lod: { ...lod, hysteresis: parseInt(e.target.value,10) } })} />
+          </label>
+        )}
+      </fieldset>
+      <div className="gp-divider" />
+      {/* Toggles */}
       <label><input type="checkbox" checked={nt.showDisputedTerritories} onChange={e=>updateNationalTerritories({ showDisputedTerritories: e.target.checked })} /> Show Disputed</label>
       <label><input type="checkbox" checked={nt.showMaritimeBorders} onChange={e=>updateNationalTerritories({ showMaritimeBorders: e.target.checked })} /> Maritime Borders</label>
       <label><input type="checkbox" checked={nt.highlightOnHover} onChange={e=>updateNationalTerritories({ highlightOnHover: e.target.checked })} /> Highlight Hover</label>
+      <div className="gp-divider" />
+      {/* Legend (classification colors) */}
+      <div className="gp-legend">
+        <div className="gp-legend-item"><span className="gp-color international" /> International</div>
+        <div className="gp-legend-item"><span className="gp-color disputed" /> Disputed</div>
+        <div className="gp-legend-item"><span className="gp-color line_of_control" /> Line of Control</div>
+        <div className="gp-legend-item"><span className="gp-color indefinite" /> Indefinite</div>
+      </div>
+      {/* Placeholder for future hash verify button */}
+      <button className="gp-btn gp-btn-secondary" disabled>Verify Data Integrity (soon)</button>
     </div>
   );
 };
