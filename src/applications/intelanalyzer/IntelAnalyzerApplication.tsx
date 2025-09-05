@@ -11,6 +11,7 @@ import { useAuth } from '../../hooks/useAuth';
 
 // Import our new Intel Transformation components
 import { IntelTransformationDashboard } from '../../components/IntelAnalyzer/IntelTransformationDashboard';
+import IntelAnalyzerLayout from '../../components/IntelAnalyzer/IntelAnalyzerLayout';
 
 // Error boundary for Intel operations
 import { IntelReports3DErrorBoundary } from '../../components/IntelReports3D/Core/IntelReports3DErrorBoundary';
@@ -146,9 +147,8 @@ const cyberpunkIntelTheme = createTheme({
         },
       },
     },
-  },
+  }
 });
-
 interface IntelAnalyzerState {
   loading: boolean;
   error: string | null;
@@ -210,15 +210,14 @@ const IntelAnalyzerApplication: React.FC = () => {
   if (authLoading || appState.loading) {
     return (
       <ThemeProvider theme={cyberpunkIntelTheme}>
-        <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh" sx={{
-          background: 'linear-gradient(135deg, rgba(0, 15, 0, 0.95) 0%, rgba(0, 25, 5, 0.98) 100%)',
-          backdropFilter: 'blur(10px)',
-        }}>
-          <CircularProgress />
-          <Typography variant="h6" sx={{ ml: 2 }}>
-            🔍 Initializing Intel Transformation System...
-          </Typography>
-        </Box>
+        <IntelAnalyzerLayout>
+          <Box className="stateContainer stateContainerCentered">
+            <CircularProgress />
+            <Typography variant="h6" sx={{ mt: 2 }}>
+              🔍 Initializing Intel Transformation System...
+            </Typography>
+          </Box>
+        </IntelAnalyzerLayout>
       </ThemeProvider>
     );
   }
@@ -228,24 +227,9 @@ const IntelAnalyzerApplication: React.FC = () => {
     return (
       <ThemeProvider theme={cyberpunkIntelTheme}>
         <IntelReports3DErrorBoundary>
-          <Box sx={{ 
-            minHeight: '100vh',
-            background: 'linear-gradient(135deg, rgba(0, 15, 0, 0.95) 0%, rgba(0, 25, 5, 0.98) 100%)',
-            backdropFilter: 'blur(10px)',
-            '&::before': {
-              content: '""',
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: 'linear-gradient(45deg, transparent 49%, rgba(0, 255, 65, 0.02) 50%, transparent 51%)',
-              pointerEvents: 'none',
-              zIndex: 0,
-            }
-          }}>
+          <IntelAnalyzerLayout>
             <IntelTransformationDashboard />
-          </Box>
+          </IntelAnalyzerLayout>
         </IntelReports3DErrorBoundary>
       </ThemeProvider>
     );
@@ -255,17 +239,19 @@ const IntelAnalyzerApplication: React.FC = () => {
   if (!appState.userHasAccess) {
     return (
       <ThemeProvider theme={cyberpunkIntelTheme}>
-        <Container maxWidth="md">
-          <Alert severity="error">
-            <Typography variant="h6">Access Denied</Typography>
-            <Typography>
-              {appState.error || 'You do not have permission to access the Intel Transformation system.'}
-            </Typography>
-            <Typography sx={{ mt: 1, fontSize: '0.875rem' }}>
-              The Intel Transformation system requires special clearance to convert raw intel into intelligence reports.
-            </Typography>
-          </Alert>
-        </Container>
+        <IntelAnalyzerLayout>
+          <Container maxWidth="md" className="stateContainer">
+            <Alert severity="error">
+              <Typography variant="h6">Access Denied</Typography>
+              <Typography>
+                {appState.error || 'You do not have permission to access the Intel Transformation system.'}
+              </Typography>
+              <Typography sx={{ mt: 1, fontSize: '0.875rem' }}>
+                The Intel Transformation system requires special clearance to convert raw intel into intelligence reports.
+              </Typography>
+            </Alert>
+          </Container>
+        </IntelAnalyzerLayout>
       </ThemeProvider>
     );
   }
@@ -274,15 +260,17 @@ const IntelAnalyzerApplication: React.FC = () => {
   if (appState.error) {
     return (
       <ThemeProvider theme={cyberpunkIntelTheme}>
-        <Container maxWidth="md">
-          <Alert severity="error">
-            <Typography variant="h6">Intel Transformation System Error</Typography>
-            <Typography>{appState.error}</Typography>
-            <Typography sx={{ mt: 1, fontSize: '0.875rem' }}>
-              The Intel → Report transformation service is currently unavailable.
-            </Typography>
-          </Alert>
-        </Container>
+        <IntelAnalyzerLayout>
+          <Container maxWidth="md" className="stateContainer">
+            <Alert severity="error">
+              <Typography variant="h6">Intel Transformation System Error</Typography>
+              <Typography>{appState.error}</Typography>
+              <Typography sx={{ mt: 1, fontSize: '0.875rem' }}>
+                The Intel → Report transformation service is currently unavailable.
+              </Typography>
+            </Alert>
+          </Container>
+        </IntelAnalyzerLayout>
       </ThemeProvider>
     );
   }
@@ -291,71 +279,9 @@ const IntelAnalyzerApplication: React.FC = () => {
   return (
     <ThemeProvider theme={cyberpunkIntelTheme}>
       <IntelReports3DErrorBoundary>
-        <Box sx={{ 
-          minHeight: '100vh',
-          background: 'linear-gradient(135deg, rgba(0, 15, 0, 0.95) 0%, rgba(0, 25, 5, 0.98) 100%)',
-          backdropFilter: 'blur(10px)',
-          position: 'relative',
-          '&::before': {
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'linear-gradient(45deg, transparent 49%, rgba(0, 255, 65, 0.02) 50%, transparent 51%)',
-            pointerEvents: 'none',
-            zIndex: 0,
-          }
-        }}>
-          {/* IntelAnalyzer Header */}
-          <Box sx={{ 
-            position: 'relative',
-            zIndex: 1,
-            p: 3, 
-            textAlign: 'center',
-            borderBottom: '1px solid rgba(0, 255, 65, 0.2)'
-          }}>
-            <Typography 
-              variant="h4" 
-              sx={{ 
-                color: '#00ff41',
-                fontFamily: "'Orbitron', monospace",
-                fontWeight: 700,
-                letterSpacing: '2px',
-                textShadow: '0 0 20px rgba(0, 255, 65, 0.5)',
-                mb: 1,
-                '&::before': {
-                  content: '"▶"',
-                  color: 'rgba(0, 255, 65, 0.6)',
-                  marginRight: '12px',
-                },
-                '&::after': {
-                  content: '"◀"',
-                  color: 'rgba(0, 255, 65, 0.6)',
-                  marginLeft: '12px',
-                }
-              }}
-            >
-              INTELANALYZER
-            </Typography>
-            <Typography 
-              variant="subtitle1" 
-              sx={{ 
-                color: 'rgba(255, 255, 255, 0.7)',
-                fontFamily: "'Aldrich-Regular', monospace",
-                letterSpacing: '1px',
-                fontSize: '0.9rem',
-              }}
-            >
-              INTELLIGENCE TRANSFORMATION & ANALYSIS PLATFORM
-            </Typography>
-          </Box>
-          
-          <Box sx={{ position: 'relative', zIndex: 1 }}>
-            <IntelTransformationDashboard />
-          </Box>
-        </Box>
+        <IntelAnalyzerLayout>
+          <IntelTransformationDashboard />
+        </IntelAnalyzerLayout>
       </IntelReports3DErrorBoundary>
     </ThemeProvider>
   );

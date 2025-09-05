@@ -16,7 +16,6 @@ import NetRunnerLeftSideBar from './NetRunnerLeftSideBar';
 import NetRunnerCenterView from './NetRunnerCenterView';
 import NetRunnerRightSideBar from './NetRunnerRightSideBar';
 import NetRunnerBottomBar from './NetRunnerBottomBar';
-import ScriptsEngineDebugger from '../debug/ScriptsEngineDebugger';
 
 interface NetRunnerControlStationProps {
   className?: string;
@@ -54,12 +53,7 @@ const NetRunnerControlStation: React.FC<NetRunnerControlStationProps> = ({
       }}
     >
       {/* Main Content Area */}
-      <Box sx={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-        {/* Debug Panel - TEMPORARY */}
-        <Box sx={{ position: 'absolute', top: 20, right: 20, zIndex: 1000 }}>
-          <ScriptsEngineDebugger />
-        </Box>
-        
+  <Box sx={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
         {/* Left Sidebar */}
         <NetRunnerLeftSideBar
           open={leftSidebarOpen}

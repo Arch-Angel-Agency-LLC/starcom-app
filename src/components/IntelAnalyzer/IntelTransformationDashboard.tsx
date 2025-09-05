@@ -200,17 +200,10 @@ export const IntelTransformationDashboard: React.FC = () => {
 
   return (
     <Container maxWidth="xl" sx={{ py: 3 }}>
-      {/* Header */}
-      <Box sx={{ mb: 4, textAlign: 'center' }}>
-        <Typography variant="h3" sx={{ color: '#00ff00', fontFamily: 'monospace', mb: 1 }}>
-          🧠 INTELLIGENCE TRANSFORMATION CENTER
-        </Typography>
-        <Typography variant="h6" sx={{ color: '#888', mb: 2 }}>
-          Transform Raw Intel into Actionable Intelligence Reports
-        </Typography>
-        
+      {/* Header: keep compact stats only */}
+      <Box sx={{ mb: 3 }}>
         {/* Stats Cards */}
-        <Grid container spacing={2} sx={{ mb: 3 }}>
+        <Grid container spacing={2} sx={{ mb: 1 }}>
           <Grid item xs={12} md={3}>
             <Card sx={{ backgroundColor: '#1e1e1e', border: '1px solid #333' }}>
               <CardContent sx={{ textAlign: 'center', py: 2 }}>

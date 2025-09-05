@@ -1,0 +1,59 @@
+.intelAnalyzerRoot {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(135deg, rgba(0, 15, 0, 0.95) 0%, rgba(0, 25, 5, 0.98) 100%);
+  backdrop-filter: blur(10px);
+}
+
+.intelAnalyzerRoot::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(45deg, transparent 49%, rgba(0, 255, 65, 0.02) 50%, transparent 51%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.header {
+  position: relative;
+  z-index: 1;
+  padding: 24px;
+  text-align: center;
+  border-bottom: 1px solid rgba(0, 255, 65, 0.2);
+}
+
+.scrollArea {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-height: 0; /* critical for nested flex scroll */
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0 0 32px 0; /* space above bottom bar */
+  -webkit-overflow-scrolling: touch;
+}
+
+.constrainedWidth {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 24px 32px;
+}
+
+/* Utility states */
+.stateContainer {
+  padding: 48px 32px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.stateContainerCentered {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  text-align: center;
+}

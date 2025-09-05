@@ -482,46 +482,8 @@ const MarketExchangeApplication: React.FC = () => {
           zIndex: 0,
         }
       }}>
-      {/* Header */}
-      <Box sx={{ mb: 3, position: 'relative', zIndex: 1 }}>
-        {/* MarketExchange Title */}
-        <Box sx={{ mb: 3, textAlign: 'center' }}>
-          <Typography 
-            variant="h4" 
-            sx={{ 
-              color: '#00ff88',
-              fontFamily: "'Orbitron', monospace",
-              fontWeight: 700,
-              letterSpacing: '2px',
-              textShadow: '0 0 20px rgba(0, 255, 136, 0.5)',
-              mb: 1,
-              '&::before': {
-                content: '"[$"',
-                color: 'rgba(0, 255, 136, 0.6)',
-                marginRight: '8px',
-              },
-              '&::after': {
-                content: '"$]"',
-                color: 'rgba(0, 255, 136, 0.6)',
-                marginLeft: '8px',
-              }
-            }}
-          >
-            MARKETEXCHANGE
-          </Typography>
-          <Typography 
-            variant="subtitle1" 
-            sx={{ 
-              color: 'rgba(255, 255, 255, 0.7)',
-              fontFamily: "'Aldrich-Regular', monospace",
-              letterSpacing: '1px',
-              fontSize: '0.9rem',
-            }}
-          >
-            ECONOMIC ANALYSIS & MARKET INTELLIGENCE
-          </Typography>
-        </Box>
-        
+  {/* Header */}
+  <Box sx={{ mb: 3, position: 'relative', zIndex: 1 }}>
         {/* Market Overview Stats */}
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 2, position: 'relative', zIndex: 1 }}>
           <Box sx={{ flex: '1 1 200px', minWidth: 200 }}>

@@ -71,7 +71,7 @@ export const ApplicationRenderer: React.FC<ApplicationRendererProps> = ({
           style={style}
         >
           {/* Remove redundant application headers for all sub-applications */}
-          {!['cybercommand', 'netrunner', 'intelanalyzer', 'timemap', 'nodeweb', 'teamworkspace', 'marketexchange'].includes(currentApp) && (
+          {!['cybercommand', 'netrunner', 'intelanalyzer', 'inteldashboard', 'timemap', 'nodeweb', 'teamworkspace', 'marketexchange'].includes(currentApp) && (
             <div className="application-header">
               <div className="app-info">
                 <span className="app-icon">{appConfig.icon}</span>

@@ -358,48 +358,8 @@ const TimeMapApplication: React.FC = () => {
           zIndex: 0,
         }
       }}>
-      {/* Header */}
-      <Box sx={{ mb: 3, position: 'relative', zIndex: 1 }}>
-        {/* TimeMap Title */}
-        <Box sx={{ mb: 3, textAlign: 'center' }}>
-          <Typography 
-            variant="h4" 
-            sx={{ 
-              color: '#00bfff',
-              fontFamily: "'Orbitron', monospace",
-              fontWeight: 700,
-              letterSpacing: '2px',
-              textShadow: '0 0 20px rgba(0, 191, 255, 0.5)',
-              mb: 1,
-              '&::before': {
-                content: '"⟨"',
-                color: 'rgba(0, 191, 255, 0.6)',
-                marginRight: '12px',
-                fontSize: '1.2em',
-              },
-              '&::after': {
-                content: '"⟩"',
-                color: 'rgba(0, 191, 255, 0.6)',
-                marginLeft: '12px',
-                fontSize: '1.2em',
-              }
-            }}
-          >
-            TIMEMAP
-          </Typography>
-          <Typography 
-            variant="subtitle1" 
-            sx={{ 
-              color: 'rgba(255, 255, 255, 0.7)',
-              fontFamily: "'Aldrich-Regular', monospace",
-              letterSpacing: '1px',
-              fontSize: '0.9rem',
-            }}
-          >
-            TEMPORAL ANALYSIS & MONITORING PLATFORM
-          </Typography>
-        </Box>
-        
+  {/* Header */}
+  <Box sx={{ mb: 3, position: 'relative', zIndex: 1 }}>
         {/* Controls */}
         <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap', position: 'relative', zIndex: 1 }}>
           {/* View Mode Selector */}

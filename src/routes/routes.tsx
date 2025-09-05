@@ -93,6 +93,9 @@ const AppRoutes: React.FC = () => (
     <Route path="/intel/workspace" element={
       <ProtectedRoute>
         <BaseLayout>
+          <div style={{ padding: '8px', background: '#222', color: '#ffc107', fontFamily: 'monospace', border: '1px solid #444', borderRadius: 4, marginBottom: 8 }}>
+            Note: This legacy workspace console has moved. Open the merged Intel Dashboard app from the bottom navigation for the latest experience.
+          </div>
           <IntelWorkspaceProvider>
             <IntelWorkspaceConsole />
           </IntelWorkspaceProvider>

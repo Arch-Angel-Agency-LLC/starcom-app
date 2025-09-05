@@ -48,17 +48,17 @@ const MainBottomBar: React.FC = () => {
       category: 'intel'
     },
     { 
-      id: 'intelanalyzer', 
-      label: 'IntelAnalyzer', 
-      icon: '📊',
-      tooltip: 'Intelligence analysis and data processing',
+      id: 'inteldashboard', 
+      label: 'IntelDashboard', 
+      icon: '�',
+      tooltip: 'Intelligence reports and dashboard management',
       category: 'intel'
     },
     { 
-      id: 'inteldashboard', 
-      label: 'IntelDashboard', 
-      icon: '📋',
-      tooltip: 'Intelligence reports and dashboard management',
+      id: 'intelanalyzer', 
+      label: 'IntelAnalyzer', 
+      icon: '�',
+      tooltip: 'Intelligence analysis and data processing',
       category: 'intel'
     },
     { 
