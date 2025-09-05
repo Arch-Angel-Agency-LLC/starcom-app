@@ -4,6 +4,7 @@ import { IntelWorkspaceProvider } from '../../services/intel/IntelWorkspaceConte
 import { FilterProvider } from './state/FilterContext';
 import { SelectionProvider } from './state/SelectionContext';
 import WorkbenchLayout from './layout/WorkbenchLayout';
+import TimelineView from './views/TimelineView/TimelineView';
 
 /**
  * Analysis Workbench - New IntelAnalyzer
@@ -27,16 +28,12 @@ const AnalysisWorkbench: React.FC = () => {
     </Box>
   );
 
-  // Center view stub - Timeline
+  // Center view - Timeline
   const centerView = (
-    <Box sx={{ p: 2, height: '100%' }}>
-      <Typography variant="h6" sx={{ color: '#00ff41' }}>
-        Timeline View
-      </Typography>
-      <Typography variant="body2" sx={{ mt: 1, color: 'rgba(255, 255, 255, 0.7)' }}>
-        Timeline stub - will show events from workspace
-      </Typography>
-    </Box>
+    <TimelineView onTimeFilterChange={(timeRange) => {
+      // TODO: Update FilterContext with time range
+      console.log('Time filter changed:', timeRange);
+    }} />
   );
 
   // Right inspector stub

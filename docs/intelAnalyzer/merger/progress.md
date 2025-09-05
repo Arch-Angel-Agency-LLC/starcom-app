@@ -1,6 +1,9 @@
-# Progress Tracker
-
-This document tracks progress on the roadmap implementation. Update status as tasks are completed.
+# Progress Tra- [ ] 2) Fold TimeMap into TimelineView
+  - [x] Create `src/applications/intelanalyzer/views/TimelineView/TimelineView.tsx` wrapping existing TimeMap
+  - [x] Add `src/applications/intelanalyzer/adapters/eventsAdapter.ts` mapping Reports/Intel Items → Events
+  - [x] Wire `IntelWorkspaceProvider` at workbench root (already done)
+  - [x] Pass adapted events to TimelineView
+  - [ ] Test: Timeline renders events; brushing emits time filter via FilterContextThis document tracks progress on the roadmap implementation. Update status as tasks are completed.
 
 ## Phase A — Split roles and remove redundancy (MVP shell)
 
@@ -124,5 +127,5 @@ This document tracks progress on the roadmap implementation. Update status as ta
 
 ## Notes
 
-- Current status: Ready to start Phase A, step 1.
+- Current status: Phase A, step 1 completed. Ready to start Phase A, step 2.
 - Last update: September 5, 2025
