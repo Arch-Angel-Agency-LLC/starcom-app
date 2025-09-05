@@ -4,14 +4,14 @@ This document tracks progress on the roadmap implementation. Update status as ta
 
 ## Phase A — Split roles and remove redundancy (MVP shell)
 
-- [ ] 1) Establish Analysis Workbench shell (new IntelAnalyzer)
-  - [ ] Create `src/applications/intelanalyzer/AnalysisWorkbench.tsx`
-  - [ ] Create `src/applications/intelanalyzer/layout/WorkbenchLayout.tsx`
-  - [ ] Add `src/applications/intelanalyzer/state/SelectionContext.tsx`
-  - [ ] Add `src/applications/intelanalyzer/state/FilterContext.tsx`
-  - [ ] Update route to render `AnalysisWorkbench` (keep route id)
-  - [ ] Remove dashboard-like lists from Analyzer
-  - [ ] Test: Renders left rail (empty), center Timeline stub, right inspector stub; no regressions in EnhancedApplicationRouter
+- [x] 1) Establish Analysis Workbench shell (new IntelAnalyzer)
+  - [x] Create `src/applications/intelanalyzer/AnalysisWorkbench.tsx`
+  - [x] Create `src/applications/intelanalyzer/layout/WorkbenchLayout.tsx`
+  - [x] Add `src/applications/intelanalyzer/state/SelectionContext.tsx`
+  - [x] Add `src/applications/intelanalyzer/state/FilterContext.tsx`
+  - [x] Update route to render `AnalysisWorkbench` (keep route id)
+  - [x] Remove dashboard-like lists from Analyzer
+  - [x] Test: Renders left rail (empty), center Timeline stub, right inspector stub; no regressions in EnhancedApplicationRouter
 - [ ] 2) Fold TimeMap into TimelineView
   - [ ] Create `src/applications/intelanalyzer/views/TimelineView/TimelineView.tsx` wrapping existing TimeMap
   - [ ] Add `src/applications/intelanalyzer/adapters/eventsAdapter.ts` mapping Reports/Intel Items → Events

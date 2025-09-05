@@ -6,7 +6,7 @@ import { googleAnalyticsService } from '../../services/GoogleAnalyticsService';
 // Import actual application components
 import CyberCommandApplication from '../../applications/cybercommand/CyberCommandApplication';
 import NetRunnerApplication from '../../applications/netrunner/NetRunnerApplication';
-import IntelAnalyzerApplication from '../../applications/intelanalyzer/IntelAnalyzerApplication';
+import AnalysisWorkbench from '../../applications/intelanalyzer/AnalysisWorkbench';
 import IntelDashboardApplication from '../../applications/inteldashboard/IntelDashboardApplication';
 import TimeMapApplication from '../../applications/timemap/TimeMapApplication';
 import IntelWebApplicationWrapper from '../../applications/intelweb/IntelWebApplicationWrapper';
@@ -128,7 +128,7 @@ const defaultApplications: ApplicationConfig[] = [
     description: 'Intelligence analysis and reporting',
     defaultMode: 'standalone',
     supportedModes: ['standalone', 'modal'],
-    component: IntelAnalyzerApplication
+    component: AnalysisWorkbench
   },
   {
     id: 'inteldashboard',
