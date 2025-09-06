@@ -281,13 +281,15 @@ export class ObjectUtils {
   /**
    * Pick specific keys from object
    */
-  static pick<T, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {
+  static pick<T extends object, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {
     const result = {} as Pick<T, K>;
-    keys.forEach(key => {
-      if (key in obj) {
-        result[key] = obj[key];
-      }
-    });
+    const rec = obj as unknown as Record<string, unknown>;
+      keys.forEach((key) => {
+        if (Object.prototype.hasOwnProperty.call(rec, key as string)) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (result as any)[key] = (obj as any)[key];
+        }
+      });
     return result;
   }
 

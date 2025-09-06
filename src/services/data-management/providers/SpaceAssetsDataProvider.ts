@@ -160,7 +160,7 @@ export class SpaceAssetsDataProvider implements DataProvider<SpaceAssetsDataType
 
   // Migrated from original SpaceAssetsService.ts with improvements
   private async fetchLegacySpaceAssets(): Promise<SpaceAsset[]> {
-    const apiUrl = import.meta.env.VITE_SPACE_ASSETS_API_URL || 'https://api.starcom.app/space-assets';
+  const apiUrl = String(import.meta.env.VITE_SPACE_ASSETS_API_URL || 'https://api.starcom.app/space-assets');
     
     const response = await fetch(apiUrl);
     if (!response.ok) {

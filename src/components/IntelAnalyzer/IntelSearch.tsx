@@ -16,7 +16,6 @@ import {
   Card,
   CardContent,
   Typography,
-  Grid,
   Switch,
   FormControlLabel,
   Accordion,
@@ -24,6 +23,7 @@ import {
   AccordionDetails,
   Button
 } from '@mui/material';
+import Grid from '@mui/material/Grid';
 import {
   ExpandMore as ExpandMoreIcon,
   Clear as ClearIcon
@@ -31,7 +31,6 @@ import {
 
 import { Intel, ReliabilityRating } from '../../models/Intel/Intel';
 import { PrimaryIntelSource } from '../../models/Intel/Sources';
-import { ClassificationLevel } from '../../models/Intel/Classification';
 
 interface IntelSearchProps {
   intel: Intel[];
@@ -41,7 +40,6 @@ interface IntelSearchProps {
 interface SearchFilters {
   searchTerm: string;
   sources: PrimaryIntelSource[];
-  classifications: ClassificationLevel[];
   reliabilityRange: ReliabilityRating[];
   dateRange: { start: number; end: number };
   verifiedOnly: boolean;
@@ -50,14 +48,13 @@ interface SearchFilters {
 }
 
 const reliabilityOrder: ReliabilityRating[] = ['A', 'B', 'C', 'D', 'E', 'F', 'X'];
-const classificationOrder: ClassificationLevel[] = ['UNCLASS', 'CONFIDENTIAL', 'SECRET', 'TOP_SECRET'];
 const allSources: PrimaryIntelSource[] = ['SIGINT', 'HUMINT', 'GEOINT', 'OSINT', 'COMINT', 'ELINT', 'MASINT', 'TECHINT'];
 
 export const IntelSearch: React.FC<IntelSearchProps> = ({ intel, onFilteredResults }) => {
   const [filters, setFilters] = useState<SearchFilters>({
     searchTerm: '',
     sources: [],
-    classifications: [],
+    
     reliabilityRange: [],
     dateRange: {
       start: Date.now() - (30 * 24 * 60 * 60 * 1000), // 30 days ago
@@ -99,9 +96,7 @@ export const IntelSearch: React.FC<IntelSearchProps> = ({ intel, onFilteredResul
     }
 
     // Classification filter
-    if (filters.classifications.length > 0) {
-      filtered = filtered.filter(record => filters.classifications.includes(record.classification));
-    }
+  // classification filter removed in declassified build
 
     // Reliability filter
     if (filters.reliabilityRange.length > 0) {
@@ -149,7 +144,7 @@ export const IntelSearch: React.FC<IntelSearchProps> = ({ intel, onFilteredResul
     setFilters({
       searchTerm: '',
       sources: [],
-      classifications: [],
+    
       reliabilityRange: [],
       dateRange: {
         start: Date.now() - (30 * 24 * 60 * 60 * 1000),
@@ -166,7 +161,7 @@ export const IntelSearch: React.FC<IntelSearchProps> = ({ intel, onFilteredResul
     const activeFilters = [];
     if (filters.searchTerm) activeFilters.push('search');
     if (filters.sources.length > 0) activeFilters.push('sources');
-    if (filters.classifications.length > 0) activeFilters.push('classification');
+    
     if (filters.reliabilityRange.length > 0) activeFilters.push('reliability');
     if (filters.verifiedOnly) activeFilters.push('verified');
     if (filters.hasLocation) activeFilters.push('location');
@@ -216,7 +211,7 @@ export const IntelSearch: React.FC<IntelSearchProps> = ({ intel, onFilteredResul
           <AccordionDetails>
             <Grid container spacing={2}>
               {/* Sources */}
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <FormControl fullWidth size="small">
                   <InputLabel>Sources</InputLabel>
                   <Select
@@ -238,31 +233,10 @@ export const IntelSearch: React.FC<IntelSearchProps> = ({ intel, onFilteredResul
                 </FormControl>
               </Grid>
 
-              {/* Classifications */}
-              <Grid item xs={12} md={6}>
-                <FormControl fullWidth size="small">
-                  <InputLabel>Classifications</InputLabel>
-                  <Select
-                    multiple
-                    value={filters.classifications}
-                    onChange={(e) => updateFilter('classifications', e.target.value as ClassificationLevel[])}
-                    renderValue={(selected) => (
-                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                        {(selected as ClassificationLevel[]).map((value) => (
-                          <Chip key={value} label={value} size="small" />
-                        ))}
-                      </Box>
-                    )}
-                  >
-                    {classificationOrder.map((classification) => (
-                      <MenuItem key={classification} value={classification}>{classification}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
+              {/* Classification filter removed for civilian build */}
 
               {/* Reliability */}
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <FormControl fullWidth size="small">
                   <InputLabel>Reliability</InputLabel>
                   <Select
@@ -295,7 +269,7 @@ export const IntelSearch: React.FC<IntelSearchProps> = ({ intel, onFilteredResul
               </Grid>
 
               {/* Tags */}
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <FormControl fullWidth size="small">
                   <InputLabel>Tags</InputLabel>
                   <Select
@@ -318,12 +292,12 @@ export const IntelSearch: React.FC<IntelSearchProps> = ({ intel, onFilteredResul
               </Grid>
 
               {/* Date Range */}
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <Typography variant="subtitle2" sx={{ mb: 1, color: '#ccc' }}>
                   Collection Date Range
                 </Typography>
                 <Grid container spacing={2}>
-                  <Grid item xs={6}>
+                  <Grid size={{ xs: 6 }}>
                     <TextField
                       fullWidth
                       label="Start Date"
@@ -337,7 +311,7 @@ export const IntelSearch: React.FC<IntelSearchProps> = ({ intel, onFilteredResul
                       size="small"
                     />
                   </Grid>
-                  <Grid item xs={6}>
+                  <Grid size={{ xs: 6 }}>
                     <TextField
                       fullWidth
                       label="End Date"
@@ -355,7 +329,7 @@ export const IntelSearch: React.FC<IntelSearchProps> = ({ intel, onFilteredResul
               </Grid>
 
               {/* Switches */}
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <Box sx={{ display: 'flex', gap: 2 }}>
                   <FormControlLabel
                     control={

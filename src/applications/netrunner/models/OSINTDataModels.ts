@@ -37,14 +37,7 @@ export type SourceType =
   | 'network_scan'   // Network scanning results
   | 'manual';        // Manually entered data
 
-/**
- * OSINT data classification levels
- */
-export type ClassificationLevel = 
-  | 'public'         // Public information
-  | 'internal'       // Internal use only
-  | 'confidential'   // Confidential information
-  | 'restricted';    // Restricted access
+// classification levels removed in civilian build – all data is public OSINT
 
 /**
  * Base interface for all OSINT data items
@@ -53,7 +46,7 @@ export interface OSINTDataItem {
   id: string;
   type: IntelType;
   sourceType: SourceType;
-  classification: ClassificationLevel;
+  // classification removed in civilian build
   collectedAt: string;
   collectedBy: string;
   correlationId?: string;
@@ -258,9 +251,9 @@ export interface OSINTDataTransferDTO {
       processingNotes?: string[];
     };
   };
-  security: {
-    classification: ClassificationLevel;
-    accessControl: string[];
+  // security block simplified in civilian build
+  security?: {
+    accessControl?: string[];
     retention?: {
       period: number; // days
       action: 'delete' | 'archive' | 'transfer';

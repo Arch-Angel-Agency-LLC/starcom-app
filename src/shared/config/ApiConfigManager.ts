@@ -66,10 +66,14 @@ class UnifiedApiConfigManager {
 
   private loadConfiguration(): UnifiedApiConfig {
     // Helper function to get environment variable from either Vite or Node.js
-    const getEnvVar = (key: string): string | undefined => {
+  const getEnvVar = (key: string): string | undefined => {
       // In Vite environment (client-side)
       if (typeof import.meta !== 'undefined' && import.meta.env) {
-        return import.meta.env[key];
+    const val = import.meta.env[key] as unknown;
+    if (typeof val === 'string') return val;
+    if (typeof val === 'boolean') return val ? 'true' : 'false';
+    if (typeof val === 'number') return String(val);
+    return undefined;
       }
       // In Node.js environment (server-side/testing)
       if (typeof process !== 'undefined' && process.env) {

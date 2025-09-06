@@ -246,12 +246,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({
                   {operatorProfile.trainingCompleted.length}
                 </span>
               </div>
-              <div className={styles.summaryItem}>
-                <span className={styles.summaryLabel}>Clearance Level:</span>
-                <span className={styles.summaryValue}>
-                  {operatorProfile.clearanceLevel}
-                </span>
-              </div>
+              {/* Clearance Level removed in civilian build */}
             </div>
           </div>
         </div>

@@ -94,7 +94,7 @@ export abstract class BaseAdapter implements ToolAdapter {
     return true;
   }
 
-  abstract execute(request: ToolExecutionRequest): Promise<ToolExecutionResponse>;
+  abstract execute(request: ToolExecutionRequest): Promise<ToolExecutionResponse<any>>;
 
   async initialize(): Promise<boolean> {
     this.initialized = true;
@@ -108,7 +108,7 @@ export abstract class BaseAdapter implements ToolAdapter {
   protected createErrorResponse(
     request: ToolExecutionRequest, 
     errorMessage: string
-  ): ToolExecutionResponse {
+  ): ToolExecutionResponse<any> {
     return {
       requestId: request.requestId,
       toolId: request.toolId,
@@ -123,7 +123,7 @@ export abstract class BaseAdapter implements ToolAdapter {
     request: ToolExecutionRequest, 
     data: unknown,
     executionTime?: number
-  ): ToolExecutionResponse {
+  ): ToolExecutionResponse<any> {
     return {
       requestId: request.requestId,
       toolId: request.toolId,
@@ -136,7 +136,7 @@ export abstract class BaseAdapter implements ToolAdapter {
 
   protected createInProgressResponse(
     request: ToolExecutionRequest
-  ): ToolExecutionResponse {
+  ): ToolExecutionResponse<any> {
     return {
       requestId: request.requestId,
       toolId: request.toolId,

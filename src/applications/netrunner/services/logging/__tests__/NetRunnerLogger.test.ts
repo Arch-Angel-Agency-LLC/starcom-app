@@ -19,7 +19,7 @@ import {
 
 describe('NetRunnerLogger', () => {
   let logger: NetRunnerLogger;
-  let consoleSpy: jest.SpyInstance;
+  let consoleSpy: ReturnType<typeof jest.spyOn>;
 
   beforeEach(() => {
     logger = new NetRunnerLogger({

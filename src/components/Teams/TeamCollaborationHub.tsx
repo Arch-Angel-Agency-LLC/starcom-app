@@ -10,7 +10,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { Connection } from '@solana/web3.js';
 import { EnhancedTeamCollaborationService, BlockchainTeam, TeamIntelPackage } from '../../services/collaboration/EnhancedTeamCollaborationService';
-import { Team, ClearanceLevel, AgencyType } from '../../types/features/collaboration';
+import { Team, AgencyType } from '../../types/features/collaboration';
 import type { IntelReportData } from '../../models/IntelReportData';
 import './TeamCollaborationHub.css';
 
@@ -84,11 +84,10 @@ export const TeamCollaborationHub: React.FC<TeamCollaborationHubProps> = ({
   }, [onTeamSelect]);
 
   // Create new team
-  const createTeam = useCallback(async (teamData: {
+    const createTeam = useCallback(async (teamData: {
     name: string;
     description: string;
     agency: AgencyType;
-    classification: ClearanceLevel;
   }) => {
     if (!collaborationService || !publicKey || !signTransaction) {
       setError('Please connect your wallet to create a team');
@@ -136,7 +135,6 @@ export const TeamCollaborationHub: React.FC<TeamCollaborationHubProps> = ({
     packageInfo: {
       name: string;
       description: string;
-      classification: ClearanceLevel;
       tags: string[];
     }
   ) => {
@@ -275,7 +273,7 @@ export const TeamCollaborationHub: React.FC<TeamCollaborationHubProps> = ({
                 <p>{team.description}</p>
                 <div className="team-meta">
                   <span>Members: {team.members.length}</span>
-                  <span>Classification: {team.classification}</span>
+                  <span>Status: Active</span>
                   <span>On-Chain: {team.onChainAddress.toBase58().slice(0, 8)}...</span>
                 </div>
               </div>
@@ -340,7 +338,6 @@ interface TeamCreationFormProps {
     name: string;
     description: string;
     agency: AgencyType;
-    classification: ClearanceLevel;
   }) => void;
   onCancel: () => void;
   loading: boolean;
@@ -354,8 +351,7 @@ const TeamCreationForm: React.FC<TeamCreationFormProps> = ({
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    agency: 'CYBER_COMMAND' as AgencyType,
-    classification: 'CONFIDENTIAL' as ClearanceLevel
+    agency: 'CYBER_COMMAND' as AgencyType
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -405,21 +401,6 @@ const TeamCreationForm: React.FC<TeamCreationFormProps> = ({
           <option value="NSA">NSA</option>
           <option value="DIA">DIA</option>
           <option value="CIA">CIA</option>
-        </select>
-      </div>
-
-      <div className="form-group">
-        <label htmlFor="team-classification">Classification:</label>
-        <select
-          id="team-classification"
-          value={formData.classification}
-          onChange={(e) => setFormData(prev => ({ ...prev, classification: e.target.value as ClearanceLevel }))}
-        >
-          <option value="UNCLASSIFIED">Unclassified</option>
-          <option value="CONFIDENTIAL">Confidential</option>
-          <option value="SECRET">Secret</option>
-          <option value="TOP_SECRET">Top Secret</option>
-          <option value="SCI">SCI</option>
         </select>
       </div>
 

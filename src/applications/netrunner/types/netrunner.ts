@@ -55,7 +55,12 @@ export type EntityType =
   | 'organization' // Group, company, agency
   | 'wallet'       // Cryptocurrency wallet
   | 'address'      // Physical or virtual location
+  | 'location'     // Explicit location entity
   | 'domain'       // Web domain
+  | 'email'        // Email address entity
+  | 'date'         // Date/time marker
+  | 'hashtag'      // Social hashtag
+  | 'financial'    // Financial entity
   | 'file'         // Document, image, etc.
   | 'event'        // Incident or happening
   | 'device'       // Hardware device

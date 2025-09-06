@@ -74,7 +74,6 @@ export type {
 // Collaboration Types
 export type {
   AgencyType,
-  ClearanceLevel,
   CollaborationRole,
   Operator,
   CollaborationSession,
@@ -112,7 +111,6 @@ export type {
   OperatorRole,
   ExperienceLevel,
   InterfaceComplexity,
-  ClearanceLevel as AdaptiveClearanceLevel,
   Specialization,
   OperatorProfile,
   AdaptationPreferences,

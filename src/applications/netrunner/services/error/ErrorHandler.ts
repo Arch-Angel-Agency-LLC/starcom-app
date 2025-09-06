@@ -44,6 +44,7 @@ export interface ErrorHandlingResult {
   shouldRetry: boolean;
   retryDelay?: number;
   escalated: boolean;
+  recoveryAttempted: boolean;
 }
 
 /**
@@ -85,7 +86,10 @@ export class NetRunnerErrorHandler {
   /**
    * Handle a NetRunner error
    */
-  async handleError(error: NetRunnerError, context: ErrorContext): Promise<ErrorHandlingResult> {
+  async handleError(error: NetRunnerError | Error, context: ErrorContext): Promise<ErrorHandlingResult> {
+    if (!(error instanceof NetRunnerError)) {
+      return this.handleGenericError(error, context);
+    }
     // Set correlation ID for logging
     if (context.correlationId) {
       this.logger.setCorrelationId(context.correlationId);
@@ -98,7 +102,7 @@ export class NetRunnerErrorHandler {
     const strategy = this.determineHandlingStrategy(error, context);
 
     // Execute the strategy
-    const result = await this.executeStrategy(error, context, strategy);
+  const result = await this.executeStrategy(error, context, strategy);
 
     // Log the result
     this.logger.debug('Error handling completed', {
@@ -171,6 +175,19 @@ export class NetRunnerErrorHandler {
     }
   }
 
+  // Utility helpers for tests/consumers
+  public getErrorSeverity(error: NetRunnerError): 'low' | 'medium' | 'high' | 'critical' {
+    return error.severity;
+  }
+
+  public getRecoveryStrategies(error: NetRunnerError): RecoveryStrategy[] {
+    return this.recoveryStrategies.get(error.category) || [];
+  }
+
+  public formatUserMessage(error: NetRunnerError): string {
+    return error.getUserMessage();
+  }
+
   /**
    * Determine the appropriate handling strategy
    */
@@ -180,11 +197,8 @@ export class NetRunnerErrorHandler {
       return ErrorHandlingStrategy.ESCALATE;
     }
 
-    // If this is a retry and we haven't exceeded max retries
-    if (error.isRecoverable() && 
-        context.retryCount !== undefined && 
-        context.maxRetries !== undefined &&
-        context.retryCount < context.maxRetries) {
+    // Recoverable errors should attempt recovery by default
+    if (error.isRecoverable()) {
       return ErrorHandlingStrategy.LOG_AND_RETRY;
     }
 
@@ -214,7 +228,8 @@ export class NetRunnerErrorHandler {
       handled: false,
       strategy,
       shouldRetry: false,
-      escalated: false
+      escalated: false,
+      recoveryAttempted: false
     };
 
     switch (strategy) {
@@ -229,10 +244,11 @@ export class NetRunnerErrorHandler {
         break;
 
       case ErrorHandlingStrategy.LOG_AND_RETRY: {
-        const recovered = await this.attemptRecovery(error, context);
+  const recovered = await this.attemptRecovery(error, context);
         result.handled = recovered;
         result.shouldRetry = !recovered;
         result.retryDelay = this.calculateRetryDelay(context.retryCount || 0);
+  result.recoveryAttempted = true;
         break;
       }
 

@@ -15,7 +15,7 @@ import {
   OSINTDataTransferDTO,
   IntelType,
   SourceType,
-  ClassificationLevel
+  // classification removed in civilian build
 } from './OSINTDataModels';
 
 /**
@@ -34,7 +34,7 @@ export class ModelTypeGuards {
       typeof item.id === 'string' &&
       typeof item.type === 'string' &&
       typeof item.sourceType === 'string' &&
-      typeof item.classification === 'string' &&
+      // classification removed in civilian build
       typeof item.collectedAt === 'string' &&
       typeof item.collectedBy === 'string' &&
       typeof item.source === 'object' &&
@@ -101,13 +101,7 @@ export class ModelTypeGuards {
     return validTypes.includes(type as SourceType);
   }
 
-  /**
-   * Check if a string is a valid ClassificationLevel
-   */
-  static isValidClassificationLevel(level: string): level is ClassificationLevel {
-    const validLevels: ClassificationLevel[] = ['public', 'internal', 'confidential', 'restricted'];
-    return validLevels.includes(level as ClassificationLevel);
-  }
+  // classification validation removed in civilian build
 }
 
 /**
@@ -139,9 +133,7 @@ export class ModelValidators {
       errors.push(`Invalid source type: ${item.sourceType}`);
     }
 
-    if (!ModelTypeGuards.isValidClassificationLevel(item.classification)) {
-      errors.push(`Invalid classification level: ${item.classification}`);
-    }
+    // classification removed in civilian build
 
     if (item.metadata.confidence < 0 || item.metadata.confidence > 100) {
       errors.push('Confidence must be between 0 and 100');
@@ -203,7 +195,7 @@ export class ModelTransformers {
   static createOSINTDataItem(data: {
     type: IntelType;
     sourceType: SourceType;
-    classification: ClassificationLevel;
+    // classification removed in civilian build
     sourceName: string;
     sourceUrl?: string;
     tool?: string;
@@ -216,7 +208,7 @@ export class ModelTransformers {
       id: this.generateId(),
       type: data.type,
       sourceType: data.sourceType,
-      classification: data.classification,
+      // classification removed in civilian build
       collectedAt: new Date().toISOString(),
       collectedBy: data.collectedBy,
       correlationId: data.correlationId,
@@ -233,7 +225,7 @@ export class ModelTransformers {
         confidence: 50, // Default confidence
         ...data.metadata
       }
-    };
+    } as OSINTDataItem;
   }
 
   /**
@@ -259,14 +251,11 @@ export class ModelTransformers {
         context: context || {},
         metadata: {
           totalItems: items.length,
-          dataTypes,
-          sourceTypes,
-          qualityScore: Math.round(avgConfidence)
+          dataTypes: dataTypes,
+          sourceTypes: sourceTypes,
+          qualityScore: Math.round(avgConfidence),
+          processingNotes: []
         }
-      },
-      security: {
-        classification: this.determineHighestClassification(items),
-        accessControl: []
       }
     };
   }
@@ -276,31 +265,6 @@ export class ModelTransformers {
    */
   private static generateId(): string {
     return `netrunner-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  }
-
-  /**
-   * Determine the highest classification level from a set of items
-   */
-  private static determineHighestClassification(items: OSINTDataItem[]): ClassificationLevel {
-    const hierarchy: Record<ClassificationLevel, number> = {
-      'public': 0,
-      'internal': 1,
-      'confidential': 2,
-      'restricted': 3
-    };
-
-    let highest: ClassificationLevel = 'public';
-    let highestValue = 0;
-
-    for (const item of items) {
-      const value = hierarchy[item.classification];
-      if (value > highestValue) {
-        highest = item.classification;
-        highestValue = value;
-      }
-    }
-
-    return highest;
   }
 }
 
@@ -323,12 +287,7 @@ export class ModelQueries {
     return items.filter(item => sourceTypes.includes(item.sourceType));
   }
 
-  /**
-   * Filter OSINT data items by classification level
-   */
-  static filterByClassification(items: OSINTDataItem[], levels: ClassificationLevel[]): OSINTDataItem[] {
-    return items.filter(item => levels.includes(item.classification));
-  }
+  // classification-based filters removed in civilian build
 
   /**
    * Filter OSINT data items by confidence threshold
@@ -382,7 +341,6 @@ export class ModelQueries {
     totalItems: number;
     typeDistribution: Record<IntelType, number>;
     sourceDistribution: Record<SourceType, number>;
-    classificationDistribution: Record<ClassificationLevel, number>;
     avgConfidence: number;
     dateRange: { earliest: string; latest: string } | null;
   } {
@@ -391,7 +349,6 @@ export class ModelQueries {
         totalItems: 0,
         typeDistribution: {} as Record<IntelType, number>,
         sourceDistribution: {} as Record<SourceType, number>,
-        classificationDistribution: {} as Record<ClassificationLevel, number>,
         avgConfidence: 0,
         dateRange: null
       };
@@ -399,7 +356,6 @@ export class ModelQueries {
 
     const typeDistribution: Partial<Record<IntelType, number>> = {};
     const sourceDistribution: Partial<Record<SourceType, number>> = {};
-    const classificationDistribution: Partial<Record<ClassificationLevel, number>> = {};
     let totalConfidence = 0;
     let earliest = items[0].collectedAt;
     let latest = items[0].collectedAt;
@@ -410,9 +366,6 @@ export class ModelQueries {
       
       // Count sources
       sourceDistribution[item.sourceType] = (sourceDistribution[item.sourceType] || 0) + 1;
-      
-      // Count classifications
-      classificationDistribution[item.classification] = (classificationDistribution[item.classification] || 0) + 1;
       
       // Sum confidence
       totalConfidence += item.metadata.confidence;
@@ -426,7 +379,6 @@ export class ModelQueries {
       totalItems: items.length,
       typeDistribution: typeDistribution as Record<IntelType, number>,
       sourceDistribution: sourceDistribution as Record<SourceType, number>,
-      classificationDistribution: classificationDistribution as Record<ClassificationLevel, number>,
       avgConfidence: totalConfidence / items.length,
       dateRange: { earliest, latest }
     };

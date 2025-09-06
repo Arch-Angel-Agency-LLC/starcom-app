@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AgencyType, ClearanceLevel } from '../../types';
+import { AgencyType } from '../../types';
 import { useChat } from '../../context/ChatContext';
 import ChatWindow from '../Chat/ChatWindow';
 import styles from './CommunicationPanel.module.css';
@@ -8,14 +8,12 @@ interface CommunicationPanelProps {
   teamId?: string;
   userDID?: string;
   userAgency?: AgencyType;
-  clearanceLevel?: ClearanceLevel;
 }
 
 const CommunicationPanel: React.FC<CommunicationPanelProps> = ({
   teamId = 'demo-team',
   userDID = 'did:socom:demo:user',
-  userAgency = 'CYBER_COMMAND',
-  clearanceLevel = 'CONFIDENTIAL'
+  userAgency = 'CYBER_COMMAND'
 }) => {
   // Use the unified chat context instead of direct NostrService
   const chat = useChat();
@@ -60,7 +58,6 @@ const CommunicationPanel: React.FC<CommunicationPanelProps> = ({
                 encryption: true,
                 metadata: {
                   agency: userAgency,
-                  clearanceLevel,
                   did: userDID
                 }
               }
@@ -76,7 +73,7 @@ const CommunicationPanel: React.FC<CommunicationPanelProps> = ({
     };
 
     initializeChat();
-  }, [teamId, userDID, userAgency, clearanceLevel, chat]);
+  }, [teamId, userDID, userAgency, chat]);
 
   // Render loading state while connecting
   if (!chat.isConnected || !channelLoaded) {
@@ -101,14 +98,7 @@ const CommunicationPanel: React.FC<CommunicationPanelProps> = ({
       <div className={styles.header}>
         <div className={styles.channelInfo}>
           <h2>{teamId ? 'Team Secure Channel' : 'Global Communication'}</h2>
-          <div className={styles.securityBadge}>
-            <span className={styles.securityIcon}>
-              {clearanceLevel === 'TOP_SECRET' ? '🔴' :
-              clearanceLevel === 'SECRET' ? '🟠' :
-              clearanceLevel === 'CONFIDENTIAL' ? '🟡' : '🟢'}
-            </span>
-            <span className={styles.clearanceText}>{clearanceLevel}</span>
-          </div>
+          <div className={styles.securityBadge} title="Security Level: Standard">🛡️</div>
         </div>
         <div className={styles.controls}>
           <button 

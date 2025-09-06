@@ -22,7 +22,6 @@ interface TeamSecurityMetadata {
     algorithm: string;
   };
   securityLevel: 'QUANTUM_SAFE' | 'CLASSICAL' | 'HYBRID';
-  classificationLevel: 'UNCLASSIFIED' | 'CONFIDENTIAL' | 'SECRET' | 'TOP_SECRET' | 'SCI';
   auditTrail: TeamSecurityEvent[];
   memberDIDs: string[];
   encryptedCommunications: boolean;
@@ -59,14 +58,8 @@ interface SecureTeamMember extends TeamMember {
 const TEAM_SECURITY_CONFIG = {
   PQC_TEAM_ENCRYPTION: true,
   DID_MEMBER_VERIFICATION: true,
-  OTK_COMMUNICATION_KEYS: true,
-  TSS_MULTI_PARTY_DECISIONS: true,
-  QUANTUM_SAFE_DATA_SHARING: true,
-  ZERO_TRUST_TEAM_ACCESS: true,
-  AUDIT_ALL_TEAM_ACTIONS: true,
-  CLEARANCE_LEVEL_ENFORCEMENT: true,
-  AUTO_SECURITY_MONITORING: true,
-  COMPLIANCE_STANDARDS: ['NIST-CSF-2.0', 'STIG', 'CNSA-2.0', 'SOCOM-CYBER']
+  TSS_THRESHOLD_CRYPTO: true,
+  CLEARANCE_LEVEL_ENFORCEMENT: false
 };
 
 interface CyberTeamManagerProps {
@@ -119,8 +112,7 @@ const CyberTeamManager: React.FC<CyberTeamManagerProps> = ({ onClose, onTeamSele
     name: '',
     type: 'INCIDENT_RESPONSE',
     agency: 'CYBER_COMMAND',
-    specializations: [],
-    clearanceLevel: 'UNCLASSIFIED'
+    specializations: []
   });
 
   // Initialize security framework
@@ -162,14 +154,13 @@ const CyberTeamManager: React.FC<CyberTeamManagerProps> = ({ onClose, onTeamSele
         throw new Error('User authentication required for secure team creation');
       }
       
-      // 1. Apply advanced security processing
+            // 1. Apply advanced security processing
       const securityMetadata = await performTeamSecurityProcessing(
         teamData,
-        userDID,
-        teamData.clearanceLevel
+        userDID
       );
       
-      // 2. Create base team
+            // 2. Create base team
       const baseTeam: CyberTeam = {
         id: `secure-team-${Date.now()}`,
         name: teamData.name,
@@ -181,13 +172,11 @@ const CyberTeamManager: React.FC<CyberTeamManagerProps> = ({ onClose, onTeamSele
           name: 'Team Lead',
           role: 'LEAD_ANALYST',
           specializations: teamData.specializations || [],
-          clearanceLevel: teamData.clearanceLevel,
           status: 'ONLINE',
           joinedAt: new Date(),
           lastActivity: new Date()
         }],
         specializations: teamData.specializations || [],
-        clearanceLevel: teamData.clearanceLevel,
         status: 'ACTIVE',
         currentInvestigations: [],
         autoShareFindings: true,
@@ -228,7 +217,6 @@ const CyberTeamManager: React.FC<CyberTeamManagerProps> = ({ onClose, onTeamSele
         userDID,
         details: {
           teamName: teamData.name,
-          clearanceLevel: teamData.clearanceLevel,
           securityLevel: securityMetadata.securityLevel,
           memberCount: 1
         },
@@ -237,8 +225,7 @@ const CyberTeamManager: React.FC<CyberTeamManagerProps> = ({ onClose, onTeamSele
       
       console.log('🛡️ Secure cyber team created:', {
         teamId: baseTeam.id,
-        securityLevel: securityMetadata.securityLevel,
-        classification: securityMetadata.classificationLevel
+        securityLevel: securityMetadata.securityLevel
       });
       
       return secureTeam;
@@ -249,12 +236,11 @@ const CyberTeamManager: React.FC<CyberTeamManagerProps> = ({ onClose, onTeamSele
     }
   };
 
-  // Enhanced member invitation with DID verification
+    // Enhanced member invitation with DID verification
   const inviteSecureTeamMember = async (
     teamId: string,
     memberWallet: string,
-    role: string,
-    clearanceLevel: string
+    role: string
   ): Promise<boolean> => {
     try {
       const secureTeam = secureTeams.get(teamId);
@@ -266,17 +252,15 @@ const CyberTeamManager: React.FC<CyberTeamManagerProps> = ({ onClose, onTeamSele
       const memberDID = `did:socom:team-member:${memberWallet.slice(0, 8)}`;
       
       // 2. Verify clearance level compatibility
-      if (!validateClearanceLevel(clearanceLevel, secureTeam.clearanceLevel)) {
-        throw new Error('Insufficient clearance level for team');
-      }
+      // Clearance validation removed for civilian use
       
+      // 3. Create secure team member
       // 3. Create secure team member
       const newMember: TeamMember = {
         walletAddress: memberWallet,
         name: 'New Team Member',
         role: role as 'LEAD_ANALYST' | 'CYBER_ANALYST' | 'FORENSICS_SPECIALIST' | 'THREAT_HUNTER' | 'SOC_ANALYST' | 'INCIDENT_COMMANDER',
         specializations: [],
-        clearanceLevel: clearanceLevel as 'UNCLASSIFIED' | 'CONFIDENTIAL' | 'SECRET' | 'TOP_SECRET',
         status: 'ONLINE',
         joinedAt: new Date(),
         lastActivity: new Date()
@@ -300,7 +284,6 @@ const CyberTeamManager: React.FC<CyberTeamManagerProps> = ({ onClose, onTeamSele
         details: {
           invitedBy: userDID,
           role,
-          clearanceLevel,
           memberCount: secureTeam.didMemberRegistry.size
         },
         pqcSignature: await generateTeamPQCSignature('MEMBER_INVITE', userDID)
@@ -308,11 +291,8 @@ const CyberTeamManager: React.FC<CyberTeamManagerProps> = ({ onClose, onTeamSele
       
       console.log('✅ Secure team member invited:', {
         teamId,
-        memberDID,
-        clearanceLevel
-      });
-      
-      return true;
+        memberDID
+      });      return true;
       
     } catch (error) {
       console.error('❌ Failed to invite secure team member:', error);
@@ -323,8 +303,7 @@ const CyberTeamManager: React.FC<CyberTeamManagerProps> = ({ onClose, onTeamSele
   // Helper Functions for Advanced Security
   const performTeamSecurityProcessing = async (
     teamData: CreateTeamRequest,
-    creatorDID: string,
-    clearanceLevel: string
+    creatorDID: string
   ): Promise<TeamSecurityMetadata> => {
     const auditTrail: TeamSecurityEvent[] = [];
     
@@ -351,7 +330,6 @@ const CyberTeamManager: React.FC<CyberTeamManagerProps> = ({ onClose, onTeamSele
         otkUsed,
         tssSignature,
         securityLevel: 'QUANTUM_SAFE',
-        classificationLevel: mapClearanceToClassification(clearanceLevel),
         auditTrail,
         memberDIDs: [creatorDID],
         encryptedCommunications: true
@@ -363,7 +341,6 @@ const CyberTeamManager: React.FC<CyberTeamManagerProps> = ({ onClose, onTeamSele
         pqcEncrypted: false,
         didVerified: false,
         securityLevel: 'CLASSICAL',
-        classificationLevel: 'UNCLASSIFIED',
         auditTrail,
         memberDIDs: [],
         encryptedCommunications: false
@@ -433,8 +410,7 @@ const CyberTeamManager: React.FC<CyberTeamManagerProps> = ({ onClose, onTeamSele
     try {
       const result = await ipfsService.uploadCyberTeam(
         secureTeam,
-        userDID,
-        secureTeam.securityMetadata.classificationLevel
+        userDID
       );
       
       setUploadStatus(prev => ({
@@ -480,8 +456,8 @@ const CyberTeamManager: React.FC<CyberTeamManagerProps> = ({ onClose, onTeamSele
     });
   };
 
-  const mapClearanceToClassification = (clearance: string): TeamSecurityMetadata['classificationLevel'] => {
-    const mapping: Record<string, TeamSecurityMetadata['classificationLevel']> = {
+  const mapClearanceToClassification = (clearance: string): string => {
+    const mapping: Record<string, string> = {
       'UNCLASSIFIED': 'UNCLASSIFIED',
       'CONFIDENTIAL': 'CONFIDENTIAL', 
       'SECRET': 'SECRET',
@@ -516,7 +492,6 @@ const CyberTeamManager: React.FC<CyberTeamManagerProps> = ({ onClose, onTeamSele
                 name: 'Sarah Chen',
                 role: 'LEAD_ANALYST',
                 specializations: ['malware-analysis', 'network-forensics'],
-                clearanceLevel: 'SECRET',
                 status: 'ONLINE',
                 joinedAt: new Date('2025-06-20'),
                 lastActivity: new Date()
@@ -526,14 +501,12 @@ const CyberTeamManager: React.FC<CyberTeamManagerProps> = ({ onClose, onTeamSele
                 name: 'Mike Rodriguez',
                 role: 'CYBER_ANALYST',
                 specializations: ['threat-hunting', 'osint'],
-                clearanceLevel: 'SECRET',
                 status: 'ONLINE',
                 joinedAt: new Date('2025-06-21'),
                 lastActivity: new Date()
               }
             ],
             specializations: ['incident-response', 'malware-analysis', 'threat-hunting'],
-            clearanceLevel: 'SECRET',
             status: 'ACTIVE',
             currentInvestigations: ['inv-001', 'inv-002'],
             autoShareFindings: true,
@@ -554,14 +527,12 @@ const CyberTeamManager: React.FC<CyberTeamManagerProps> = ({ onClose, onTeamSele
                 name: 'Alex Thompson',
                 role: 'THREAT_HUNTER',
                 specializations: ['advanced-persistent-threats', 'behavioral-analysis'],
-                clearanceLevel: 'TOP_SECRET',
                 status: 'AWAY',
                 joinedAt: new Date('2025-06-18'),
                 lastActivity: new Date('2025-06-24')
               }
             ],
             specializations: ['threat-hunting', 'apt-analysis', 'attribution'],
-            clearanceLevel: 'TOP_SECRET',
             status: 'DEPLOYED',
             currentInvestigations: ['inv-003'],
             autoShareFindings: false,
@@ -608,7 +579,6 @@ const CyberTeamManager: React.FC<CyberTeamManagerProps> = ({ onClose, onTeamSele
         timestamp: Date.now(),
         details: {
           securityLevel: secureTeam.securityMetadata.securityLevel,
-          clearanceLevel: formData.clearanceLevel,
           pqcEnabled: secureTeam.securityMetadata.pqcEncrypted
         }
       });
@@ -625,7 +595,6 @@ const CyberTeamManager: React.FC<CyberTeamManagerProps> = ({ onClose, onTeamSele
           name: 'Team Lead', // TODO: Get from profile
           role: 'LEAD_ANALYST',
           specializations: formData.specializations,
-          clearanceLevel: formData.clearanceLevel,
           status: 'ONLINE',
           joinedAt: new Date(),
           lastActivity: new Date()
@@ -657,8 +626,7 @@ const CyberTeamManager: React.FC<CyberTeamManagerProps> = ({ onClose, onTeamSele
         // Upload to IPFS
         const ipfsResult = await ipfsService.uploadCyberTeam(
           newTeam,
-          publicKey.toString(),
-          formData.clearanceLevel
+          publicKey.toString()
         );
 
         if (ipfsResult.success) {
@@ -673,10 +641,10 @@ const CyberTeamManager: React.FC<CyberTeamManagerProps> = ({ onClose, onTeamSele
           }));
 
           // Anchor to blockchain
+                    // Anchor to blockchain
           const anchorResult = await anchorContent(
             ipfsResult.hash,
-            'cyber-team',
-            formData.clearanceLevel
+            'cyber-team'
           );
 
           if (anchorResult.success) {
@@ -727,8 +695,7 @@ const CyberTeamManager: React.FC<CyberTeamManagerProps> = ({ onClose, onTeamSele
         name: '',
         type: 'INCIDENT_RESPONSE',
         agency: 'CYBER_COMMAND',
-        specializations: [],
-        clearanceLevel: 'UNCLASSIFIED'
+        specializations: []
       });
     } catch (error) {
       console.error('Error creating team:', error);
@@ -745,8 +712,7 @@ const CyberTeamManager: React.FC<CyberTeamManagerProps> = ({ onClose, onTeamSele
       const success = await inviteSecureTeamMember(
         selectedTeam.id,
         inviteEmail, // In production, this would be a wallet address
-        'CYBER_ANALYST',
-        'CONFIDENTIAL'
+        'CYBER_ANALYST'
       );
 
       if (success) {
@@ -844,10 +810,6 @@ const CyberTeamManager: React.FC<CyberTeamManagerProps> = ({ onClose, onTeamSele
           <span className={styles.statLabel}>Active Cases:</span>
           <span className={styles.statValue}>{team.currentInvestigations.length}</span>
         </div>
-        <div className={styles.stat}>
-          <span className={styles.statLabel}>Clearance:</span>
-          <span className={styles.statValue}>{team.clearanceLevel}</span>
-        </div>
       </div>
 
       <div className={styles.specializations}>
@@ -943,19 +905,6 @@ const CyberTeamManager: React.FC<CyberTeamManagerProps> = ({ onClose, onTeamSele
       </div>
 
       <div className={styles.formGroup}>
-        <label>Clearance Level</label>
-        <select
-          value={formData.clearanceLevel}
-          onChange={(e) => setFormData(prev => ({ ...prev, clearanceLevel: e.target.value as CyberTeam['clearanceLevel'] }))}
-        >
-          <option value="UNCLASSIFIED">Unclassified</option>
-          <option value="CONFIDENTIAL">Confidential</option>
-          <option value="SECRET">Secret</option>
-          <option value="TOP_SECRET">Top Secret</option>
-        </select>
-      </div>
-
-      <div className={styles.formGroup}>
         <label>Specializations (comma-separated)</label>
         <input
           type="text"
@@ -1025,7 +974,6 @@ const CyberTeamManager: React.FC<CyberTeamManagerProps> = ({ onClose, onTeamSele
                     <span className={styles.memberStatus} style={{ color: getMemberStatusColor(member.status) }}>
                       ● {member.status}
                     </span>
-                    <span className={styles.memberClearance}>{member.clearanceLevel}</span>
                   </div>
                   <div className={styles.memberSpecs}>
                     {member.specializations.map(spec => (

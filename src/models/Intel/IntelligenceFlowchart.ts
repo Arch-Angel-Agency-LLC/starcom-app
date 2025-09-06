@@ -7,7 +7,7 @@
  */
 
 import { PrimaryIntelSource } from './Sources';
-import { ClassificationLevel } from './Classification';
+import type { IntelClassification } from './IntelEnums';
 import { ReliabilityRating } from './Intel';
 
 // ═══════════════════════════════════════════════════════════════════
@@ -199,7 +199,7 @@ export interface Indicator {
 export interface Intelligence {
   id: string;
   source: PrimaryIntelSource;
-  classification: ClassificationLevel;
+  // Classification removed in declassified build
   reliability: ReliabilityRating;
   timestamp: number;
   collectedBy: string;
@@ -272,7 +272,7 @@ export interface IntelReport {
   content: string;
   
   // Classification and handling
-  classification: ClassificationLevel;
+  classification?: IntelClassification;
   disseminationControls: string[];
   releasability: string[];
   

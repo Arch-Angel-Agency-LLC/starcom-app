@@ -73,12 +73,12 @@ describe('IntelAnalyzerAdapter', () => {
       timestamp: Date.now()
     };
 
-    const response = await adapter.execute(request);
+  const response = await adapter.execute(request);
     
-    expect(response.status).toBe('success');
-    expect(response.data).toBeDefined();
+  expect(response.status).toBe('success');
+  expect(response.data).toBeDefined();
     
-    const result = response.data as any;
+  const result = response.data as IntelAnalysisResult;
     expect(result.packageType).toBe('entity_extraction');
     expect(result.entities).toBeDefined();
     expect(Array.isArray(result.entities)).toBe(true);
@@ -105,20 +105,20 @@ describe('IntelAnalyzerAdapter', () => {
     const response = await adapter.execute(request);
     
     expect(response.status).toBe('success');
-    const result = response.data as IntelAnalysisResult;
-    const entities = result.entities;
+  const result = response.data as IntelAnalysisResult;
+  const entities = result.entities;
     
-    // Should find email entities
-    const emailEntities = entities.filter((e: any) => e.type === 'email');
+  // Should find contact (email) entities
+  const emailEntities = entities.filter((e: any) => e.type === 'contact');
     expect(emailEntities.length).toBeGreaterThan(0);
     
     // Check email entity properties
     const emailEntity = emailEntities[0];
     expect(emailEntity.name).toMatch(/@/);
     expect(emailEntity.confidence).toBeGreaterThanOrEqual(0.5);
-    expect(emailEntity.properties).toBeDefined();
-    expect(emailEntity.properties.localPart).toBeDefined();
-    expect(emailEntity.properties.domain).toBeDefined();
+  expect(emailEntity.properties).toBeDefined();
+  expect((emailEntity.properties as any).localPart).toBeDefined();
+  expect((emailEntity.properties as any).domain).toBeDefined();
   });
 
   it('should extract IP address entities correctly', async () => {
@@ -136,10 +136,10 @@ describe('IntelAnalyzerAdapter', () => {
     const response = await adapter.execute(request);
     
     expect(response.status).toBe('success');
-    const entities = response.data.entities;
+  const entities = (response.data as IntelAnalysisResult).entities;
     
     // Should find IP address entities
-    const ipEntities = entities.filter((e: any) => e.type === 'network_node');
+  const ipEntities = entities.filter((e: any) => e.type === 'asset');
     expect(ipEntities.length).toBeGreaterThan(0);
     
     // Check IP entity properties
@@ -164,14 +164,14 @@ describe('IntelAnalyzerAdapter', () => {
     const response = await adapter.execute(request);
     
     expect(response.status).toBe('success');
-    const entities = response.data.entities;
+  const entities = (response.data as IntelAnalysisResult).entities;
     
     // Should find cryptocurrency entities
-    const cryptoEntities = entities.filter((e: any) => e.type === 'cryptocurrency_address');
+  const cryptoEntities = entities.filter((e: any) => e.type === 'asset');
     expect(cryptoEntities.length).toBeGreaterThan(0);
     
     const cryptoEntity = cryptoEntities[0];
-    expect(cryptoEntity.properties.currency).toBe('bitcoin');
+  expect((cryptoEntity.metadata as any).currency || (cryptoEntity.properties as any).currency).toBe('bitcoin');
     expect(cryptoEntity.confidence).toBe(0.85);
   });
 
@@ -187,19 +187,19 @@ describe('IntelAnalyzerAdapter', () => {
       timestamp: Date.now()
     };
 
-    const response = await adapter.execute(request);
+  const response = await adapter.execute(request);
     
-    expect(response.status).toBe('success');
-    const relationships = response.data.relationships;
+  expect(response.status).toBe('success');
+  const relationships = (response.data as IntelAnalysisResult).relationships;
     
     // Should find relationships between entities
     expect(Array.isArray(relationships)).toBe(true);
     
     if (relationships.length > 0) {
       const relationship = relationships[0];
-      expect(relationship.id).toBeDefined();
-      expect(relationship.source).toBeDefined();
-      expect(relationship.target).toBeDefined();
+  expect(relationship.id).toBeDefined();
+  expect(relationship.sourceId).toBeDefined();
+  expect(relationship.targetId).toBeDefined();
       expect(relationship.type).toBeDefined();
       expect(typeof relationship.confidence).toBe('number');
       expect(relationship.confidence).toBeGreaterThanOrEqual(0.5);
@@ -221,14 +221,14 @@ describe('IntelAnalyzerAdapter', () => {
     const response = await adapter.execute(request);
     
     expect(response.status).toBe('success');
-    const entities = response.data.entities;
+  const entities = (response.data as IntelAnalysisResult).entities;
     
     // Should find malware entities
-    const malwareEntities = entities.filter((e: any) => e.type === 'malware');
+  const malwareEntities = entities.filter((e: any) => e.type === 'technology');
     expect(malwareEntities.length).toBeGreaterThan(0);
     
     const malwareEntity = malwareEntities[0];
-    expect(malwareEntity.properties.category).toBe('malware_family');
+  expect((malwareEntity.metadata as any).category).toBe('malware_family');
     expect(malwareEntity.confidence).toBe(0.8);
   });
 
@@ -260,12 +260,12 @@ describe('IntelAnalyzerAdapter', () => {
     const basicResponse = await adapter.execute(basicRequest);
     const deepResponse = await adapter.execute(deepRequest);
     
-    expect(basicResponse.status).toBe('success');
-    expect(deepResponse.status).toBe('success');
+  expect(basicResponse.status).toBe('success');
+  expect(deepResponse.status).toBe('success');
     
-    // Both should work but may have different metadata
-    expect(basicResponse.data.metadata.analysisDepth).toBe('basic');
-    expect(deepResponse.data.metadata.analysisDepth).toBe('deep');
+  // Both should work but may have different metadata
+  expect((basicResponse.data as IntelAnalysisResult).metadata.analysisDepth).toBe('basic');
+  expect((deepResponse.data as IntelAnalysisResult).metadata.analysisDepth).toBe('deep');
   });
 
   it('should include raw data when requested', async () => {
@@ -282,9 +282,9 @@ describe('IntelAnalyzerAdapter', () => {
 
     const response = await adapter.execute(request);
     
-    expect(response.status).toBe('success');
-    expect(response.data.rawData).toBeDefined();
-    expect(response.data.rawData).toBe('Test data with admin@example.com');
+  expect(response.status).toBe('success');
+  expect((response.data as IntelAnalysisResult).rawData).toBeDefined();
+  expect((response.data as IntelAnalysisResult).rawData).toBe('Test data with admin@example.com');
   });
 
   it('should handle execution errors gracefully', async () => {
@@ -353,12 +353,12 @@ describe('IntelAnalyzerAdapter', () => {
     const lowResponse = await adapter.execute(lowThresholdRequest);
     const highResponse = await adapter.execute(highThresholdRequest);
     
-    expect(lowResponse.status).toBe('success');
-    expect(highResponse.status).toBe('success');
+  expect(lowResponse.status).toBe('success');
+  expect(highResponse.status).toBe('success');
     
-    // Low threshold should generally return more entities
-    const lowEntities = lowResponse.data.entities;
-    const highEntities = highResponse.data.entities;
+  // Low threshold should generally return more entities
+  const lowEntities = (lowResponse.data as IntelAnalysisResult).entities;
+  const highEntities = (highResponse.data as IntelAnalysisResult).entities;
     
     // All entities should meet their respective thresholds
     lowEntities.forEach((entity: any) => {

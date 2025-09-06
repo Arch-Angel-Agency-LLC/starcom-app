@@ -19,8 +19,8 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { LoggerFactory } from '../../services/logging';
-import { ApiConfigManager, ApiCredential, RateLimitInfo } from '../../services/api/ApiConfigManager';
+import { LoggerFactory } from '../services/logging';
+import { ApiConfigManager, ApiCredential, RateLimitInfo } from '../services/api/ApiConfigManager';
 
 const logger = LoggerFactory.getLogger('NetRunner:ApiKeyManager');
 
@@ -64,7 +64,7 @@ const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({ onCredentialsChange }) =>
     type: 'success' | 'error' | 'warning' | 'info';
   } | null>(null);
 
-  const apiManager = new ApiConfigManager();
+  const apiManager = ApiConfigManager.getInstance();
 
   const loadCredentials = useCallback(async () => {
     try {

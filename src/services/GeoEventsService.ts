@@ -2,7 +2,7 @@
 // Artifact-driven: Provides real-time natural event data for overlays (see globe-overlays.artifact)
 import axios from 'axios';
 
-const GEO_EVENTS_API_URL = import.meta.env.VITE_GEO_EVENTS_API_URL || 'https://api.starcom.app/natural-events';
+const GEO_EVENTS_API_URL = String(import.meta.env.VITE_GEO_EVENTS_API_URL || 'https://api.starcom.app/natural-events');
 
 export interface NaturalEvent {
   id: string | number;

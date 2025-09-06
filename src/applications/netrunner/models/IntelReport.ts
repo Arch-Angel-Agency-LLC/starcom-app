@@ -18,6 +18,8 @@ export interface IntelEntity {
   confidence: number;
   metadata: Record<string, unknown>;
   attributes: Record<string, unknown>;
+  // Backwards compatibility for older adapters/tests
+  properties?: Record<string, unknown>;
   relationships: IntelRelationship[];
 }
 
@@ -28,6 +30,12 @@ export interface IntelRelationship {
   targetId: string;
   confidence: number;
   metadata: Record<string, unknown>;
+  /**
+   * Deprecated aliases for backward compatibility with older adapters/tests.
+   * Prefer using sourceId and targetId.
+   */
+  source?: string;
+  target?: string;
 }
 
 export interface Evidence {
@@ -40,12 +48,6 @@ export interface Evidence {
   metadata: Record<string, unknown>;
 }
 
-export enum ClassificationLevel {
-  UNCLASSIFIED = 'unclassified',
-  CONFIDENTIAL = 'confidential',
-  SECRET = 'secret',
-  TOP_SECRET = 'top_secret'
-}
 
 export interface IntelReport {
   id: string;
@@ -62,8 +64,7 @@ export interface IntelReport {
   longitude?: number;
   location?: string;
   
-  // Classification and metadata
-  classification: ClassificationLevel;
+  // Metadata (declassified build)
   tags: string[];
   categories: string[];
   confidence: number;
@@ -120,7 +121,6 @@ export class IntelReportBuilder {
       created: new Date(),
       updated: new Date(),
       version: '1.0.0',
-      classification: ClassificationLevel.UNCLASSIFIED,
       tags: [],
       categories: [],
       confidence: 0,
@@ -154,10 +154,7 @@ export class IntelReportBuilder {
     return this;
   }
 
-  setClassification(level: ClassificationLevel): this {
-    this.report.classification = level;
-    return this;
-  }
+  // classification removed in civilian build
 
   addTag(tag: string): this {
     if (!this.report.tags) this.report.tags = [];

@@ -3,8 +3,8 @@
 
 declare global {
   interface Window {
-    gtag: (command: string, ...args: unknown[]) => void;
-    dataLayer: unknown[];
+  gtag: (command: string, ...args: unknown[]) => void;
+  dataLayer: unknown[];
   }
 }
 

@@ -14,8 +14,6 @@
 // TODO: Implement environment-specific configuration validation and deployment - PRIORITY: MEDIUM
 export type AgencyType = 'SOCOM' | 'SPACE_FORCE' | 'CYBER_COMMAND' | 'NSA' | 'DIA' | 'CIA';
 
-export type ClearanceLevel = 'UNCLASSIFIED' | 'CONFIDENTIAL' | 'SECRET' | 'TOP_SECRET' | 'SCI';
-
 export type CollaborationRole = 
   | 'LEAD_ANALYST' 
   | 'SUPPORT_ANALYST' 
@@ -29,7 +27,6 @@ export interface Operator {
   name: string;
   agency: AgencyType;
   role: CollaborationRole;
-  clearanceLevel: ClearanceLevel;
   specializations: string[];
   avatarUrl?: string;
   status: 'ONLINE' | 'AWAY' | 'BUSY' | 'OFFLINE';
@@ -43,7 +40,6 @@ export interface Team {
   name: string;
   description: string;
   agency?: AgencyType;
-  classification: ClearanceLevel;
   members: Operator[];
   createdAt: Date;
   updatedAt: Date;
@@ -58,7 +54,6 @@ export interface CollaborationSession {
   id: string;
   name: string;
   description: string;
-  classification: ClearanceLevel;
   leadAgency: AgencyType;
   participants: Operator[];
   invitedOperators: string[];
@@ -88,7 +83,6 @@ export interface ContextPermissions {
   canEdit: string[];
   canShare: string[];
   canAnnotate: string[];
-  clearanceRequired: ClearanceLevel;
 }
 
 // ============================================================================
@@ -103,7 +97,6 @@ export interface CollaborativeAnnotation {
   content: string;
   position: AnnotationPosition;
   type: 'NOTE' | 'MARKER' | 'HIGHLIGHT' | 'LINK' | 'WARNING';
-  classification: ClearanceLevel;
   createdAt: Date;
   linkedAssets?: string[];
   responses?: CollaborativeAnnotation[];
@@ -132,7 +125,6 @@ export interface CommunicationChannel {
   name: string;
   type: 'TEXT' | 'VOICE' | 'VIDEO' | 'SECURE_RELAY';
   participants: string[];
-  classification: ClearanceLevel;
   encryptionType: 'PQC' | 'AES256' | 'WEB3_SECURED';
   isActive: boolean;
   messageHistory: CollaborationMessage[];
@@ -146,7 +138,6 @@ export interface CollaborationMessage {
   content: string;
   type: 'TEXT' | 'INTELLIGENCE_SHARE' | 'CONTEXT_UPDATE' | 'ANNOTATION' | 'ALERT';
   timestamp: Date;
-  classification: ClearanceLevel;
   attachments?: MessageAttachment[];
   linkedContexts?: string[];
 }
@@ -157,7 +148,6 @@ export interface MessageAttachment {
   type: 'INTELLIGENCE_ASSET' | 'CONTEXT_SNAPSHOT' | 'ANALYSIS_REPORT' | 'FILE';
   url: string;
   size: number;
-  classification: ClearanceLevel;
   encryptionStatus: EncryptionStatus;
 }
 
@@ -172,7 +162,6 @@ export interface SharedIntelligenceAsset {
   category: IntelligenceCategory;
   sourceAgency: AgencyType;
   creatorId: string;
-  classification: ClearanceLevel;
   trustScore: number;
   validationStatus: 'PENDING' | 'VERIFIED' | 'DISPUTED' | 'REJECTED';
   metadata: IntelligenceMetadata;
@@ -272,7 +261,6 @@ export interface GovernmentCertificate {
   certificateId: string;
   issuingAuthority: string;
   operatorId: string;
-  clearanceLevel: ClearanceLevel;
   agency: AgencyType;
   validFrom: Date;
   validTo: Date;
@@ -300,14 +288,12 @@ export interface CollaborationState {
 export interface SessionInvitation {
   id: string;
   sessionId: string;
-  sessionName: string;
-  invitedBy: string;
-  invitedByName: string;
-  invitedByAgency: AgencyType;
-  role: CollaborationRole;
-  message?: string;
-  expiresAt: Date;
+  inviterId: string;
+  inviteeId: string;
   status: 'PENDING' | 'ACCEPTED' | 'DECLINED' | 'EXPIRED';
+  message?: string;
+  createdAt: Date;
+  expiresAt: Date;
 }
 
 export interface MarketplaceState {
@@ -323,7 +309,6 @@ export interface MarketplaceState {
 
 export interface MarketplaceFilters {
   agencies: AgencyType[];
-  clearanceLevels: ClearanceLevel[];
   priceRange: {
     min: number;
     max: number;
@@ -338,17 +323,16 @@ export interface MarketplaceFilters {
 
 export interface CollaborationNotification {
   id: string;
-  type: 'SESSION_INVITE' | 'MESSAGE' | 'CONTEXT_SHARE' | 'INTELLIGENCE_AVAILABLE' | 'SYSTEM_ALERT';
+  recipientId: string;
+  type: 'INVITATION' | 'MESSAGE' | 'ASSET_SHARED' | 'SESSION_UPDATE' | 'ALERT';
   title: string;
   message: string;
-  senderId?: string;
-  senderName?: string;
-  senderAgency?: AgencyType;
-  timestamp: Date;
+  relatedEntityId: string;
   isRead: boolean;
-  actionRequired: boolean;
+  createdAt: Date;
+  // Optional action metadata for UI prioritization
+  actionRequired?: boolean;
   actionUrl?: string;
-  classification: ClearanceLevel;
 }
 
 export interface ConnectionStatus {

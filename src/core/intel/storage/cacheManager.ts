@@ -83,7 +83,7 @@ export class CacheManager {
     oldestEntry: Date.now(),
     newestEntry: 0
   };
-  private cleanupInterval: number | null = null;
+  private cleanupInterval: ReturnType<typeof setInterval> | null = null;
 
   /**
    * Constructor

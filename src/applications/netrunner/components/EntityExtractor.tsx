@@ -12,7 +12,8 @@ import {
   Collapse,
   IconButton,
   Tooltip,
-  CircularProgress
+  CircularProgress,
+  ListItemButton
 } from '@mui/material';
 import {
   User,
@@ -71,7 +72,8 @@ const EntityExtractor: React.FC<EntityExtractorProps> = ({
       // Process each search result
       searchResults.forEach(result => {
         // Extract domains/URLs
-        const domains = result.content.match(domainRegex) || [];
+        const text = result.snippet || '';
+  const domains = text.match(domainRegex) || [];
         domains.forEach(domain => {
           const entityId = `domain-${domain}`;
           
@@ -84,7 +86,7 @@ const EntityExtractor: React.FC<EntityExtractorProps> = ({
             entityMap.set(entityId, {
               id: entityId,
               name: domain,
-              type: 'domain',
+              type: 'domain' as EntityType,
               confidence: 0.9,
               source: result.source,
               occurrences: 1
@@ -95,10 +97,10 @@ const EntityExtractor: React.FC<EntityExtractorProps> = ({
         // Extract emails using regex
         try {
           const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
-          const emails = result.content.match(emailRegex) || [];
+          const emails = text.match(emailRegex) || [];
           
           emails.forEach(email => {
-            const entityId = `email-${email}`;
+            const entityId = `contact-${email}`;
             
             if (entityMap.has(entityId)) {
               const entity = entityMap.get(entityId)!;
@@ -107,7 +109,7 @@ const EntityExtractor: React.FC<EntityExtractorProps> = ({
               entityMap.set(entityId, {
                 id: entityId,
                 name: email,
-                type: 'email',
+                type: 'contact' as EntityType,
                 confidence: 0.95,
                 source: result.source,
                 occurrences: 1
@@ -119,28 +121,12 @@ const EntityExtractor: React.FC<EntityExtractorProps> = ({
         }
         
         // Process any entities already included in the result
-        if (result.entities) {
-          result.entities.forEach(entity => {
-            const entityId = `${entity.type}-${entity.name}`;
-            
-            if (entityMap.has(entityId)) {
-              const existingEntity = entityMap.get(entityId)!;
+        // If result references entity IDs, we could enrich from a registry in future
+  if (result.entityIds && result.entityIds.length > 0) {
+          result.entityIds.forEach(entityIdRef => {
+            if (entityMap.has(entityIdRef)) {
+              const existingEntity = entityMap.get(entityIdRef)!;
               existingEntity.occurrences += 1;
-              
-              // Keep the highest confidence value
-              if (entity.confidence > existingEntity.confidence) {
-                existingEntity.confidence = entity.confidence;
-              }
-            } else {
-              entityMap.set(entityId, {
-                id: entityId,
-                name: entity.name,
-                type: entity.type,
-                confidence: entity.confidence || 0.7,
-                source: result.source,
-                occurrences: 1,
-                metadata: entity.metadata
-              });
             }
           });
         }
@@ -173,10 +159,10 @@ const EntityExtractor: React.FC<EntityExtractorProps> = ({
     }
     groups[entity.type].push(entity);
     return groups;
-  }, {} as Record<EntityType, Entity[]>);
+  }, {} as Record<string, Entity[]>);
   
   // Get icon based on entity type
-  const getEntityIcon = (type: EntityType) => {
+  const getEntityIcon = (type: string) => {
     switch(type) {
       case 'person':
         return <User size={18} />;
@@ -186,14 +172,8 @@ const EntityExtractor: React.FC<EntityExtractorProps> = ({
         return <Globe size={18} />;
       case 'domain':
         return <Globe size={18} />;
-      case 'email':
+      case 'contact':
         return <AtSign size={18} />;
-      case 'date':
-        return <Calendar size={18} />;
-      case 'hashtag':
-        return <Hash size={18} />;
-      case 'financial':
-        return <CreditCard size={18} />;
       default:
         return <Info size={18} />;
     }
@@ -286,8 +266,7 @@ const EntityExtractor: React.FC<EntityExtractorProps> = ({
         <List sx={{ mt: 1 }}>
           {Object.entries(groupedEntities).map(([type, typeEntities]) => (
             <React.Fragment key={type}>
-              <ListItem 
-                button
+              <ListItemButton 
                 onClick={() => toggleExpand(type as EntityType)}
                 sx={{ 
                   backgroundColor: 'rgba(40, 50, 60, 0.5)',
@@ -296,7 +275,7 @@ const EntityExtractor: React.FC<EntityExtractorProps> = ({
                 }}
               >
                 <ListItemIcon sx={{ minWidth: 36 }}>
-                  {getEntityIcon(type as EntityType)}
+                  {getEntityIcon(type)}
                 </ListItemIcon>
                 <ListItemText 
                   primary={formatEntityType(type)} 
@@ -312,14 +291,13 @@ const EntityExtractor: React.FC<EntityExtractorProps> = ({
                   }} 
                 />
                 {expandedType === type ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-              </ListItem>
+              </ListItemButton>
               
-              <Collapse in={expandedType === type} timeout="auto">
+        <Collapse in={expandedType === (type as EntityType)} timeout="auto">
                 <List component="div" disablePadding>
                   {typeEntities.map((entity) => (
-                    <ListItem 
+        <ListItemButton 
                       key={entity.id}
-                      button
                       onClick={() => handleEntityClick(entity)}
                       sx={{ 
                         pl: 4, 
@@ -336,7 +314,7 @@ const EntityExtractor: React.FC<EntityExtractorProps> = ({
                             <Typography variant="body2" sx={{ mr: 1 }}>
                               {entity.name}
                             </Typography>
-                            {type === 'domain' && (
+          {type === 'domain' && (
                               <Tooltip title="Open in new tab">
                                 <IconButton 
                                   size="small" 
@@ -375,7 +353,7 @@ const EntityExtractor: React.FC<EntityExtractorProps> = ({
                           </Box>
                         }
                       />
-                    </ListItem>
+        </ListItemButton>
                   ))}
                 </List>
               </Collapse>

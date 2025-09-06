@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useChat } from '../../context/ChatContext';
-import { AgencyType, ClearanceLevel } from '../../types';
+import { AgencyType } from '../../types';
 import ChatWindow from '../Chat/ChatWindow';
 import styles from './GroupChatPanel.module.css';
 
@@ -57,7 +57,6 @@ const GroupChatPanel: React.FC<GroupChatPanelProps> = ({
               encryption: true,
               metadata: {
                 agency: 'CYBER_COMMAND' as AgencyType,
-                clearanceLevel: 'CONFIDENTIAL' as ClearanceLevel,
                 did: did
               }
             }

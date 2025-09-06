@@ -45,7 +45,6 @@ class AdaptiveInterfaceService {
       name: 'Anonymous Operator',
       role: role || 'ANALYST',
       experienceLevel: 'NOVICE',
-      clearanceLevel: 'UNCLASSIFIED',
       specializations: [],
       preferredComplexity: 'SIMPLIFIED',
       customizations: [],
@@ -169,17 +168,6 @@ class AdaptiveInterfaceService {
         const experienceLevels = ['NOVICE', 'INTERMEDIATE', 'EXPERT', 'MASTER'];
         const requiredIndex = experienceLevels.indexOf(tool.requiredExperience);
         const currentIndex = experienceLevels.indexOf(profile.experienceLevel);
-        
-        if (currentIndex < requiredIndex) {
-          return false;
-        }
-      }
-
-      // Check clearance requirements
-      if (tool.requiredClearance) {
-        const clearanceLevels = ['UNCLASSIFIED', 'CONFIDENTIAL', 'SECRET', 'TOP_SECRET', 'TS_SCI'];
-        const requiredIndex = clearanceLevels.indexOf(tool.requiredClearance);
-        const currentIndex = clearanceLevels.indexOf(profile.clearanceLevel);
         
         if (currentIndex < requiredIndex) {
           return false;

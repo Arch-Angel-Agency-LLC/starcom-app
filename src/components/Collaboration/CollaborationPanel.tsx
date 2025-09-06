@@ -3,7 +3,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import CommunicationPanel from './CommunicationPanel-unified'; // Using the unified version
 import SessionManager from './SessionManager';
 import CollaborationService from '../../services/collaborationService';
-import { AgencyType, ClearanceLevel, CollaborationSession } from '../../types';
+import { AgencyType, CollaborationSession } from '../../types';
 import { useChat } from '../../context/ChatContext'; // Import the unified chat hook
 import styles from './CollaborationPanel.module.css';
 
@@ -19,7 +19,7 @@ export const CollaborationPanel: React.FC<CollaborationPanelProps> = ({
   const [activeTab, setActiveTab] = useState<'sessions' | 'communication' | 'teams' | 'security'>('communication');
   const [userDID, setUserDID] = useState<string>('');
   const [userAgency] = useState<AgencyType>('CYBER_COMMAND');
-  const [clearanceLevel] = useState<ClearanceLevel>('CONFIDENTIAL');
+  // Clearance removed in civilian build
   const [showSessionManager, setShowSessionManager] = useState(false);
   const [availableSessions, setAvailableSessions] = useState<CollaborationSession[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -44,8 +44,7 @@ export const CollaborationPanel: React.FC<CollaborationPanelProps> = ({
             encryption: true,
             metadata: {
               did,
-              agency: userAgency,
-              clearanceLevel
+              agency: userAgency
             }
           }
         }).catch(err => {
@@ -53,7 +52,7 @@ export const CollaborationPanel: React.FC<CollaborationPanelProps> = ({
         });
       }
     }
-  }, [connected, publicKey, userAgency, clearanceLevel, chat]);
+  }, [connected, publicKey, userAgency, chat]);
 
   // Load available collaboration sessions
   useEffect(() => {
@@ -133,7 +132,7 @@ export const CollaborationPanel: React.FC<CollaborationPanelProps> = ({
         name: `Operator-${publicKey.toString().slice(0, 8)}`,
         agency: userAgency,
         role: 'COORDINATOR' as const,
-        clearanceLevel,
+  // clearanceLevel removed
         specializations: ['team-lead', 'coordination'],
         status: 'ONLINE' as const,
         lastActivity: new Date(),
@@ -144,8 +143,7 @@ export const CollaborationPanel: React.FC<CollaborationPanelProps> = ({
       const newTeam = await collaborationService.createSession({
         name: teamName,
         description: teamDescription,
-        leadAgency: userAgency,
-        classification: clearanceLevel,
+  leadAgency: userAgency,
         participants: [currentOperator],
         status: 'ACTIVE'
       });
@@ -209,13 +207,12 @@ export const CollaborationPanel: React.FC<CollaborationPanelProps> = ({
           name: teamName,
           description: `Auto-created team session for ${teamName}`,
           leadAgency: userAgency,
-          classification: clearanceLevel,
           participants: [{
             id: userDID,
             name: `Operator-${publicKey.toString().slice(0, 8)}`,
             agency: userAgency,
             role: 'SUPPORT_ANALYST' as const,
-            clearanceLevel,
+            // clearanceLevel removed
             specializations: ['team-member'],
             status: 'ONLINE' as const,
             lastActivity: new Date(),
@@ -275,7 +272,6 @@ export const CollaborationPanel: React.FC<CollaborationPanelProps> = ({
             teamId="starcom-main"
             userDID={userDID}
             userAgency={userAgency}
-            clearanceLevel={clearanceLevel}
           />
         );
       
@@ -302,7 +298,7 @@ export const CollaborationPanel: React.FC<CollaborationPanelProps> = ({
                       <div className={styles.sessionMeta}>
                         <span>🏢 {session.leadAgency.replace('_', ' ')}</span>
                         <span>👥 {session.participants.length} participants</span>
-                        <span>🔒 {session.classification}</span>
+                        <span>🔒 Security: Standard</span>
                       </div>
                       <div className={styles.sessionActions}>
                         <button 

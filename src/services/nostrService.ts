@@ -17,7 +17,7 @@
  */
 
 import { SimplePool, Event } from 'nostr-tools';
-import { ClearanceLevel, AgencyType } from '../types';
+import { AgencyType } from '../types';
 import { logger } from '../utils';
 
 // Service configuration
@@ -50,7 +50,6 @@ export interface NostrMessage {
   senderDID: string;
   senderAgency: AgencyType;
   content: string;
-  clearanceLevel: ClearanceLevel;
   messageType: 'text' | 'intelligence' | 'alert' | 'status' | 'file' | 'evidence' | 'truth_claim' | 'verification' | 'coordination';
   timestamp: number;
   encrypted: boolean;
@@ -70,7 +69,6 @@ export interface NostrTeamChannel {
   teamId: string;
   name: string;
   description: string;
-  clearanceLevel: ClearanceLevel;
   agency: AgencyType;
   relayUrls: string[];
   encryptionKey?: string;
@@ -250,7 +248,6 @@ export class NostrService {
    * Create a new team channel.
    * @param {string} teamId - The ID of the team.
    * @param {string} name - The name of the channel.
-   * @param {ClearanceLevel} clearanceLevel - The clearance level required for this channel.
    * @param {AgencyType} agency - The agency type for this channel.
    * @param {string} description - The description of the channel.
    * @returns {Promise<NostrTeamChannel>} The created channel.
@@ -258,11 +255,10 @@ export class NostrService {
   public async createTeamChannel(
     teamId: string,
     name: string,
-    clearanceLevel: ClearanceLevel,
     agency: AgencyType,
     description: string
   ): Promise<NostrTeamChannel> {
-    logger.debug('NostrService.createTeamChannel called with:', { teamId, name, clearanceLevel, agency, description });
+  logger.debug('NostrService.createTeamChannel called with:', { teamId, name, agency, description });
     
     // In stub implementation, create a mock channel
     const channelId = `${teamId}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
@@ -272,7 +268,6 @@ export class NostrService {
       teamId,
       name,
       description,
-      clearanceLevel,
       agency,
       relayUrls: [...this.relays],
       participants: this.userDID ? [this.userDID] : [],
@@ -293,57 +288,67 @@ export class NostrService {
   }
 
   /**
-   * Join an existing team channel.
+   * Join a team channel
    * @param {string} channelId - The ID of the channel to join.
-   * @param {string} userDID - The DID of the user joining the channel.
-   * @param {ClearanceLevel} clearanceLevel - The clearance level of the user.
-   * @returns {Promise<boolean>} Success status.
+   * @param {string} userDID - The DID of the user joining.
+   * @returns {Promise<void>}
    */
   public async joinTeamChannel(
     channelId: string,
-    userDID: string,
-    clearanceLevel: ClearanceLevel
-  ): Promise<boolean> {
-    logger.debug('NostrService.joinTeamChannel called with:', { channelId, userDID, clearanceLevel });
+    userDID: string
+  ): Promise<void> {
+    logger.debug('NostrService.joinTeamChannel called with:', { channelId, userDID });
     
-    // Check if the channel exists
-    const channel = this.channels.get(channelId);
-    if (!channel) {
-      logger.error(`Channel ${channelId} not found`);
-      return false;
+    try {
+      const channel = this.channels.get(channelId);
+      if (!channel) {
+        throw new Error(`Channel ${channelId} not found`);
+      }
+      
+      if (!channel.participants.includes(userDID)) {
+        channel.participants.push(userDID);
+        this.channels.set(channelId, channel);
+      }
+      
+      logger.info('User joined team channel:', { channelId, userDID });
+    } catch (error) {
+      logger.error('Error joining team channel:', error);
+      throw error;
     }
-    
-    // Check if user has sufficient clearance
-    if (this.getClearanceValue(clearanceLevel) < this.getClearanceValue(channel.clearanceLevel)) {
-      logger.error(`User ${userDID} does not have sufficient clearance for channel ${channelId}`);
-      return false;
-    }
-    
-    // Add user to channel participants if not already there
-    if (!channel.participants.includes(userDID)) {
-      channel.participants.push(userDID);
-      this.channels.set(channelId, channel);
-    }
-    
-    return true;
   }
   
   /**
-   * Helper method to get numeric value for clearance level comparison.
-   * @private
-   * @param {ClearanceLevel} level - The clearance level.
-   * @returns {number} Numeric value representing the clearance level.
+   * List all known team channels (stub/local cache).
    */
-  private getClearanceValue(level: ClearanceLevel): number {
-    const clearanceLevels: Record<ClearanceLevel, number> = {
-      'UNCLASSIFIED': 0,
-      'CONFIDENTIAL': 1,
-      'SECRET': 2,
-      'TOP_SECRET': 3,
-      'SCI': 4
+  public getTeamChannels(): NostrTeamChannel[] {
+    return Array.from(this.channels.values());
+  }
+  
+  /**
+   * Lightweight service status for integration layers.
+   */
+  public getServiceStatus(): {
+    initialized: boolean;
+    referenceRelays: number;
+    connectedRelays: number;
+  } {
+    const connectedRelays = Array.from(this.relayConnections.values())
+      .filter(ws => ws.readyState === WebSocket.OPEN).length;
+    return {
+      initialized: this.initialized,
+      referenceRelays: this.relays.length,
+      connectedRelays
     };
-    
-    return clearanceLevels[level] || 0;
+  }
+  
+  /**
+   * Get the numeric value of a clearance level
+   * @param {string} level - The clearance level.
+   * @returns {number} The numeric value.
+   */
+  // Deprecated: clearance value mapping removed in civilian build
+  private getClearanceValue(_level: string): number {
+    return 1;
   }
 
   /**
@@ -393,7 +398,6 @@ export class NostrService {
       senderDID: this.userDID,
       senderAgency: channel.agency,
       content: content,
-      clearanceLevel: channel.clearanceLevel,
       messageType: messageType,
       timestamp: Date.now(),
       encrypted: false,
@@ -570,7 +574,7 @@ export class NostrService {
       
       // In a real implementation, we'd parse and validate the event properly
       // For now, create a simplified message from the event
-      const message: NostrMessage = {
+  const message: NostrMessage = {
         id: event.id || `event_${Date.now()}`,
         teamId: event.tags?.find((t: string[]) => t[0] === 'team')?.[1] || 'unknown-team',
         channelId,
@@ -578,7 +582,6 @@ export class NostrService {
         senderDID: event.pubkey ? `did:nostr:${event.pubkey}` : 'unknown',
         senderAgency: 'CYBER_COMMAND' as AgencyType, // Default agency
         content: event.content,
-        clearanceLevel: 'CONFIDENTIAL' as ClearanceLevel, // Default clearance
         messageType: 'text',
         timestamp: event.created_at * 1000, // Convert to milliseconds
         encrypted: false,
@@ -729,8 +732,7 @@ export class NostrService {
       id: channelId,
       teamId: 'earth-alliance',
       name: `Earth Alliance: ${cellCode} (${region})`,
-      description: `Resistance cell for region ${region}`,
-      clearanceLevel: 'CONFIDENTIAL' as ClearanceLevel,
+  description: `Resistance cell for region ${region}`,
       agency: 'CYBER_COMMAND' as AgencyType,
       relayUrls: this.relays,
       participants: [this.userDID],
@@ -759,8 +761,7 @@ export class NostrService {
       senderId: 'system',
       senderDID: 'earth-alliance:system',
       senderAgency: 'CYBER_COMMAND' as AgencyType,
-      content: `Welcome to Earth Alliance Resistance Cell ${cellCode}. This channel is for region ${region} operations.`,
-      clearanceLevel: 'CONFIDENTIAL' as ClearanceLevel,
+  content: `Welcome to Earth Alliance Resistance Cell ${cellCode}. This channel is for region ${region} operations.`,
       messageType: 'text',
       timestamp: Date.now(),
       encrypted: true,
@@ -822,8 +823,7 @@ export class NostrService {
       senderId: 'user',
       senderDID: this.userDID,
       senderAgency: 'CYBER_COMMAND' as AgencyType,
-      content: `EVIDENCE: ${evidenceData.title}\n\n${evidenceData.description}`,
-      clearanceLevel: 'CONFIDENTIAL' as ClearanceLevel,
+  content: `EVIDENCE: ${evidenceData.title}\n\n${evidenceData.description}`,
       messageType: 'evidence',
       timestamp: Date.now(),
       encrypted: true,
@@ -895,7 +895,6 @@ export class NostrService {
       senderDID: this.userDID,
       senderAgency: 'CYBER_COMMAND' as AgencyType,
       content: `VERIFICATION: ${verificationData.verificationStatus.toUpperCase()} (${verificationData.confidenceLevel}% confidence)\n\n${verificationData.additionalEvidence}`,
-      clearanceLevel: 'CONFIDENTIAL' as ClearanceLevel,
       messageType: 'verification',
       timestamp: Date.now(),
       encrypted: true,
@@ -962,7 +961,6 @@ export class NostrService {
       senderDID: this.userDID,
       senderAgency: 'CYBER_COMMAND' as AgencyType,
       content: `EMERGENCY [${urgencyLevel.toUpperCase()}]: ${emergencyType.replace('_', ' ').toUpperCase()}\n\n${emergencyData.description}\n\nACTION REQUIRED: ${emergencyData.actionRequired}\nTIMEFRAME: ${emergencyData.timeframe}`,
-      clearanceLevel: 'CONFIDENTIAL' as ClearanceLevel,
       messageType: 'coordination',
       timestamp: Date.now(),
       encrypted: true,

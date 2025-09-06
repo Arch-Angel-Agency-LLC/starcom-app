@@ -25,10 +25,10 @@ import {
   MenuItem,
   IconButton,
   Divider,
-  Grid,
   Card,
   CardContent
 } from '@mui/material';
+import Grid from '@mui/material/Grid';
 import { 
   Plus, 
   Search, 
@@ -58,7 +58,7 @@ interface IntelReport {
     author: string;
     created: string;
     updated: string;
-    classification: 'unclassified' | 'confidential' | 'secret' | 'top-secret';
+  classification: 'unclassified' | 'confidential' | 'secret' | 'top-secret'; // legacy-only; UI will display neutral messaging
     confidence: number;
     source: string;
   };
@@ -275,7 +275,7 @@ const IntelReportsViewer: React.FC = () => {
         
         {/* Stats Cards */}
         <Grid container spacing={2} sx={{ mb: 3 }}>
-          <Grid item xs={12} md={3}>
+          <Grid size={{ xs: 12, md: 3 }}>
             <Card sx={{ backgroundColor: '#1e1e1e', border: '1px solid #333' }}>
               <CardContent sx={{ textAlign: 'center', py: 2 }}>
                 <Typography variant="h4" sx={{ color: '#00ff00' }}>
@@ -287,7 +287,7 @@ const IntelReportsViewer: React.FC = () => {
               </CardContent>
             </Card>
           </Grid>
-          <Grid item xs={12} md={3}>
+          <Grid size={{ xs: 12, md: 3 }}>
             <Card sx={{ backgroundColor: '#1e1e1e', border: '1px solid #333' }}>
               <CardContent sx={{ textAlign: 'center', py: 2 }}>
                 <Typography variant="h4" sx={{ color: '#2196f3' }}>
@@ -299,7 +299,7 @@ const IntelReportsViewer: React.FC = () => {
               </CardContent>
             </Card>
           </Grid>
-          <Grid item xs={12} md={3}>
+          <Grid size={{ xs: 12, md: 3 }}>
             <Card sx={{ backgroundColor: '#1e1e1e', border: '1px solid #333' }}>
               <CardContent sx={{ textAlign: 'center', py: 2 }}>
                 <Typography variant="h4" sx={{ color: '#ff9800' }}>
@@ -311,7 +311,7 @@ const IntelReportsViewer: React.FC = () => {
               </CardContent>
             </Card>
           </Grid>
-          <Grid item xs={12} md={3}>
+          <Grid size={{ xs: 12, md: 3 }}>
             <Card sx={{ backgroundColor: '#1e1e1e', border: '1px solid #333' }}>
               <CardContent sx={{ textAlign: 'center', py: 2 }}>
                 <Typography variant="h4" sx={{ color: '#4caf50' }}>

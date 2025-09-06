@@ -462,11 +462,11 @@ export interface ToolExecutionRequest {
   timestamp: number;
 }
 
-export interface ToolExecutionResponse {
+export interface ToolExecutionResponse<T = unknown> {
   requestId: string;
   toolId: string;
   status: 'success' | 'error' | 'in_progress';
-  data: unknown;
+  data: T;
   error?: string;
   executionTime?: number;
   timestamp: number;
@@ -476,7 +476,7 @@ export interface ToolAdapter {
   getToolId(): string;
   getToolSchema(): ToolSchema;
   validateParameters(params: Record<string, unknown>): boolean;
-  execute(request: ToolExecutionRequest): Promise<ToolExecutionResponse>;
+  execute(request: ToolExecutionRequest): Promise<ToolExecutionResponse<any>>;
   initialize(): Promise<boolean>;
   shutdown(): Promise<void>;
 }
@@ -525,7 +525,7 @@ export const createInitialExecutionState = (
 // Helper for converting response to execution state
 export const updateExecutionStateFromResponse = (
   state: ExecutionState,
-  response: ToolExecutionResponse
+  response: ToolExecutionResponse<any>
 ): ExecutionState => {
   return {
     ...state,
@@ -636,7 +636,6 @@ export interface IntelPackage {
     toolIds: string[];
     intelTypes: IntelType[];
     confidence: number; // 0-100
-    classification: 'unclassified' | 'confidential' | 'secret' | 'top-secret';
     tags?: string[];
   };
 }
@@ -680,7 +679,6 @@ export const convertToolResultToIntel = (
       toolIds: [toolId],
       intelTypes: [...tool.intelTypes],
       confidence: confidenceLevel,
-      classification: 'unclassified',
       tags: [...tags, tool.name, ...tool.intelTypes]
     }
   };

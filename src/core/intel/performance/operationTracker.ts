@@ -115,14 +115,14 @@ class OperationTracker {
     let reason = '';
     
     // If the query doesn't specify a limit, add one
-    if (!optimized.limit && (optimized.fullTextSearch || optimized.types)) {
+  if (!optimized.limit) {
       optimized.limit = 100;
       improvement += 0.1;
       reason += 'Added reasonable limit. ';
     }
     
-    // If the query has both fullTextSearch and types, suggest adding a more specific filter
-    if (optimized.fullTextSearch && optimized.types && optimized.types.length > 1) {
+  // If the query requests many types, suggest narrowing to one commonly accessed type
+  if (optimized.types && optimized.types.length > 1) {
       // Check most accessed entity types from our tracking data
       const mostAccessedType = this.getMostAccessedEntityType();
       if (mostAccessedType && optimized.types.includes(mostAccessedType)) {

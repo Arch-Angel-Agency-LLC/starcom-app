@@ -2,7 +2,7 @@
 // Artifact-driven: Provides real-time or recent alert data for overlays (see globe-overlays.artifact)
 import axios from 'axios';
 
-const ALERTS_API_URL = import.meta.env.VITE_ALERTS_API_URL || 'https://api.starcom.app/alerts';
+const ALERTS_API_URL = String(import.meta.env.VITE_ALERTS_API_URL || 'https://api.starcom.app/alerts');
 
 export interface Alert {
   id: string | number;

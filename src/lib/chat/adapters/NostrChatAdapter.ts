@@ -19,7 +19,7 @@ import { ChatProviderCapabilities, ProtocolInfo } from '../types/ProtocolTypes';
 import { SearchOptions, SearchResult } from '../interfaces/ChatProviderInterface';
 import nostrService, { NostrMessage, NostrTeamChannel } from '../../../services/nostrService';
 import { logger } from '../../../utils';
-import { AgencyType, ClearanceLevel } from '../../../types';
+import { AgencyType } from '../../../types';
 
 /**
  * Options specific to the Nostr chat adapter.
@@ -28,7 +28,7 @@ export interface NostrChatAdapterOptions extends EnhancedChatProviderOptions {
   relays?: string[];
   userDID?: string;
   agency?: AgencyType;
-  clearanceLevel?: ClearanceLevel;
+  // clearanceLevel removed in civilian build
 }
 
 /**
@@ -40,7 +40,6 @@ export class NostrChatAdapter extends BaseChatAdapter {
   private relays: string[] = [];
   private userDID: string | null = null;
   private agency: AgencyType = 'EARTH_ALLIANCE' as AgencyType;
-  private clearanceLevel: ClearanceLevel = 'UNCLASSIFIED';
   private channelSubscriptions: Map<string, NodeJS.Timeout> = new Map();
 
   constructor(options?: NostrChatAdapterOptions) {
@@ -48,8 +47,7 @@ export class NostrChatAdapter extends BaseChatAdapter {
     
     this.relays = options?.relays || [];
     this.userDID = options?.userDID || null;
-    this.agency = options?.agency || 'EARTH_ALLIANCE' as AgencyType;
-    this.clearanceLevel = options?.clearanceLevel || 'UNCLASSIFIED';
+  this.agency = options?.agency || 'EARTH_ALLIANCE' as AgencyType;
     
     // Register additional features
     this.registerFeature('resistance_communications');
@@ -167,9 +165,6 @@ export class NostrChatAdapter extends BaseChatAdapter {
         }
         if (options.agency) {
           this.agency = options.agency;
-        }
-        if (options.clearanceLevel) {
-          this.clearanceLevel = options.clearanceLevel;
         }
       }
       
@@ -500,7 +495,6 @@ export class NostrChatAdapter extends BaseChatAdapter {
       const nostrChannel = await nostrService.createTeamChannel(
         teamId,
         name,
-        this.clearanceLevel,
         this.agency,
         `Channel for ${name}`
       );
@@ -531,15 +525,10 @@ export class NostrChatAdapter extends BaseChatAdapter {
       }
       
       // Join the channel in Nostr
-      const success = await nostrService.joinTeamChannel(
+      await nostrService.joinTeamChannel(
         channelId,
-        this.userDID || this.options.userId || '',
-        this.clearanceLevel
+        this.userDID || this.options.userId || ''
       );
-      
-      if (!success) {
-        throw new Error(`Failed to join channel ${channelId}`);
-      }
       
       logger.info(`Joined channel ${channelId}`);
     } catch (error) {
@@ -592,12 +581,11 @@ export class NostrChatAdapter extends BaseChatAdapter {
       // In a real implementation, we would call nostrService.getTeamChannel
       logger.warn(`getTeamChannel not implemented for ${channelId}, returning mock data`);
       
-      const mockChannel: NostrTeamChannel = {
+  const mockChannel: NostrTeamChannel = {
         id: channelId,
         teamId: 'default-team',
         name: `Channel ${channelId}`,
         description: 'Channel details not available',
-        clearanceLevel: this.clearanceLevel,
         agency: this.agency,
         relayUrls: this.relays,
         participants: [],
@@ -968,11 +956,10 @@ export class NostrChatAdapter extends BaseChatAdapter {
       channelId: msg.channelId,
       type: this.mapMessageType(msg.messageType),
       status: 'sent',
-      metadata: {
+  metadata: {
         teamId: msg.teamId,
         senderDID: msg.senderDID,
         senderAgency: msg.senderAgency,
-        clearanceLevel: msg.clearanceLevel,
         encrypted: msg.encrypted,
         pqcEncrypted: msg.pqcEncrypted,
         evidenceHash: msg.evidenceHash,
@@ -996,9 +983,8 @@ export class NostrChatAdapter extends BaseChatAdapter {
       createdAt: channel.createdAt,
       createdBy: channel.participants[0] || 'unknown',
       description: channel.description,
-      metadata: {
+  metadata: {
         teamId: channel.teamId,
-        clearanceLevel: channel.clearanceLevel,
         agency: channel.agency,
         relayUrls: channel.relayUrls,
         encryptionKey: channel.encryptionKey,

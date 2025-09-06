@@ -31,12 +31,8 @@ export type InterfaceComplexity =
   | 'ADVANCED' 
   | 'EXPERT';
 
-export type ClearanceLevel = 
-  | 'UNCLASSIFIED'
-  | 'CONFIDENTIAL'
-  | 'SECRET'
-  | 'TOP_SECRET'
-  | 'TS_SCI';
+// ClearanceLevel removed for civilian version – retained historical values in comments if reintroduction needed
+// Previous values: 'UNCLASSIFIED' | 'CONFIDENTIAL' | 'SECRET' | 'TOP_SECRET' | 'TS_SCI'
 
 export interface Specialization {
   id: string;
@@ -50,7 +46,6 @@ export interface OperatorProfile {
   name: string;
   role: OperatorRole;
   experienceLevel: ExperienceLevel;
-  clearanceLevel: ClearanceLevel;
   specializations: Specialization[];
   preferredComplexity: InterfaceComplexity;
   customizations: InterfaceCustomization[];
@@ -122,7 +117,6 @@ export interface ToolConfiguration {
   category: string;
   requiredRole?: OperatorRole[];
   requiredExperience?: ExperienceLevel;
-  requiredClearance?: ClearanceLevel;
   enabled: boolean;
   visible: boolean;
   position: 'LEFT' | 'RIGHT' | 'CENTER' | 'BOTTOM' | 'TOP' | 'FLOATING';

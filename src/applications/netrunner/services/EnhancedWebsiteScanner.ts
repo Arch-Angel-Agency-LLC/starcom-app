@@ -188,7 +188,7 @@ export class EnhancedWebsiteScanner {
           transformedAt: baseTimestamp,
           transformationVersion: '2.0.0',
           preservedFields: ['data', 'source', 'timestamp'],
-          enhancedFields: ['reliability', 'tags', 'classification'],
+          enhancedFields: ['reliability', 'tags'],
           qualityScore: this.calculateEmailQuality(email)
         }
       };
@@ -216,7 +216,7 @@ export class EnhancedWebsiteScanner {
           transformedAt: baseTimestamp,
           transformationVersion: '2.0.0',
           preservedFields: ['data', 'source', 'timestamp'],
-          enhancedFields: ['reliability', 'tags', 'classification'],
+          enhancedFields: ['reliability', 'tags'],
           qualityScore: this.calculateSocialQuality(social)
         }
       };
@@ -244,7 +244,7 @@ export class EnhancedWebsiteScanner {
           transformedAt: baseTimestamp,
           transformationVersion: '2.0.0',
           preservedFields: ['data', 'source', 'timestamp'],
-          enhancedFields: ['reliability', 'tags', 'classification', 'verified'],
+          enhancedFields: ['reliability', 'tags', 'verified'],
           qualityScore: tech.confidence
         }
       };
@@ -272,7 +272,7 @@ export class EnhancedWebsiteScanner {
           transformedAt: baseTimestamp,
           transformationVersion: '2.0.0',
           preservedFields: ['data', 'source', 'timestamp'],
-          enhancedFields: ['reliability', 'tags', 'classification'],
+          enhancedFields: ['reliability', 'tags'],
           qualityScore: 85 // Subdomains are high quality intel
         }
       };
@@ -300,7 +300,7 @@ export class EnhancedWebsiteScanner {
           transformedAt: baseTimestamp,
           transformationVersion: '2.0.0',
           preservedFields: ['data', 'source', 'timestamp'],
-          enhancedFields: ['reliability', 'tags', 'classification', 'verified'],
+          enhancedFields: ['reliability', 'tags', 'verified'],
           qualityScore: 95 // Server info is very high quality
         }
       };

@@ -16,8 +16,7 @@ import {
 import { 
   IntelEntity, 
   IntelRelationship, 
-  Evidence, 
-  ClassificationLevel 
+  Evidence 
 } from '../../models/IntelReport';
 
 // Real Intelligence Analysis Engine
@@ -60,14 +59,19 @@ class RealIntelAnalysisEngine {
           const confidence = this.calculatePatternConfidence(match, type, textData);
           
           if (confidence >= confidenceThreshold) {
+            const mappedType = this.mapPatternToEntityType(type, packageType);
+            const extractedProps = this.extractEntityProperties(match, type, textData);
             entities.push({
               id: uuidv4(),
               name: match,
-              type: this.mapPatternToEntityType(type, packageType),
+              type: mappedType,
+              description: undefined,
               confidence,
-              properties: this.extractEntityProperties(match, type, textData),
-              sources: ['pattern-analysis'],
-              identifiers: { [type]: match }
+              metadata: extractedProps,
+              attributes: { [type]: match },
+              // Keep legacy compatibility: include extracted props in properties bag too
+              properties: { ...extractedProps, [type]: match },
+              relationships: []
             });
           }
         });
@@ -155,35 +159,35 @@ class RealIntelAnalysisEngine {
   /**
    * Map pattern type to entity type based on package type
    */
-  private static mapPatternToEntityType(patternType: string, packageType: IntelPackageType): string {
-    const mappings: Record<string, Record<IntelPackageType, string>> = {
+  private static mapPatternToEntityType(patternType: string, packageType: IntelPackageType): 'person' | 'organization' | 'location' | 'asset' | 'event' | 'technology' | 'contact' {
+    const mappings: Record<string, Record<IntelPackageType, IntelEntity['type']>> = {
       email: {
-        'entity_extraction': 'email',
+        'entity_extraction': 'contact',
         'identity_profile': 'contact',
-        'relationship_mapping': 'communication',
-        'threat_assessment': 'target',
+        'relationship_mapping': 'contact',
+        'threat_assessment': 'contact',
         'vulnerability_report': 'contact',
-        'network_mapping': 'endpoint',
-        'infrastructure_analysis': 'service_account',
-        'financial_intelligence': 'account_identifier',
-        'temporal_analysis': 'communication_event',
-        'geospatial_mapping': 'digital_footprint'
+        'network_mapping': 'contact',
+        'infrastructure_analysis': 'contact',
+        'financial_intelligence': 'contact',
+        'temporal_analysis': 'contact',
+        'geospatial_mapping': 'contact'
       },
       ipv4: {
-        'entity_extraction': 'ip_address',
-        'network_mapping': 'network_node',
-        'infrastructure_analysis': 'server',
-        'threat_assessment': 'threat_source',
-        'vulnerability_report': 'affected_system',
-        'identity_profile': 'device',
-        'relationship_mapping': 'network_endpoint',
-        'financial_intelligence': 'transaction_source',
-        'temporal_analysis': 'network_event',
-        'geospatial_mapping': 'geo_endpoint'
+        'entity_extraction': 'asset',
+        'network_mapping': 'asset',
+        'infrastructure_analysis': 'asset',
+        'threat_assessment': 'asset',
+        'vulnerability_report': 'asset',
+        'identity_profile': 'asset',
+        'relationship_mapping': 'asset',
+        'financial_intelligence': 'asset',
+        'temporal_analysis': 'asset',
+        'geospatial_mapping': 'asset'
       }
     };
     
-    return mappings[patternType]?.[packageType] || patternType;
+  return (mappings[patternType]?.[packageType] || 'asset');
   }
   
   /**
@@ -344,18 +348,17 @@ class RealIntelAnalysisEngine {
     
     if (bitcoinMatches) {
       bitcoinMatches.forEach(address => {
-        entities.push({
-          id: uuidv4(),
-          name: address,
-          type: 'cryptocurrency_address',
-          confidence: 0.85,
-          properties: {
-            currency: 'bitcoin',
-            detectedAt: new Date().toISOString()
-          },
-          sources: ['pattern-analysis'],
-          identifiers: { bitcoin_address: address }
-        });
+          entities.push({
+            id: uuidv4(),
+            name: address,
+            type: 'asset',
+            description: 'Cryptocurrency address',
+            confidence: 0.85,
+            metadata: { currency: 'bitcoin', detectedAt: new Date().toISOString() },
+            attributes: { bitcoin_address: address },
+            properties: { bitcoin_address: address },
+            relationships: []
+          });
       });
     }
     
@@ -382,14 +385,13 @@ class RealIntelAnalysisEngine {
           entities.push({
             id: uuidv4(),
             name: match,
-            type: 'malware',
+            type: 'technology',
+            description: 'Malware family',
             confidence: 0.8,
-            properties: {
-              category: 'malware_family',
-              detectedAt: new Date().toISOString()
-            },
-            sources: ['threat-intelligence'],
-            identifiers: { malware_name: match }
+            metadata: { category: 'malware_family', detectedAt: new Date().toISOString() },
+            attributes: { malware_name: match },
+            properties: { malware_name: match },
+            relationships: []
           });
         });
       }
@@ -414,18 +416,13 @@ class RealIntelAnalysisEngine {
       entities.push({
         id: uuidv4(),
         name: `${software} ${version}`,
-        type: 'software_version',
+  type: 'technology',
+        description: 'Software version mention',
         confidence: 0.75,
-        properties: {
-          software,
-          version,
-          detectedAt: new Date().toISOString()
-        },
-        sources: ['version-analysis'],
-        identifiers: { 
-          software_name: software,
-          version_string: version
-        }
+  metadata: { detectedAt: new Date().toISOString() },
+        attributes: { software_name: software, version_string: version },
+        properties: { software_name: software, version_string: version },
+        relationships: []
       });
     }
     
@@ -448,18 +445,13 @@ class RealIntelAnalysisEngine {
       entities.push({
         id: uuidv4(),
         name: `${lat}, ${lon}`,
-        type: 'coordinates',
+  type: 'location',
+        description: 'Geospatial coordinates',
         confidence: 0.85,
-        properties: {
-          latitude: parseFloat(lat),
-          longitude: parseFloat(lon),
-          detectedAt: new Date().toISOString()
-        },
-        sources: ['coordinate-analysis'],
-        identifiers: { 
-          latitude: lat,
-          longitude: lon
-        }
+  metadata: { detectedAt: new Date().toISOString() },
+        attributes: { latitude: parseFloat(lat), longitude: parseFloat(lon) },
+        properties: { latitude: parseFloat(lat), longitude: parseFloat(lon) },
+        relationships: []
       });
     }
     
@@ -492,37 +484,31 @@ class RealIntelAnalysisEngine {
     entity2: IntelEntity, 
     _packageType: IntelPackageType
   ): IntelRelationship | null {
-    // Domain-email relationships
-    if (entity1.type === 'email' && entity2.type === 'domain') {
+    // Email (contact) referencing domain or asset: map to 'uses'
+    if (entity1.type === 'contact' && (entity2.type === 'asset' || entity2.type === 'technology' || entity2.type === 'organization')) {
       const email = entity1.name;
-      const domain = entity2.name;
-      if (email.includes(`@${domain}`)) {
+      const domainName = entity2.name;
+      if (email.includes(`@${domainName}`)) {
         return {
           id: uuidv4(),
-          source: entity1.id,
-          target: entity2.id,
-          type: 'uses_domain',
+          sourceId: entity1.id,
+          targetId: entity2.id,
+          type: 'uses',
           confidence: 0.95,
-          sources: ['domain-analysis'],
-          properties: {
-            relationship_basis: 'email_domain_match'
-          }
+          metadata: { relationship_basis: 'email_domain_match' }
         };
       }
     }
     
-    // IP-domain relationships (reverse)
-    if (entity1.type === 'ip_address' && entity2.type === 'domain') {
+    // Asset-to-asset generic related_to
+    if (entity1.type === 'asset' && entity2.type === 'asset') {
       return {
         id: uuidv4(),
-        source: entity2.id,
-        target: entity1.id,
-        type: 'resolves_to',
+        sourceId: entity2.id,
+        targetId: entity1.id,
+        type: 'related_to',
         confidence: 0.8,
-        sources: ['dns-analysis'],
-        properties: {
-          relationship_basis: 'dns_resolution'
-        }
+        metadata: { relationship_basis: 'dns_resolution' }
       };
     }
     
@@ -532,15 +518,11 @@ class RealIntelAnalysisEngine {
       if (similarity > 0.7) {
         return {
           id: uuidv4(),
-          source: entity1.id,
-          target: entity2.id,
-          type: 'similar_to',
+          sourceId: entity1.id,
+          targetId: entity2.id,
+          type: 'related_to',
           confidence: similarity,
-          sources: ['similarity-analysis'],
-          properties: {
-            similarity_score: similarity,
-            relationship_basis: 'string_similarity'
-          }
+          metadata: { similarity_score: similarity, relationship_basis: 'string_similarity' }
         };
       }
     }
@@ -600,17 +582,13 @@ class RealIntelAnalysisEngine {
       evidence.push({
         id: uuidv4(),
         type: 'document',
-        title: `Entity Analysis Report - ${packageType}`,
-        description: `Automated analysis identified ${entities.length} entities through pattern matching and domain-specific extraction techniques.`,
-        timestamp: new Date().toISOString(),
+        description: `Entity Analysis Report - ${packageType}`,
+        source: 'analysis',
+        timestamp: new Date(),
+        content: `Identified ${entities.length} entities through automated analysis.`,
         metadata: {
           entity_count: entities.length,
-          analysis_method: 'pattern_recognition',
-          confidence_range: {
-            min: Math.min(...entities.map(e => e.confidence)),
-            max: Math.max(...entities.map(e => e.confidence)),
-            avg: entities.reduce((sum, e) => sum + e.confidence, 0) / entities.length
-          }
+          analysis_method: 'pattern_recognition'
         }
       });
     }
@@ -619,13 +597,13 @@ class RealIntelAnalysisEngine {
       evidence.push({
         id: uuidv4(),
         type: 'document',
-        title: `Relationship Analysis Report - ${packageType}`,
-        description: `Automated analysis discovered ${relationships.length} relationships between identified entities using similarity analysis and domain knowledge.`,
-        timestamp: new Date().toISOString(),
+        description: `Relationship Analysis Report - ${packageType}`,
+        source: 'analysis',
+        timestamp: new Date(),
+        content: `Discovered ${relationships.length} relationships between entities.`,
         metadata: {
           relationship_count: relationships.length,
-          analysis_method: 'relationship_mapping',
-          relationship_types: [...new Set(relationships.map(r => r.type))]
+          analysis_method: 'relationship_mapping'
         }
       });
     }
@@ -654,7 +632,7 @@ export interface IntelAnalyzerConfig {
   confidenceThreshold: number;
   includeRawData: boolean;
   outputFormat: 'report' | 'entities' | 'relationships' | 'combined';
-  classificationLevel: ClassificationLevel;
+  // classification removed in civilian build
 }
 
 // Intel analysis result
@@ -744,15 +722,7 @@ export class IntelAnalyzerAdapter extends BaseAdapter {
           description: 'Include raw data in the result',
           required: false,
           default: false
-        },
-        {
-          name: 'classificationLevel',
-          type: 'string',
-          description: 'Classification level for the intelligence',
-          required: false,
-          default: 'UNCLASSIFIED',
-          options: ['UNCLASSIFIED', 'CONFIDENTIAL', 'SECRET', 'TOP_SECRET', 'COSMIC']
-        }
+  }
       ],
       outputFormat: {
         type: 'json',
@@ -820,14 +790,7 @@ export class IntelAnalyzerAdapter extends BaseAdapter {
       }
     }
 
-    // Validate classificationLevel if provided
-    if (params.classificationLevel) {
-      const validLevels = this.getToolSchema().parameters.find(p => p.name === 'classificationLevel')?.options as string[];
-      if (validLevels && !validLevels.includes(params.classificationLevel as string)) {
-        console.error(`Invalid classificationLevel: ${params.classificationLevel}. Must be one of: ${validLevels.join(', ')}`);
-        return false;
-      }
-    }
+  // classificationLevel removed in civilian build
 
     return true;
   }
@@ -835,7 +798,7 @@ export class IntelAnalyzerAdapter extends BaseAdapter {
   /**
    * Execute the Intel Analyzer
    */
-  async execute(request: ToolExecutionRequest): Promise<ToolExecutionResponse> {
+  async execute(request: ToolExecutionRequest): Promise<ToolExecutionResponse<IntelAnalysisResult>> {
     console.log('Executing Intel Analyzer request:', request);
 
     // Validate parameters
@@ -844,7 +807,7 @@ export class IntelAnalyzerAdapter extends BaseAdapter {
         requestId: request.requestId,
         toolId: this.getToolId(),
         status: 'error',
-        data: null,
+        data: null as unknown as IntelAnalysisResult,
         error: 'Invalid parameters',
         timestamp: Date.now()
       };
@@ -857,7 +820,7 @@ export class IntelAnalyzerAdapter extends BaseAdapter {
       const analysisDepth = (request.parameters.analysisDepth || 'standard') as 'basic' | 'standard' | 'deep';
       const confidenceThreshold = (request.parameters.confidenceThreshold || 0.65) as number;
       const includeRawData = (request.parameters.includeRawData || false) as boolean;
-      const classificationLevel = (request.parameters.classificationLevel || 'UNCLASSIFIED') as ClassificationLevel;
+  // classification removed in civilian build
 
       // Use real intelligence analysis instead of mock data
       const entities = RealIntelAnalysisEngine.extractEntities(data, packageType, confidenceThreshold);
@@ -879,7 +842,7 @@ export class IntelAnalyzerAdapter extends BaseAdapter {
         metadata: {
           analysisDepth,
           confidenceThreshold,
-          classificationLevel,
+          // classification removed in civilian build
           entityCount: entities.length,
           relationshipCount: relationships.length,
           intelTypes: this.packageTypeToIntelTypes[packageType],
@@ -907,7 +870,7 @@ export class IntelAnalyzerAdapter extends BaseAdapter {
         requestId: request.requestId,
         toolId: this.getToolId(),
         status: 'error',
-        data: null,
+        data: null as unknown as IntelAnalysisResult,
         error: error instanceof Error ? error.message : 'Unknown error',
         timestamp: Date.now()
       };

@@ -39,7 +39,7 @@ export class EnhancedEventEmitter {
   private listeners: Record<string, Map<string, EventSubscription>> = {};
   private eventHistory: DataEvent[] = [];
   private historyLimit: number = 100;
-  private throttleTimers: Map<string, number> = new Map();
+  private throttleTimers: Map<string, ReturnType<typeof setTimeout>> = new Map();
   private eventCounts: Map<string, number> = new Map();
 
   /**
@@ -96,7 +96,8 @@ export class EnhancedEventEmitter {
     
     // Clean up throttle timers
     if (this.throttleTimers.has(id)) {
-      clearTimeout(this.throttleTimers.get(id) as number);
+      const t = this.throttleTimers.get(id)!;
+      clearTimeout(t);
       this.throttleTimers.delete(id);
     }
     
@@ -236,7 +237,7 @@ export class EnhancedEventEmitter {
       }
       
       // Set throttle timer
-      const timer = setTimeout(() => {
+  const timer = setTimeout(() => {
         this.throttleTimers.delete(id);
       }, filters.throttleMs);
       

@@ -445,7 +445,7 @@ export class NostrServiceAdapter {
       logger.info('Fetching emergency channels from NostrService');
       
       // Get all team channels and filter for emergency ones
-      const teamChannels = await this.nostrService.getTeamChannels();
+  const teamChannels = await this.nostrService.getTeamChannels();
       
       // Convert NostrTeamChannel to our Channel type
       const emergencyChannels: Channel[] = teamChannels
@@ -454,7 +454,7 @@ export class NostrServiceAdapter {
           id: channel.id,
           name: channel.name,
           description: channel.description,
-          securityLevel: this.convertClearanceLevelToSecurityLevel(channel.clearanceLevel),
+          securityLevel: 2,
           participants: channel.participants,
           isEncrypted: channel.encryptionKey !== undefined,
           allowsAttachments: true,
@@ -754,15 +754,8 @@ export class NostrServiceAdapter {
    * Convert a NostrTeamChannel to our Channel format
    */
   private convertNostrChannelToChannel(nostrChannel: NostrTeamChannel | ResistanceCellChannel): Channel {
-    // Map clearance level to security level
-    let securityLevel = 1;
-    if (nostrChannel.clearanceLevel === 'TOP_SECRET') {
-      securityLevel = 4;
-    } else if (nostrChannel.clearanceLevel === 'SECRET') {
-      securityLevel = 3;
-    } else if (nostrChannel.clearanceLevel === 'CONFIDENTIAL') {
-      securityLevel = 2;
-    }
+  // Default security level without clearance mapping
+  const securityLevel = 2;
     
     return {
       id: nostrChannel.id,
@@ -779,21 +772,7 @@ export class NostrServiceAdapter {
   /**
    * Convert a NostrService ClearanceLevel to a securityLevel number
    */
-  private convertClearanceLevelToSecurityLevel(clearanceLevel?: string): number {
-    if (!clearanceLevel) return 1;
-    
-    switch (clearanceLevel) {
-      case 'TOP_SECRET':
-        return 5;
-      case 'SECRET':
-        return 4;
-      case 'CONFIDENTIAL':
-        return 3;
-      case 'RESTRICTED':
-        return 2;
-      case 'UNCLASSIFIED':
-      default:
-        return 1;
-    }
+  private convertClearanceLevelToSecurityLevel(_clearanceLevel?: string): number {
+    return 2;
   }
 }

@@ -110,8 +110,7 @@ export class SecureChatIntegrationService {
   };
 
   private constructor() {
-    // Enforce singleton
-    this.unifiedService = new UnifiedIPFSNostrService(this.nostrService, this.ipfsService, pqCryptoService);
+    this.unifiedService = UnifiedIPFSNostrService.getInstance();
   }
 
   public static getInstance(): SecureChatIntegrationService {
@@ -226,16 +225,9 @@ export class SecureChatIntegrationService {
       if (this.config.enableNostr) {
         try {
           const nostrMessage = await this.nostrService.sendMessage(
-            message.contactId, // Use as channel ID
+            message.contactId,
             encryptedContent,
-            this.mapMessageTypeToNostr(message.type),
-            {
-              originalMessageId: messageId,
-              attachmentHashes: ipfsHashes,
-              threatLevel: message.threatLevel,
-              pqcEncrypted,
-              earthAllianceProtocol: true
-            }
+            this.mapMessageTypeToNostr(message.type)
           );
 
           if (nostrMessage) {
@@ -396,7 +388,7 @@ export class SecureChatIntegrationService {
       console.log('🔄 Synchronizing contacts from Nostr network...');
 
       // Get team channels from Nostr service
-      const channels = this.nostrService.getTeamChannels();
+  const channels = this.nostrService.getTeamChannels();
       const contacts: SecureChatContact[] = [];
       let synchronized = 0;
       let failed = 0;
@@ -411,7 +403,6 @@ export class SecureChatIntegrationService {
             lastSeen: Date.now(),
             publicKey: channel.id, // Use channel ID as public key placeholder
             agency: channel.agency,
-            clearanceLevel: channel.clearanceLevel,
             metadata: {
               nostrChannel: channel,
               synchronized: true,

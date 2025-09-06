@@ -27,7 +27,7 @@ export class IntelReportService {
 
   constructor(
     connection: Connection,
-    programId: string = import.meta.env.VITE_SOLANA_PROGRAM_ID || 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', // Valid placeholder program ID
+  programId: string = String(import.meta.env.VITE_SOLANA_PROGRAM_ID || 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'), // Valid placeholder program ID
     testMode: boolean = false
   ) {
     this.connection = connection;
@@ -41,7 +41,7 @@ export class IntelReportService {
     }
 
     // Initialize Anchor service
-    this.anchorService = new AnchorService(connection, programId);
+  this.anchorService = new AnchorService();
   }
 
   /**
@@ -89,7 +89,7 @@ export class IntelReportService {
       }
 
       // Use Anchor if enabled and initialized
-      if (this.useAnchor && this.anchorService.getProgram()) {
+  if (this.useAnchor) {
         return await this.submitViaAnchor(report, wallet);
       }
 

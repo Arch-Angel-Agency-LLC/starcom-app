@@ -8,8 +8,7 @@
 import React, { useState, useCallback } from 'react';
 import type { 
   CollaborationSession,
-  AgencyType,
-  ClearanceLevel
+  AgencyType
 } from '../../types';
 import styles from './SessionManager.module.css';
 
@@ -35,7 +34,6 @@ const useOperatorProfile = () => ({
     id: 'temp-operator',
     name: 'Temp Operator',
     agency: 'TEMP' as AgencyType,
-    clearanceLevel: 'UNCLASSIFIED' as ClearanceLevel,
     role: 'LEAD_ANALYST' as const,
     specializations: ['GEOINT'],
     status: 'ONLINE' as const,
@@ -91,16 +89,7 @@ export const SessionList: React.FC<SessionListProps> = ({
     }
   };
 
-  const getClearanceColor = (classification: ClearanceLevel) => {
-    switch (classification) {
-      case 'UNCLASSIFIED': return '#4CAF50';
-      case 'CONFIDENTIAL': return '#FF9800';
-      case 'SECRET': return '#F44336';
-      case 'TOP_SECRET': return '#9C27B0';
-      case 'SCI': return '#000000';
-      default: return '#757575';
-    }
-  };
+  // Removed clearance color coding for civilian version
 
   const getStatusIcon = (status: CollaborationSession['status']) => {
     switch (status) {
@@ -159,7 +148,7 @@ export const SessionList: React.FC<SessionListProps> = ({
               onClick={() => onSessionSelect(session)}
               style={{
                 '--agency-color': getAgencyColor(session.leadAgency),
-                '--classification-color': getClearanceColor(session.classification)
+                '--classification-color': '#888'
               } as React.CSSProperties}
             >
               <div className={styles.sessionCardHeader}>
@@ -170,9 +159,7 @@ export const SessionList: React.FC<SessionListProps> = ({
                   <div className={styles.sessionName}>{session.name}</div>
                   <div className={styles.sessionAgency}>{session.leadAgency}</div>
                 </div>
-                <div className={styles.sessionClassification}>
-                  {session.classification}
-                </div>
+                {/* Classification removed */}
               </div>
 
               <div className={styles.sessionDescription}>
@@ -222,7 +209,7 @@ export const SessionCreator: React.FC<SessionCreatorProps> = ({
   
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [classification, setClassification] = useState<ClearanceLevel>('SECRET');
+  // Classification removed for civilian version
   const [leadAgency, setLeadAgency] = useState<AgencyType>(operator?.agency || 'CYBER_COMMAND');
   const [creating, setCreating] = useState(false);
 
@@ -235,7 +222,6 @@ export const SessionCreator: React.FC<SessionCreatorProps> = ({
       const sessionData: Partial<CollaborationSession> = {
         name: name.trim(),
         description: description.trim(),
-        classification,
         leadAgency,
         participants: [operator],
         invitedOperators: [],
@@ -252,7 +238,7 @@ export const SessionCreator: React.FC<SessionCreatorProps> = ({
     } finally {
       setCreating(false);
     }
-  }, [name, description, classification, leadAgency, operator, createSession, onSessionCreated]);
+  }, [name, description, leadAgency, operator, createSession, onSessionCreated]);
 
   if (!operator) {
     return (
@@ -299,22 +285,7 @@ export const SessionCreator: React.FC<SessionCreatorProps> = ({
           />
         </div>
 
-        <div className={styles.formRow}>
-          <label htmlFor="session-classification">Security Classification *</label>
-          <select
-            id="session-classification"
-            value={classification}
-            onChange={(e) => setClassification(e.target.value as ClearanceLevel)}
-            className={styles.selectInput}
-            required
-          >
-            <option value="UNCLASSIFIED">Unclassified</option>
-            <option value="CONFIDENTIAL">Confidential</option>
-            <option value="SECRET">Secret</option>
-            <option value="TOP_SECRET">Top Secret</option>
-            <option value="SCI">SCI</option>
-          </select>
-        </div>
+  {/* Classification selection removed */}
 
         <div className={styles.formRow}>
           <label htmlFor="session-agency">Lead Agency *</label>
@@ -416,7 +387,7 @@ export const SessionManager: React.FC<SessionManagerProps> = ({
         </div>
         <div className={styles.currentSessionDetails}>
           <span className={styles.sessionDetail}>
-            {currentSession.leadAgency} • {currentSession.classification}
+            {currentSession.leadAgency}
           </span>
           <span className={styles.sessionDetail}>
             {currentSession.participants.length} participants

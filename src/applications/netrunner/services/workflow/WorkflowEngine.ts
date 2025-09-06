@@ -368,7 +368,8 @@ export class WorkflowEngine {
       const executionOrder = this.calculateExecutionOrder(workflow.tasks);
       
       for (const taskId of executionOrder) {
-        if (execution.status === 'cancelled') break;
+        // Guard: if execution was cancelled, stop processing further tasks
+        if (this.isCancelled(execution.status)) break;
         
         const task = workflow.tasks.find(t => t.id === taskId);
         if (!task) continue;
@@ -391,8 +392,8 @@ export class WorkflowEngine {
         await this.executeTask(task, execution, workflow);
       }
       
-      // Determine final status
-      if (execution.status !== 'cancelled') {
+  // Determine final status
+  if (!this.isCancelled(execution.status)) {
         const hasFailures = Array.from(execution.taskExecutions.values())
           .some(te => te.status === 'failed');
         execution.status = hasFailures ? 'failed' : 'completed';
@@ -415,6 +416,13 @@ export class WorkflowEngine {
         'Workflow execution failed'
       );
     }
+  }
+
+  /**
+   * Type-safe cancellation status check to avoid literal narrowing issues
+   */
+  private isCancelled(status: WorkflowStatus): boolean {
+    return status === 'cancelled';
   }
 
   /**
@@ -480,10 +488,10 @@ export class WorkflowEngine {
     taskExecution.endTime = new Date();
     execution.metrics.failedTasks++;
     
-    logger.error('Task failed after all retries', {
-      taskId: task.id,
+    logger.error('Task failed after all retries', undefined, {
       attempts: retryPolicy.maxAttempts,
-      error: lastError?.message
+      error: lastError?.message,
+      taskId: task.id
     });
   }
 

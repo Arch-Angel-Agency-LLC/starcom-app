@@ -10,7 +10,6 @@ import {
   Box,
   Paper,
   Typography,
-  Grid,
   Button,
   TextField,
   Chip,
@@ -38,6 +37,7 @@ import {
   DialogActions,
   LinearProgress
 } from '@mui/material';
+import Grid from '@mui/material/Grid';
 import {
   Add as AddIcon,
   Remove as RemoveIcon,
@@ -50,7 +50,8 @@ import {
 } from '@mui/icons-material';
 
 // Import our Intel domain models
-import { Intel, PrimaryIntelSource, ClassificationLevel, ReliabilityRating } from '../../models/Intel/Intel';
+import { Intel, ReliabilityRating } from '../../models/Intel/Intel';
+import { PrimaryIntelSource } from '../../models/Intel/Sources';
 import { IntelReportData } from '../../models/IntelReportData';
 import { IntelFusionService } from '../../models/Intel/IntelFusion';
 
@@ -93,7 +94,11 @@ export const IntelFusionInterface: React.FC<IntelFusionInterfaceProps> = ({
       {
         id: 'intel_001',
         source: 'OSINT',
-        classification: 'UNCLASS',
+        qualityAssessment: {
+          sourceQuality: 'reliable',
+          visibility: 'public',
+          sensitivity: 'open'
+        },
         reliability: 'B',
         timestamp: Date.now() - 3600000,
         collectedBy: 'sensor_alpha',
@@ -107,7 +112,11 @@ export const IntelFusionInterface: React.FC<IntelFusionInterfaceProps> = ({
       {
         id: 'intel_002',
         source: 'SIGINT',
-        classification: 'CONFIDENTIAL',
+        qualityAssessment: {
+          sourceQuality: 'verified',
+          visibility: 'limited',
+          sensitivity: 'careful'
+        },
         reliability: 'A',
         timestamp: Date.now() - 7200000,
         collectedBy: 'sensor_beta',
@@ -121,7 +130,11 @@ export const IntelFusionInterface: React.FC<IntelFusionInterfaceProps> = ({
       {
         id: 'intel_003',
         source: 'HUMINT',
-        classification: 'SECRET',
+        qualityAssessment: {
+          sourceQuality: 'unverified',
+          visibility: 'private',
+          sensitivity: 'protected'
+        },
         reliability: 'C',
         timestamp: Date.now() - 10800000,
         collectedBy: 'asset_gamma',
@@ -202,17 +215,14 @@ export const IntelFusionInterface: React.FC<IntelFusionInterfaceProps> = ({
       'D': '#ff9800', 'E': '#f44336', 'F': '#9e9e9e', 'X': '#e91e63'
     };
     return colors[reliability] || '#9e9e9e';
-  };
+  }
 
-  // Get classification color
-  const getClassificationColor = (classification: ClassificationLevel): string => {
-    const colors = {
-      'UNCLASS': '#4caf50',
-      'CONFIDENTIAL': '#2196f3',
-      'SECRET': '#ff9800',
-      'TOP_SECRET': '#f44336'
-    };
-    return colors[classification];
+  // Map quality visibility to a simple color for UI accents
+  const getVisibilityColor = (visibility?: 'public' | 'limited' | 'private'): string => {
+    if (visibility === 'public') return '#4caf50';
+    if (visibility === 'limited') return '#2196f3';
+    if (visibility === 'private') return '#ff9800';
+    return '#9e9e9e';
   };
 
   return (
@@ -226,7 +236,7 @@ export const IntelFusionInterface: React.FC<IntelFusionInterfaceProps> = ({
 
       <Grid container spacing={3}>
         {/* Left Column - Intel Selection */}
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Card sx={{ backgroundColor: '#1e1e1e', border: '1px solid #333' }}>
             <CardContent>
               <Typography variant="h6" sx={{ mb: 2, color: '#00ff00' }}>
@@ -255,11 +265,11 @@ export const IntelFusionInterface: React.FC<IntelFusionInterfaceProps> = ({
                                 color: '#000'
                               }}
                             />
-                            <Chip 
-                              label={intel.classification} 
-                              size="small" 
-                              sx={{ 
-                                backgroundColor: getClassificationColor(intel.classification),
+                            <Chip
+                              label={intel.qualityAssessment?.visibility?.toUpperCase?.() || 'STANDARD'}
+                              size="small"
+                              sx={{
+                                backgroundColor: getVisibilityColor(intel.qualityAssessment?.visibility),
                                 color: '#fff'
                               }}
                             />
@@ -308,7 +318,7 @@ export const IntelFusionInterface: React.FC<IntelFusionInterfaceProps> = ({
                   {selectedIntel.map((intel) => (
                     <ListItem key={intel.id} sx={{ backgroundColor: '#2a2a2a', borderRadius: 1, mb: 1 }}>
                       <ListItemText
-                        primary={`${intel.source} • ${intel.reliability} • ${intel.classification}`}
+                        primary={`${intel.source} • ${intel.reliability}`}
                         secondary={intel.location}
                       />
                       <ListItemSecondaryAction>
@@ -328,7 +338,7 @@ export const IntelFusionInterface: React.FC<IntelFusionInterfaceProps> = ({
         </Grid>
 
         {/* Right Column - Analysis Configuration */}
-        <Grid item xs={12} md={6}>
+  <Grid size={{ xs: 12, md: 6 }}>
           <Card sx={{ backgroundColor: '#1e1e1e', border: '1px solid #333' }}>
             <CardContent>
               <Typography variant="h6" sx={{ mb: 2, color: '#00ff00' }}>
@@ -381,7 +391,7 @@ export const IntelFusionInterface: React.FC<IntelFusionInterfaceProps> = ({
                 Analysis Timeframe
               </Typography>
               <Grid container spacing={2}>
-                <Grid item xs={6}>
+                <Grid size={6}>
                   <TextField
                     fullWidth
                     label="Start Date"
@@ -397,7 +407,7 @@ export const IntelFusionInterface: React.FC<IntelFusionInterfaceProps> = ({
                     InputLabelProps={{ shrink: true }}
                   />
                 </Grid>
-                <Grid item xs={6}>
+                <Grid size={6}>
                   <TextField
                     fullWidth
                     label="End Date"
@@ -473,19 +483,12 @@ export const IntelFusionInterface: React.FC<IntelFusionInterfaceProps> = ({
             </Box>
 
             <Grid container spacing={2}>
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <Typography variant="subtitle2" sx={{ color: '#ccc' }}>Title:</Typography>
                 <Typography variant="body1" sx={{ mb: 1 }}>{generatedReport.title}</Typography>
 
-                <Typography variant="subtitle2" sx={{ color: '#ccc' }}>Classification:</Typography>
-                <Chip 
-                  label={generatedReport.classification?.level} 
-                  sx={{ 
-                    backgroundColor: getClassificationColor(generatedReport.classification?.level || 'UNCLASS'),
-                    color: '#fff',
-                    mb: 1
-                  }}
-                />
+                <Typography variant="subtitle2" sx={{ color: '#ccc' }}>Security:</Typography>
+                <Chip label="Standard" sx={{ backgroundColor: '#4caf50', color: '#000', mb: 1 }} />
 
                 <Typography variant="subtitle2" sx={{ color: '#ccc' }}>Confidence:</Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -498,7 +501,7 @@ export const IntelFusionInterface: React.FC<IntelFusionInterfaceProps> = ({
                 </Box>
               </Grid>
 
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <Typography variant="subtitle2" sx={{ color: '#ccc' }}>Executive Summary:</Typography>
                 <Typography variant="body2" sx={{ mb: 1, maxHeight: 100, overflow: 'auto' }}>
                   {generatedReport.executiveSummary}

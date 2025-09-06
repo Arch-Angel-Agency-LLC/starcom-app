@@ -213,7 +213,6 @@ export interface IntelReport {
   summary: string;
   content: string;
   reportType: 'tactical' | 'operational' | 'strategic';
-  classification: 'unclassified' | 'internal' | 'confidential';
   targetAudience: string[];
   keyFindings: string[];
   recommendations: string[];

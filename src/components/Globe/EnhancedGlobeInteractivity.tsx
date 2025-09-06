@@ -10,7 +10,6 @@ import { useIntelReportInteractivity } from '../../hooks/useIntelReportInteracti
 import { IntelReportTooltip } from '../ui/IntelReportTooltip/IntelReportTooltip';
 import { IntelReportPopup } from '../ui/IntelReportPopup/IntelReportPopup';
 import { EnhancedTeamCollaborationService } from '../../services/collaboration/EnhancedTeamCollaborationService';
-import { ClearanceLevel } from '../../types/features/collaboration';
 
 interface EnhancedGlobeInteractivityProps {
   globeRef: React.RefObject<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -241,9 +240,9 @@ export const EnhancedGlobeInteractivity: React.FC<EnhancedGlobeInteractivityProp
         longitude: lng,
         timestamp: Date.now(),
         author: 'globe-user', // Will be replaced with actual wallet address when connected
-        classification: 'CONFIDENTIAL', // Default classification for team reports
-        source: 'STARCOM Globe Interface',
-        priority: 'MEDIUM'
+  // classification removed in declassified build
+  source: 'STARCOM Globe Interface',
+  priority: 'ROUTINE'
       };
       
       // Create a mock wallet for test mode
@@ -277,7 +276,7 @@ export const EnhancedGlobeInteractivity: React.FC<EnhancedGlobeInteractivityProp
               {
                 name: `Globe Report Package - ${new Date().toLocaleDateString()}`,
                 description: `Intel package created from globe interaction at ${lat.toFixed(4)}, ${lng.toFixed(4)}`,
-                classification: 'CONFIDENTIAL' as ClearanceLevel,
+                classification: 'CONFIDENTIAL',
                 tags: ['globe-generated', 'geospatial']
               },
               walletSigner
@@ -293,7 +292,7 @@ export const EnhancedGlobeInteractivity: React.FC<EnhancedGlobeInteractivityProp
       // Show success notification with team collaboration features
       const message = `Intel Report created successfully at ${lat.toFixed(4)}, ${lng.toFixed(4)}!\n\n` +
                      `📋 Report Details:\n` +
-                     `• Classification: ${reportData.classification}\n` +
+                     '' +
                      `• Tags: ${reportData.tags.join(', ')}\n` +
                      `• Transaction: ${signature}\n\n` +
                      `🤝 Team Features:\n` +

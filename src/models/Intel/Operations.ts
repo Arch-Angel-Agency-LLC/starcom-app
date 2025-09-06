@@ -2,11 +2,16 @@
 // Mission-specific context and operational metadata for intelligence
 
 import { Intel } from './Intel';
-import { ClassificationLevel } from './Classification';
+import type { IntelClassification } from './IntelEnums';
 import { CollectionTasking } from './Tasking';
 import { IntelDataLifecycle } from './Lifecycle';
 import { RealTimeProcessingStatus } from './RealTimeProcessing';
-import { IntelFusionMetadata } from './IntelFusion';
+// Minimal fusion metadata for operations context
+export interface IntelFusionMetadata {
+  fusedFromIds?: string[];
+  fusionMethod?: string;
+  fusionScore?: number;
+}
 import { CollectionPerformance } from './Performance';
 
 /**
@@ -21,7 +26,7 @@ export interface DisseminationRecord {
   timestamp: number;
   recipient: string;
   method: DisseminationMethod;
-  classification: ClassificationLevel;
+  classification?: IntelClassification;
   acknowledgmentReceived: boolean;
   feedback?: string;
 }
@@ -136,7 +141,7 @@ export class IntelOperations {
     intel: EnhancedIntel,
     recipient: string,
     method: DisseminationMethod,
-    classification: ClassificationLevel
+  classification?: IntelClassification
   ): void {
     intel.operationalContext.disseminationHistory.push({
       timestamp: Date.now(),

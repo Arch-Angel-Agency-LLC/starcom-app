@@ -10,8 +10,7 @@ import { useCollaborationFeatures } from '../../hooks/useUnifiedGlobalCommand';
 import type { 
   CollaborativeAnnotation, 
   AnnotationPosition,
-  AgencyType,
-  ClearanceLevel 
+  AgencyType
 } from '../../types';
 import styles from './CollaborativeAnnotations.module.css';
 
@@ -78,16 +77,8 @@ export const AnnotationDisplay: React.FC<AnnotationDisplayProps> = ({
     }
   };
 
-  const getClearanceColor = (classification: ClearanceLevel) => {
-    switch (classification) {
-      case 'UNCLASSIFIED': return '#4CAF50';
-      case 'CONFIDENTIAL': return '#FF9800';
-      case 'SECRET': return '#F44336';
-      case 'TOP_SECRET': return '#9C27B0';
-      case 'SCI': return '#000000';
-      default: return '#757575';
-    }
-  };
+  // Clearance colors removed in civilian build
+  const getClearanceColor = () => '#757575';
 
   return (
     <div className={styles.annotationContainer}>
@@ -100,7 +91,7 @@ export const AnnotationDisplay: React.FC<AnnotationDisplayProps> = ({
           onClick={() => handleAnnotationClick(annotation)}
           style={{
             '--agency-color': getAgencyColor(annotation.agency),
-            '--classification-color': getClearanceColor(annotation.classification)
+            '--classification-color': getClearanceColor()
           } as React.CSSProperties}
         >
           <div className={styles.annotationHeader}>
@@ -114,9 +105,7 @@ export const AnnotationDisplay: React.FC<AnnotationDisplayProps> = ({
                 {annotation.createdAt.toLocaleTimeString()}
               </span>
             </div>
-            <div className={styles.classification}>
-              {annotation.classification}
-            </div>
+            {/* Classification removed */}
           </div>
 
           <div className={styles.annotationContent}>
@@ -199,7 +188,7 @@ export const AnnotationCreator: React.FC<AnnotationCreatorProps> = ({
 }) => {
   const [content, setContent] = useState('');
   const [type, setType] = useState<CollaborativeAnnotation['type']>('NOTE');
-  const [classification, setClassification] = useState<ClearanceLevel>('SECRET');
+  // Classification removed from creator form in civilian build
   
   const collaborationFeatures = useCollaborationFeatures();
   const hasCollaboration = collaborationFeatures?.hasCollaboration;
@@ -221,14 +210,14 @@ export const AnnotationCreator: React.FC<AnnotationCreatorProps> = ({
       content: content.trim(),
       position,
       type,
-      classification,
+  // classification removed
       responses: []
     };
 
     onAnnotationCreate(annotation);
     setContent('');
     setType('NOTE');
-  }, [content, operator, position, type, classification, onAnnotationCreate]);
+  }, [content, operator, position, type, onAnnotationCreate]);
 
   // TODO: Implement full collaboration features
   if (!hasCollaboration) {
@@ -287,21 +276,7 @@ export const AnnotationCreator: React.FC<AnnotationCreatorProps> = ({
           </select>
         </div>
 
-        <div className={styles.formRow}>
-          <label htmlFor="annotation-classification">Classification:</label>
-          <select
-            id="annotation-classification"
-            value={classification}
-            onChange={(e) => setClassification(e.target.value as ClearanceLevel)}
-            className={styles.classificationSelect}
-          >
-            <option value="UNCLASSIFIED">Unclassified</option>
-            <option value="CONFIDENTIAL">Confidential</option>
-            <option value="SECRET">Secret</option>
-            <option value="TOP_SECRET">Top Secret</option>
-            <option value="SCI">SCI</option>
-          </select>
-        </div>
+  {/* Classification selector removed */}
 
         <div className={styles.formRow}>
           <label htmlFor="annotation-content">Content:</label>

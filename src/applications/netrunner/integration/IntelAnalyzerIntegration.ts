@@ -163,7 +163,7 @@ export const basicIntelWorkflows: AnalysisTemplate[] = [
         description: 'Generate formal intelligence report',
         duration: 45,
         requiredTools: [],
-        instructions: 'Compile verified findings into a structured intelligence report with appropriate classification.'
+  instructions: 'Compile verified findings into a structured intelligence report.'
       },
       {
         id: uuidv4(),
@@ -242,7 +242,7 @@ export const basicIntelWorkflows: AnalysisTemplate[] = [
         description: 'Generate comprehensive threat intelligence report',
         duration: 60,
         requiredTools: [],
-        instructions: 'Compile verified threat intelligence into a structured report with appropriate classification.'
+  instructions: 'Compile verified threat intelligence into a structured report.'
       },
       {
         id: uuidv4(),
@@ -341,24 +341,21 @@ export const createIntelReportFromWorkflow = (
     title: workflow.name,
     summary: workflow.description,
     description: workflow.description,
-    classification: 'UNCLASSIFIED',
-    verificationLevel: 'UNVERIFIED',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    intelTypes: workflow.intelTypes,
-    content: [],
-    entities: [],
-    relationships: [],
-    evidence: [],
-    author: authorId,
-    authorName,
-    sources: [],
-    marketValue: 0,
-    tradable: false,
-    exchangeStatus: 'DRAFT',
-    hash: '',
-    encryptionStatus: 'UNENCRYPTED',
-    tags: workflow.tags,
-    categories: []
+  created: new Date(),
+  updated: new Date(),
+  content: '',
+  entities: [],
+  relationships: [],
+  evidence: [],
+  author: authorId,
+  sources: [],
+  tags: workflow.tags,
+  categories: [],
+  version: '1.0.0',
+  confidence: 0,
+  keyFindings: [],
+  metadata: {},
+  status: 'draft',
+  workflow: { stage: 'initial', reviewers: [], approvers: [], comments: [] }
   };
 };

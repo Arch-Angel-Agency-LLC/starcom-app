@@ -3,7 +3,10 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "esModuleInterop": true,
-    "skipLibCheck": true,
+  "skipLibCheck": true,
+  // Force fresh program build to avoid stale incremental cache from base config
+  "incremental": false,
+  "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.netrunner.tsbuildinfo",
   "types": ["node", "vite/client", "react", "react-dom", "jest", "vitest"]
   },
   "include": [

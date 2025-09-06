@@ -1,20 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
-import NostrService, { NostrMessage, NostrTeamChannel } from '../../services/nostrService';
-import { AgencyType, ClearanceLevel } from '../../types';
+import nostrService, { NostrMessage, NostrTeamChannel } from '../../services/nostrService';
+import { AgencyType } from '../../types';
 import styles from './CommunicationPanel.module.css';
 
 interface CommunicationPanelProps {
   teamId?: string;
   userDID?: string;
   userAgency?: AgencyType;
-  clearanceLevel?: ClearanceLevel;
 }
 
 const CommunicationPanel: React.FC<CommunicationPanelProps> = ({
   teamId = 'demo-team',
   userDID = 'did:socom:demo:user',
-  userAgency = 'CYBER_COMMAND',
-  clearanceLevel = 'CONFIDENTIAL'
+  userAgency = 'CYBER_COMMAND'
 }) => {
   const [messages, setMessages] = useState<NostrMessage[]>([]);
   const [activeChannel, setActiveChannel] = useState<NostrTeamChannel | null>(null);
@@ -22,7 +20,7 @@ const CommunicationPanel: React.FC<CommunicationPanelProps> = ({
   const [messageType, setMessageType] = useState<NostrMessage['messageType']>('text');
   const [isConnected, setIsConnected] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const nostrService = NostrService.getInstance();
+  // Use the singleton instance provided by the service
 
   // Initialize Nostr service and create demo channel
   useEffect(() => {
@@ -38,13 +36,12 @@ const CommunicationPanel: React.FC<CommunicationPanelProps> = ({
           const channel = await nostrService.createTeamChannel(
             teamId,
             `${userAgency} Secure Channel`,
-            clearanceLevel,
             userAgency,
             'SOCOM/NIST compliant secure communications'
           );
 
           // Join the channel
-          await nostrService.joinTeamChannel(channel.id, userDID, clearanceLevel);
+          await nostrService.joinTeamChannel(channel.id, userDID);
 
           setActiveChannel(channel);
           setMessages(nostrService.getChannelMessages(channel.id));
@@ -58,7 +55,7 @@ const CommunicationPanel: React.FC<CommunicationPanelProps> = ({
     };
 
     initializeNostr();
-  }, [teamId, userDID, userAgency, clearanceLevel]);
+  }, [teamId, userDID, userAgency]);
 
   // Listen for new messages
   useEffect(() => {
@@ -132,16 +129,7 @@ const CommunicationPanel: React.FC<CommunicationPanelProps> = ({
     }
   };
 
-  // Get clearance color
-  const getClearanceColor = (level: ClearanceLevel): string => {
-    switch (level) {
-      case 'UNCLASSIFIED': return '#00ff00';
-      case 'CONFIDENTIAL': return '#ffff00';
-      case 'SECRET': return '#ff6600';
-      case 'TOP_SECRET': return '#ff0000';
-      default: return '#ffffff';
-    }
-  };
+  // Deprecated: Clearance colors removed in civilian build
 
   // Format timestamp
   const formatTimestamp = (timestamp: number): string => {
@@ -159,16 +147,7 @@ const CommunicationPanel: React.FC<CommunicationPanelProps> = ({
       { content: 'Team Alpha ready for deployment. All systems green.', agency: 'SOCOM' as AgencyType, type: 'status' as const }
     ];
 
-    demoMessages.forEach((msg, index) => {
-      setTimeout(() => {
-        nostrService.simulateIncomingMessage(
-          activeChannel.id,
-          msg.content,
-          msg.agency,
-          msg.type
-        );
-      }, (index + 1) * 2000);
-    });
+  // Demo injection removed in civilian build
   };
 
   if (!isConnected) {
@@ -191,12 +170,7 @@ const CommunicationPanel: React.FC<CommunicationPanelProps> = ({
           {activeChannel && (
             <div className={styles.channelDetails}>
               <span className={styles.channelName}>{activeChannel.name}</span>
-              <span 
-                className={styles.clearanceBadge}
-                style={{ backgroundColor: getClearanceColor(activeChannel.clearanceLevel) }}
-              >
-                {activeChannel.clearanceLevel}
-              </span>
+              <span className={styles.clearanceBadge}>Security: Standard</span>
             </div>
           )}
         </div>
@@ -231,10 +205,7 @@ const CommunicationPanel: React.FC<CommunicationPanelProps> = ({
         ) : (
           <div className={styles.messagesList}>
             {messages.map((message) => (
-              <div 
-                key={message.id} 
-                className={`${styles.message} ${message.senderId === nostrService.getTeamChannels()[0]?.participants[0] ? styles.sent : styles.received}`}
-              >
+              <div key={message.id} className={styles.message}>
                 <div className={styles.messageHeader}>
                   <span 
                     className={styles.senderAgency}

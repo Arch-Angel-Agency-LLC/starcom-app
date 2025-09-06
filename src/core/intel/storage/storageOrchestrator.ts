@@ -14,7 +14,8 @@ import {
   IntelQueryOptions
 } from '../types/intelDataModels';
 // Enhanced imports for new Intel architecture support
-import { Intel, Intelligence } from '../../../models/Intel/Intel';
+import { Intel } from '../../../models/Intel/Intel';
+import type { Intelligence } from '../../../models/Intel/Intelligence';
 import { intelDataStore } from '../store/intelDataStore';
 
 /**
@@ -273,10 +274,15 @@ export class StorageOrchestrator {
           }
           
           // Emit entity:created event
-          enhancedEventEmitter.emit('entity:created', {
+          enhancedEventEmitter.emit({
+            id: crypto.randomUUID(),
+            type: 'create',
+            topic: 'entity:created',
+            timestamp: new Date().toISOString(),
             entityId: savedEntity.id,
             entityType: savedEntity.type,
-            entity: savedEntity
+            data: { entity: savedEntity },
+            source: 'storageOrchestrator'
           });
         },
         // Rollback operation
@@ -453,11 +459,15 @@ export class StorageOrchestrator {
       await transaction.commit();
       
       // Emit entity:updated event
-      enhancedEventEmitter.emit('entity:updated', {
+      enhancedEventEmitter.emit({
+        id: crypto.randomUUID(),
+        type: 'update',
+        topic: 'entity:updated',
+        timestamp: new Date().toISOString(),
         entityId: updatedEntity.id,
         entityType: updatedEntity.type,
-        entity: updatedEntity,
-        changes: updates
+        data: { entity: updatedEntity, changes: updates },
+        source: 'storageOrchestrator'
       });
       
       return { success: true, data: updatedEntity };
@@ -544,10 +554,15 @@ export class StorageOrchestrator {
       await transaction.commit();
       
       // Emit entity:deleted event
-      enhancedEventEmitter.emit('entity:deleted', {
+      enhancedEventEmitter.emit({
+        id: crypto.randomUUID(),
+        type: 'delete',
+        topic: 'entity:deleted',
+        timestamp: new Date().toISOString(),
         entityId: id,
         entityType: originalEntity.type,
-        entity: originalEntity
+        data: { entity: originalEntity },
+        source: 'storageOrchestrator'
       });
       
       return { success: true };
@@ -827,7 +842,6 @@ export class StorageOrchestrator {
         metadata: {
           originalData: data,
           source: data.source,
-          classification: data.classification,
           reliability: data.reliability,
           verified: data.verified
         },
@@ -863,12 +877,11 @@ export class StorageOrchestrator {
         metadata: {
           originalIntelligence: intel,
           source: intel.source,
-          classification: intel.classification,
           reliability: intel.reliability,
           confidence: intel.confidence,
-          implications: intel.implications,
-          recommendations: intel.recommendations,
-          derivedFrom: intel.derivedFrom
+          // In declassified build, track actionable insights without classification lineage
+          threats: intel.threats,
+          recommendations: intel.recommendations
         },
         tags: intel.tags || []
       };
@@ -915,7 +928,6 @@ export class StorageOrchestrator {
         metadata: {
           originalIntel: intel,
           source: intel.source,
-          classification: intel.classification,
           reliability: intel.reliability,
           verified: intel.verified,
           data: intel.data

@@ -7,7 +7,7 @@ import { Intel } from './Intel';
 // NOTE: Removed IntelReport import to break circular dependency
 // IntelReport will import IntelData, not the reverse
 import { IntelMetadata } from './IntelReportMetaData';
-import { ClassificationLevel } from './Classification';
+import type { IntelClassification } from './IntelEnums';
 import { PrimaryIntelSource } from './Sources';
 import { IntelCategory, IntelPriority, IntelThreatLevel } from './IntelEnums';
 
@@ -85,11 +85,11 @@ export interface IntelData {
   location?: string;
   
   // =============================================================================
-  // CLASSIFICATION & PRIORITY
+  // PRIORITY & CATEGORY
   // =============================================================================
   
-  /** Security classification */
-  classification: ClassificationLevel;
+  /** Optional informational designation (declassified build) */
+  classification?: IntelClassification;
   
   /** Intel category */
   category: IntelCategory;
@@ -299,7 +299,8 @@ export class IntelDataTransformer {
         source: 'intel_source'
       },
       location: intel.location,
-      classification: intel.classification,
+  // Classification removed in declassified build
+  classification: undefined,
       category: 'GENERAL' as IntelCategory, // Default category - can be enhanced
       priority: 'ROUTINE' as IntelPriority, // Default priority - can be enhanced  
       confidence: 50, // Default confidence - intel doesn't have this field
@@ -320,7 +321,7 @@ export class IntelDataTransformer {
         timestamp: intel.timestamp,
         category: 'GENERAL',
         tags: intel.tags || [],
-        classification: intel.classification
+  // classification removed
       } as IntelMetadata,
       quality: {
         accuracy: 50, // Default - intel doesn't have confidence field
@@ -335,7 +336,7 @@ export class IntelDataTransformer {
       status: 'collected',
       flags: {
         requiresHumanReview: intel.reliability === 'F' || intel.reliability === 'X',
-        sensitiveContent: intel.classification !== 'UNCLASS',
+  sensitiveContent: false,
         urgentProcessing: false // Default - intel doesn't have priority
       },
       tags: intel.tags || []
@@ -359,7 +360,7 @@ export class IntelDataTransformer {
       latitude: intelData.coordinates.latitude,
       longitude: intelData.coordinates.longitude,
       location: intelData.location,
-      classification: intelData.classification,
+  classification: intelData.classification,
       priority: intelData.priority,
       threatLevel: intelData.threatLevel,
       confidence: intelData.confidence,
@@ -590,7 +591,8 @@ export class IntelDataManager {
   queryIntelData(criteria: {
     category?: IntelCategory;
     priority?: IntelPriority;
-    classification?: ClassificationLevel;
+    // classification removed in declassified build
+    // classification?: IntelClassification;
     timeRange?: { start: Date; end: Date };
     confidenceMin?: number;
     tags?: string[];
@@ -598,7 +600,7 @@ export class IntelDataManager {
     return Array.from(this.intelData.values()).filter(data => {
       if (criteria.category && data.category !== criteria.category) return false;
       if (criteria.priority && data.priority !== criteria.priority) return false;
-      if (criteria.classification && data.classification !== criteria.classification) return false;
+      // No classification filtering in declassified build
       if (criteria.confidenceMin && data.confidence < criteria.confidenceMin) return false;
       
       if (criteria.timeRange) {

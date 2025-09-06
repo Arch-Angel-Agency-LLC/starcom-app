@@ -84,7 +84,6 @@ export interface CyberTeam {
   
   // Capabilities
   specializations: string[];
-  clearanceLevel: 'UNCLASSIFIED' | 'CONFIDENTIAL' | 'SECRET' | 'TOP_SECRET';
   
   // Status
   status: 'ACTIVE' | 'STANDBY' | 'DEPLOYED' | 'OFFLINE';
@@ -104,7 +103,6 @@ export interface TeamMember {
   name: string;
   role: 'LEAD_ANALYST' | 'CYBER_ANALYST' | 'FORENSICS_SPECIALIST' | 'THREAT_HUNTER' | 'SOC_ANALYST' | 'INCIDENT_COMMANDER';
   specializations: string[];
-  clearanceLevel: 'UNCLASSIFIED' | 'CONFIDENTIAL' | 'SECRET' | 'TOP_SECRET';
   status: 'ONLINE' | 'AWAY' | 'BUSY' | 'OFFLINE';
   joinedAt: Date;
   lastActivity: Date;
@@ -174,7 +172,6 @@ export interface CreateTeamRequest {
   type: CyberTeam['type'];
   agency: CyberTeam['agency'];
   specializations: string[];
-  clearanceLevel: CyberTeam['clearanceLevel'];
 }
 
 export interface CreateInvestigationRequest {

@@ -3,8 +3,6 @@
 // Consolidates fragmented implementations from various components and services
 
 import { IntelCategory, IntelPriority, IntelThreatLevel, IntelClassification } from './IntelEnums';
-import { ClassificationLevel } from './Classification';
-import { PrimaryIntelSource } from './Sources';
 import { IntelVisualization3D } from './IntelVisualization3D';
 import { IntelLocation } from './IntelLocation';
 
@@ -77,11 +75,11 @@ export interface IntelReport {
   location3D?: IntelLocation;
   
   // =============================================================================
-  // CLASSIFICATION & SECURITY
+  // SECURITY & PRIORITIZATION
   // =============================================================================
   
-  /** Security classification level */
-  classification: ClassificationLevel | IntelClassification;
+  /** Optional informational security designation (declassified build) */
+  classification?: IntelClassification;
   
   /** Report priority level */
   priority?: IntelPriority | 'ROUTINE' | 'PRIORITY' | 'IMMEDIATE';
@@ -115,8 +113,8 @@ export interface IntelReport {
   /** Key findings from the analysis */
   keyFindings?: string[];
   
-  /** Intelligence source types that contributed */
-  sources?: PrimaryIntelSource[] | string[];
+  /** Intelligence source types that contributed (normalized to strings for compatibility) */
+  sources?: string[];
   
   /** Source summary description */
   sourceSummary?: string;
@@ -268,9 +266,8 @@ export class IntelReportBuilder {
       confidence: 0,
       tags: [],
       latitude: 0,
-      longitude: 0,
-      content: '',
-      classification: 'UNCLASSIFIED' as ClassificationLevel
+  longitude: 0,
+  content: ''
     };
   }
 
@@ -306,7 +303,7 @@ export class IntelReportBuilder {
     return this;
   }
 
-  setClassification(level: ClassificationLevel | IntelClassification): this {
+  setClassification(level: IntelClassification): this {
     this.report.classification = level;
     return this;
   }
@@ -357,10 +354,11 @@ export class IntelReportBuilder {
     return this;
   }
 
-  addSource(source: PrimaryIntelSource | string): this {
+  addSource(source: string): this {
     if (!this.report.sources) this.report.sources = [];
-    if (!this.report.sources.includes(source)) {
-      this.report.sources.push(source);
+    const normalized = String(source);
+    if (!this.report.sources.includes(normalized)) {
+      this.report.sources.push(normalized);
     }
     return this;
   }
@@ -442,7 +440,7 @@ export class IntelReportAdapter {
       .setSubtitle(data.subtitle)
       .setSummary(data.summary)
       .setLocation(data.latitude, data.longitude)
-      .setClassification(data.classification || 'UNCLASSIFIED')
+  .setClassification((data.classification as IntelClassification) || 'UNCLASSIFIED')
       .setPriority(data.priority)
       .setConfidence(data.confidence || 50)
       .setCategory(data.category)
@@ -466,7 +464,7 @@ export class IntelReportAdapter {
       .setSummary(netrunner.summary)
       .setDescription(netrunner.description)
       .setLocation(netrunner.latitude || 0, netrunner.longitude || 0, netrunner.location)
-      .setClassification(netrunner.classification)
+  .setClassification(netrunner.classification as IntelClassification)
       .setConfidence(netrunner.confidence)
       .setMetadata(netrunner.metadata)
       .setStatus(netrunner.status)
@@ -481,7 +479,7 @@ export class IntelReportAdapter {
       .setId(provider.pubkey || crypto.randomUUID())
       .setContent(provider.content)
       .setLocation(provider.latitude, provider.longitude)
-      .setClassification(provider.classification || 'UNCLASSIFIED')
+  .setClassification((provider.classification as IntelClassification) || 'UNCLASSIFIED')
       .setConfidence(provider.verified ? 90 : 50)
       .setBlockchainData(provider.pubkey, provider.signature, provider.timestamp)
       .build();
@@ -495,7 +493,7 @@ export class IntelReportAdapter {
       .setId(analyzer.id)
       .setContent(analyzer.content)
       .setType(analyzer.type)
-      .setClassification(analyzer.metadata.classification)
+  .setClassification(analyzer.metadata.classification as IntelClassification)
       .setConfidence(analyzer.metadata.confidence);
 
     // Add tags
@@ -520,7 +518,7 @@ export class IntelReportAdapter {
       longitude: report.longitude,
       timestamp: report.timestamp || Date.now(),
       author: report.author,
-      classification: report.classification,
+  classification: report.classification,
       sources: report.sources,
       confidence: report.confidence,
       priority: report.priority,
@@ -541,9 +539,6 @@ export class IntelReportAdapter {
 // =============================================================================
 // EXPORT TYPES FOR COMPATIBILITY
 // =============================================================================
-
-// Re-export for backward compatibility
-export { IntelEntity, IntelRelationship, Evidence };
 
 // Type alias for the most common usage pattern
 export type { IntelReport as UnifiedIntelReport };

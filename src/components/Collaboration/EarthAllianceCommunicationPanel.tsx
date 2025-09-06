@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useChat } from '../../context/ChatContext';
 import styles from './EarthAllianceCommunicationPanel.module.css';
-import { ClearanceLevel, AgencyType } from '../../types/features/collaboration';
+import { AgencyType } from '../../types/features/collaboration';
 import { ChatMessage, ChatChannel } from '../../lib/chat/ChatInterface';
 
 // Define message types
@@ -11,7 +11,6 @@ type MessageType = 'text' | 'intelligence' | 'alert' | 'status' | 'evidence' | '
 interface _EarthAllianceMetadata {
   type: MessageType;
   senderAgency?: AgencyType;
-  clearanceLevel?: ClearanceLevel;
   pqcEncrypted?: boolean;
 }
 

@@ -2,7 +2,7 @@
 // Artifact-driven: Provides satellite and space debris data for overlays (see globe-overlays.artifact)
 import axios from 'axios';
 
-const SPACE_ASSETS_API_URL = import.meta.env.VITE_SPACE_ASSETS_API_URL || 'https://api.starcom.app/space-assets';
+const SPACE_ASSETS_API_URL = String(import.meta.env.VITE_SPACE_ASSETS_API_URL || 'https://api.starcom.app/space-assets');
 
 export interface SpaceAsset {
   id: string | number;

@@ -21,7 +21,6 @@ import {
   SharedIntelligenceAsset,
   Operator,
   AgencyType,
-  ClearanceLevel,
   CollaborationRole,
   SessionInvitation,
   MarketplaceFilters,
@@ -85,7 +84,6 @@ interface DIDCollaborator {
   did: string;
   publicKey: string;
   credentials: string[];
-  clearanceLevel: ClearanceLevel;
   agency: AgencyType;
   verificationStatus: 'PENDING' | 'VERIFIED' | 'FAILED';
   lastActivity: number;
@@ -184,10 +182,9 @@ class CollaborationService {
   /**
    * Create a Nostr-based secure communication channel for a session
    */
-  async createNostrChannel(
+    async createNostrChannel(
     sessionId: string,
     channelName: string,
-    clearanceLevel: ClearanceLevel,
     participants: string[]
   ): Promise<NostrTeamChannel> {
     try {
@@ -198,14 +195,13 @@ class CollaborationService {
       const channel = await this.nostrService.createTeamChannel(
         sessionId,
         channelName,
-        clearanceLevel,
         'CYBER_COMMAND', // Default agency, could be parameterized
         `Secure channel for ${channelName}`
       );
       
       // Add participants
       for (const participantDID of participants) {
-        await this.nostrService.joinTeamChannel(channel.id, participantDID, clearanceLevel);
+        await this.nostrService.joinTeamChannel(channel.id, participantDID);
       }
       
       this.nostrChannels.set(channel.id, channel);
@@ -295,7 +291,7 @@ class CollaborationService {
     sessionId: string,
     senderId: string,
     content: string,
-    classification: ClearanceLevel = 'UNCLASSIFIED'
+    classification: string = 'UNCLASSIFIED'
   ): Promise<CollaborationMessage> {
     try {
       const session = this.secureSessionRegistry.get(sessionId);
@@ -382,7 +378,7 @@ class CollaborationService {
   private async _performCollaborationSecurityProcessing(
     sessionId: string,
     creatorDID: string,
-    classification: ClearanceLevel
+    classification: string
   ): Promise<CollaborationSecurityMetadata> {
     const auditTrail: CollaborationSecurityEvent[] = [];
     
@@ -469,7 +465,7 @@ class CollaborationService {
   }
 
   // Reserved for future clearance validation
-  private _validateClearanceLevel(userLevel: ClearanceLevel, requiredLevel: ClearanceLevel): boolean {
+  private _validateClearanceLevel(userLevel: string, requiredLevel: string): boolean {
     const levels = ['UNCLASSIFIED', 'CONFIDENTIAL', 'SECRET', 'TOP_SECRET', 'SCI'];
     const userIndex = levels.indexOf(userLevel);
     const requiredIndex = levels.indexOf(requiredLevel);
@@ -531,8 +527,8 @@ class CollaborationService {
     // Security events are now stored in audit log only
   }
 
-  private mapClassificationLevel(level: ClearanceLevel): CollaborationSecurityMetadata['classificationLevel'] {
-    const mapping: Record<ClearanceLevel, CollaborationSecurityMetadata['classificationLevel']> = {
+  private mapClassificationLevel(level: string): CollaborationSecurityMetadata['classificationLevel'] {
+    const mapping: Record<string, CollaborationSecurityMetadata['classificationLevel']> = {
       'UNCLASSIFIED': 'UNCLASSIFIED',
       'CONFIDENTIAL': 'CONFIDENTIAL',
       'SECRET': 'SECRET',
@@ -571,7 +567,7 @@ class CollaborationService {
   private generateMockOperators(): void {
     const agencies: AgencyType[] = ['SOCOM', 'SPACE_FORCE', 'CYBER_COMMAND', 'NSA', 'DIA'];
     const roles: CollaborationRole[] = ['LEAD_ANALYST', 'SUPPORT_ANALYST', 'OBSERVER', 'COORDINATOR'];
-    const clearanceLevels: ClearanceLevel[] = ['SECRET', 'TOP_SECRET', 'SCI'];
+    const clearanceLevels: string[] = ['SECRET', 'TOP_SECRET', 'SCI'];
     
     const names = [
       'Agent Rodriguez', 'Colonel Chen', 'Dr. Patel', 'Major Williams',
@@ -607,19 +603,19 @@ class CollaborationService {
         name: 'Operation Cyber Shield',
         description: 'Joint cyber threat investigation across multiple attack vectors',
         leadAgency: 'CYBER_COMMAND' as AgencyType,
-        classification: 'SECRET' as ClearanceLevel
+        classification: 'SECRET'
       },
       {
         name: 'Space Asset Protection Alpha',
         description: 'Monitoring and protection of critical orbital infrastructure',
         leadAgency: 'SPACE_FORCE' as AgencyType,
-        classification: 'TOP_SECRET' as ClearanceLevel
+        classification: 'TOP_SECRET'
       },
       {
         name: 'Global Network Analysis',
         description: 'Comprehensive analysis of adversary communication networks',
         leadAgency: 'NSA' as AgencyType,
-        classification: 'SCI' as ClearanceLevel
+        classification: 'SCI'
       }
     ];
 

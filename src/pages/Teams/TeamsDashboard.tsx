@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { Connection } from '@solana/web3.js';
 import { EnhancedTeamCollaborationService } from '../../services/collaboration/EnhancedTeamCollaborationService';
-import { Team, ClearanceLevel, AgencyType } from '../../types/features/collaboration';
+import { Team, AgencyType } from '../../types/features/collaboration';
 import realTimeTeamService from '../../services/RealTimeTeamService';
 import TeamCard from '../../components/Teams/TeamCard';
 import TeamCreationForm from '../../components/Teams/TeamCreationForm';
@@ -162,7 +162,7 @@ const TeamsDashboard: React.FC = () => {
         name: teamData.name,
         description: teamData.description,
         agency: 'CYBER_COMMAND' as AgencyType,
-        classification: 'CONFIDENTIAL' as ClearanceLevel,
+  // classification removed
         members: [],
         status: 'ACTIVE'
       };

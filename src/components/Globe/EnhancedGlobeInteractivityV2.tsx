@@ -19,7 +19,6 @@ import { useIntelReportInteractivity } from '../../hooks/useIntelReportInteracti
 import { IntelReportTooltip } from '../ui/IntelReportTooltip/IntelReportTooltip';
 import { IntelReportPopup } from '../ui/IntelReportPopup/IntelReportPopup';
 import { EnhancedTeamCollaborationService } from '../../services/collaboration/EnhancedTeamCollaborationService';
-import { ClearanceLevel } from '../../types/features/collaboration';
 
 // Component props - maintains backward compatibility
 interface EnhancedGlobeInteractivityV2Props {
@@ -156,7 +155,7 @@ export const EnhancedGlobeInteractivityV2: React.FC<EnhancedGlobeInteractivityV2
               {
                 name: `Globe Report V2 - ${new Date().toLocaleDateString()}`,
                 description: `Intel package created via enhanced interaction system at ${lat.toFixed(4)}, ${lng.toFixed(4)}`,
-                classification: 'CONFIDENTIAL' as ClearanceLevel,
+                classification: 'CONFIDENTIAL',
                 tags: ['globe-v2', 'geospatial']
               },
               walletSigner

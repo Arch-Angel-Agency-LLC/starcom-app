@@ -9,7 +9,7 @@ import { IntelReportService } from '../services/IntelReportService';
 /**
  * Get program ID from environment or use placeholder
  */
-const PROGRAM_ID = import.meta.env.VITE_SOLANA_PROGRAM_ID || 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA';
+const PROGRAM_ID = String(import.meta.env.VITE_SOLANA_PROGRAM_ID || 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA');
 
 // Create service instance
 const intelReportService = new IntelReportService(

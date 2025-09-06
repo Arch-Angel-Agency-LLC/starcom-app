@@ -109,10 +109,7 @@ export type {
   CollectionTasking
 } from './Requirements';
 
-export type {
-  ClassificationLevel,
-  ClassificationMarking
-} from './Classification';
+// Classification types removed in declassified build
 
 // Utility exports
 export {
@@ -128,9 +125,7 @@ export {
   ThreatAssessmentValidator
 } from './Validators';
 
-export {
-  ClassificationUtils
-} from './Classification';
+// Classification utilities removed in declassified build
 
 export {
   SourceUtils

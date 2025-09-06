@@ -1,7 +1,9 @@
 // Processed Intelligence Types
 // Intelligence that has been analyzed and contextualized
 
-import { Intel, IntelSource, ClassificationLevel } from './Intel';
+import { Intel } from './Intel';
+import { PrimaryIntelSource } from './Sources';
+import type { IntelClassification } from './IntelEnums';
 
 /**
  * Processed Intelligence
@@ -57,11 +59,12 @@ export interface IntelligenceSummary {
       minLng: number;
       maxLng: number;
     };
-    sources: IntelSource[];
+    sources: PrimaryIntelSource[];
   };
   keyFindings: string[];
   threatLevel: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
-  classification: ClassificationLevel;
+  // Optional informational designation in declassified build
+  classification?: IntelClassification;
   createdBy: string;
   createdAt: number;
 }

@@ -26,8 +26,7 @@ export interface OperationDetails {
   errors: string[];
 }
 
-// Security classification system
-export type SecurityClassification = 'unclassified' | 'confidential' | 'secret' | 'top-secret';
+// Security classification removed in civilian build
 
 // Threat assessment levels
 export type ThreatLevel = 'low' | 'medium' | 'high' | 'critical';
@@ -40,7 +39,6 @@ export interface TargetIntelligence {
   id: string;
   url: string;
   domain: string;
-  classification: SecurityClassification;
   threatLevel: ThreatLevel;
   lastUpdated: number;
   scanData?: unknown; // Will be typed as ScanResult from WebsiteScanner
@@ -463,7 +461,6 @@ export interface SessionContext {
   ipAddress: string;
   userAgent: string;
   location?: GeolocationData;
-  securityLevel: SecurityClassification;
   restrictions: string[];
 }
 
@@ -536,12 +533,10 @@ export function isTargetIntelligence(obj: unknown): obj is TargetIntelligence {
     'id' in obj &&
     'url' in obj &&
     'domain' in obj &&
-    'classification' in obj &&
     'threatLevel' in obj &&
     typeof (obj as Record<string, unknown>).id === 'string' &&
     typeof (obj as Record<string, unknown>).url === 'string' &&
     typeof (obj as Record<string, unknown>).domain === 'string' &&
-    ['unclassified', 'confidential', 'secret', 'top-secret'].includes((obj as Record<string, unknown>).classification as string) &&
     ['low', 'medium', 'high', 'critical'].includes((obj as Record<string, unknown>).threatLevel as string);
 }
 
@@ -567,7 +562,7 @@ export function isValidOperationStatus(status: unknown): status is OperationStat
 // Constants
 export const THREAT_LEVELS: ThreatLevel[] = ['low', 'medium', 'high', 'critical'];
 export const PRIORITIES: Priority[] = ['low', 'medium', 'high', 'critical'];
-export const SECURITY_CLASSIFICATIONS: SecurityClassification[] = ['unclassified', 'confidential', 'secret', 'top-secret'];
+// SECURITY_CLASSIFICATIONS removed in civilian build
 export const AGENT_TYPES: AgentType[] = ['reconnaissance', 'vulnerability_scanner', 'threat_hunter', 'analyst', 'responder', 'monitor'];
 export const AGENT_STATUSES: AgentStatus[] = ['idle', 'active', 'busy', 'error', 'maintenance', 'offline'];
 

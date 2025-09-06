@@ -2,7 +2,7 @@
 // Centralized metadata structure for intelligence reports
 // Implements missing core type from Intel Architecture Cleanup Plan Phase 2
 
-import { ClassificationLevel } from './Classification';
+import type { IntelClassification } from './IntelEnums';
 import { PrimaryIntelSource } from './Sources';
 import { IntelCategory, IntelPriority, IntelThreatLevel } from './IntelEnums';
 
@@ -57,11 +57,11 @@ export interface IntelReportMetaData {
   };
   
   // =============================================================================
-  // CLASSIFICATION & SECURITY
+  // SECURITY (Declassified Build)
   // =============================================================================
   
-  /** Security classification */
-  classification: ClassificationLevel;
+  /** Optional informational designation */
+  classification?: IntelClassification;
   
   /** Classification authority */
   classificationAuthority?: string;
@@ -331,7 +331,7 @@ export interface IntelMetadata {
   timestamp: number;
   category: string;
   tags: string[];
-  classification?: ClassificationLevel;
+  classification?: IntelClassification;
   confidence?: number;
   quality?: {
     accuracy: number;
@@ -363,7 +363,7 @@ export class IntelReportMetaDataBuilder {
         collectedBy: 'system',
         collectedAt: new Date()
       },
-      classification: 'UNCLASS' as ClassificationLevel,
+  classification: 'UNCLASSIFIED' as IntelClassification,
       category: 'GENERAL' as IntelCategory,
       priority: 'ROUTINE' as IntelPriority,
       confidence: 50,
@@ -412,7 +412,7 @@ export class IntelReportMetaDataBuilder {
     return this;
   }
 
-  setClassification(classification: ClassificationLevel, authority?: string, reason?: string): this {
+  setClassification(classification: IntelClassification, authority?: string, reason?: string): this {
     this.metadata.classification = classification;
     if (authority) this.metadata.classificationAuthority = authority;
     if (reason) this.metadata.classificationReason = reason;
@@ -479,7 +479,7 @@ export class IntelMetadataUtils {
   static expandMetadata(simple: IntelMetadata, reportId: string): IntelReportMetaData {
     return new IntelReportMetaDataBuilder(reportId)
       .addSource(simple.source, simple.reliability, simple.confidence || 50)
-      .setClassification(simple.classification || 'UNCLASS' as ClassificationLevel)
+  .setClassification((simple.classification as IntelClassification) || 'UNCLASSIFIED')
       .setCategory(simple.category as IntelCategory, 'ROUTINE' as IntelPriority)
       .setConfidence(simple.confidence || 50)
       .setQuality(simple.quality || {})
@@ -515,7 +515,7 @@ export class IntelMetadataUtils {
       metadata.reportId &&
       metadata.sources.length > 0 &&
       metadata.collection.collectedBy &&
-      metadata.classification &&
+  metadata.classification &&
       metadata.category &&
       metadata.confidence >= 0
     );

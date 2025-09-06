@@ -9,7 +9,7 @@
  */
 
 // Core tool components
-export * from './core/BaseAdapter';
+export * from './adapters/BaseAdapter';
 
 // Tool adapters
 export * from './adapters/AdapterRegistry';

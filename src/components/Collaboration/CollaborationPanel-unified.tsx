@@ -3,7 +3,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import CommunicationPanel from './CommunicationPanel-unified';
 import SessionManager from './SessionManager';
 import CollaborationService from '../../services/collaborationService';
-import { AgencyType, ClearanceLevel, CollaborationSession } from '../../types';
+import { AgencyType, CollaborationSession } from '../../types';
 import { useChat } from '../../context/ChatContext';
 import styles from './CollaborationPanel.module.css';
 
@@ -17,8 +17,7 @@ export const CollaborationPanel: React.FC<CollaborationPanelProps> = ({
   const { connected, publicKey } = useWallet();
   const [activeTab, setActiveTab] = useState<'sessions' | 'communication' | 'teams' | 'security'>('communication');
   const [userDID, setUserDID] = useState<string>('');
-  const [userAgency] = useState<AgencyType>('CYBER_COMMAND');
-  const [clearanceLevel] = useState<ClearanceLevel>('CONFIDENTIAL');
+  const [userAgency] = useState<AgencyType>('CIVILIAN');
   const [isLoading, setIsLoading] = useState(false);
   const [showSessionManager, setShowSessionManager] = useState(false);
   const [availableSessions, setAvailableSessions] = useState<CollaborationSession[]>([]);
@@ -43,14 +42,13 @@ export const CollaborationPanel: React.FC<CollaborationPanelProps> = ({
             encryption: true,
             metadata: {
               did,
-              agency: userAgency,
-              clearanceLevel
+              agency: userAgency
             }
           }
         });
       }
     }
-  }, [connected, publicKey, userAgency, clearanceLevel, chat]);
+  }, [connected, publicKey, userAgency, chat]);
 
   // Load available collaboration sessions
   useEffect(() => {
@@ -118,7 +116,6 @@ export const CollaborationPanel: React.FC<CollaborationPanelProps> = ({
         name: `Operator-${publicKey.toString().slice(0, 8)}`,
         agency: userAgency,
         role: 'COORDINATOR' as const,
-        clearanceLevel,
         specializations: ['team-lead', 'coordination'],
         status: 'ONLINE' as const,
         lastActivity: new Date(),
@@ -130,7 +127,6 @@ export const CollaborationPanel: React.FC<CollaborationPanelProps> = ({
         name: teamName,
         description: teamDescription,
         leadAgency: userAgency,
-        classification: clearanceLevel,
         participants: [currentOperator],
         status: 'ACTIVE'
       });
@@ -145,7 +141,7 @@ export const CollaborationPanel: React.FC<CollaborationPanelProps> = ({
       );
       
       // Set it as the current channel
-      chat.setCurrentChannel(`team-${newTeam.id}`);
+      chat.setCurrentChannel(`team-${newTeam}`);
       
       // Refresh sessions list to include the new team
       const sessions = await collaborationService.getAvailableSessions();
@@ -188,13 +184,11 @@ export const CollaborationPanel: React.FC<CollaborationPanelProps> = ({
           name: teamName,
           description: `Auto-created team session for ${teamName}`,
           leadAgency: userAgency,
-          classification: clearanceLevel,
           participants: [{
             id: userDID,
             name: `Operator-${publicKey.toString().slice(0, 8)}`,
             agency: userAgency,
             role: 'SUPPORT_ANALYST' as const,
-            clearanceLevel,
             specializations: ['team-member'],
             status: 'ONLINE' as const,
             lastActivity: new Date(),
@@ -211,7 +205,7 @@ export const CollaborationPanel: React.FC<CollaborationPanelProps> = ({
         );
         
         // Set as current channel
-        chat.setCurrentChannel(`team-${newSession.id}`);
+        chat.setCurrentChannel(`session-${newSession}`);
         
         // Refresh sessions
         const sessions = await collaborationService.getAvailableSessions();
@@ -286,10 +280,8 @@ export const CollaborationPanel: React.FC<CollaborationPanelProps> = ({
           ))}
         </div>
         <div className={styles.userInfo}>
-          <div className={styles.securityBadge} title={`Clearance: ${clearanceLevel}`}>
-            {clearanceLevel === 'TOP_SECRET' ? '🔴' : 
-             clearanceLevel === 'SECRET' ? '🟠' : 
-             clearanceLevel === 'CONFIDENTIAL' ? '🟡' : '🟢'}
+          <div className={styles.securityBadge} title="Security Level: Standard">
+            �️
           </div>
           <div className={styles.agency}>{userAgency}</div>
           <div className={styles.did}>{userDID.slice(0, 16)}...</div>
@@ -313,13 +305,9 @@ export const CollaborationPanel: React.FC<CollaborationPanelProps> = ({
 
             {showSessionManager && (
               <SessionManager
-                userDID={userDID}
-                userAgency={userAgency}
-                clearanceLevel={clearanceLevel}
-                onClose={() => setShowSessionManager(false)}
-                onSessionCreated={async (session) => {
+                onSessionJoined={(session) => {
                   setShowSessionManager(false);
-                  setAvailableSessions(prev => [...prev, session]);
+                  // Session joined successfully
                 }}
               />
             )}
@@ -337,7 +325,7 @@ export const CollaborationPanel: React.FC<CollaborationPanelProps> = ({
                     <p className={styles.sessionDescription}>{session.description}</p>
                     <div className={styles.sessionMeta}>
                       <span>Lead: {session.leadAgency}</span>
-                      <span>Classification: {session.classification}</span>
+                      <span>Status: Active</span>
                       <span>Participants: {session.participants.length}</span>
                     </div>
                     <button
@@ -369,7 +357,6 @@ export const CollaborationPanel: React.FC<CollaborationPanelProps> = ({
             teamId={availableSessions.find(s => s.participants.some(p => p.id === userDID))?.id}
             userDID={userDID}
             userAgency={userAgency}
-            clearanceLevel={clearanceLevel}
           />
         )}
 

@@ -10,7 +10,6 @@ import {
   Box,
   Container,
   Typography,
-  Grid,
   Paper,
   Tab,
   Tabs,
@@ -21,6 +20,7 @@ import {
   Badge,
   Tooltip
 } from '@mui/material';
+import Grid from '@mui/material/Grid';
 import {
   Transform as TransformIcon,
   Search as SearchIcon,
@@ -77,7 +77,7 @@ export const IntelTransformationDashboard: React.FC = () => {
         {
           id: 'intel_20250712_001',
           source: 'OSINT',
-          classification: 'UNCLASS',
+          qualityAssessment: { sourceQuality: 'reliable', visibility: 'public', sensitivity: 'open' },
           reliability: 'B',
           timestamp: Date.now() - 3600000,
           collectedBy: 'osint_scanner_alpha',
@@ -97,7 +97,7 @@ export const IntelTransformationDashboard: React.FC = () => {
         {
           id: 'intel_20250712_002',
           source: 'SIGINT',
-          classification: 'CONFIDENTIAL',
+          qualityAssessment: { sourceQuality: 'verified', visibility: 'limited', sensitivity: 'careful' },
           reliability: 'A',
           timestamp: Date.now() - 7200000,
           collectedBy: 'sigint_station_bravo',
@@ -117,7 +117,7 @@ export const IntelTransformationDashboard: React.FC = () => {
         {
           id: 'intel_20250712_003',
           source: 'HUMINT',
-          classification: 'SECRET',
+          qualityAssessment: { sourceQuality: 'unverified', visibility: 'private', sensitivity: 'protected' },
           reliability: 'C',
           timestamp: Date.now() - 10800000,
           collectedBy: 'asset_charlie',
@@ -136,7 +136,7 @@ export const IntelTransformationDashboard: React.FC = () => {
         {
           id: 'intel_20250712_004',
           source: 'GEOINT',
-          classification: 'UNCLASS',
+          qualityAssessment: { sourceQuality: 'reliable', visibility: 'public', sensitivity: 'open' },
           reliability: 'A',
           timestamp: Date.now() - 14400000,
           collectedBy: 'satellite_delta',
@@ -155,7 +155,7 @@ export const IntelTransformationDashboard: React.FC = () => {
         {
           id: 'intel_20250712_005',
           source: 'ELINT',
-          classification: 'SECRET',
+          qualityAssessment: { sourceQuality: 'reliable', visibility: 'limited', sensitivity: 'careful' },
           reliability: 'B',
           timestamp: Date.now() - 18000000,
           collectedBy: 'elint_sensor_echo',
@@ -204,7 +204,7 @@ export const IntelTransformationDashboard: React.FC = () => {
       <Box sx={{ mb: 3 }}>
         {/* Stats Cards */}
         <Grid container spacing={2} sx={{ mb: 1 }}>
-          <Grid item xs={12} md={3}>
+          <Grid size={{ xs: 12, md: 3 }}>
             <Card sx={{ backgroundColor: '#1e1e1e', border: '1px solid #333' }}>
               <CardContent sx={{ textAlign: 'center', py: 2 }}>
                 <Typography variant="h4" sx={{ color: '#00ff00' }}>
@@ -216,7 +216,7 @@ export const IntelTransformationDashboard: React.FC = () => {
               </CardContent>
             </Card>
           </Grid>
-          <Grid item xs={12} md={3}>
+          <Grid size={{ xs: 12, md: 3 }}>
             <Card sx={{ backgroundColor: '#1e1e1e', border: '1px solid #333' }}>
               <CardContent sx={{ textAlign: 'center', py: 2 }}>
                 <Typography variant="h4" sx={{ color: '#2196f3' }}>
@@ -228,7 +228,7 @@ export const IntelTransformationDashboard: React.FC = () => {
               </CardContent>
             </Card>
           </Grid>
-          <Grid item xs={12} md={3}>
+          <Grid size={{ xs: 12, md: 3 }}>
             <Card sx={{ backgroundColor: '#1e1e1e', border: '1px solid #333' }}>
               <CardContent sx={{ textAlign: 'center', py: 2 }}>
                 <Typography variant="h4" sx={{ color: '#ff9800' }}>
@@ -240,7 +240,7 @@ export const IntelTransformationDashboard: React.FC = () => {
               </CardContent>
             </Card>
           </Grid>
-          <Grid item xs={12} md={3}>
+          <Grid size={{ xs: 12, md: 3 }}>
             <Card sx={{ backgroundColor: '#1e1e1e', border: '1px solid #333' }}>
               <CardContent sx={{ textAlign: 'center', py: 2 }}>
                 <Typography variant="h4" sx={{ color: '#4caf50' }}>
@@ -320,17 +320,17 @@ export const IntelTransformationDashboard: React.FC = () => {
                 📊 Search Results Summary
               </Typography>
               <Grid container spacing={2}>
-                <Grid item xs={12} md={4}>
+                <Grid size={{ xs: 12, md: 4 }}>
                   <Typography variant="body2" sx={{ color: '#ccc' }}>
                     Total Records: {filteredIntel.length}
                   </Typography>
                 </Grid>
-                <Grid item xs={12} md={4}>
+                <Grid size={{ xs: 12, md: 4 }}>
                   <Typography variant="body2" sx={{ color: '#ccc' }}>
                     Verified: {filteredIntel.filter(i => i.verified).length}
                   </Typography>
                 </Grid>
-                <Grid item xs={12} md={4}>
+                <Grid size={{ xs: 12, md: 4 }}>
                   <Typography variant="body2" sx={{ color: '#ccc' }}>
                     With Location: {filteredIntel.filter(i => i.latitude && i.longitude).length}
                   </Typography>
