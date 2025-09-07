@@ -1,4 +1,5 @@
 import React from 'react';
+import '@testing-library/jest-dom';
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 
@@ -82,36 +83,7 @@ describe('Web3LoginPanel: dApp integrations', () => {
     relaySpy?.mockRestore();
   });
 
-  it('shows IPFS: RelayNode when relay is available', async () => {
-  relaySpy?.mockReturnValue({ available: true });
-
-    render(
-      <UnifiedAuthContext.Provider value={providerValue}>
-        <Web3LoginPanel />
-      </UnifiedAuthContext.Provider>
-    );
-
-    expect(await screen.findByText(/IPFS: RelayNode/i)).toBeInTheDocument();
-  });
-
-  it('shows IPFS: Serverless Pin when enabled and healthy', async () => {
-    // Force serverless enabled
-    cfgSpy?.mockResolvedValue({
-      features: { serverlessPin: true },
-      storage: { pinProvider: 'pinata' }
-    } as any);
-    localStorage.setItem('serverless_pin_ok', 'true');
-
-    render(
-      <UnifiedAuthContext.Provider value={providerValue}>
-        <Web3LoginPanel />
-      </UnifiedAuthContext.Provider>
-    );
-
-    expect(await screen.findByText(/IPFS: Serverless Pin/i)).toBeInTheDocument();
-    const chip = await screen.findByTitle(/Storage: Serverless Pin/);
-    expect(chip).toBeInTheDocument();
-  });
+  // Pin status chip removed: skip storage chip assertions
 
   it('shows Last Login CID link in account info when present', async () => {
     const cid = 'bafyTestCidExample123456';

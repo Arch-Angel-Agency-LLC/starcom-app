@@ -25,7 +25,7 @@ import PerformanceOptimizer from '../../components/Optimization/PerformanceOptim
 import SecurityHardening from '../../components/Optimization/SecurityHardening';
 import { useFeatureFlag } from '../../utils/featureFlags';
 import { GlobeLoadingProvider } from '../../context/GlobeLoadingContext';
-import { SecureChatManager } from '../../components/SecureChat';
+// SecureChatManager removed per legacy chat Stage 1 unmount
 
 interface CyberCommandHUDLayoutProps {
   isEmbedded?: boolean;
@@ -107,8 +107,7 @@ const CyberCommandHUDLayout: React.FC<CyberCommandHUDLayoutProps> = ({ isEmbedde
                     )}
                   </div>
                   
-                  {/* Earth Alliance Secure Chat System */}
-                  {!isEmbedded && <SecureChatManager />}
+                  {/* Earth Alliance Secure Chat System removed (legacy, non-functional) */}
                   
                   {/* Quick Access Panel - Triggered by Ctrl+K */}
                   {showQuickAccess && !isEmbedded && (

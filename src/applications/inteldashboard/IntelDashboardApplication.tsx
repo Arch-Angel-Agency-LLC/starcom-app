@@ -8,7 +8,7 @@
 import React from 'react';
 import { ApplicationContext } from '../../components/Router/EnhancedApplicationRouter';
 import { IntelWorkspaceProvider } from '../../services/intel/IntelWorkspaceContext';
-import IntelWorkspaceConsole from '../../components/intel/IntelWorkspaceConsole';
+import IntelWorkspaceConsole from '../../components/Intel/IntelWorkspaceConsole';
 
 const IntelDashboardApplication: React.FC<ApplicationContext> = (_props) => {
   // Unified Intel surface: workspace-backed console for Reports + Intel Items

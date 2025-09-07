@@ -3,16 +3,13 @@
  * Centralized exports for all communication-related functionality
  */
 
-// Chat Context and Providers
-export { SecureChatProvider } from './context/SecureChatContext';
-export { useSecureChat } from './context/useSecureChat';
-export type { SecureChatContextType } from './context/SecureChatContext';
+// Chat Context and Providers (legacy) — fully removed
+// (SecureChatProvider, useSecureChat, and SecureChatContextType were deleted)
 
 // Communication Types
 export * from './types/SecureChat';
 
-// Communication Services
-export { secureChatIntegration } from './services/SecureChatIntegrationService';
+// Communication Services (none; legacy duplicate removed)
 
 // Re-export commonly used types for compatibility
 export type {

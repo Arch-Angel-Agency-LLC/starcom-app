@@ -12,7 +12,6 @@ import { InvestigationProvider } from "./context/InvestigationContext";
 import { GlobalGlobeContextMenuProvider } from "./context/GlobalGlobeContextMenuProvider";
 import { RightSideBarProvider } from "./context/RightSideBarContext";
 import { ViewProvider } from "./context/ViewContext";
-import { SecureChatProvider } from "./communication/context/SecureChatContext";
 import { EnhancedApplicationRouterProvider } from "./components/Router/EnhancedApplicationRouter";
 import RouteSynchronizer from "./components/Navigation/RouteSynchronizer";
 import AnalyticsTracker from "./components/Analytics/AnalyticsTracker";
@@ -20,7 +19,6 @@ import { googleAnalyticsService } from "./services/GoogleAnalyticsService";
 import SettingsInitializer from "./components/SettingsInitializer";
 import SettingsStatusIndicator from "./components/SettingsStatusIndicator";
 import { SpaceWeatherModeLayers } from './components/SpaceWeather/SpaceWeatherModeLayers';
-import StorageStatusBadge from "./components/Status/StorageStatusBadge";
 import PreloaderManager from "./components/Preloader/PreloaderManager";
 import WalletDiagnostic from "./components/Debug/WalletDiagnostic";
 import DebugControlPanel from "./components/Debug/DebugControlPanel";
@@ -129,8 +127,7 @@ const AppContent: React.FC = () => {
           <AppRoutes />
         </EnhancedApplicationRouterProvider>
   </RouterProvider>
-      <SettingsStatusIndicator />
-  <StorageStatusBadge />
+  <SettingsStatusIndicator />
       {/* Wallet Diagnostics - Only shown when feature flag is enabled */}
       <WalletDiagnostic />
       {/* Debug Control Panel - Toggle with Ctrl+Shift+D */}
@@ -155,13 +152,11 @@ const App: React.FC = () => (
                             <GlobalGlobeContextMenuProvider>
                               <RightSideBarProvider>
                                 <ViewProvider>
-                                  <SecureChatProvider>
-                                    <div data-testid="app-root">
-                                      <AppContent />
-                                      {/* Mount tertiary space weather mode layers (placeholders) */}
-                                      <SpaceWeatherModeLayers />
-                                    </div>
-                                  </SecureChatProvider>
+                                  <div data-testid="app-root">
+                                    <AppContent />
+                                    {/* Mount tertiary space weather mode layers (placeholders) */}
+                                    <SpaceWeatherModeLayers />
+                                  </div>
                                 </ViewProvider>
                               </RightSideBarProvider>
                             </GlobalGlobeContextMenuProvider>

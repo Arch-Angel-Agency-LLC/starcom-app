@@ -7,7 +7,6 @@ import MainBottomBar from '../../components/MainPage/MainBottomBar';
 import MainCenter from '../../components/MainPage/MainCenter';
 import { ApplicationRenderer } from '../../components/Router/ApplicationRenderer';
 import { useEnhancedApplicationRouter } from '../../hooks/useEnhancedApplicationRouter';
-import { SecureChatManager } from '../../components/SecureChat';
 import { componentTracker } from '../../utils/performanceMonitor';
 
 const MainPage: React.FC = () => {
@@ -44,7 +43,7 @@ const MainPage: React.FC = () => {
   return (
     <div className={styles.mainPage}>
       {/* Global header with logo, search, and user profile */}
-      <GlobalHeader hasNotifications={true} />
+  <GlobalHeader />
       
       {/* Marquee bar with current view title and status indicators */}
       <MainMarqueeTopBar />
@@ -58,8 +57,6 @@ const MainPage: React.FC = () => {
       {/* Main navigation bar */}
       <MainBottomBar />
       
-      {/* Chat overlay system */}
-      <SecureChatManager />
     </div>
   );
 };

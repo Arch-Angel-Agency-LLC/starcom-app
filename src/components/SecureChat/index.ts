@@ -1,12 +1,6 @@
-// Earth Alliance Secure Chat System - Component Exports
+// Earth Alliance Secure Chat System - Legacy UI components removed in Stage 2
 
-export { default as SecureChatManager } from './SecureChatManager';
-export { default as SecureChatWindow } from './SecureChatWindow';
-export { default as SecureChatContactList } from './SecureChatContactList';
-
-// Re-export the context and types for convenience
-export { useSecureChat } from '../../communication/context/useSecureChat';
-export { SecureChatProvider } from '../../communication/context/SecureChatContext';
+// NOTE: Provider/hook intentionally not re-exported to avoid accidental coupling
 export type {
   EarthAllianceContact,
   SecureChatWindow as SecureChatWindowType,

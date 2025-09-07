@@ -5,6 +5,8 @@ export type RuntimeConfig = {
     analyticsEnabled?: boolean;
     relayNodeDetection?: boolean;
     serverlessPin?: boolean;
+  // When false, hide the floating storage status badge (IPFS: ...)
+  storageBadge?: boolean;
   marketplaceServerlessMVP?: boolean; // transitional flag; when false, UI should hide serverless marketplace endpoints
   };
   network?: {

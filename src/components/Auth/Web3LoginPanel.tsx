@@ -3,43 +3,7 @@ import { useAuth } from '../../hooks/useAuth';
 import Snackbar from '../Shared/Snackbar';
 import Modal from '../Shared/Modal';
 import { debugLogger, DebugCategory } from '../../utils/debugLogger';
-import { RelayNodeIPFSService } from '../../services/RelayNodeIPFSService';
-import { loadRuntimeConfig } from '../../config/runtimeConfig';
-
-const relay = RelayNodeIPFSService.getInstance();
-
-const StorageStatusChip: React.FC = () => {
-  const [label, setLabel] = React.useState<'RelayNode' | 'Serverless Pin' | 'Mock'>('Mock');
-  const [ok, setOk] = React.useState<boolean>(true);
-
-  React.useEffect(() => {
-    (async () => {
-      const s = relay.getRelayNodeStatus();
-      if (s.available) {
-        setLabel('RelayNode');
-        setOk(true);
-        return;
-      }
-      const cfg = await loadRuntimeConfig();
-      const pinEnabled = cfg.features?.serverlessPin || (import.meta.env.VITE_PIN_API === 'true');
-      if (pinEnabled) {
-        setLabel('Serverless Pin');
-        const healthy = localStorage.getItem('serverless_pin_ok');
-        setOk(healthy !== 'false');
-      } else {
-        setLabel('Mock');
-        setOk(true);
-      }
-    })();
-  }, []);
-
-  const bg = label === 'RelayNode' ? (ok ? '#0b3d0b' : '#5a1a1a') : label === 'Serverless Pin' ? (ok ? '#2c2c6c' : '#5a1a1a') : '#5a1a1a';
-  return (
-    <span style={{ display: 'inline-block', padding: '2px 6px', borderRadius: 6, fontSize: 11, fontFamily: 'monospace', background: bg, color: '#fff' }} title={`Storage: ${label}${ok ? '' : ' (unhealthy)'}`}>
-      IPFS: {label}
-    </span>
-  );
-};
+// Storage status chip removed as pinning UI is no longer needed
 
 // Component loading debug
 debugLogger.info(DebugCategory.COMPONENT_LOAD, 'Web3LoginPanel.tsx loaded - will monitor wallet connection calls');
@@ -160,10 +124,7 @@ const Web3LoginPanel: React.FC = () => {
           <button onClick={handleLogout}>Logout</button>
         </>
       )}
-        {/* Inline storage status indicator (compact) */}
-        <div style={{ marginLeft: 8 }}>
-          <StorageStatusChip />
-        </div>
+  {/* Storage status chip removed */}
       <AccountInfoPopup
         open={showAccount}
         onClose={() => setShowAccount(false)}
