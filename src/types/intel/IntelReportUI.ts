@@ -29,6 +29,8 @@ export interface IntelReportUI {
   updatedAt: Date;
   classification: IntelClassification;
   status: IntelReportStatus;
+  // Optional Analyzer round-trip deep link for provenance/return navigation
+  analysisDeepLink?: string;
   // Structured Analysis Fields
   conclusions?: string[];
   recommendations?: string[];

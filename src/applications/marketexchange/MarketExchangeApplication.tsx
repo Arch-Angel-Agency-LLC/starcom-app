@@ -40,6 +40,13 @@ import {
   Bitcoin,
   Shield
 } from 'lucide-react';
+import { packageComposer } from '../../services/exchange/PackageComposer';
+import type { ComposeResult } from '../../services/exchange/types';
+import { publishAdapter } from '../../services/exchange/PublishAdapter';
+import { emitComposeEvent } from '../../services/exchange/telemetry';
+import { intelReportService } from '../../services/intel/IntelReportService';
+import { composeInputFromDraft } from '../../services/exchange/adapters/reportToCompose';
+import ComposerWizard from './components/ComposerWizard';
 
 // Cyberpunk Market Theme for MarketExchange
 const cyberpunkMarketTheme = createTheme({
@@ -287,6 +294,9 @@ const MarketExchangeApplication: React.FC = () => {
   const [portfolio, setPortfolio] = useState<PortfolioAsset[]>([]);
   const [selectedAsset, setSelectedAsset] = useState<MarketAsset | null>(null);
   const [isTradeDialogOpen, setIsTradeDialogOpen] = useState(false);
+  const [composeBusy, setComposeBusy] = useState(false);
+  const [composeResult, setComposeResult] = useState<{ id: string; url?: string } | null>(null);
+  const [wizardOpen, setWizardOpen] = useState(false);
 
   // Load market data
   useEffect(() => {
@@ -655,6 +665,56 @@ const MarketExchangeApplication: React.FC = () => {
 
         {/* Intelligence Marketplace Tab */}
         <TabPanel value={activeTab} index={1}>
+          {composeResult && (
+            <Alert severity="success" sx={{ mb: 2 }}>
+              Package published with id {composeResult.id}{composeResult.url ? ` • ${composeResult.url}` : ''}
+            </Alert>
+          )}
+          <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+            <Button
+              variant="contained"
+              disabled={composeBusy}
+        onClick={async () => {
+                try {
+                  setComposeBusy(true);
+                  setComposeResult(null);
+          const startedAt = performance.now();
+          emitComposeEvent({ type: 'compose_started', timestamp: new Date().toISOString() });
+                  // Try to read a draft id from the URL (produced by ExportDraftButton navigation)
+                  const params = new URLSearchParams(window.location.search);
+                  let draftId = params.get('draft');
+                  let report = draftId ? await intelReportService.getReport(draftId) : null;
+                  if (!report) {
+                    // Fallback: pick the most recently updated DRAFT, else the most recent report
+                    const reports = await intelReportService.listReports();
+                    if (!reports.length) throw new Error('No drafts or reports found. Export a draft from Analyzer first.');
+                    const sorted = [...reports].sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+                    report = sorted.find(r => r.status === 'DRAFT') || sorted[0];
+                    draftId = report.id;
+                    // Telemetry: reuse compose_started with a standard payload; omit custom note to satisfy typing
+                    emitComposeEvent({ type: 'compose_started', timestamp: new Date().toISOString() });
+                  }
+                  const composeInput = composeInputFromDraft(report);
+                  // Align license/classification choices if needed
+                  composeInput.license = 'CC0';
+                  const { manifest, blob } = await packageComposer.composeZip(composeInput);
+          emitComposeEvent({ type: 'compose_validated', timestamp: new Date().toISOString(), manifestId: manifest.id, sizes: { assets: manifest.assets.length, blobBytes: blob.size } });
+          const res = await publishAdapter.publish({ manifest, blob } as ComposeResult);
+                  setComposeResult(res);
+          emitComposeEvent({ type: 'compose_published', timestamp: new Date().toISOString(), manifestId: manifest.id, durationMs: performance.now() - startedAt });
+                } catch (e) {
+                  console.error('Compose failed', e);
+          emitComposeEvent({ type: 'compose_failed', timestamp: new Date().toISOString(), error: String(e?.message || e) });
+                } finally {
+                  setComposeBusy(false);
+                }
+              }}
+            >
+              {composeBusy ? 'Composing…' : 'Compose & Publish Current Draft'}
+            </Button>
+            <Button variant="outlined" onClick={() => setWizardOpen(true)}>Open Composer Wizard</Button>
+          </Box>
+          <ComposerWizard open={wizardOpen} onClose={() => setWizardOpen(false)} onPublished={setComposeResult} />
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
             {intelListings.map((listing) => (
               <Box key={listing.id} sx={{ flex: '1 1 400px', minWidth: 400 }}>

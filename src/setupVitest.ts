@@ -80,3 +80,28 @@ vi.mock('three', async (importOriginal) => {
     };
   }
 });
+
+// Polyfill ResizeObserver globally for JSDOM-based tests
+// Many components (tables, timelines, graphs) rely on ResizeObserver; JSDOM doesn't provide it.
+type ResizeObserverCallback = (entries: unknown[], observer: unknown) => void;
+type ResizeObserverType = new (callback: ResizeObserverCallback) => {
+  observe: (target?: unknown) => void;
+  unobserve: (target?: unknown) => void;
+  disconnect: () => void;
+};
+
+declare global {
+  interface Window { ResizeObserver: ResizeObserverType }
+}
+
+const g = globalThis as unknown as Window & typeof globalThis;
+if (typeof (g as { ResizeObserver?: unknown }).ResizeObserver === 'undefined') {
+  class RO {
+    constructor(_callback?: ResizeObserverCallback) {}
+    observe(_target?: unknown): void {}
+    unobserve(_target?: unknown): void {}
+    disconnect(): void {}
+  }
+  Object.defineProperty(g, 'ResizeObserver', { value: RO as unknown as ResizeObserverType, writable: true, configurable: true });
+}
+

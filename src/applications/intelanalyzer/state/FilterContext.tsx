@@ -15,8 +15,8 @@ export interface FilterState {
   tags?: string[];
   entityRefs?: string[];
   categories?: string[];
-  confidence?: number[];
-  locationFlags?: string[];
+  confidence?: { min: number; max: number };
+  geo?: { polygon: [number, number][] };
   // Add more as per data-models.md
 }
 

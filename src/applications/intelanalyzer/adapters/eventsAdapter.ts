@@ -25,7 +25,7 @@ export const adaptReportsToEvents = (reports: IntelReportUI[]): Event[] => {
   return reports.map(report => ({
     id: `evt-report-${report.id}`,
     title: report.title,
-    timestamp: report.updatedAt.toISOString(),
+  timestamp: (report.updatedAt ?? report.createdAt).toISOString(),
     category: report.category || 'GENERAL',
     tags: report.tags,
     lat: report.latitude,
@@ -41,7 +41,7 @@ export const adaptIntelItemsToEvents = (intelItems: IntelItemUI[]): Event[] => {
   return intelItems.map(item => ({
     id: `evt-item-${item.id}`,
     title: item.title,
-    timestamp: item.updatedAt.toISOString(),
+  timestamp: (item.updatedAt ?? item.createdAt).toISOString(),
     category: item.categories[0] || 'GENERAL',
     tags: item.tags,
     lat: item.latitude,
