@@ -74,7 +74,7 @@ class WorkspaceBackedIntelReportService implements IntelReportService {
   async createReport(input: CreateIntelReportInput, author: string): Promise<IntelReportUI> {
     await this.ensure();
     const now = new Date();
-    const id = `intel-${now.getTime()}`;
+  const id = `intel-${globalThis.crypto?.randomUUID ? globalThis.crypto.randomUUID() : Math.random().toString(36).slice(2)}`;
     const initial: IntelReportUI = {
       id,
       title: input.title,

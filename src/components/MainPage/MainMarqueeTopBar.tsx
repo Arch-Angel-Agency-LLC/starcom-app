@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useEnhancedApplicationRouter } from '../../hooks/useEnhancedApplicationRouter';
+import { useApplicationRouter } from '../../hooks/useApplicationRouter';
 import { useDiscordStats } from '../../hooks/useDiscordStats';
 import styles from './MainMarqueeTopBar.module.css';
 
 const MainMarqueeTopBar: React.FC = () => {
-  const { currentApp, getApplication } = useEnhancedApplicationRouter();
+  const { currentApp, getApplication } = useApplicationRouter();
   const { onlineCount } = useDiscordStats();
   const [currentTime, setCurrentTime] = useState<string>('');
   const [currentDate, setCurrentDate] = useState<string>('');

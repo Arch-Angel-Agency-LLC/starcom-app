@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useEnhancedApplicationRouter } from '../../hooks/useEnhancedApplicationRouter';
+import { useApplicationRouter } from '../../hooks/useApplicationRouter';
 import { useDiscordStats } from '../../hooks/useDiscordStats';
 import WalletStatusMini from '../Auth/WalletStatusMini';
 import AuthErrorBoundary from '../Auth/AuthErrorBoundary';
@@ -22,7 +22,7 @@ interface SearchResult {
 }
 
 const GlobalHeader: React.FC = () => {
-  const { navigateToApp } = useEnhancedApplicationRouter();
+  const { navigateToApp } = useApplicationRouter();
   const { onlineCount, error, isLoading: _isLoading } = useDiscordStats();
   const [showTelegram, setShowTelegram] = useState(false);
   const [showGitHub, setShowGitHub] = useState(false);

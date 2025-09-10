@@ -1,5 +1,5 @@
 import React from 'react';
-import { useEnhancedApplicationRouter } from '../../hooks/useEnhancedApplicationRouter';
+import { useApplicationRouter } from '../../hooks/useApplicationRouter';
 import styles from './MainCenter.module.css';
 
 interface MainCenterProps {
@@ -7,7 +7,7 @@ interface MainCenterProps {
 }
 
 const MainCenter: React.FC<MainCenterProps> = ({ children }) => {
-  const { currentApp } = useEnhancedApplicationRouter();
+  const { currentApp } = useApplicationRouter();
   
   return (
     <main 

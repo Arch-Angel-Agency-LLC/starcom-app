@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useEnhancedApplicationRouter } from '../../hooks/useEnhancedApplicationRouter';
-import { ApplicationId } from '../Router/EnhancedApplicationRouter';
+import { useApplicationRouter } from '../../hooks/useApplicationRouter';
+import { ApplicationId } from '../Router/ApplicationRouter';
 import { trackInvestorEvents } from '../../utils/analytics';
 import { googleAnalyticsService } from '../../services/GoogleAnalyticsService';
 import styles from './MainBottomBar.module.css';
@@ -21,12 +21,8 @@ const MainBottomBar: React.FC = () => {
   const location = useLocation();
   const { 
     currentApp, 
-    navigateToApp, 
-    getAllApplications 
-  } = useEnhancedApplicationRouter();
-  
-  // Get all registered applications from the Enhanced Application Router
-  const allApplications = getAllApplications();
+    navigateToApp
+  } = useApplicationRouter();
 
   // Enhanced navigation items based on our Phase 2 application structure
   const navigationItems: NavItem[] = useMemo(() => [
@@ -59,13 +55,6 @@ const MainBottomBar: React.FC = () => {
       label: 'IntelAnalyzer', 
       icon: '�',
       tooltip: 'Intelligence analysis and data processing',
-      category: 'intel'
-    },
-    { 
-      id: 'timemap', 
-      label: 'TimeMap', 
-      icon: '🗓️',
-      tooltip: 'Temporal analysis and timeline management',
       category: 'intel'
     },
     { 
@@ -162,33 +151,25 @@ const MainBottomBar: React.FC = () => {
     }
 
     // Use the Enhanced Application Router for ALL applications, including CyberCommand
-    const applicationConfig = allApplications.find(app => app.id === item.id);
-    if (applicationConfig) {
-      console.log('🔘 MainBottomBar: Navigating to application:', {
-        appId: item.id,
-        mode: applicationConfig.defaultMode
-      });
-      
-      // Add navigation context for analytics
-      const navigationContext = {
-        navigationMethod: 'bottom-bar',
-        category: item.category,
-        userIntent: 'primary-navigation'
-      };
-      
-      // Navigate to the application using the Enhanced Application Router
-      navigateToApp(item.id, applicationConfig.defaultMode, navigationContext);
-      
-      // Also update the URL for consistency (especially for CyberCommand/Globe)
-      if (item.id === 'cybercommand') {
-        navigate('/', { replace: true });
-      }
-    } else {
-      console.warn('🔘 MainBottomBar: Application not found in registry:', item.id);
-      // Track configuration errors for debugging
-      googleAnalyticsService.trackEvent('navigation_error', 'error', `app_not_found_${item.id}`);
+    console.log('🔘 MainBottomBar: Navigating to application:', {
+      appId: item.id
+    });
+
+    // Add navigation context for analytics
+    const navigationContext = {
+      navigationMethod: 'bottom-bar',
+      category: item.category,
+      userIntent: 'primary-navigation'
+    } as const;
+
+    // Navigate to the application; router will use default mode and validate app
+    navigateToApp(item.id, undefined, navigationContext);
+
+    // Also update the URL for consistency (especially for CyberCommand/Globe)
+    if (item.id === 'cybercommand') {
+      navigate('/', { replace: true });
     }
-  }, [navigate, navigateToApp, allApplications, currentApp]);
+  }, [navigate, navigateToApp, currentApp]);
 
   return (
     <nav className={styles.mainBottomBar} aria-label="Main Navigation">
@@ -295,14 +276,7 @@ const MainBottomBar: React.FC = () => {
         </div>
       </div>
       
-      <div className={styles.rightSection}>
-        <div className={styles.helpText}>
-          Enhanced Application Router v2.0
-        </div>
-        <div className={styles.newUserBadge}>
-          <span className={styles.pulse}>●</span> {allApplications.length} apps ready
-        </div>
-      </div>
+  {/* Right section removed: previously showed router label and apps-ready badge */}
     </nav>
   );
 };

@@ -12,28 +12,11 @@
  * - Commit history tracking for Intel objects
  */
 
-// Using simplified types for immediate implementation
-interface CommitResult {
-  hash: string;
-  message: string;
-  timestamp: Date;
-  author: string;
-  filesChanged: string[];
-}
-
-interface CommitHistory {
-  hash: string;
-  message: string;
-  author: string;
-  timestamp: Date;
-  filesChanged: string[];
-}
-
-interface MergeResult {
-  success: boolean;
-  conflicts: string[];
-  mergeCommit: string | null;
-  message: string;
+// Restored repository type definitions (previously lost during refactor attempt)
+interface GitConfig {
+  user: { name: string; email: string };
+  remote: { name: string; url: string };
+  defaultBranch: string;
 }
 
 interface BranchInfo {
@@ -49,13 +32,30 @@ interface RepositoryInfo {
   initialized: boolean;
   currentBranch: string;
   remoteUrl: string;
-  status: string;
+  status: string; // e.g. 'clean' | 'dirty'
 }
 
-interface GitConfig {
-  user: { name: string; email: string };
-  remote: { name: string; url: string };
-  defaultBranch: string;
+interface CommitHistory {
+  hash: string;
+  message: string;
+  author: string;
+  timestamp: Date;
+  filesChanged: string[];
+}
+
+interface CommitResult {
+  hash: string;
+  message: string;
+  timestamp: Date;
+  author: string;
+  filesChanged?: string[];
+}
+
+interface MergeResult {
+  success: boolean;
+  conflicts: string[];
+  mergeCommit: string | null;
+  message: string;
 }
 
 interface ConflictResolution {
@@ -64,22 +64,21 @@ interface ConflictResolution {
   success: boolean;
 }
 
+interface ReviewComment {
+  author: string;
+  comment: string;
+  timestamp: Date;
+}
+
 interface ReviewRequest {
   id: string;
   intelId: string;
   reviewers: string[];
   requestedBy: string;
   requestedAt: Date;
-  status: string;
+  status: 'pending' | 'approved' | 'changes-requested';
   branch: string;
   comments: ReviewComment[];
-}
-
-interface ReviewComment {
-  id: string;
-  author: string;
-  content: string;
-  timestamp: Date;
 }
 
 interface ComparisonResult {
@@ -113,7 +112,7 @@ interface Intel {
   };
 }
 
-interface IntelReport {
+interface RepoIntelReport {
   id: string;
   title: string;
   content: Record<string, unknown>;
@@ -142,14 +141,55 @@ export class IntelRepositoryService {
   protected workspacePath: string;
   protected gitConfig: GitConfig;
   protected initialized: boolean = false;
+  // Lightweight dependency injection seam to enable unit testing without subclassing.
+  // Phase 4 Test Enablement: allows injecting mock file writer & git executor so
+  // canonical serialization can be validated in isolation (previous test attempts
+  // failed due to subclass + TS transform friction in mixed environments).
+  private fileWriter?: (path: string, content: string) => Promise<void> | void;
+  private fileReader?: (path: string) => Promise<string> | string;
+  private gitExec?: (args: string[]) => Promise<string> | string;
 
-  constructor(workspacePath: string, gitConfig?: GitConfig) {
+  constructor(
+    workspacePath: string,
+    gitConfig?: GitConfig,
+    deps?: {
+      fileWriter?: (path: string, content: string) => Promise<void> | void;
+      fileReader?: (path: string) => Promise<string> | string;
+      gitExec?: (args: string[]) => Promise<string> | string;
+    }
+  ) {
     this.workspacePath = workspacePath;
     this.gitConfig = gitConfig || {
       user: { name: 'Intel User', email: 'intel@starcom.app' },
       remote: { name: 'origin', url: '' },
       defaultBranch: 'main'
     };
+  this.fileWriter = deps?.fileWriter;
+  this.fileReader = deps?.fileReader;
+    this.gitExec = deps?.gitExec;
+  }
+
+  // Phase 3 alignment: route UI-level Intel CRUD via centralized intelReportService
+  // This keeps repository-specific logic separate while standardizing data flow.
+  // Consumers should prefer intelReportService directly for typical app workflows.
+  async listUIReports(): Promise<import('../types/intel/IntelReportUI').IntelReportUI[]> {
+    const { intelReportService } = await import('./intel/IntelReportService');
+    return intelReportService.listReports();
+  }
+
+  async getUIReport(id: string): Promise<import('../types/intel/IntelReportUI').IntelReportUI | null> {
+    const { intelReportService } = await import('./intel/IntelReportService');
+    return intelReportService.getReport(id);
+  }
+
+  async createUIReport(input: import('../types/intel/IntelReportUI').CreateIntelReportInput, author: string) {
+    const { intelReportService } = await import('./intel/IntelReportService');
+    return intelReportService.createReport(input, author);
+  }
+
+  async saveUIReport(report: import('../types/intel/IntelReportUI').IntelReportUI) {
+    const { intelReportService } = await import('./intel/IntelReportService');
+    return intelReportService.saveReport(report);
   }
 
   /**
@@ -333,15 +373,52 @@ Thumbs.db
   /**
    * Save Intel Report and commit in one operation
    */
-  async saveAndCommitReport(report: IntelReport, message?: string): Promise<CommitResult> {
+  async saveAndCommitReport(report: RepoIntelReport, message?: string): Promise<CommitResult> {
     this.ensureInitialized();
     
     try {
-      // Save Report to file
+      // Phase 4 migration: prefer canonical serializer for UI reports; fall back to legacy only if needed.
+      // If the incoming shape is a legacy RepoIntelReport, attempt to map minimally to canonical UI-like shape.
+      const { parseReport } = await import('./intel/serialization/intelReportSerialization');
+      // Try to parse if it's already canonical-like; otherwise wrap minimally.
+      const candidate = report as unknown as Record<string, unknown> | null;
+      const isAlreadyCanonical = !!(candidate && candidate['schema'] === 'intel.report' && candidate['schemaVersion'] === 1);
+      const maybeCanonical = isAlreadyCanonical
+        ? candidate
+        : {
+            schema: 'intel.report',
+            schemaVersion: 1,
+            id: report.id,
+            title: report.title,
+            // Required canonical fields with safe defaults
+            author: (candidate && typeof candidate['author'] === 'string' ? String(candidate['author']) : 'unknown'),
+            category: (candidate && typeof candidate['category'] === 'string' ? String(candidate['category']) : 'GENERAL'),
+            tags: (candidate && Array.isArray(candidate['tags']) ? (candidate['tags'] as unknown[]) : []),
+            classification: (candidate && typeof candidate['classification'] === 'string' ? String(candidate['classification']) : 'UNCLASSIFIED'),
+            status: (candidate && typeof candidate['status'] === 'string' ? String(candidate['status']) : 'DRAFT'),
+            createdAt: (candidate && typeof candidate['createdAt'] === 'string' ? String(candidate['createdAt']) : new Date().toISOString()),
+            updatedAt: new Date().toISOString(),
+            content:
+              (typeof (report as unknown as { content?: unknown }).content === 'string')
+                ? (report as unknown as { content: string }).content
+                : JSON.stringify((report as unknown as { content?: unknown }).content || {}),
+            // Optional/carry-over fields when present
+            summary: (candidate && typeof candidate['summary'] === 'string' ? String(candidate['summary']) : undefined),
+            priority: (candidate && typeof candidate['priority'] === 'string' ? String(candidate['priority']) : undefined),
+            history: (candidate && Array.isArray(candidate['history']) ? (candidate['history'] as unknown[]) : [])
+          };
+      const { report: ui, errors } = parseReport(maybeCanonical as unknown);
+      if (ui && errors.length === 0) {
+        // Save via canonical serializer path
+        const res = await this.saveCanonicalUIReport(ui, message || `Add/Update Report: ${ui.title}`);
+        // saveCanonicalUIReport may return void if repo not initialized; ensure commit result
+        if (res) return res;
+        // Fallback commit (should not generally happen because save handles commit when initialized)
+        return this.commitChanges(message || `Add/Update Report: ${ui.title}`, [`reports/${ui.id}.intelReport`]);
+      }
+      // If parsing failed, use legacy raw JSON as last resort
       const reportPath = `reports/${report.id}.intelReport`;
       await this.saveReportToFile(report, reportPath);
-      
-      // Commit the Report file
       const commitMessage = message || `Add/Update Report: ${report.title}`;
       return await this.commitChanges(commitMessage, [reportPath]);
     } catch (error) {
@@ -356,8 +433,8 @@ Thumbs.db
     this.ensureInitialized();
     
     try {
-      const intelPath = `intel/${intelId}.intel`;
-      const fileContent = await this.execGit(['show', `${commitHash}:${intelPath}`]);
+    const pathAtCommit = `intel/${intelId}.intel`;
+    const fileContent = await this.execGit(['show', `${commitHash}:${pathAtCommit}`]);
       return this.parseIntelFile(fileContent);
     } catch (_error) {
       // File might not exist in that commit
@@ -372,14 +449,14 @@ Thumbs.db
     this.ensureInitialized();
     
     try {
-      const intelPath = `intel/${intelId}.intel`;
-      const logOutput = await this.execGit([
-        'log', 
-        '--format=%H|%s|%an|%ad', 
-        '--date=iso',
-        '--', 
-        intelPath
-      ]);
+          const pathAtCommit = `intel/${intelId}.intel`;
+          const logOutput = await this.execGit([
+            'log', 
+            '--format=%H|%s|%an|%ad', 
+            '--date=iso',
+            '--', 
+            pathAtCommit
+          ]);
       
       return logOutput.split('\n')
         .filter(line => line.trim())
@@ -390,7 +467,7 @@ Thumbs.db
             message,
             author,
             timestamp: new Date(date),
-            filesChanged: [intelPath]
+                       filesChanged: [pathAtCommit]
           };
         });
     } catch (error) {
@@ -528,12 +605,13 @@ Thumbs.db
   // Protected helper methods accessible to subclasses
 
   protected async execGit(args: string[]): Promise<string> {
-    // This would use a Git library or spawn Git process
-    // For now, return mock implementation
+    if (this.gitExec) {
+      const result = await this.gitExec(args);
+      return typeof result === 'string' ? result : '';
+    }
+    // Default mock implementation (no real git side-effects)
     const command = `git ${args.join(' ')}`;
     console.log(`Executing: ${command}`);
-    
-    // Mock responses for different commands
     if (args[0] === 'init') return '';
     if (args[0] === 'config') return '';
     if (args[0] === 'add') return '';
@@ -541,7 +619,7 @@ Thumbs.db
     if (args[0] === 'rev-parse' && args[1] === 'HEAD') return 'abc123def456';
     if (args[0] === 'status') return '';
     if (args[0] === 'branch') return 'main';
-    
+    if (args[0] === 'diff') return '';
     return '';
   }
 
@@ -552,8 +630,22 @@ Thumbs.db
   }
 
   protected async writeFile(_path: string, _content: string): Promise<void> {
-    // Implementation would write file to filesystem
+    if (this.fileWriter) {
+      await this.fileWriter(_path, _content);
+      return;
+    }
+    // Default mock: log only
     console.log(`Writing file: ${_path}`);
+  }
+
+  protected async readFile(_path: string): Promise<string> {
+    if (this.fileReader) {
+      const result = await this.fileReader(_path);
+      return typeof result === 'string' ? result : '';
+    }
+    // Default mock: nothing to read
+    console.log(`Reading file (mock, empty): ${_path}`);
+    return '';
   }
 
   protected async hasIntelFiles(_path: string): Promise<boolean> {
@@ -642,8 +734,9 @@ modified: ${intel.metadata.lastModified.toISOString()}
     await this.writeFile(path, content);
   }
 
-  protected async saveReportToFile(report: IntelReport, path: string): Promise<void> {
-    // Convert IntelReport object to .intelReport file format (JSON)
+  protected async saveReportToFile(report: RepoIntelReport, path: string): Promise<void> {
+    // Legacy raw .intelReport persistence path (deprecated).
+    // Prefer saveCanonicalUIReport; this remains for backwards compatibility during Phase 4.
     const content = JSON.stringify(report, null, 2);
     await this.writeFile(path, content);
   }
@@ -652,6 +745,42 @@ modified: ${intel.metadata.lastModified.toISOString()}
     // Parse .intel file format back to Intel object
     // This would implement the reverse of saveIntelToFile
     return null; // Mock implementation
+  }
+
+  /**
+   * Phase 4 incremental: persist a canonical IntelReportUI using schema v1 serialization
+   * without altering existing legacy RepoIntelReport persistence. This allows
+   * gradual migration of repository storage to single-source serialization.
+   *
+   * Behavior:
+   *  - Serializes using serializeReport (intelReportSerialization)
+   *  - Writes JSON to reports/{id}.intelReport
+   *  - Optionally commits immediately if repository initialized
+   */
+  async saveCanonicalUIReport(report: import('../types/intel/IntelReportUI').IntelReportUI, commitMessage?: string): Promise<CommitResult | void> {
+    const path = `reports/${report.id}.intelReport`;
+    const { serializeReport } = await import('./intel/serialization/intelReportSerialization');
+    const serialized = serializeReport(report);
+    await this.writeFile(path, JSON.stringify(serialized, null, 2));
+    if (this.initialized) {
+      return this.commitChanges(commitMessage || `Add/Update Canonical Report: ${report.title}`, [path]);
+    }
+  }
+
+  /**
+   * Load and parse a canonical IntelReportUI from repository storage using schema v1.
+   * Returns parse warnings/errors alongside the report (if valid).
+   */
+  async loadCanonicalUIReport(id: string): Promise<{ report?: import('../types/intel/IntelReportUI').IntelReportUI; warnings: string[]; errors: string[] }>{
+    const path = `reports/${id}.intelReport`;
+    const raw = await this.readFile(path);
+    try {
+      const obj = raw ? JSON.parse(raw) : null;
+      const { parseReport } = await import('./intel/serialization/intelReportSerialization');
+      return parseReport(obj as unknown);
+    } catch (e) {
+      return { warnings: [], errors: [e instanceof Error ? e.message : 'Parse error'] };
+    }
   }
 }
 
@@ -667,8 +796,7 @@ export class IntelCollaborationRepository extends IntelRepositoryService {
     this.ensureInitialized();
     
     try {
-      const intelPath = `intel/${intelId}.intel`;
-      const currentBranch = await this.getCurrentBranch();
+  const _intelPath = `intel/${intelId}.intel`;
       
       // Create review branch
       const reviewBranch = `review/${intelId}-${Date.now()}`;

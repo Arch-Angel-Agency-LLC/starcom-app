@@ -2,8 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import NewReportPage from './NewReportPage';
-import { anchorService } from '../../services/anchor/AnchorService';
-import { IPFSContentOrchestrator } from '../../services/IPFSContentOrchestrator';
+import { intelReportService } from '../../services/intel/IntelReportService';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 // Spy on service methods in tests
@@ -24,11 +23,32 @@ describe('NewReportPage', () => {
   });
 
   it('renders form fields and submits new report with latitude, longitude, and timestamp', async () => {
-    const fakeSig = 'report-sig';
-    // Stub report creation
-    vi.spyOn(anchorService, 'createIntelReport').mockResolvedValue(fakeSig);
-    // Spy on static uploadIntelPackage
-    const uploadSpy = vi.spyOn(IPFSContentOrchestrator, 'uploadIntelPackage').mockResolvedValue();
+    // Stub report creation via centralized intelReportService
+    const createSpy = vi.spyOn(intelReportService, 'createReport').mockResolvedValue({
+      id: 'intel-1',
+      title: 'Test Report',
+      content: 'Some intel details',
+      author: '123',
+      category: 'OSINT',
+      tags: ['tag1', 'tag2'],
+      classification: 'UNCLASSIFIED',
+      status: 'DRAFT',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      latitude: 12.34,
+      longitude: 56.78,
+      summary: '',
+      conclusions: [],
+      recommendations: [],
+      methodology: [],
+      confidence: 0.5,
+      priority: 'ROUTINE',
+      targetAudience: [],
+      sourceIntelIds: [],
+      version: 1,
+      manualSummary: false,
+      history: []
+    } as any);
 
     render(
       <MemoryRouter initialEntries={["/team/123/new-report"]}>
@@ -48,16 +68,27 @@ describe('NewReportPage', () => {
     fireEvent.click(screen.getByText('Submit'));
 
     await waitFor(() => {
-      expect(anchorService.createIntelReport).toHaveBeenCalledWith({
-        title: 'Test Report',
-        content: 'Some intel details',
-        tags: ['tag1', 'tag2'],
-        teamId: '123',
-        latitude: 12.34,
-        longitude: 56.78,
-        timestamp: '2025-07-02T10:00'
-      });
-      expect(uploadSpy).toHaveBeenCalledWith(expect.objectContaining({ id: fakeSig }));
+      expect(createSpy).toHaveBeenCalledWith(
+        {
+          title: 'Test Report',
+          content: 'Some intel details',
+          tags: ['tag1', 'tag2'],
+          category: 'OSINT',
+          classification: 'UNCLASSIFIED',
+          status: 'DRAFT',
+          latitude: 12.34,
+          longitude: 56.78,
+          summary: '',
+          conclusions: [],
+          recommendations: [],
+          methodology: [],
+          confidence: 0.5,
+          priority: 'ROUTINE',
+          targetAudience: [],
+          sourceIntelIds: []
+        },
+        '123'
+      );
       expect(mockNavigate).toHaveBeenCalledWith('/team/123');
     });
   });

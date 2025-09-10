@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import { ApplicationContext } from '../../components/Router/EnhancedApplicationRouter';
+import { ApplicationContext } from '../../components/Router/ApplicationRouter';
 import { IntelWorkspaceProvider } from '../../services/intel/IntelWorkspaceContext';
 import IntelWorkspaceConsole from '../../components/Intel/IntelWorkspaceConsole';
 

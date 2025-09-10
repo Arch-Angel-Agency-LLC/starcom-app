@@ -6,7 +6,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { ApplicationContext } from '../../components/Router/EnhancedApplicationRouter';
+import { ApplicationContext } from '../../components/Router/ApplicationRouter';
 import { IntelWebApplication } from './IntelWebApplication';
 import './IntelWeb.css';
 import { IntelWebIntegrationService } from '../../services/intelweb/IntelWebIntegrationService';

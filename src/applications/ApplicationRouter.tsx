@@ -4,7 +4,6 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 // Import consolidated applications
 import NetRunnerApplication from './netrunner/NetRunnerApplication';
 import IntelAnalyzerApplication from './intelanalyzer/IntelAnalyzerApplication';
-import TimeMapApplication from './timemap/TimeMapApplication';
 import TeamWorkspaceApplication from './teamworkspace/TeamWorkspaceApplication';
 import MarketExchangeApplication from './marketexchange/MarketExchangeApplication';
 
@@ -23,8 +22,7 @@ const ApplicationRouter: React.FC = () => {
       {/* IntelAnalyzer - Consolidated Intelligence Analysis and Reports */}
       <Route path="/intelanalyzer/*" element={<IntelAnalyzerApplication />} />
       
-      {/* TimeMap - Enhanced timeline with monitoring integration */}
-      <Route path="/timemap/*" element={<TimeMapApplication />} />
+  {/* TimeMap removed — superseded by IntelAnalyzer Timeline */}
       
       {/* NodeWeb legacy route redirect */}
       <Route path="/nodeweb/*" element={<Navigate to="/intelweb" replace />} />
@@ -49,7 +47,7 @@ const ApplicationRouter: React.FC = () => {
           <div>
             <h2>Application Not Found</h2>
             <p>The requested application could not be found.</p>
-            <p>Available applications: NetRunner, IntelAnalyzer, TimeMap, NodeWeb, TeamWorkspace, MarketExchange</p>
+            <p>Available applications: NetRunner, IntelAnalyzer, NodeWeb, TeamWorkspace, MarketExchange</p>
           </div>
         </div>
       } />

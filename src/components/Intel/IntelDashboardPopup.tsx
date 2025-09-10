@@ -1,20 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import styles from './IntelDashboardPopup.module.css';
-
-interface IntelReport {
-  id: string;
-  title: string;
-  content: string;
-  author: string;
-  category: string;
-  tags: string[];
-  latitude?: number;
-  longitude?: number;
-  createdAt: Date;
-  updatedAt: Date;
-  status: 'DRAFT' | 'SUBMITTED' | 'REVIEWED' | 'APPROVED' | 'ARCHIVED';
-}
+import type { IntelReportUI } from '../../types/intel/IntelReportUI';
+import { intelReportService } from '../../services/intel/IntelReportService';
+import type { CreateIntelReportInput } from '../../types/intel/IntelReportUI';
 
 interface FormErrors {
   title?: string;
@@ -35,7 +24,7 @@ const IntelDashboardPopup: React.FC<IntelDashboardPopupProps> = ({
 }) => {
   const { publicKey } = useWallet();
   
-  const [reports, setReports] = useState<IntelReport[]>([]);
+  const [reports, setReports] = useState<IntelReportUI[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [filterCategory, setFilterCategory] = useState<string>('ALL');
@@ -55,62 +44,16 @@ const IntelDashboardPopup: React.FC<IntelDashboardPopupProps> = ({
     longitude: ''
   });
 
-  // Load intel reports
+  // Load intel reports via centralized intelReportService and subscribe to changes
   useEffect(() => {
-    const loadReports = async () => {
+    let unsubscribe: undefined | (() => void);
+    const load = async () => {
       setLoading(true);
       try {
-        // Load from local storage
-        const storedReports = JSON.parse(localStorage.getItem('intel-reports') || '[]');
-        
-        if (storedReports.length > 0) {
-          setReports(storedReports.map((report: Partial<IntelReport>) => ({
-            ...report,
-            createdAt: new Date(report.createdAt),
-            updatedAt: new Date(report.updatedAt)
-          })));
-        } else {
-          // Initialize with mock data
-          const mockReports: IntelReport[] = [
-            {
-              id: 'intel-001',
-              title: 'Threat Actor Infrastructure Analysis',
-              content: 'Detailed analysis of APT group infrastructure including C2 servers, hosting patterns, and TTPs observed in recent campaigns.',
-              author: publicKey?.toString() || 'analyst-001',
-              category: 'THREAT_INTELLIGENCE',
-              tags: ['APT', 'C2', 'Infrastructure', 'TTPs'],
-              status: 'APPROVED',
-              createdAt: new Date('2024-01-10'),
-              updatedAt: new Date('2024-01-12')
-            },
-            {
-              id: 'intel-002',
-              title: 'Ransomware Campaign OSINT',
-              content: 'Open source intelligence gathering on recent ransomware campaign targeting financial institutions.',
-              author: publicKey?.toString() || 'analyst-002',
-              category: 'OSINT',
-              tags: ['Ransomware', 'Financial', 'Campaign'],
-              latitude: 40.7128,
-              longitude: -74.0060,
-              status: 'REVIEWED',
-              createdAt: new Date('2024-01-08'),
-              updatedAt: new Date('2024-01-10')
-            },
-            {
-              id: 'intel-003',
-              title: 'Cryptocurrency Exchange Vulnerability',
-              content: 'Analysis of security vulnerabilities discovered in major cryptocurrency exchange platforms.',
-              author: publicKey?.toString() || 'analyst-003',
-              category: 'VULNERABILITY_RESEARCH',
-              tags: ['Cryptocurrency', 'Security', 'Exchange'],
-              status: 'DRAFT',
-              createdAt: new Date('2024-01-15'),
-              updatedAt: new Date('2024-01-15')
-            }
-          ];
-          setReports(mockReports);
-          localStorage.setItem('intel-reports', JSON.stringify(mockReports));
-        }
+        const list = await intelReportService.listReports();
+        setReports(list);
+        // subscribe to changes
+        unsubscribe = intelReportService.onChange((next) => setReports(next));
       } catch (error) {
         console.error('Failed to load intel reports:', error);
         setNotification({ type: 'error', message: 'Failed to load intel reports. Please try again.' });
@@ -118,9 +61,11 @@ const IntelDashboardPopup: React.FC<IntelDashboardPopupProps> = ({
         setLoading(false);
       }
     };
-
-    loadReports();
-  }, [publicKey]);
+    load();
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, []);
 
   // Form validation
   const validateForm = (): boolean => {
@@ -171,23 +116,20 @@ const IntelDashboardPopup: React.FC<IntelDashboardPopupProps> = ({
 
     setIsSubmitting(true);
     try {
-      const newReport: IntelReport = {
-        id: `intel-${Date.now()}`,
+      const input: CreateIntelReportInput = {
         title: formData.title.trim(),
         content: formData.content.trim(),
-        author: publicKey.toString(),
         category: formData.category,
         tags: formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
         latitude: formData.latitude ? parseFloat(formData.latitude) : undefined,
         longitude: formData.longitude ? parseFloat(formData.longitude) : undefined,
-        status: 'DRAFT',
-        createdAt: new Date(),
-        updatedAt: new Date()
+        classification: 'UNCLASSIFIED',
+        status: 'DRAFT'
       };
-
-      const updatedReports = [...reports, newReport];
-      setReports(updatedReports);
-      localStorage.setItem('intel-reports', JSON.stringify(updatedReports));
+      await intelReportService.createReport(input, publicKey.toString());
+      // Refresh list (onChange should handle this too, but ensure immediate UX update)
+      const list = await intelReportService.listReports();
+      setReports(list);
 
       // Reset form
       setFormData({
@@ -200,7 +142,7 @@ const IntelDashboardPopup: React.FC<IntelDashboardPopupProps> = ({
       });
       setFormErrors({});
       setShowCreateForm(false);
-      setNotification({ type: 'success', message: 'Intelligence report created successfully!' });
+  setNotification({ type: 'success', message: 'Intelligence report created successfully!' });
     } catch (error) {
       console.error('Failed to create intel report:', error);
       setNotification({ type: 'error', message: 'Failed to create intel report. Please try again.' });

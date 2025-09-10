@@ -5,7 +5,7 @@
  * Moved from NodeWeb to be properly integrated into IntelAnalyzer
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { 
   Box, 
   Typography, 
@@ -32,7 +32,6 @@ import Grid from '@mui/material/Grid';
 import { 
   Plus, 
   Search, 
-  Link, 
   FileText, 
   Tag,
   Eye,
@@ -40,218 +39,94 @@ import {
   Share,
   BookOpen,
   Brain,
-  Zap,
-  TrendingUp,
-  Shield,
-  Users
+  Zap
 } from 'lucide-react';
 
-// Intelligence Report Interface
-interface IntelReport {
-  id: string;
-  title: string;
-  content: string;
-  type: 'report' | 'analysis' | 'entity' | 'connection' | 'hypothesis';
-  tags: string[];
-  connections: string[]; // IDs of connected reports
-  metadata: {
-    author: string;
-    created: string;
-    updated: string;
-  classification: 'unclassified' | 'confidential' | 'secret' | 'top-secret'; // legacy-only; UI will display neutral messaging
-    confidence: number;
-    source: string;
-  };
-}
+// Centralized Intel system imports
+import { useIntelWorkspace } from '../../services/intel/IntelWorkspaceContext';
+import { intelReportService } from '../../services/intel/IntelReportService';
+import { IntelReportUI, IntelClassification } from '../../types/intel/IntelReportUI';
 
 const IntelReportsViewer: React.FC = () => {
   // State management
-  const [reports, setReports] = useState<IntelReport[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedReport, setSelectedReport] = useState<IntelReport | null>(null);
+  const { reports, loading } = useIntelWorkspace();
+  const [selectedReport, setSelectedReport] = useState<IntelReportUI | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'list' | 'grid' | 'detailed'>('list');
-  const [filterType, setFilterType] = useState<string>('all');
-  
-  // Create report form state
+  const [filterCategory, setFilterCategory] = useState<string>('all');
+
+  // Create report form state (mapped to IntelReportUI input)
   const [createForm, setCreateForm] = useState({
     title: '',
     content: '',
-    type: 'report' as IntelReport['type'],
+    category: 'report' as string,
     tags: '',
-    classification: 'unclassified' as IntelReport['metadata']['classification'],
-    source: ''
+    classification: 'UNCLASSIFIED' as IntelClassification
   });
 
-  // Load intelligence reports
-  useEffect(() => {
-    const loadReports = async () => {
-      setLoading(true);
-      try {
-        // Simulate API call - replace with actual data loading
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Mock intelligence reports
-        const mockReports: IntelReport[] = [
-          {
-            id: '1',
-            title: 'Cyber Threat Analysis - Q4 2024',
-            content: 'Comprehensive analysis of emerging cyber threats targeting critical infrastructure. This report consolidates intelligence from multiple sources to provide a holistic view of the current threat landscape...',
-            type: 'analysis',
-            tags: ['cyber-security', 'threats', 'infrastructure'],
-            connections: ['2', '3'],
-            metadata: {
-              author: 'Analyst Smith',
-              created: '2024-12-01T10:00:00Z',
-              updated: '2024-12-01T10:00:00Z',
-              classification: 'confidential',
-              confidence: 90,
-              source: 'Internal Analysis'
-            }
-          },
-          {
-            id: '2',
-            title: 'APT Group Activities',
-            content: 'Documentation of recent APT group activities and TTPs (Tactics, Techniques, and Procedures). Analysis indicates increased sophistication in attack vectors and potential state-sponsored coordination...',
-            type: 'report',
-            tags: ['apt', 'tactics', 'malware'],
-            connections: ['1', '4'],
-            metadata: {
-              author: 'Intel Team',
-              created: '2024-11-28T14:30:00Z',
-              updated: '2024-11-30T09:15:00Z',
-              classification: 'secret',
-              confidence: 85,
-              source: 'Multi-source Intelligence'
-            }
-          },
-          {
-            id: '3',
-            title: 'Critical Infrastructure Entity',
-            content: 'Power grid facility - potential target of interest. Located in key metropolitan area with high strategic value. Security assessment reveals multiple vulnerabilities that could be exploited...',
-            type: 'entity',
-            tags: ['infrastructure', 'power-grid', 'target'],
-            connections: ['1'],
-            metadata: {
-              author: 'Geographic Intel',
-              created: '2024-11-25T11:20:00Z',
-              updated: '2024-11-25T11:20:00Z',
-              classification: 'confidential',
-              confidence: 95,
-              source: 'Open Source Intelligence'
-            }
-          },
-          {
-            id: '4',
-            title: 'Network Intrusion Hypothesis',
-            content: 'Working hypothesis about coordinated network intrusion campaign. Evidence suggests systematic approach targeting similar infrastructure across multiple geographic regions...',
-            type: 'hypothesis',
-            tags: ['hypothesis', 'intrusion', 'coordination'],
-            connections: ['2'],
-            metadata: {
-              author: 'Lead Analyst',
-              created: '2024-12-02T16:45:00Z',
-              updated: '2024-12-02T16:45:00Z',
-              classification: 'confidential',
-              confidence: 70,
-              source: 'Analytical Assessment'
-            }
-          },
-          {
-            id: '5',
-            title: 'Economic Intelligence Brief',
-            content: 'Analysis of economic indicators and market movements that may impact security operations. Focus on cryptocurrency flows and sanctions evasion techniques...',
-            type: 'analysis',
-            tags: ['economic', 'cryptocurrency', 'sanctions'],
-            connections: [],
-            metadata: {
-              author: 'Economic Analysis Unit',
-              created: '2024-12-03T08:30:00Z',
-              updated: '2024-12-03T08:30:00Z',
-              classification: 'unclassified',
-              confidence: 75,
-              source: 'Financial Intelligence'
-            }
-          }
-        ];
-
-        setReports(mockReports);
-      } catch (error) {
-        console.error('Error loading reports:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadReports();
-  }, []);
-
-  // Handle create report
+  // Handle create report via intelReportService
   const handleCreateReport = useCallback(() => {
     if (!createForm.title.trim() || !createForm.content.trim()) return;
-
-    const newReport: IntelReport = {
-      id: Date.now().toString(),
-      title: createForm.title,
-      content: createForm.content,
-      type: createForm.type,
-      tags: createForm.tags.split(',').map(tag => tag.trim()).filter(Boolean),
-      connections: [],
-      metadata: {
-        author: 'Current User',
-        created: new Date().toISOString(),
-        updated: new Date().toISOString(),
+    (async () => {
+      const input = {
+        title: createForm.title,
+        content: createForm.content,
+        category: createForm.category,
+        tags: createForm.tags.split(',').map(t => t.trim()).filter(Boolean),
         classification: createForm.classification,
-        confidence: 80,
-        source: createForm.source || 'Manual Entry'
+        status: 'DRAFT' as const
+      };
+      try {
+        const created = await intelReportService.createReport(input, 'Current User');
+        setSelectedReport(created);
+        setIsCreateDialogOpen(false);
+        setCreateForm({ title: '', content: '', category: 'report', tags: '', classification: 'UNCLASSIFIED' });
+      } catch (e) {
+        console.error('Failed to create report', e);
       }
-    };
-
-    setReports(prev => [...prev, newReport]);
-    setCreateForm({
-      title: '',
-      content: '',
-      type: 'report',
-      tags: '',
-      classification: 'unclassified',
-      source: ''
-    });
-    setIsCreateDialogOpen(false);
+    })();
   }, [createForm]);
 
-  // Filter reports based on search and type
+  // Filter reports based on search and category
   const filteredReports = reports.filter(report => {
-    const matchesSearch = searchQuery === '' || 
-      report.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      report.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      report.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
-    
-    const matchesType = filterType === 'all' || report.type === filterType;
-    
-    return matchesSearch && matchesType;
+    const q = searchQuery.toLowerCase();
+    const matchesSearch = q === '' ||
+      report.title.toLowerCase().includes(q) ||
+      report.content.toLowerCase().includes(q) ||
+      report.tags.some(tag => tag.toLowerCase().includes(q));
+    const matchesCategory = filterCategory === 'all' || (report.category || '').toLowerCase() === filterCategory;
+    return matchesSearch && matchesCategory;
   });
 
-  // Get report type icon
-  const getReportTypeIcon = (type: IntelReport['type']) => {
-    switch (type) {
+  // Icon by category
+  const getReportTypeIcon = (category: string) => {
+    switch ((category || '').toLowerCase()) {
       case 'report': return <FileText size={16} />;
       case 'analysis': return <Brain size={16} />;
       case 'entity': return <Tag size={16} />;
-      case 'connection': return <Link size={16} />;
       case 'hypothesis': return <Zap size={16} />;
       default: return <FileText size={16} />;
     }
   };
 
-  // Get classification color
-  const getClassificationColor = (classification: string) => {
+  // Classification helpers
+  const getClassificationColor = (classification: IntelClassification) => {
     switch (classification) {
-      case 'unclassified': return '#4CAF50';
-      case 'confidential': return '#FF9800';
-      case 'secret': return '#FF5722';
-      case 'top-secret': return '#F44336';
+      case 'UNCLASSIFIED': return '#4CAF50';
+      case 'CONFIDENTIAL': return '#FF9800';
+      case 'SECRET': return '#FF5722';
+      case 'TOP_SECRET': return '#F44336';
       default: return '#2196F3';
+    }
+  };
+  const formatClassification = (classification: IntelClassification) => {
+    switch (classification) {
+      case 'UNCLASSIFIED': return 'Unclassified';
+      case 'CONFIDENTIAL': return 'Confidential';
+      case 'SECRET': return 'Secret';
+      case 'TOP_SECRET': return 'Top Secret';
+      default: return String(classification);
     }
   };
 
@@ -303,7 +178,11 @@ const IntelReportsViewer: React.FC = () => {
             <Card sx={{ backgroundColor: '#1e1e1e', border: '1px solid #333' }}>
               <CardContent sx={{ textAlign: 'center', py: 2 }}>
                 <Typography variant="h4" sx={{ color: '#ff9800' }}>
-                  {Math.round((filteredReports.reduce((sum, r) => sum + r.metadata.confidence, 0) / Math.max(filteredReports.length, 1)))}%
+                  {(() => {
+                    const vals = filteredReports.map(r => (typeof r.confidence === 'number' ? r.confidence : 0));
+                    const avg = vals.length ? vals.reduce((a,b)=>a+b,0) / vals.length : 0;
+                    return Math.round(avg * 100);
+                  })()}%
                 </Typography>
                 <Typography variant="body2" sx={{ color: '#888' }}>
                   Avg Confidence
@@ -315,7 +194,7 @@ const IntelReportsViewer: React.FC = () => {
             <Card sx={{ backgroundColor: '#1e1e1e', border: '1px solid #333' }}>
               <CardContent sx={{ textAlign: 'center', py: 2 }}>
                 <Typography variant="h4" sx={{ color: '#4caf50' }}>
-                  {filteredReports.filter(r => r.connections.length > 0).length}
+                  {filteredReports.filter(r => (r.sourceIntelIds?.length || 0) > 0).length}
                 </Typography>
                 <Typography variant="body2" sx={{ color: '#888' }}>
                   Connected Reports
@@ -370,13 +249,13 @@ const IntelReportsViewer: React.FC = () => {
             </Select>
           </FormControl>
 
-          {/* Filter Type */}
+          {/* Category Filter */}
           <FormControl size="small">
-            <InputLabel sx={{ color: '#888' }}>Type</InputLabel>
+            <InputLabel sx={{ color: '#888' }}>Category</InputLabel>
             <Select
-              value={filterType}
-              label="Type"
-              onChange={(e) => setFilterType(e.target.value)}
+              value={filterCategory}
+              label="Category"
+              onChange={(e) => setFilterCategory(e.target.value)}
               sx={{ 
                 minWidth: 120,
                 backgroundColor: '#1e1e1e',
@@ -386,7 +265,7 @@ const IntelReportsViewer: React.FC = () => {
                 '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#00ff00' },
               }}
             >
-              <MenuItem value="all">All Types</MenuItem>
+              <MenuItem value="all">All Categories</MenuItem>
               <MenuItem value="report">Reports</MenuItem>
               <MenuItem value="analysis">Analysis</MenuItem>
               <MenuItem value="entity">Entities</MenuItem>
@@ -436,7 +315,7 @@ const IntelReportsViewer: React.FC = () => {
                 key={report.id} 
                 sx={{ 
                   p: 2, 
-                  border: `2px solid ${getClassificationColor(report.metadata.classification)}`,
+                  border: `2px solid ${getClassificationColor(report.classification)}`,
                   cursor: 'pointer',
                   backgroundColor: selectedReport?.id === report.id ? '#2e2e2e' : '#1a1a1a',
                   '&:hover': { 
@@ -454,7 +333,7 @@ const IntelReportsViewer: React.FC = () => {
                       gap: 1,
                       color: '#fff'
                     }}>
-                      {getReportTypeIcon(report.type)}
+                      {getReportTypeIcon(report.category)}
                       {report.title}
                     </Typography>
                     <Typography variant="body2" color="#ccc" sx={{ mb: 1 }}>
@@ -463,16 +342,16 @@ const IntelReportsViewer: React.FC = () => {
                     
                     <Box sx={{ display: 'flex', gap: 1, mb: 1, flexWrap: 'wrap' }}>
                       <Chip 
-                        label={report.type} 
+                        label={report.category} 
                         size="small" 
                         color="primary" 
                         variant="outlined" 
                       />
                       <Chip 
-                        label={report.metadata.classification} 
+                        label={formatClassification(report.classification)} 
                         size="small" 
                         sx={{ 
-                          backgroundColor: getClassificationColor(report.metadata.classification),
+                          backgroundColor: getClassificationColor(report.classification),
                           color: 'white'
                         }}
                       />
@@ -485,7 +364,7 @@ const IntelReportsViewer: React.FC = () => {
                     </Box>
 
                     <Typography variant="caption" color="#888">
-                      Author: {report.metadata.author} • Confidence: {report.metadata.confidence}%
+                      Author: {report.author} • Confidence: {typeof report.confidence === 'number' ? Math.round(report.confidence * 100) : '—'}%
                     </Typography>
                   </Box>
                   
@@ -521,7 +400,7 @@ const IntelReportsViewer: React.FC = () => {
               gap: 1,
               color: '#00ff00'
             }}>
-              {getReportTypeIcon(selectedReport.type)}
+              {getReportTypeIcon(selectedReport.category)}
               Report Details
             </Typography>
             
@@ -547,16 +426,16 @@ const IntelReportsViewer: React.FC = () => {
             <Typography variant="subtitle2" gutterBottom sx={{ color: '#00ff00' }}>Metadata:</Typography>
             <Stack spacing={1}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Typography variant="body2" sx={{ color: '#ccc' }}>Type:</Typography>
-                <Typography variant="body2" fontWeight="bold" sx={{ color: '#fff' }}>{selectedReport.type}</Typography>
+                <Typography variant="body2" sx={{ color: '#ccc' }}>Category:</Typography>
+                <Typography variant="body2" fontWeight="bold" sx={{ color: '#fff' }}>{selectedReport.category}</Typography>
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography variant="body2" sx={{ color: '#ccc' }}>Classification:</Typography>
                 <Chip 
-                  label={selectedReport.metadata.classification} 
+                  label={formatClassification(selectedReport.classification)} 
                   size="small"
                   sx={{ 
-                    backgroundColor: getClassificationColor(selectedReport.metadata.classification),
+                    backgroundColor: getClassificationColor(selectedReport.classification),
                     color: 'white'
                   }}
                 />
@@ -564,48 +443,41 @@ const IntelReportsViewer: React.FC = () => {
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography variant="body2" sx={{ color: '#ccc' }}>Confidence:</Typography>
                 <Typography variant="body2" fontWeight="bold" sx={{ color: '#fff' }}>
-                  {selectedReport.metadata.confidence}%
+                  {typeof selectedReport.confidence === 'number' ? Math.round(selectedReport.confidence * 100) : '—'}%
                 </Typography>
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography variant="body2" sx={{ color: '#ccc' }}>Author:</Typography>
-                <Typography variant="body2" sx={{ color: '#fff' }}>{selectedReport.metadata.author}</Typography>
-              </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Typography variant="body2" sx={{ color: '#ccc' }}>Source:</Typography>
-                <Typography variant="body2" sx={{ color: '#fff' }}>{selectedReport.metadata.source}</Typography>
+                <Typography variant="body2" sx={{ color: '#fff' }}>{selectedReport.author}</Typography>
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography variant="body2" sx={{ color: '#ccc' }}>Created:</Typography>
                 <Typography variant="body2" sx={{ color: '#fff' }}>
-                  {new Date(selectedReport.metadata.created).toLocaleDateString()}
+                  {selectedReport.createdAt.toLocaleDateString()}
                 </Typography>
               </Box>
             </Stack>
             
             <Box sx={{ mt: 3 }}>
               <Typography variant="subtitle2" gutterBottom sx={{ color: '#00ff00' }}>
-                Connections ({selectedReport.connections.length}):
+                Linked Sources ({selectedReport.sourceIntelIds?.length || 0}):
               </Typography>
-              {selectedReport.connections.length > 0 ? (
+              {(selectedReport.sourceIntelIds && selectedReport.sourceIntelIds.length > 0) ? (
                 <Stack spacing={1}>
-                  {selectedReport.connections.map(connId => {
-                    const connectedReport = reports.find(r => r.id === connId);
-                    return connectedReport ? (
-                      <Paper key={connId} sx={{ p: 1, bgcolor: '#2a2a2a', border: '1px solid #333' }}>
-                        <Typography variant="body2" fontWeight="bold" sx={{ color: '#fff' }}>
-                          {connectedReport.title}
-                        </Typography>
-                        <Typography variant="caption" color="#888">
-                          {connectedReport.type}
-                        </Typography>
-                      </Paper>
-                    ) : null;
-                  })}
+                  {selectedReport.sourceIntelIds.map(srcId => (
+                    <Paper key={srcId} sx={{ p: 1, bgcolor: '#2a2a2a', border: '1px solid #333' }}>
+                      <Typography variant="body2" fontWeight="bold" sx={{ color: '#fff' }}>
+                        {srcId}
+                      </Typography>
+                      <Typography variant="caption" color="#888">
+                        Source Intel ID
+                      </Typography>
+                    </Paper>
+                  ))}
                 </Stack>
               ) : (
                 <Typography variant="body2" color="#888">
-                  No connections found
+                  No linked sources
                 </Typography>
               )}
             </Box>
@@ -668,11 +540,11 @@ const IntelReportsViewer: React.FC = () => {
             />
             
             <FormControl fullWidth>
-              <InputLabel sx={{ color: '#888' }}>Type</InputLabel>
+              <InputLabel sx={{ color: '#888' }}>Category</InputLabel>
               <Select
-                value={createForm.type}
-                label="Type"
-                onChange={(e) => setCreateForm(prev => ({ ...prev, type: e.target.value as IntelReport['type'] }))}
+                value={createForm.category}
+                label="Category"
+                onChange={(e) => setCreateForm(prev => ({ ...prev, category: e.target.value as string }))}
                 sx={{
                   backgroundColor: '#2a2a2a',
                   color: '#fff',
@@ -711,7 +583,7 @@ const IntelReportsViewer: React.FC = () => {
               <Select
                 value={createForm.classification}
                 label="Classification"
-                onChange={(e) => setCreateForm(prev => ({ ...prev, classification: e.target.value as IntelReport['metadata']['classification'] }))}
+                onChange={(e) => setCreateForm(prev => ({ ...prev, classification: e.target.value as IntelClassification }))}
                 sx={{
                   backgroundColor: '#2a2a2a',
                   color: '#fff',
@@ -720,30 +592,12 @@ const IntelReportsViewer: React.FC = () => {
                   '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#00ff00' },
                 }}
               >
-                <MenuItem value="unclassified">Unclassified</MenuItem>
-                <MenuItem value="confidential">Confidential</MenuItem>
-                <MenuItem value="secret">Secret</MenuItem>
-                <MenuItem value="top-secret">Top Secret</MenuItem>
+                <MenuItem value="UNCLASSIFIED">Unclassified</MenuItem>
+                <MenuItem value="CONFIDENTIAL">Confidential</MenuItem>
+                <MenuItem value="SECRET">Secret</MenuItem>
+                <MenuItem value="TOP_SECRET">Top Secret</MenuItem>
               </Select>
             </FormControl>
-            
-            <TextField
-              label="Source"
-              value={createForm.source}
-              onChange={(e) => setCreateForm(prev => ({ ...prev, source: e.target.value }))}
-              fullWidth
-              placeholder="Data source or origin"
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  backgroundColor: '#2a2a2a',
-                  color: '#fff',
-                  '& fieldset': { borderColor: '#333' },
-                  '&:hover fieldset': { borderColor: '#00ff00' },
-                  '&.Mui-focused fieldset': { borderColor: '#00ff00' },
-                },
-                '& .MuiInputLabel-root': { color: '#888' }
-              }}
-            />
           </Stack>
         </DialogContent>
         <DialogActions>

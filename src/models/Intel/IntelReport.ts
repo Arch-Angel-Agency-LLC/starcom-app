@@ -5,6 +5,8 @@
 import { IntelCategory, IntelPriority, IntelThreatLevel, IntelClassification } from './IntelEnums';
 import { IntelVisualization3D } from './IntelVisualization3D';
 import { IntelLocation } from './IntelLocation';
+// Canonical UI model import (migration target)
+// NOTE: LegacyIntelReport retained temporarily (Phase 4 -> 5). Will be removed in Phase 5 cleanup.
 
 // =============================================================================
 // CORE UNIFIED INTEL REPORT INTERFACE
@@ -19,28 +21,28 @@ import { IntelLocation } from './IntelLocation';
  * - /src/services/data-management/providers/IntelDataProvider.ts
  * - And many other locations with duplicate interfaces
  */
-export interface IntelReport {
+/**
+ * @deprecated Legacy aggregated IntelReport interface. Use IntelReportUI (src/types/intel/IntelReportUI)
+ * and central services (intelReportService + provider) instead. This file is retained only for
+ * historical architecture references and will be removed in Phase 5 cleanup.
+ * eslint-disable-next-line @typescript-eslint/no-unused-vars -- legacy shape
+ */
+/**
+ * @deprecated Replaced by IntelReportUI. This placeholder intentionally trimmed to minimal surface.
+ * Remove in Phase 5 once all downstream imports migrate to IntelReportUI.
+ */
+export interface LegacyIntelReport {
   // =============================================================================
   // CORE IDENTIFICATION
   // =============================================================================
   
   /** Unique identifier */
-  id: string;
-  
-  /** Primary title of the intelligence report */
+  id: string; // retained for transitional mapping
   title: string;
-  
-  /** Optional subtitle for additional context */
-  subtitle?: string;
-  
-  /** Primary content/description of the report */
   content: string;
-  
-  /** Brief summary for quick reference */
   summary?: string;
-  
-  /** Descriptive text for the report */
   description?: string;
+  subtitle?: string; // legacy field referenced by adapters
   
   // =============================================================================
   // AUTHORSHIP & METADATA
@@ -48,14 +50,8 @@ export interface IntelReport {
   
   /** Report author (wallet address, agent ID, or name) */
   author: string;
-  
-  /** Creation timestamp */
   created: Date;
-  
-  /** Last update timestamp */
   updated: Date;
-  
-  /** Report version for tracking changes */
   version?: string;
   
   // =============================================================================
@@ -64,8 +60,6 @@ export interface IntelReport {
   
   /** Primary latitude coordinate */
   latitude: number;
-  
-  /** Primary longitude coordinate */
   longitude: number;
   
   /** Human-readable location description */
@@ -80,14 +74,8 @@ export interface IntelReport {
   
   /** Optional informational security designation (declassified build) */
   classification?: IntelClassification;
-  
-  /** Report priority level */
   priority?: IntelPriority | 'ROUTINE' | 'PRIORITY' | 'IMMEDIATE';
-  
-  /** Threat level assessment */
   threatLevel?: IntelThreatLevel;
-  
-  /** Confidence score (0-100) */
   confidence: number;
   
   // =============================================================================
@@ -96,11 +84,7 @@ export interface IntelReport {
   
   /** Report category */
   category?: IntelCategory;
-  
-  /** Additional categories */
   categories?: string[];
-  
-  /** Searchable tags */
   tags: string[];
   
   /** Report type classification */
@@ -151,14 +135,8 @@ export interface IntelReport {
   
   /** Solana account public key (base58) */
   pubkey?: string;
-  
-  /** Transaction signature */
   signature?: string;
-  
-  /** Blockchain timestamp */
   timestamp?: number;
-  
-  /** Verification status */
   verified?: boolean;
   
   // =============================================================================
@@ -173,16 +151,7 @@ export interface IntelReport {
   // =============================================================================
   
   /** Extended technical metadata */
-  metadata?: {
-    scanId?: string;
-    targetUrl?: string;
-    scanType?: string;
-    processingTime?: number;
-    dataSize?: number;
-    qualityScore?: number;
-    source?: string;
-    [key: string]: unknown;
-  };
+  metadata?: Record<string, unknown>;
   
   // =============================================================================
   // UI DISPLAY FIELDS
@@ -199,10 +168,8 @@ export interface IntelReport {
   // =============================================================================
   
   /** @deprecated Use latitude instead */
-  lat?: number;
-  
-  /** @deprecated Use longitude instead */
-  long?: number;
+  lat?: number; // legacy alias
+  long?: number; // legacy alias
 }
 
 // =============================================================================
@@ -252,23 +219,14 @@ export interface Evidence {
  * Intel Report Builder
  * Provides a fluent interface for creating Intel Reports
  */
+/**
+ * @deprecated Builder retained only for transitional adapter paths. Prefer CreateIntelReportInput helpers.
+ */
 export class IntelReportBuilder {
-  private report: Partial<IntelReport>;
+  private report: Partial<LegacyIntelReport>;
 
   constructor(title: string, author: string) {
-    this.report = {
-      id: crypto.randomUUID(),
-      title,
-      author,
-      created: new Date(),
-      updated: new Date(),
-      version: '1.0.0',
-      confidence: 0,
-      tags: [],
-      latitude: 0,
-  longitude: 0,
-  content: ''
-    };
+  this.report = { id: crypto.randomUUID(), title, author, created: new Date(), updated: new Date(), version: '1.0.0', confidence: 0, tags: [], latitude: 0, longitude: 0, content: '' };
   }
 
   setId(id: string): this {
@@ -343,7 +301,7 @@ export class IntelReportBuilder {
     return this;
   }
 
-  setType(type: IntelReport['type']): this {
+  setType(type: LegacyIntelReport['type']): this {
     this.report.type = type;
     return this;
   }
@@ -371,7 +329,7 @@ export class IntelReportBuilder {
     return this;
   }
 
-  setStatus(status: IntelReport['status']): this {
+  setStatus(status: LegacyIntelReport['status']): this {
     this.report.status = status;
     return this;
   }
@@ -393,7 +351,7 @@ export class IntelReportBuilder {
     return this;
   }
 
-  setMetadata(metadata: IntelReport['metadata']): this {
+  setMetadata(metadata: LegacyIntelReport['metadata']): this {
     this.report.metadata = { ...this.report.metadata, ...metadata };
     return this;
   }
@@ -408,16 +366,16 @@ export class IntelReportBuilder {
     return this;
   }
 
-  build(): IntelReport {
+  build(): LegacyIntelReport {
     // Validate required fields
-    if (!this.report.id || !this.report.title || !this.report.author || !this.report.content) {
+  if (!this.report.id || !this.report.title || !this.report.author || !this.report.content) {
       throw new Error('IntelReport missing required fields: id, title, author, content');
     }
 
     // Set updated timestamp
     this.report.updated = new Date();
 
-    return this.report as IntelReport;
+  return this.report as LegacyIntelReport;
   }
 }
 
@@ -433,7 +391,8 @@ export class IntelReportAdapter {
   /**
    * Convert IntelReportData to unified IntelReport
    */
-  static fromIntelReportData(data: any): IntelReport {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static fromIntelReportData(data: any): LegacyIntelReport {
     return new IntelReportBuilder(data.title, data.author)
       .setId(data.id || data.pubkey || crypto.randomUUID())
       .setContent(data.content)
@@ -454,27 +413,10 @@ export class IntelReportAdapter {
   }
 
   /**
-   * Convert NetRunner IntelReport to unified IntelReport
-   */
-  static fromNetRunnerIntelReport(netrunner: any): IntelReport {
-    return new IntelReportBuilder(netrunner.title, netrunner.author)
-      .setId(netrunner.id)
-      .setSubtitle(netrunner.subtitle)
-      .setContent(netrunner.content)
-      .setSummary(netrunner.summary)
-      .setDescription(netrunner.description)
-      .setLocation(netrunner.latitude || 0, netrunner.longitude || 0, netrunner.location)
-  .setClassification(netrunner.classification as IntelClassification)
-      .setConfidence(netrunner.confidence)
-      .setMetadata(netrunner.metadata)
-      .setStatus(netrunner.status)
-      .build();
-  }
-
-  /**
    * Convert Service Provider IntelReport to unified IntelReport
    */
-  static fromServiceProviderIntelReport(provider: any): IntelReport {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static fromServiceProviderIntelReport(provider: any): LegacyIntelReport {
     return new IntelReportBuilder(provider.title, provider.author)
       .setId(provider.pubkey || crypto.randomUUID())
       .setContent(provider.content)
@@ -488,7 +430,8 @@ export class IntelReportAdapter {
   /**
    * Convert Analyzer IntelReport to unified IntelReport
    */
-  static fromAnalyzerIntelReport(analyzer: any): IntelReport {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static fromAnalyzerIntelReport(analyzer: any): LegacyIntelReport {
     const builder = new IntelReportBuilder(analyzer.title, analyzer.metadata.author)
       .setId(analyzer.id)
       .setContent(analyzer.content)
@@ -508,7 +451,8 @@ export class IntelReportAdapter {
   /**
    * Convert unified IntelReport back to IntelReportData format
    */
-  static toIntelReportData(report: IntelReport): any {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static toIntelReportData(report: LegacyIntelReport): any {
     return {
       id: report.id,
       title: report.title,
@@ -541,4 +485,4 @@ export class IntelReportAdapter {
 // =============================================================================
 
 // Type alias for the most common usage pattern
-export type { IntelReport as UnifiedIntelReport };
+export type { LegacyIntelReport as UnifiedIntelReport };

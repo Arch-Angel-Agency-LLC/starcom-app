@@ -17,6 +17,8 @@ import {
   SearchOptions,
   SearchResult
 } from '../types/intel-foundation';
+import type { IntelReportUI } from '../types/intel/IntelReportUI';
+import { serializeReport, parseReport } from './intel/serialization/intelReportSerialization';
 
 // Simplified data types for the service
 export interface IntelItem {
@@ -60,6 +62,13 @@ export interface ConversionResult {
  */
 export class IntelWorkspaceService {
   private workspaces: Map<string, WorkspaceInfo> = new Map();
+  private fileWriter?: (path: string, content: string) => Promise<void>;
+  private fileReader?: (path: string) => Promise<string | undefined>;
+
+  constructor(options?: { fileWriter?: (path: string, content: string) => Promise<void>; fileReader?: (path: string) => Promise<string | undefined> }) {
+    this.fileWriter = options?.fileWriter;
+    this.fileReader = options?.fileReader;
+  }
 
   /**
    * Create a new Intel workspace
@@ -167,13 +176,18 @@ export class IntelWorkspaceService {
 
   /**
    * Save Intel Report as .intelReport file (JSON format)
+   * @deprecated Use saveIntelReportCanonical(IntelReportUI) to persist canonical schema v1 JSON
    */
   async saveIntelReport(
     report: IntelItem,
     workspacePath: string,
     _options: Partial<FileOperationOptions> = {}
   ): Promise<FileOperationResult> {
+  // DEPRECATED: Prefer saveIntelReportCanonical for IntelReportUI persistence (single-source serializer)
     try {
+      if (process.env.NODE_ENV !== 'production') {
+        try { console.warn('[IntelWorkspaceService.saveIntelReport] DEPRECATED: use saveIntelReportCanonical for IntelReportUI persistence.'); } catch { /* no-op */ }
+      }
       // Create JSON content with metadata
       const reportData = {
         ...report,
@@ -188,7 +202,10 @@ export class IntelWorkspaceService {
       const fileName = `${report.id}.intelReport`;
       const filePath = `${workspacePath}/${fileName}`;
       
-      // Simulate file writing
+      // Write if writer provided, else simulate
+      if (this.fileWriter) {
+        await this.fileWriter(filePath, jsonContent);
+      }
       const fileSize = new Blob([jsonContent]).size;
       
       // Update workspace info
@@ -215,26 +232,111 @@ export class IntelWorkspaceService {
   }
 
   /**
+   * Canonical: Save Intel Report (IntelReportUI) using schema v1 serializer
+   */
+  async saveIntelReportCanonical(
+    report: IntelReportUI,
+    workspacePath: string,
+    _options: Partial<FileOperationOptions> = {}
+  ): Promise<FileOperationResult> {
+    try {
+      const serialized = serializeReport(report);
+      const jsonContent = JSON.stringify(serialized, null, 2);
+
+      const fileName = `${report.id}.intelReport`;
+      const filePath = `${workspacePath}/${fileName}`;
+
+      if (this.fileWriter) {
+        await this.fileWriter(filePath, jsonContent);
+      }
+      const fileSize = new Blob([jsonContent]).size;
+
+      // Update workspace info
+      const workspace = this.workspaces.get(workspacePath);
+      if (workspace) {
+        workspace.totalFiles += 1;
+        workspace.lastModified = new Date().toISOString();
+        workspace.size += fileSize;
+      }
+
+      console.log(`Intel Report (canonical) Saved: ${fileName} (${fileSize} bytes) in workspace ${workspacePath}`);
+
+      return { success: true, filePath, size: fileSize };
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : 'Save failed' };
+    }
+  }
+
+  /**
+   * Canonical: Load Intel Report (IntelReportUI) by path using schema v1 parser.
+   * Accepts a full file path or workspacePath/id.
+   */
+  async loadIntelReportCanonical(
+    filePathOrWorkspace: string,
+    idIfWorkspace?: string
+  ): Promise<{ report?: IntelReportUI; warnings: string[]; errors: string[] }> {
+    try {
+      const path = idIfWorkspace
+        ? `${filePathOrWorkspace}/${idIfWorkspace}.intelReport`
+        : filePathOrWorkspace;
+      if (!this.fileReader) return { warnings: [], errors: ['No fileReader configured'] };
+      const content = await this.fileReader(path);
+      if (!content) return { warnings: [], errors: ['File not found'] };
+      const obj = JSON.parse(content);
+      return parseReport(obj);
+    } catch (error) {
+      return { warnings: [], errors: [error instanceof Error ? error.message : 'Unknown error'] };
+    }
+  }
+
+  /**
    * Load Intel Report from .intelReport file
    */
   async loadIntelReport(filePath: string): Promise<IntelItem | null> {
     try {
-      // For now, return mock data
-      const mockReport: IntelItem = {
+      // DEPRECATED: Prefer loadIntelReportCanonical for IntelReportUI.
+      if (process.env.NODE_ENV !== 'production') {
+        try { console.warn('[IntelWorkspaceService.loadIntelReport] DEPRECATED: use loadIntelReportCanonical for IntelReportUI.'); } catch { /* no-op */ }
+      }
+
+      // If a reader is configured and path looks like a canonical file, delegate to canonical loader
+      if (this.fileReader && filePath.endsWith('.intelReport')) {
+        const content = await this.fileReader(filePath);
+        if (content) {
+          try {
+            const obj = JSON.parse(content);
+            const { report: ui } = parseReport(obj);
+            if (ui) {
+              const item: IntelItem = {
+                id: ui.id,
+                title: ui.title,
+                content: ui.content,
+                type: 'report',
+                createdAt: ui.createdAt?.toISOString?.() || new Date().toISOString(),
+                updatedAt: ui.updatedAt?.toISOString?.() || new Date().toISOString(),
+                metadata: { schema: 'intel.report', schemaVersion: 1, sourceFile: filePath }
+              };
+              console.log(`Intel Report Loaded (canonical→legacy): ${filePath}`);
+              return item;
+            }
+          } catch (_e) {
+            // fall through to legacy mock below
+          }
+        }
+      }
+
+      // Fallback: return a minimal placeholder (legacy behavior)
+      const placeholder: IntelItem = {
         id: crypto.randomUUID(),
-        title: 'Sample Intel Report',
-        content: 'This is a sample Intel report loaded from .intelReport file',
+        title: 'Intel Report',
+        content: 'Legacy load path placeholder. Use canonical loader for real data.',
         type: 'report',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        metadata: {
-          sourceFile: filePath,
-          format: 'intelReport'
-        }
+        metadata: { sourceFile: filePath, format: 'intelReport' }
       };
-
-      console.log(`Intel Report Loaded: ${filePath}`);
-      return mockReport;
+      console.log(`Intel Report Loaded (placeholder): ${filePath}`);
+      return placeholder;
     } catch (error) {
       console.error(`Failed to load Intel Report from ${filePath}:`, error);
       return null;

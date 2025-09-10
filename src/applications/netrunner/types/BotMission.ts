@@ -11,6 +11,7 @@ import { Intel } from '../../../models/Intel/Intel';
 import { RawData, Observation } from '../../../models/Intel/IntelligenceFlowchart';
 import { IntelType } from '../tools/NetRunnerPowerTools';
 import { OsintBot } from '../integration/BotRosterIntegration';
+import type { IntelReportUI } from '../../../types/intel/IntelReportUI';
 
 export type MissionType = 'reconnaissance' | 'monitoring' | 'assessment' | 'investigation';
 export type MissionStatus = 'pending' | 'active' | 'completed' | 'failed' | 'cancelled';
@@ -189,25 +190,31 @@ export interface AutonomousCapability {
 export interface BotIntelOutput {
   missionId: string;
   botId: string;
-  generatedAt: number;
-  
-  // Primary outputs
+  generatedAt: number; // epoch millis when raw output produced
+
+  // Primary outputs (local, lightweight)
   intel: Intel[];
-  reports: IntelReport[];
+  // For NetRunner-local processing, keep a lightweight shape; for publishing, use IntelReportUI
+  reports: BotIntelReport[];
   alerts: IntelAlert[];
-  
+
+  // After publishing to centralized intel system these are appended (Phase 2 -> Phase 3 migration aid)
+  publishedReports?: IntelReportUI[]; // canonical created reports
+  publishedAt?: Date; // timestamp when publishBotIntelOutput completed
+
   // Metadata
   sourceData: RawData[];
   processingSteps: ProcessingStep[];
   qualityAssessment: QualityAssessment;
-  
+
   // Confidence and reliability
   overallConfidence: number;
   sourceReliability: 'A' | 'B' | 'C' | 'D';
   verificationStatus: 'verified' | 'unverified' | 'contradicted';
 }
 
-export interface IntelReport {
+// Lightweight local report shape used within NetRunner bot outputs
+export interface BotIntelReport {
   id: string;
   title: string;
   summary: string;
@@ -218,6 +225,9 @@ export interface IntelReport {
   recommendations: string[];
   sourceIntel: string[];
 }
+
+// When publishing BotIntelReport to the centralized system, the resulting type is IntelReportUI.
+export type PublishedIntelReport = IntelReportUI;
 
 export interface IntelAlert {
   id: string;

@@ -1,6 +1,6 @@
 import React from 'react';
-import { useEnhancedApplicationRouter } from '../../hooks/useEnhancedApplicationRouter';
-import type { ApplicationId, PresentationMode } from './EnhancedApplicationRouter';
+import { useApplicationRouter } from '../../hooks/useApplicationRouter';
+import type { ApplicationId, PresentationMode } from './ApplicationRouter';
 import './ApplicationNavigator.css';
 
 interface ApplicationNavigatorProps {
@@ -26,7 +26,7 @@ export const ApplicationNavigator: React.FC<ApplicationNavigatorProps> = ({
     getAllApplications,
     goBack,
     history
-  } = useEnhancedApplicationRouter();
+  } = useApplicationRouter();
 
   const applications = getAllApplications().filter(app => !app.isProtected);
 

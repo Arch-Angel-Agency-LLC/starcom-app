@@ -319,7 +319,7 @@ export class DataManagerHelpers {
   // Intelligence data
   async getIntelligenceData() {
     return {
-      reports: await this.manager.fetchData('intel', 'solana-intel-reports'),
+  reports: await this.manager.fetchData('intel', 'intel-ui'),
       summary: await this.manager.fetchData('intel', 'intel-summary'),
       metrics: await this.manager.fetchData('intel', 'intel-metrics')
     };

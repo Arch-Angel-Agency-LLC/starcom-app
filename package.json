@@ -50,6 +50,8 @@
     "generate-test-reports": "tsx scripts/generate-test-reports.ts",
     "onboard": "tsx scripts/onboard.cjs",
     "audit:reports": "tsx scripts/validate-intel-schema.ts",
+  "guard:intel": "node scripts/guard-intel-types.mjs",
+  "ci:precheck:intel": "npm run guard:intel && vitest run src/services/intel",
     "storage-check": "node scripts/storage-monitor.mjs",
     "code-quality-check": "node scripts/code-quality-check.mjs",
     "maintenance": "node scripts/maintenance.mjs",

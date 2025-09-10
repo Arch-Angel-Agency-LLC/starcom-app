@@ -8,7 +8,6 @@ import CyberCommandApplication from '../../applications/cybercommand/CyberComman
 import NetRunnerApplication from '../../applications/netrunner/NetRunnerApplication';
 import AnalysisWorkbench from '../../applications/intelanalyzer/AnalysisWorkbench';
 import IntelDashboardApplication from '../../applications/inteldashboard/IntelDashboardApplication';
-import TimeMapApplication from '../../applications/timemap/TimeMapApplication';
 import IntelWebApplicationWrapper from '../../applications/intelweb/IntelWebApplicationWrapper';
 import TeamWorkspaceApplication from '../../applications/teamworkspace/TeamWorkspaceApplication';
 import MarketExchangeApplication from '../../applications/marketexchange/MarketExchangeApplication';
@@ -19,7 +18,6 @@ export type ApplicationId =
   | 'netrunner'
   | 'intelanalyzer'
   | 'inteldashboard'
-  | 'timemap'
   | 'intelweb' // renamed from nodeweb
   | 'teamworkspace'
   | 'marketexchange';
@@ -140,18 +138,9 @@ const defaultApplications: ApplicationConfig[] = [
     component: IntelDashboardApplication
   },
   {
-    id: 'timemap',
-    name: 'TimeMap',
-    icon: '🗓️',
-    description: 'Temporal analysis and timeline management',
-    defaultMode: 'standalone',
-    supportedModes: ['standalone', 'modal'],
-    component: TimeMapApplication
-  },
-  {
     id: 'intelweb', // renamed from nodeweb
     name: 'IntelWeb',
-    icon: '🕸️',
+    icon: '�️',
     description: 'Intelligence connections and relationship mapping',
     defaultMode: 'standalone',
     supportedModes: ['standalone', 'modal'],
@@ -160,7 +149,7 @@ const defaultApplications: ApplicationConfig[] = [
   {
     id: 'teamworkspace',
     name: 'CollabCenter',
-    icon: '👥',
+    icon: '�',
     description: 'Intelligence operations collaboration and project management',
     defaultMode: 'standalone',
     supportedModes: ['standalone', 'modal'],

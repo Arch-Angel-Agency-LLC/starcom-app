@@ -47,6 +47,27 @@ import { emitComposeEvent } from '../../services/exchange/telemetry';
 import { intelReportService } from '../../services/intel/IntelReportService';
 import { composeInputFromDraft } from '../../services/exchange/adapters/reportToCompose';
 import ComposerWizard from './components/ComposerWizard';
+import { IntelWorkspaceProvider, useIntelWorkspace } from '../../services/intel/IntelWorkspaceContext';
+
+// Live draft reports panel (Phase 4: ensure marketplace consumes unified provider)
+const DraftReportsPanel: React.FC = () => {
+  const { reports } = useIntelWorkspace();
+  const drafts = reports.filter(r => r.status === 'DRAFT')
+    .sort((a,b)=> b.updatedAt.getTime()-a.updatedAt.getTime())
+    .slice(0,5);
+  return (
+    <Paper sx={{ p:2, mb:2 }} data-testid="marketexchange-drafts-live">
+      <Typography variant="subtitle2" sx={{ mb:1, fontWeight:'bold' }}>Live Draft Reports</Typography>
+      {drafts.length === 0 && <Typography variant="caption" color="text.secondary">No drafts available</Typography>}
+      {drafts.map(d => (
+        <Box key={d.id} sx={{ display:'flex', justifyContent:'space-between', mb:0.5 }}>
+          <Typography variant="body2" sx={{ pr:1, flex:1, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{d.title}</Typography>
+          <Chip size="small" label={d.priority || 'ROUTINE'} />
+        </Box>
+      ))}
+    </Paper>
+  );
+};
 
 // Cyberpunk Market Theme for MarketExchange
 const cyberpunkMarketTheme = createTheme({
@@ -472,7 +493,7 @@ const MarketExchangeApplication: React.FC = () => {
     );
   }
 
-  return (
+  const appInner = (
     <ThemeProvider theme={cyberpunkMarketTheme}>
       <Box sx={{ 
         p: 3, 
@@ -715,6 +736,8 @@ const MarketExchangeApplication: React.FC = () => {
             <Button variant="outlined" onClick={() => setWizardOpen(true)}>Open Composer Wizard</Button>
           </Box>
           <ComposerWizard open={wizardOpen} onClose={() => setWizardOpen(false)} onPublished={setComposeResult} />
+          {/* Reactive draft reports sourced from IntelWorkspaceProvider (Phase 4 live subscription) */}
+          <DraftReportsPanel />
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
             {intelListings.map((listing) => (
               <Box key={listing.id} sx={{ flex: '1 1 400px', minWidth: 400 }}>
@@ -900,6 +923,13 @@ const MarketExchangeApplication: React.FC = () => {
       </Dialog>
     </Box>
     </ThemeProvider>
+  );
+
+  // Wrap in provider locally if not already wrapped higher in the tree
+  return (
+    <IntelWorkspaceProvider>
+      {appInner}
+    </IntelWorkspaceProvider>
   );
 };
 

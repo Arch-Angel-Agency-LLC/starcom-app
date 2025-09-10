@@ -1,5 +1,5 @@
 import React from 'react';
-import { useEnhancedApplicationRouter } from '../../hooks/useEnhancedApplicationRouter';
+import { useApplicationRouter } from '../../hooks/useApplicationRouter';
 import ApplicationRenderer from '../../components/Router/ApplicationRenderer';
 import ApplicationNavigator from '../../components/Router/ApplicationNavigator';
 import './EnhancedApplicationDemo.css';
@@ -17,7 +17,7 @@ const EnhancedApplicationDemo: React.FC = () => {
     getAllApplications,
     setContext,
     getContext 
-  } = useEnhancedApplicationRouter();
+  } = useApplicationRouter();
 
   const applications = getAllApplications().filter(app => !app.isProtected);
 

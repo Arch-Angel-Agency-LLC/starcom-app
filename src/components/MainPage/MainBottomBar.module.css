@@ -110,58 +110,7 @@
   background-color: #8b5cf6; /* purple */
 }
 
-.rightSection {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.helpText {
-  font-size: 0.8rem;
-  color: rgba(148, 163, 184, 0.8);
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.kbd {
-  background-color: rgba(30, 41, 59, 0.8);
-  border: 1px solid rgba(71, 85, 105, 0.5);
-  border-radius: 0;
-  padding: 2px 6px;
-  font-size: 0.7rem;
-  font-family: monospace;
-  box-shadow: 0 2px 0 rgba(15, 23, 42, 0.5);
-}
-
-.newUserBadge {
-  background-color: rgba(56, 189, 248, 0.2);
-  border: 1px solid rgba(56, 189, 248, 0.5);
-  color: rgba(248, 250, 252, 0.9);
-  padding: 4px 8px;
-  border-radius: 0;
-  font-size: 0.8rem;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.pulse {
-  color: #38bdf8;
-  animation: pulseDot 1.5s infinite;
-}
-
-@keyframes pulseDot {
-  0% {
-    opacity: 0.5;
-  }
-  50% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0.5;
-  }
-}
+/* Removed rightSection, helpText, kbd, newUserBadge, and pulse styles as indicator was removed */
 
 .navGroup {
   display: flex;

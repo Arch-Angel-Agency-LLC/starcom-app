@@ -16,7 +16,6 @@ import { isNetRunnerIntelEnabled, logIntelFlagContext } from '../../../config/ne
 // Intel integration imports
 import { storageOrchestrator } from '../../../core/intel/storage/storageOrchestrator';
 import { Intel } from '../../../models/Intel/Intel';
-import { Intelligence } from '../../../models/Intel/Intelligence';
 
 export interface EnhancedMissionResult {
   missionId: string;
@@ -779,5 +778,27 @@ export class BotMissionExecutor {
    */
   getMissionHistory(botId: string): EnhancedMissionResult[] {
     return this.missionHistory.get(botId) || [];
+  }
+
+  /**
+   * Publish BotIntelOutput reports via centralized intelReportService and attach canonical linkage.
+   * This is a thin proxy over publishBotIntelOutput to keep mission-related automation localized
+   * to the executor while NetRunner migrates to Phase 3 shared services.
+   *
+   * Contract:
+   * - Input: BotIntelOutput (may or may not contain reports array)
+   * - Behavior: If reports exist, convert & publish each; mutate output to include publishedReports & publishedAt
+   * - Output: Array<IntelReportUI> created (empty if no reports)
+   */
+  async publishMissionOutput(output: import('../types/BotMission').BotIntelOutput, authorDisplayName?: string) {
+    // Lazy import to avoid circular dependency and large bundle impact when publishing isn't used.
+    const { publishBotIntelOutput } = await import('../models/IntelReport');
+    try {
+      const created = await publishBotIntelOutput(output, authorDisplayName);
+      return created;
+    } catch (err) {
+      console.error('BotMissionExecutor.publishMissionOutput failed:', err);
+      return [];
+    }
   }
 }

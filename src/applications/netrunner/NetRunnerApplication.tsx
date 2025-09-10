@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Box } from '@mui/material';
-import { ApplicationContext } from '../../components/Router/EnhancedApplicationRouter';
+import { ApplicationContext } from '../../components/Router/ApplicationRouter';
 
 // Import the new Control Station layout components
 import NetRunnerControlStation from './components/layout/NetRunnerControlStation';

@@ -12,7 +12,7 @@ import { InvestigationProvider } from "./context/InvestigationContext";
 import { GlobalGlobeContextMenuProvider } from "./context/GlobalGlobeContextMenuProvider";
 import { RightSideBarProvider } from "./context/RightSideBarContext";
 import { ViewProvider } from "./context/ViewContext";
-import { EnhancedApplicationRouterProvider } from "./components/Router/EnhancedApplicationRouter";
+import { ApplicationRouterProvider } from "./components/Router/ApplicationRouter";
 import RouteSynchronizer from "./components/Navigation/RouteSynchronizer";
 import AnalyticsTracker from "./components/Analytics/AnalyticsTracker";
 import { googleAnalyticsService } from "./services/GoogleAnalyticsService";
@@ -121,11 +121,11 @@ const AppContent: React.FC = () => {
     <>
       <SettingsInitializer />
   <RouterProvider>
-        <EnhancedApplicationRouterProvider>
+  <ApplicationRouterProvider>
           <AnalyticsTracker />
           <RouteSynchronizer />
           <AppRoutes />
-        </EnhancedApplicationRouterProvider>
+  </ApplicationRouterProvider>
   </RouterProvider>
   <SettingsStatusIndicator />
       {/* Wallet Diagnostics - Only shown when feature flag is enabled */}

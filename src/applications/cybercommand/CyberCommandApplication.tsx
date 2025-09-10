@@ -1,6 +1,6 @@
 import React from 'react';
 import CyberCommandHUDLayout from '../../layouts/CyberCommandHUDLayout/CyberCommandHUDLayout';
-import { ApplicationContext } from '../../components/Router/EnhancedApplicationRouter';
+import { ApplicationContext } from '../../components/Router/ApplicationRouter';
 import './CyberCommandApplication.css';
 
 /**

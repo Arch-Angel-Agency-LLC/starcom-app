@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-import { submitIntelReport } from '../../api/intelligence';
-import { IntelReport } from '../../models/IntelReport';
+import { intelReportService } from '../../services/intel/IntelReportService';
+import type { CreateIntelReportInput } from '../../types/intel/IntelReportUI';
 import { IntelReportFormData } from '../HUD/Corners/CyberCommandBottomRight/IntelReportFormData';
 import MapSelectorPopup from '../HUD/Corners/CyberCommandBottomRight/MapSelectorPopup';
 import { useIntelDashboard } from '../../hooks/useIntelDashboard';
@@ -13,7 +12,7 @@ interface IntelReportPopupProps {
 }
 
 const IntelReportPopup: React.FC<IntelReportPopupProps> = ({ onClose }) => {
-  const { connected, publicKey, signTransaction } = useWallet();
+  const { connected: _connected, publicKey } = useWallet();
   const { openIntelDashboard } = useIntelDashboard();
   const [status, setStatus] = useState('');
   const [isMapPopupOpen, setIsMapPopupOpen] = useState(false);
@@ -38,48 +37,34 @@ const IntelReportPopup: React.FC<IntelReportPopupProps> = ({ onClose }) => {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    
-    if (!connected || !publicKey || !signTransaction) {
-      setStatus('Please connect your wallet to submit reports.');
-      return;
-    }
-
-    setStatus('Submitting Intel Report to Solana...');
+    setStatus('Creating Intel Report...');
     
     try {
-      // Create report data for blockchain submission
-      const reportData = {
+      // Map form fields to centralized CreateIntelReportInput
+      const input: CreateIntelReportInput = {
         title: formData.title,
         content: formData.content,
-        tags: formData.tags.split(',').map((tag: string) => tag.trim()).filter(tag => tag),
+        tags: formData.tags.split(',').map((t) => t.trim()).filter(Boolean),
+        category: (formData.categories.split(',').map(c => c.trim()).filter(Boolean)[0]) || 'OSINT',
+        classification: 'UNCLASSIFIED',
+        status: 'DRAFT',
         latitude: parseFloat(formData.lat) || 0,
         longitude: parseFloat(formData.long) || 0,
+        summary: formData.subtitle || formData.metaDescription || '',
+        conclusions: [],
+        recommendations: [],
+        methodology: [],
+  confidence: 0.5,
+        priority: 'ROUTINE',
+        targetAudience: [],
+        sourceIntelIds: []
       };
 
-      // Submit to Solana blockchain
-      const signature = await submitIntelReport(reportData, { publicKey, signTransaction });
+      const author = formData.author || publicKey?.toString() || 'Anonymous';
+      const created = await intelReportService.createReport(input, author);
       
-      setStatus(`Report submitted successfully! Tx: ${signature.substring(0, 8)}...`);
-      
-      // Also create local IntelReport object for logging/debugging
-      const newIntelReport = new IntelReport(
-        parseFloat(formData.lat),
-        parseFloat(formData.long),
-        formData.title,
-        formData.subtitle,
-        formData.date,
-        formData.author,
-        formData.content,
-        formData.tags.split(',').map((tag: string) => tag.trim()),
-        formData.categories.split(',').map((category: string) => category.trim()),
-        formData.metaDescription
-      );
-      
-      console.log('Intel Report Submitted to Blockchain:', {
-        signature,
-        report: newIntelReport,
-        publicKey: publicKey.toString()
-      });
+      setStatus(`Report created: ${created.id}`);
+      console.log('Intel Report created via centralized service:', created);
       
       // Reset form and close popup after success
       setTimeout(() => {
@@ -267,37 +252,11 @@ const IntelReportPopup: React.FC<IntelReportPopupProps> = ({ onClose }) => {
               </div>
             </div>
           </form>
-          
-          {/* Right: Wallet & Minting Actions */}
-          <div className={styles.walletSection}>
-            <h3 className={styles.walletHeader}>Wallet & Blockchain</h3>
-            
-            <div className={styles.walletControls}>
-              <WalletMultiButton />
+          {status && (
+            <div className={styles.statusDisplay}>
+              {status}
             </div>
-            
-            <div className={styles.mintingActions}>
-              <button 
-                className={styles.mintButton}
-                onClick={() => console.log('Mint SPL Token')}
-              >
-                Mint SPL Token
-              </button>
-              
-              <button 
-                className={styles.mintButton}
-                onClick={() => console.log('Mint Intel Report NFT')}
-              >
-                Mint Intel Report NFT
-              </button>
-            </div>
-            
-            {status && (
-              <div className={styles.statusDisplay}>
-                {status}
-              </div>
-            )}
-          </div>
+          )}
         </div>
       </div>
       

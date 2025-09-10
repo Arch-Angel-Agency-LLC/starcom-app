@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { submitIntelReport } from '../../api/intelligence';
-import { IntelReportFormData } from '../HUD/Corners/BottomRight/IntelReportFormData';
+import { intelReportService } from '../../services/intel/IntelReportService';
+import type { CreateIntelReportInput } from '../../types/intel/IntelReportUI';
+import { IntelReportFormData } from '../HUD/Corners/CyberCommandBottomRight/IntelReportFormData';
 import styles from './IntelReportSubmission.module.css';
 
 // AI-NOTE: Simplified intel report submission for OSINT cyber investigation teams
@@ -25,7 +26,7 @@ const IntelReportSubmission: React.FC<IntelReportSubmissionProps> = ({
   investigationId,
   onlineStatus
 }) => {
-  const { connected, publicKey, signTransaction } = useWallet();
+  const { connected, publicKey } = useWallet();
   const [formData, setFormData] = useState<IntelReportFormData>({
     title: '',
     subtitle: '',
@@ -68,21 +69,32 @@ const IntelReportSubmission: React.FC<IntelReportSubmissionProps> = ({
   // Sync offline reports when coming online
   // TODO: Implement message translation for international team collaboration - PRIORITY: LOW
   const syncOfflineReports = useCallback(async () => {
-    if (!connected || !publicKey || !signTransaction) return;
+    if (!connected || !publicKey) return;
     
     const pendingReports = offlineReports.filter(r => r.status === 'pending');
     
     for (const report of pendingReports) {
       try {
-        const reportData = {
+        const input: CreateIntelReportInput = {
           title: report.formData.title,
           content: report.formData.content,
-          tags: report.formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
+          tags: report.formData.tags.split(',').map(tag => tag.trim()).filter(Boolean),
+          category: (report.formData.categories.split(',').map(c => c.trim()).filter(Boolean)[0]) || 'OSINT',
+          classification: 'UNCLASSIFIED',
+          status: 'DRAFT',
           latitude: parseFloat(report.formData.lat) || 0,
           longitude: parseFloat(report.formData.long) || 0,
+          summary: report.formData.subtitle || report.formData.metaDescription || '',
+          conclusions: [],
+          recommendations: [],
+          methodology: [],
+          confidence: 0.5,
+          priority: 'ROUTINE',
+          targetAudience: [],
+          sourceIntelIds: []
         };
 
-        await submitIntelReport(reportData, { publicKey, signTransaction });
+        await intelReportService.createReport(input, publicKey.toString());
         
         // Update status to submitted
         setOfflineReports(prev => 
@@ -96,7 +108,7 @@ const IntelReportSubmission: React.FC<IntelReportSubmissionProps> = ({
         );
       }
     }
-  }, [connected, publicKey, signTransaction, offlineReports]);
+  }, [connected, publicKey, offlineReports]);
 
   useEffect(() => {
     if (onlineStatus && connected && offlineReports.length > 0) {
@@ -142,25 +154,31 @@ const IntelReportSubmission: React.FC<IntelReportSubmissionProps> = ({
       return;
     }
 
-    if (!publicKey || !signTransaction) {
-      setStatus('Please connect your wallet to submit reports online.');
-      return;
-    }
-
     setStatus('Submitting report to blockchain...');
     
     try {
-      const reportData = {
+      const input: CreateIntelReportInput = {
         title: enhancedFormData.title,
         content: enhancedFormData.content,
-        tags: enhancedFormData.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
+        tags: enhancedFormData.tags.split(',').map(tag => tag.trim()).filter(Boolean),
+        category: (enhancedFormData.categories.split(',').map(c => c.trim()).filter(Boolean)[0]) || 'OSINT',
+        classification: 'UNCLASSIFIED',
+        status: 'DRAFT',
         latitude: parseFloat(enhancedFormData.lat) || 0,
         longitude: parseFloat(enhancedFormData.long) || 0,
+        summary: enhancedFormData.subtitle || enhancedFormData.metaDescription || '',
+        conclusions: [],
+        recommendations: [],
+        methodology: [],
+        confidence: 0.5,
+        priority: 'ROUTINE',
+        targetAudience: [],
+        sourceIntelIds: []
       };
 
-      const signature = await submitIntelReport(reportData, { publicKey, signTransaction });
+      const created = await intelReportService.createReport(input, publicKey?.toString() || 'Unknown');
       
-      setStatus(`Report submitted successfully! Tx: ${signature.substring(0, 8)}...`);
+      setStatus(`Report created: ${created.id}`);
       clearForm();
       
       setTimeout(() => setStatus(''), 3000);

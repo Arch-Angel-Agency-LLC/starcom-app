@@ -6,7 +6,9 @@
 import { ModelTransformers } from '../../src/applications/netrunner/models/ModelUtils';
 import { IntelType, SourceType, OSINTDataItem } from '../../src/applications/netrunner/models/OSINTDataModels';
 import { IntelReportBuilder } from '../../src/applications/netrunner/models/IntelReport';
-import { basicIntelWorkflows, createWorkflowFromTemplate, createIntelReportFromWorkflow } from '../../src/applications/netrunner/integration/IntelAnalyzerIntegration';
+import { basicIntelWorkflows, createWorkflowFromTemplate } from '../../src/applications/netrunner/integration/IntelAnalyzerIntegration';
+import { buildCreateIntelReportInput } from '../../src/applications/netrunner/models/IntelReport';
+import { intelReportService } from '../../src/services/intel/IntelReportService';
 
 function assert(cond: any, msg: string): asserts cond {
   if (!cond) throw new Error(`[SMOKE] Assertion failed: ${msg}`);
@@ -14,6 +16,19 @@ function assert(cond: any, msg: string): asserts cond {
 
 (async () => {
   console.log('[SMOKE] Starting Civilian NetRunner smoke test');
+
+  // Polyfill localStorage for intelWorkspaceManager in Node (non-browser) context
+  if (typeof globalThis.localStorage === 'undefined') {
+    const store: Record<string, string> = {};
+    globalThis.localStorage = {
+      getItem: (k: string) => (k in store ? store[k] : null),
+      setItem: (k: string, v: string) => { store[k] = v; },
+      removeItem: (k: string) => { delete store[k]; },
+      clear: () => { for (const k of Object.keys(store)) delete store[k]; },
+      key: (i: number) => Object.keys(store)[i] || null,
+      get length() { return Object.keys(store).length; }
+    } as any;
+  }
 
   // 1) Create OSINT item and DTO
   const item: OSINTDataItem = ModelTransformers.createOSINTDataItem({
@@ -44,12 +59,22 @@ function assert(cond: any, msg: string): asserts cond {
   assert(report.title === 'Demo Report' && report.author === 'tester', 'IntelReport basic fields');
   assert(!('classification' in (report as any)), 'IntelReport has no classification');
 
-  // 3) Integration workflow -> IntelReport
+  // 3) Integration workflow -> canonical IntelReportUI (service-based)
   const template = basicIntelWorkflows[0];
   const wf = createWorkflowFromTemplate(template, 'WF Smoke', 'WF description');
-  const fromWorkflow = createIntelReportFromWorkflow(wf, 'tester', 'Tester');
-  assert(fromWorkflow.id && fromWorkflow.status === 'draft', 'Workflow-generated report OK');
-  assert(!('classification' in (fromWorkflow as any)), 'Workflow report has no classification');
+  // Build CreateIntelReportInput directly (migration away from deprecated createIntelReportFromWorkflow)
+  const wfInput = buildCreateIntelReportInput({
+    title: wf.name,
+    content: '',
+    summary: wf.description,
+    category: 'general',
+    tags: wf.tags,
+    confidence: 0
+  });
+  const createdViaService = await intelReportService.createReport(wfInput, 'Tester');
+  assert(createdViaService.id && createdViaService.status === 'DRAFT', 'Workflow-generated UI report OK');
+  // Civilian build: classification should default to UNCLASSIFIED
+  assert(createdViaService.classification === 'UNCLASSIFIED', 'UI report classification default');
 
   console.log('[SMOKE] PASS: Civilian NetRunner basic runtime checks succeeded');
 })();

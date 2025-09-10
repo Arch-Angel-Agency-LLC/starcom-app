@@ -1,0 +1,20 @@
+{
+	"extends": "./tsconfig.app.json",
+	"compilerOptions": {
+		"types": ["vitest/globals", "node"],
+		"noEmit": true,
+		"strict": false,
+		"esModuleInterop": true,
+		"jsx": "react-jsx",
+		// Allow test-specific module resolution without polluting app build
+		"moduleResolution": "bundler"
+	},
+	"include": [
+		"src/**/*.test.ts",
+		"src/**/*.test.tsx",
+		"src/**/*.vitest.ts",
+		"src/**/*.vitest.tsx",
+		"src/types/**/__tests__/*.ts"
+	],
+	"exclude": ["node_modules", "dist"]
+}

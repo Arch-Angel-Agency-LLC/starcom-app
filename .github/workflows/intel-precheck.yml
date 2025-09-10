@@ -1,0 +1,65 @@
+name: Intel Integration Precheck
+
+on:
+  pull_request:
+    paths:
+      - 'src/services/intel/**'
+      - 'src/services/IntelRepositoryService.ts'
+      - 'src/services/IntelWorkspaceService.ts'
+      - 'src/services/IntelReportVisualizationService.ts'
+      - 'src/services/IntelWorkspaceManager.ts'
+      - 'src/services/data-management/providers/**'
+      - 'src/components/Intel/**'
+      - 'src/pages/Intel/**'
+      - 'src/types/intel/**'
+      - 'src/models/Intel/**'
+      - 'src/applications/netrunner/**'
+      - 'src/applications/intelanalyzer/**'
+      - 'src/applications/marketexchange/**'
+      - 'src/applications/cybercommand/**'
+      - 'docs/intel/systemIntegration/**'
+      - 'scripts/guard-intel-types.mjs'
+      - '.github/workflows/intel-precheck.yml'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  precheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Precheck (script)
+        run: npm run ci:precheck:intel
+
+      - name: Run Adapter + Provider Tests (targeted)
+        run: |
+          set -eo pipefail
+          echo "Running targeted intel adapter + provider tests..."
+          npm run -s test -- \
+            src/services/intel/adapters/__tests__/reportMappers.aliasHandling.test.ts \
+            src/services/intel/adapters/__tests__/reportMappers.roundtrip.vitest.ts \
+            src/services/data-management/providers/__tests__/IntelDataProvider.unifiedEndpoint.vitest.ts \
+            src/applications/intelanalyzer/views/GraphView/__tests__/GraphView.provider.test.tsx \
+            src/applications/netrunner/integration/__tests__/NetRunner.provider.test.tsx \
+            src/applications/marketexchange/__tests__/MarketExchange.provider.test.tsx \
+            src/applications/cybercommand/__tests__/CyberCommand.provider.test.tsx
+          echo "All targeted tests passed."
+
+      - name: Summary
+        if: always()
+        run: |
+          echo 'Intel Precheck Complete'
+          echo 'Guard + targeted tests executed.'

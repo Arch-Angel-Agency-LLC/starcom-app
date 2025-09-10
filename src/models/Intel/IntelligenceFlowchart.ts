@@ -262,10 +262,12 @@ export interface Finding {
 }
 
 /**
- * IntelReport - Final intelligence product for dissemination
- * (This would be the processed report that gets shared/displayed)
+ * FlowchartIntelDisseminationReport (LEGACY)
+ * Deprecated: Do not use. Use IntelReportUI (src/types/intel/IntelReportUI.ts) for any UI/runtime report needs.
+ * This legacy interface will be removed in Phase 5 cleanup once all downstream code migrates.
  */
-export interface IntelReport {
+// TODO(Phase5): Remove this interface after confirming no external imports remain.
+export interface FlowchartIntelDisseminationReport {
   id: string;
   title: string;
   summary: string;

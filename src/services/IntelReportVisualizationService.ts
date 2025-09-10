@@ -2,118 +2,15 @@
 // Service for managing Intel Report visualization data for the 3D Globe
 
 import { IntelReportOverlayMarker } from '../interfaces/IntelReportOverlay';
-import { fetchIntelReports } from '../api/intelligence';
+import { intelReportService } from './intel/IntelReportService';
+import type { IntelReportUI } from '../types/intel/IntelReportUI';
 
 // Import unified Intel types from Phase 2 cleanup
-import { IntelReport as UnifiedIntelReport, IntelReportAdapter } from '../models/Intel/IntelReport';
+// import { IntelReport as UnifiedIntelReport, IntelReportAdapter } from '../models/Intel/IntelReport';
 
-// Legacy interface definitions for backward compatibility
-// TODO: Phase 2.3 - Replace these with unified IntelReport usage
-// Migration example: Use IntelReportAdapter.fromServiceProviderIntelReport() to convert
-// Legacy interfaces below will be removed once migration is complete
-interface IntelReportData {
-  id?: string;
-  title: string;
-  content: string;
-  tags: string[];
-  latitude: number;
-  longitude: number;
-  timestamp: number;
-  author: string;
-  pubkey?: string;
-  signature?: string;
-  subtitle?: string;
-  date?: string;
-  categories?: string[];
-  metaDescription?: string;
-  lat?: number;
-  long?: number;
-}
+// Legacy interfaces removed; this service now consumes IntelReportUI exclusively
 
-interface IntelReportFormData {
-  title: string;
-  subtitle: string;
-  content: string;
-  tags: string;
-  categories: string;
-  lat: string;
-  long: string;
-  date: string;
-  author: string;
-}
-
-interface BlockchainIntelReport {
-  title: string;
-  content: string;
-  tags: string[];
-  latitude: number;
-  longitude: number;
-  timestamp: number;
-  author: string;
-}
-
-interface IntelReport {
-  title: string;
-  content: string;
-  tags: string[];
-  lat?: number;
-  long?: number;
-  date: string;
-  author: string;
-}
-
-// Inline transformer class to avoid import issues
-class IntelReportTransformer {
-  static formToBlockchain(form: IntelReportFormData): BlockchainIntelReport {
-    return {
-      title: form.title.trim(),
-      content: form.content.trim(),
-      tags: form.tags
-        .split(',')
-        .map((tag: string) => tag.trim())
-        .filter((tag: string) => tag.length > 0),
-      latitude: parseFloat(form.lat) || 0,
-      longitude: parseFloat(form.long) || 0,
-      timestamp: form.date ? new Date(form.date).getTime() : Date.now(),
-      author: form.author.trim(),
-    };
-  }
-
-  static blockchainToData(
-    blockchain: BlockchainIntelReport,
-    pubkey?: string,
-    signature?: string
-  ): IntelReportData {
-    return {
-      title: blockchain.title,
-      content: blockchain.content,
-      tags: blockchain.tags,
-      latitude: blockchain.latitude,
-      longitude: blockchain.longitude,
-      timestamp: blockchain.timestamp,
-      author: blockchain.author,
-      pubkey,
-      signature,
-      date: new Date(blockchain.timestamp).toISOString().split('T')[0],
-      metaDescription: blockchain.content.substring(0, 100) + '...',
-      lat: blockchain.latitude,
-      long: blockchain.longitude,
-    };
-  }
-
-  static dataToOverlayMarker(data: IntelReportData): IntelReportOverlayMarker {
-    return {
-      pubkey: data.pubkey || '',
-      title: data.title,
-      content: data.content,
-      tags: data.tags,
-      latitude: data.latitude,
-      longitude: data.longitude,
-      timestamp: data.timestamp,
-      author: data.author,
-    };
-  }
-}
+// Legacy transformer and types removed in favor of IntelReportUI + intelReportService
 
 export interface IntelReportVisualizationOptions {
   maxReports?: number;
@@ -159,15 +56,13 @@ export class IntelReportVisualizationService {
         return filtered;
       }
 
-      console.log('Fetching Intel Reports for 3D visualization...');
+  console.log('Fetching Intel Reports (UI) for 3D visualization...');
       
-      // Fetch from API
-      const reports = await fetchIntelReports();
+  // Fetch via centralized intelReportService
+  const uiReports = await intelReportService.listReports();
       
-      // Transform to overlay markers
-      const markers = reports.map(report => 
-        this.transformReportToMarker(report)
-      );
+  // Transform to overlay markers
+  const markers = uiReports.map((report: IntelReportUI) => this.transformReportToMarker(report));
 
       // Update cache
       this.cache = markers;
@@ -190,19 +85,16 @@ export class IntelReportVisualizationService {
   /**
    * Transform IntelReport to overlay marker format
    */
-  private transformReportToMarker(report: IntelReportData | IntelReport): IntelReportOverlayMarker {
-    // Check if it's an IntelReportData or IntelReport class instance
-    const isIntelReportData = 'pubkey' in report && 'latitude' in report;
-    
+  private transformReportToMarker(report: IntelReportUI): IntelReportOverlayMarker {
     return {
-      pubkey: isIntelReportData ? (report as IntelReportData).pubkey || `temp-${Date.now()}-${Math.random()}` : `temp-${Date.now()}-${Math.random()}`,
+      pubkey: report.id,
       title: report.title || 'Unknown Intel Report',
       content: report.content || '',
       tags: report.tags || [],
-      latitude: isIntelReportData ? (report as IntelReportData).latitude : (report as IntelReport).lat || 0,
-      longitude: isIntelReportData ? (report as IntelReportData).longitude : (report as IntelReport).long || 0,
-      timestamp: isIntelReportData ? (report as IntelReportData).timestamp || Date.now() : Date.parse((report as IntelReport).date) || Date.now(),
-      author: isIntelReportData ? (report as IntelReportData).author || 'Unknown' : (report as IntelReport).author || 'Unknown'
+      latitude: report.latitude ?? 0,
+      longitude: report.longitude ?? 0,
+      timestamp: (report.createdAt instanceof Date ? report.createdAt : new Date(report.createdAt)).getTime(),
+      author: report.author || 'Unknown'
     };
   }
 
@@ -297,8 +189,8 @@ export class IntelReportVisualizationService {
   /**
    * Add a new Intel Report marker immediately (for real-time updates)
    */
-  addMarker(reportData: IntelReportData): void {
-    const marker = IntelReportTransformer.dataToOverlayMarker(reportData);
+  addMarker(report: IntelReportUI): void {
+    const marker = this.transformReportToMarker(report);
     this.cache.unshift(marker); // Add to beginning for recency
   }
 

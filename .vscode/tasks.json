@@ -9,20 +9,29 @@
 				"kind": "build",
 				"isDefault": true
 			},
-			"problemMatcher": ["$tsc"]
+			"problemMatcher": [
+				"$tsc"
+			]
 		},
 		{
 			"label": "Build Starcom App",
 			"type": "shell",
 			"command": "npm run build",
 			"group": "build",
-			"problemMatcher": ["$tsc"]
+			"problemMatcher": [
+				"$tsc"
+			]
 		},
 		{
 			"label": "NetRunner: Type Check",
 			"type": "shell",
 			"command": "npx",
-			"args": ["tsc", "--noEmit", "--project", "tsconfig.netrunner.json"],
+			"args": [
+				"tsc",
+				"--noEmit",
+				"--project",
+				"tsconfig.netrunner.json"
+			],
 			"group": "build",
 			"presentation": {
 				"echo": true,
@@ -30,13 +39,18 @@
 				"focus": false,
 				"panel": "shared"
 			},
-			"problemMatcher": ["$tsc"]
+			"problemMatcher": [
+				"$tsc"
+			]
 		},
 		{
 			"label": "NetRunner: Build Check",
 			"type": "shell",
 			"command": "npm",
-			"args": ["run", "build"],
+			"args": [
+				"run",
+				"build"
+			],
 			"group": "build",
 			"presentation": {
 				"echo": true,
@@ -46,7 +60,19 @@
 				"showReuseMessage": true,
 				"clear": false
 			},
-			"problemMatcher": ["$tsc"]
+			"problemMatcher": [
+				"$tsc"
+			]
+		},
+		{
+			"label": "NetRunner: Build Check",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build"
+			],
+			"group": "build"
 		}
 	]
 }

@@ -8,11 +8,14 @@ import {
   EndpointConfig, 
   FetchOptions 
 } from '../interfaces';
-import { IntelReportData } from '../../../models/IntelReportData';
+// Phase 3: standardize on IntelReportUI via centralized intelReportService
+import type { IntelReportUI } from '../../../types/intel/IntelReportUI';
+import { intelReportService } from '../../intel/IntelReportService';
 import { Connection, PublicKey } from '@solana/web3.js';
 
 // Intel Data Types
-export interface IntelReport {
+// Deprecated: IntelProviderReport (legacy shape). Prefer IntelReportUI from types.
+export interface IntelProviderReport {
   pubkey: string;
   title: string;
   content: string;
@@ -52,8 +55,8 @@ export interface IntelMetrics {
 
 // Union type for all Intel data
 export type IntelDataTypes = 
-  | IntelReport[] 
-  | IntelReportData[]
+  | IntelProviderReport[] 
+  | IntelReportUI[]
   | IntelSummary 
   | IntelMetrics;
 
@@ -62,6 +65,12 @@ export class IntelDataProvider implements DataProvider<IntelDataTypes> {
   public readonly name = 'Intelligence Data Provider';
   
   public readonly endpoints: EndpointConfig[] = [
+    // Unified UI-level intel reports via centralized service
+    {
+      id: 'intel-ui',
+      url: 'local:ui-service',
+      method: 'GET'
+    },
     // Solana blockchain intel reports
     {
       id: 'solana-intel-reports',
@@ -117,6 +126,9 @@ export class IntelDataProvider implements DataProvider<IntelDataTypes> {
       let result: IntelDataTypes;
 
       switch (key) {
+        case 'intel-ui':
+          result = await this.fetchUnifiedIntelReports();
+          break;
         case 'solana-intel-reports':
           result = await this.fetchSolanaIntelReports();
           break;
@@ -144,10 +156,12 @@ export class IntelDataProvider implements DataProvider<IntelDataTypes> {
   }
 
   // Migrated from IntelReportService.ts
-  private async fetchSolanaIntelReports(): Promise<IntelReportData[]> {
+  private async fetchSolanaIntelReports(): Promise<IntelReportUI[]> {
     if (!this.connection || !this.programId) {
       console.warn('Solana connection or program ID not configured, returning placeholder data');
-      return this.getPlaceholderData();
+      // Return provider-aligned placeholder mapped to IntelReportUI
+      const placeholder = this.getPlaceholderData();
+      return placeholder.map(p => this.legacyToUI(p));
     }
 
     try {
@@ -156,11 +170,13 @@ export class IntelDataProvider implements DataProvider<IntelDataTypes> {
       // TODO: Implement actual account fetching once program is deployed
       // const accounts = await this.connection.getProgramAccounts(this.programId);
       
-      return this.getPlaceholderData();
+  const placeholder = this.getPlaceholderData();
+  return placeholder.map(p => this.legacyToUI(p));
     } catch (error) {
       console.error('Error fetching Solana intel reports:', error);
       // Return placeholder data for MVP development
-      return this.getPlaceholderData();
+  const placeholder = this.getPlaceholderData();
+  return placeholder.map(p => this.legacyToUI(p));
     }
   }
 
@@ -197,7 +213,7 @@ export class IntelDataProvider implements DataProvider<IntelDataTypes> {
   }
 
   // New OSINT feeds aggregation
-  private async fetchOSINTFeeds(): Promise<IntelReport[]> {
+  private async fetchOSINTFeeds(): Promise<IntelProviderReport[]> {
     const endpoint = this.endpoints.find(e => e.id === 'osint-feeds');
     if (!endpoint) {
       throw new Error('OSINT feeds endpoint not configured');
@@ -219,7 +235,7 @@ export class IntelDataProvider implements DataProvider<IntelDataTypes> {
   }
 
   // Legacy intel reports fallback
-  private async fetchLegacyIntelReports(): Promise<IntelReport[]> {
+  private async fetchLegacyIntelReports(): Promise<IntelProviderReport[]> {
     const endpoint = this.endpoints.find(e => e.id === 'intel-legacy');
     if (!endpoint) {
       throw new Error('Legacy intel endpoint not configured');
@@ -240,7 +256,7 @@ export class IntelDataProvider implements DataProvider<IntelDataTypes> {
   }
 
   // Migrated placeholder data from IntelReportService
-  private getPlaceholderData(): IntelReportData[] {
+  private getPlaceholderData(): IntelProviderReport[] {
     return [
       {
         pubkey: 'placeholder-1',
@@ -276,7 +292,7 @@ export class IntelDataProvider implements DataProvider<IntelDataTypes> {
   }
 
   // Transform various data formats to our IntelReport interface
-  private transformToIntelReport(data: Record<string, unknown>): IntelReport {
+  private transformToIntelReport(data: Record<string, unknown>): IntelProviderReport {
     return {
       pubkey: (data.id as string) || (data.pubkey as string) || `generated-${Date.now()}`,
       title: (data.title as string) || (data.subject as string) || 'Unknown Title',
@@ -292,14 +308,55 @@ export class IntelDataProvider implements DataProvider<IntelDataTypes> {
     };
   }
 
+  // Map a legacy provider report into IntelReportUI for unified consumers
+  private legacyToUI(rep: IntelProviderReport): IntelReportUI {
+    return {
+      id: rep.pubkey,
+      title: rep.title,
+      content: rep.content,
+      summary: rep.content.slice(0, 140),
+      author: rep.author,
+      category: 'General',
+      tags: rep.tags,
+      latitude: rep.latitude,
+      longitude: rep.longitude,
+      createdAt: new Date(rep.timestamp),
+      updatedAt: new Date(rep.timestamp),
+      classification: (rep.classification === 'CONFIDENTIAL' || rep.classification === 'SECRET' || rep.classification === 'TOP_SECRET') ? rep.classification : 'UNCLASSIFIED',
+      status: 'DRAFT',
+      conclusions: [],
+      recommendations: [],
+      methodology: [],
+      confidence: 0.5,
+      priority: 'ROUTINE',
+      targetAudience: [],
+      sourceIntelIds: [],
+      version: 1,
+      manualSummary: false,
+      history: []
+    };
+  }
+
+  // New unified fetch that returns IntelReportUI via centralized service
+  async fetchUnifiedIntelReports(): Promise<IntelReportUI[]> {
+    try {
+      const list = await intelReportService.listReports();
+      return list;
+  } catch (_e) {
+      console.warn('intelReportService unavailable; falling back to placeholder legacy → UI');
+      const placeholder = this.getPlaceholderData();
+      return placeholder.map(p => this.legacyToUI(p));
+    }
+  }
+
   // Filter intel reports by various criteria
-  filterReports(reports: IntelReport[], filters: {
+  filterReports(reports: IntelProviderReport[], filters: {
     tags?: string[];
     timeRange?: { start: number; end: number };
     geographic?: { bounds: { north: number; south: number; east: number; west: number } };
     classification?: string[];
     author?: string[];
-  }): IntelReport[] {
+  }): IntelProviderReport[] {
     return reports.filter(report => {
       // Tag filtering
       if (filters.tags && filters.tags.length > 0) {

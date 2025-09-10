@@ -7,6 +7,7 @@
 
 import { IntelReportData } from '../models/IntelReportData';
 import { IntelReportDataPack } from './IntelReportDataPack';
+import type { IntelReportUI, IntelReportPriority, CreateIntelReportInput } from './intel/IntelReportUI';
 
 /**
  * Complete Intelligence Report Package
@@ -22,6 +23,13 @@ import { IntelReportDataPack } from './IntelReportDataPack';
 // - docs/intelMarketExchange/DECENTRALIZATION_TRANSITION.md (resume plan)
 // Rationale: Deterministic signing + future on-chain anchoring depend on stable schema.
 // ==========================
+// PHASE 4 NOTE:
+// This package schema predates IntelReportUI consolidation. During migration we
+// expose a derived minimal view (IntelReportUIPackageAdapter) to map essential
+// fields into IntelReportUI shape for downstream consumers that only need the
+// unified report representation (e.g., marketplace compose previews).
+// After alignment, marketplace flows should consume IntelReportUI directly and
+// only invoke this container for heavy DataPack access.
 export interface IntelReportPackage {
   // Package identification
   packageId: string;
@@ -30,7 +38,7 @@ export interface IntelReportPackage {
   updatedAt: string; // ISO timestamp
   
   // Lightweight metadata (suitable for NFT/blockchain storage)
-  metadata: IntelReport;
+  metadata: IntelReportPackageMetadata;
   
   // Heavy content (off-chain storage)
   dataPack: IntelReportDataPack;
@@ -55,7 +63,7 @@ export interface IntelReportPackage {
  * This is what gets stored in the NFT and on the blockchain.
  * Keep this minimal to reduce gas costs.
  */
-export interface IntelReport {
+export interface IntelReportPackageMetadata {
   // Core identification
   id: string;
   title: string;
@@ -93,6 +101,112 @@ export interface IntelReport {
   
   // Compatibility with existing IntelReportData
   legacyId?: string; // Maps to existing IntelReportData.id
+}
+
+// Transitional adapter — converts frozen package metadata into IntelReportUI-compatible minimal object.
+// Does NOT include full history or rich fields; heavy content remains in dataPack.
+export function toIntelReportUIFromPackage(pkg: IntelReportPackage): IntelReportUI {
+  return {
+    id: pkg.metadata.legacyId || pkg.metadata.id,
+    title: pkg.metadata.title,
+  content: typeof pkg.dataPack.content === 'string' ? pkg.dataPack.content : '',
+    summary: pkg.metadata.summary,
+    author: pkg.metadata.author,
+    category: pkg.metadata.intelligence.type || 'GENERAL',
+    tags: pkg.metadata.intelligence.keyTags || [],
+    classification: pkg.metadata.classification,
+    status: 'DRAFT', // Packages currently represent distributable drafts; status pipeline TBD
+    createdAt: new Date(pkg.createdAt),
+    updatedAt: new Date(pkg.updatedAt),
+    latitude: pkg.metadata.location?.lat,
+    longitude: pkg.metadata.location?.lng,
+    conclusions: [],
+    recommendations: [],
+    methodology: [],
+    confidence: pkg.metadata.intelligence.confidence,
+    priority: ((): IntelReportPriority => {
+      if (pkg.metadata.priority === 'FLASH') return 'IMMEDIATE';
+      // Narrowing: metadata.priority includes 'ROUTINE' | 'PRIORITY' | 'IMMEDIATE' | 'FLASH'
+      // Only 'FLASH' is outside IntelReportPriority; others are valid.
+      return pkg.metadata.priority as IntelReportPriority;
+    })(),
+    targetAudience: [],
+    sourceIntelIds: [],
+    version: 1,
+    manualSummary: true,
+    history: []
+  };
+}
+
+// Helper: Build CreateIntelReportInput from a package (used when importing a package and re-hydrating into the unified system)
+export function toCreateIntelReportInputFromPackage(pkg: IntelReportPackage): CreateIntelReportInput {
+  return {
+    title: pkg.metadata.title,
+    content: typeof pkg.dataPack.content === 'string' ? pkg.dataPack.content : '',
+    summary: pkg.metadata.summary,
+    category: pkg.metadata.intelligence.type || 'general',
+    tags: pkg.metadata.intelligence.keyTags || [],
+    classification: pkg.metadata.classification,
+    status: 'DRAFT',
+    latitude: pkg.metadata.location?.lat,
+    longitude: pkg.metadata.location?.lng,
+    conclusions: [],
+    recommendations: [],
+    methodology: [],
+    confidence: pkg.metadata.intelligence.confidence,
+    priority: ((): IntelReportPriority => {
+      if (pkg.metadata.priority === 'FLASH') return 'IMMEDIATE';
+      return pkg.metadata.priority as IntelReportPriority;
+    })(),
+    targetAudience: [],
+    sourceIntelIds: [],
+  // version is managed at IntelReportUI layer; omitted here
+  };
+}
+
+// Helper: Create a minimal IntelReportPackage metadata stub from an IntelReportUI for export.
+// Heavy DataPack assembly (file graphs, obsidian structures) is out of scope for this mapping; a thin placeholder dataPack is produced.
+export function toIntelReportPackageFromUI(report: IntelReportUI): Pick<IntelReportPackage, 'metadata' | 'packageId' | 'version' | 'createdAt' | 'updatedAt'> {
+  const nowIso = (report.updatedAt || report.createdAt || new Date()).toISOString();
+  return {
+    packageId: `pkg-${report.id}`,
+    version: '1.0.0',
+    createdAt: (report.createdAt || new Date()).toISOString(),
+    updatedAt: nowIso,
+    metadata: {
+      id: report.id,
+      title: report.title,
+      summary: report.summary || report.content.slice(0, 300),
+      classification: report.classification,
+      priority: ((): IntelReportPackage['metadata']['priority'] => {
+        // IntelReportPriority shares all except FLASH (incoming) mapping already normalized.
+        if (report.priority === 'IMMEDIATE') return 'IMMEDIATE';
+        if (report.priority === 'PRIORITY') return 'PRIORITY';
+        return 'ROUTINE';
+      })(),
+      author: report.author || 'unknown',
+      timestamp: report.createdAt ? report.createdAt.getTime() : Date.now(),
+      location: {
+        lat: report.latitude ?? 0,
+        lng: report.longitude ?? 0
+      },
+      intelligence: {
+        type: (() => {
+          const c = report.category?.toUpperCase();
+          const allowed = ['OSINT','SIGINT','HUMINT','GEOINT','FININT','TECHINT'] as const;
+          return (allowed as readonly string[]).includes(c || '') ? (c as typeof allowed[number]) : 'OSINT';
+        })(),
+        confidence: typeof report.confidence === 'number' ? report.confidence : 0.5,
+        entitiesCount: 0,
+        relationshipsCount: 0,
+        keyTags: report.tags.slice(0, 5)
+      },
+      dataPackHash: '',
+      dataPackSize: 0,
+      dataPackLocation: '',
+      legacyId: report.id
+    }
+  };
 }
 
 /**

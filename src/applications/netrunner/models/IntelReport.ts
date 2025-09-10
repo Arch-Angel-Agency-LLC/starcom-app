@@ -8,7 +8,9 @@
  * @date July 18, 2025
  */
 
-import { v4 as uuidv4 } from 'uuid';
+import { intelReportService } from '../../../services/intel/IntelReportService';
+import { type CreateIntelReportInput, type IntelReportUI } from '../../../types/intel/IntelReportUI';
+import type { BotIntelReport, BotIntelOutput } from '../types/BotMission';
 
 export interface IntelEntity {
   id: string;
@@ -49,202 +51,72 @@ export interface Evidence {
 }
 
 
-export interface IntelReport {
-  id: string;
-  title: string;
-  subtitle?: string;
-  description: string;
-  author: string;
-  created: Date;
-  updated: Date;
-  version: string;
-  
-  // Geographic data
-  latitude?: number;
-  longitude?: number;
-  location?: string;
-  
-  // Metadata (declassified build)
-  tags: string[];
-  categories: string[];
-  confidence: number;
-  
-  // Content structure
-  summary: string;
-  content: string;
-  keyFindings: string[];
-  
-  // Entities and relationships
-  entities: IntelEntity[];
-  relationships: IntelRelationship[];
-  
-  // Evidence and sources
-  evidence: Evidence[];
-  sources: string[];
-  
-  // Technical metadata
-  metadata: {
-    scanId?: string;
-    targetUrl?: string;
-    scanType?: string;
-    processingTime?: number;
-    dataSize?: number;
-    qualityScore?: number;
-    [key: string]: unknown;
-  };
-  
-  // Status and workflow
-  status: 'draft' | 'in_review' | 'approved' | 'published' | 'archived';
-  workflow: {
-    stage: string;
-    assignee?: string;
-    reviewers: string[];
-    approvers: string[];
-    comments: Array<{
-      id: string;
-      author: string;
-      timestamp: Date;
-      content: string;
-      type: 'comment' | 'approval' | 'rejection';
-    }>;
+// Build CreateIntelReportInput directly for NetRunner flows (replaces legacy NetRunnerIntelReport + builder)
+export function buildCreateIntelReportInput(params: {
+  title: string; content: string; summary?: string; category?: string; tags?: string[]; latitude?: number; longitude?: number; confidence?: number; keyFindings?: string[];
+}): CreateIntelReportInput {
+  return {
+    title: params.title,
+    content: params.content,
+    summary: params.summary || '',
+    category: params.category || 'general',
+    tags: params.tags || [],
+    classification: 'UNCLASSIFIED',
+    status: 'DRAFT',
+    latitude: params.latitude,
+    longitude: params.longitude,
+    conclusions: params.keyFindings || [],
+    recommendations: [],
+    methodology: [],
+    confidence: typeof params.confidence === 'number' ? Math.max(0, Math.min(1, params.confidence)) : undefined,
+    targetAudience: [],
+    sourceIntelIds: []
   };
 }
 
-export class IntelReportBuilder {
-  private report: Partial<IntelReport>;
+// Adapter: map a BotIntelReport to CreateIntelReportInput
+export function toCreateIntelReportInputFromBot(report: BotIntelReport): CreateIntelReportInput {
+  const category = report.reportType || 'general';
+  return {
+    title: report.title,
+    content: report.content,
+    summary: report.summary,
+    category,
+    tags: [],
+    classification: 'UNCLASSIFIED',
+    status: 'DRAFT',
+    conclusions: report.keyFindings || [],
+    recommendations: report.recommendations || [],
+    methodology: [],
+    confidence: undefined,
+    targetAudience: report.targetAudience || [],
+    sourceIntelIds: report.sourceIntel || []
+  };
+}
 
-  constructor(title: string, author: string) {
-    this.report = {
-      id: uuidv4(),
-      title,
-      author,
-      created: new Date(),
-      updated: new Date(),
-      version: '1.0.0',
-      tags: [],
-      categories: [],
-      confidence: 0,
-      summary: '',
-      content: '',
-      keyFindings: [],
-      entities: [],
-      relationships: [],
-      evidence: [],
-      sources: [],
-      metadata: {},
-      status: 'draft',
-      workflow: {
-        stage: 'initial',
-        reviewers: [],
-        approvers: [],
-        comments: []
-      }
-    };
+// Publish all BotIntelReport entries from a BotIntelOutput to the centralized Intel system
+export async function publishBotIntelOutput(output: BotIntelOutput, authorDisplayName?: string): Promise<IntelReportUI[]> {
+  const author = authorDisplayName || output.botId;
+  const created: IntelReportUI[] = [];
+  for (const r of output.reports || []) {
+    const input = toCreateIntelReportInputFromBot(r);
+    const ui = await intelReportService.createReport(input, author);
+    created.push(ui);
   }
+  // Phase 2 -> 3 migration aid: attach canonical reports to original output for downstream consumers
+  try {
+    // Mutate output object (safe - caller owns object) to include canonical linkage
+    (output as BotIntelOutput & { publishedReports?: IntelReportUI[]; publishedAt?: Date }).publishedReports = created;
+    (output as BotIntelOutput & { publishedReports?: IntelReportUI[]; publishedAt?: Date }).publishedAt = new Date();
+  } catch { /* ignore mutation errors */ }
+  return created;
+}
 
-  setDescription(description: string): this {
-    this.report.description = description;
-    return this;
-  }
-
-  setLocation(latitude: number, longitude: number, location?: string): this {
-    this.report.latitude = latitude;
-    this.report.longitude = longitude;
-    this.report.location = location;
-    return this;
-  }
-
-  // classification removed in civilian build
-
-  addTag(tag: string): this {
-    if (!this.report.tags) this.report.tags = [];
-    if (!this.report.tags.includes(tag)) {
-      this.report.tags.push(tag);
-    }
-    return this;
-  }
-
-  addCategory(category: string): this {
-    if (!this.report.categories) this.report.categories = [];
-    if (!this.report.categories.includes(category)) {
-      this.report.categories.push(category);
-    }
-    return this;
-  }
-
-  setConfidence(confidence: number): this {
-    this.report.confidence = Math.max(0, Math.min(1, confidence));
-    return this;
-  }
-
-  setSummary(summary: string): this {
-    this.report.summary = summary;
-    return this;
-  }
-
-  setContent(content: string): this {
-    this.report.content = content;
-    return this;
-  }
-
-  addKeyFinding(finding: string): this {
-    if (!this.report.keyFindings) this.report.keyFindings = [];
-    this.report.keyFindings.push(finding);
-    return this;
-  }
-
-  addEntity(entity: IntelEntity): this {
-    if (!this.report.entities) this.report.entities = [];
-    this.report.entities.push(entity);
-    return this;
-  }
-
-  addRelationship(relationship: IntelRelationship): this {
-    if (!this.report.relationships) this.report.relationships = [];
-    this.report.relationships.push(relationship);
-    return this;
-  }
-
-  addEvidence(evidence: Evidence): this {
-    if (!this.report.evidence) this.report.evidence = [];
-    this.report.evidence.push(evidence);
-    return this;
-  }
-
-  addSource(source: string): this {
-    if (!this.report.sources) this.report.sources = [];
-    if (!this.report.sources.includes(source)) {
-      this.report.sources.push(source);
-    }
-    return this;
-  }
-
-  setMetadata(key: string, value: unknown): this {
-    if (!this.report.metadata) this.report.metadata = {};
-    this.report.metadata[key] = value;
-    return this;
-  }
-
-  setStatus(status: IntelReport['status']): this {
-    this.report.status = status;
-    return this;
-  }
-
-  build(): IntelReport {
-    // Validate required fields
-    if (!this.report.title) {
-      throw new Error('Intel Report title is required');
-    }
-    if (!this.report.author) {
-      throw new Error('Intel Report author is required');
-    }
-    if (!this.report.description) {
-      throw new Error('Intel Report description is required');
-    }
-
-    // Update the updated timestamp
-    this.report.updated = new Date();
-
-    return this.report as IntelReport;
-  }
+// Helper for downstream consumers: prefer canonical publishedReports when available,
+// otherwise fall back to local lightweight bot reports (pre-publish state). This
+// supports Phase 2 -> 3 migration where some components still iterate `reports`.
+export function getBotOutputCanonicalReports(output: BotIntelOutput & { publishedReports?: IntelReportUI[] }): IntelReportUI[] {
+  if (output.publishedReports && output.publishedReports.length) return output.publishedReports;
+  // No canonical published yet: provide empty (callers should tolerate and maybe trigger publish)
+  return [];
 }

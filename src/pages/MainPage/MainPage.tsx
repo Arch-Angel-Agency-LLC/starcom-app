@@ -6,11 +6,11 @@ import MainMarqueeTopBar from '../../components/MainPage/MainMarqueeTopBar';
 import MainBottomBar from '../../components/MainPage/MainBottomBar';
 import MainCenter from '../../components/MainPage/MainCenter';
 import { ApplicationRenderer } from '../../components/Router/ApplicationRenderer';
-import { useEnhancedApplicationRouter } from '../../hooks/useEnhancedApplicationRouter';
+import { useApplicationRouter } from '../../hooks/useApplicationRouter';
 import { componentTracker } from '../../utils/performanceMonitor';
 
 const MainPage: React.FC = () => {
-  const { currentApp, context, navigateToApp } = useEnhancedApplicationRouter();
+  const { currentApp, context, navigateToApp } = useApplicationRouter();
   const params = useParams();
   const location = useLocation();
   const [hasAutoNavigated, setHasAutoNavigated] = useState(false);
