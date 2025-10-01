@@ -315,7 +315,6 @@ export class IPFSContentOrchestrator {
     const uploadResult = await this.relayNodeService.uploadContent(data, {
       type: existingMetadata.type === 'binary' ? undefined : existingMetadata.type,
       creator: updatingUser,
-      classification: existingMetadata.classification,
       replicateToTeam: true,
       encryptWithPQC: true,
       metadata: options.customMetadata

@@ -2,12 +2,17 @@
 import * as THREE from 'three';
 
 export function disposeObject3D(obj: THREE.Object3D) {
-  if ((obj as any).geometry) {
-    (obj as any).geometry.dispose?.();
+  const anyObj = obj as unknown as { geometry?: unknown; material?: unknown };
+  const geom = anyObj.geometry as unknown as { dispose?: () => void; disposeBoundsTree?: () => void } | undefined;
+  if (geom) {
+    // If three-mesh-bvh attached a bounds tree, dispose it first
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (geom as any).disposeBoundsTree?.();
+    geom.dispose?.();
   }
-  const mat = (obj as any).material;
-  if (mat) {
-    if (Array.isArray(mat)) mat.forEach(m => m.dispose?.()); else mat.dispose?.();
+  const matUnknown = (obj as unknown as { material?: THREE.Material | THREE.Material[] }).material;
+  if (matUnknown) {
+    if (Array.isArray(matUnknown)) matUnknown.forEach(m => m.dispose?.()); else matUnknown.dispose?.();
   }
 }
 

@@ -41,6 +41,9 @@ interface ModelInstance {
   basePosition: THREE.Vector3;
   hoverOffset: number;
   localRotationY: number;
+  surfaceAnchor: THREE.Vector3;
+  globeRadius: number;
+  hoverAltitude: number;
 }
 
 export const Enhanced3DGlobeInteractivity: React.FC<Enhanced3DGlobeInteractivityProps> = ({
@@ -72,6 +75,7 @@ export const Enhanced3DGlobeInteractivity: React.FC<Enhanced3DGlobeInteractivity
   // New features state
   const [mousePositionIndicator, setMousePositionIndicator] = useState<THREE.Mesh | null>(null);
   const connectionLinesRef = useRef<THREE.Group>(new THREE.Group());
+  const cachedGlobeMeshRef = useRef<THREE.Object3D | null>(null);
   const mouseRef = useRef<THREE.Vector2>(new THREE.Vector2());
 
   // Check if we're in the correct visualization mode
@@ -460,17 +464,52 @@ export const Enhanced3DGlobeInteractivity: React.FC<Enhanced3DGlobeInteractivity
 
   // Update connection lines for Intel Reports
   useEffect(() => {
-    if (!models.length || !isIntelReportsMode) {
-      // Clear all connection lines
-      if (connectionLinesRef.current && typeof connectionLinesRef.current.clear === 'function') {
-        connectionLinesRef.current.clear();
+    const clearConnectionLines = () => {
+      const group = connectionLinesRef.current;
+      if (!group) {
+        return;
       }
+
+      while (group.children.length > 0) {
+        const child = group.children[0];
+        if (child instanceof THREE.Line) {
+          child.geometry?.dispose();
+          const material = child.material as THREE.Material | THREE.Material[] | undefined;
+          if (Array.isArray(material)) {
+            material.forEach((m) => m.dispose());
+          } else {
+            material?.dispose();
+          }
+        }
+        group.remove(child);
+      }
+    };
+
+    if (!models.length || !isIntelReportsMode) {
+      clearConnectionLines();
       return;
     }
 
     // Clear existing lines
-    if (connectionLinesRef.current && typeof connectionLinesRef.current.clear === 'function') {
-      connectionLinesRef.current.clear();
+    clearConnectionLines();
+
+    const globeObj = globeRef.current;
+    const scene = globeObj?.scene();
+    let globeMesh = cachedGlobeMeshRef.current;
+
+    if (!globeMesh || globeMesh.parent === null) {
+      let found: THREE.Object3D | null = null;
+      scene?.traverse((child) => {
+        if (!found && child instanceof THREE.Mesh && child.geometry instanceof THREE.SphereGeometry) {
+          found = child;
+        }
+      });
+      cachedGlobeMeshRef.current = found;
+      globeMesh = found;
+    }
+
+    if (globeMesh) {
+      globeMesh.updateMatrixWorld(true);
     }
 
     try {
@@ -478,32 +517,15 @@ export const Enhanced3DGlobeInteractivity: React.FC<Enhanced3DGlobeInteractivity
       models.forEach((model) => {
         // Defensive checks for model structure
         if (!model || !model.report || !model.positionContainer?.position) return;
-        
-        // Calculate surface position
-        const lat = model.report.latitude;
-        const lng = model.report.longitude;
-        const globeRadius = 100; // Should match the globe radius
 
-        const phi = (90 - lat) * (Math.PI / 180);
-        const theta = (lng + 180) * (Math.PI / 180);
-        
-        const surfaceX = -(globeRadius * Math.sin(phi) * Math.cos(theta));
-        const surfaceZ = globeRadius * Math.sin(phi) * Math.sin(theta);
-        const surfaceY = globeRadius * Math.cos(phi);
-
-        const surfacePosition = new THREE.Vector3(surfaceX, surfaceY, surfaceZ);
-        
-        // Defensive clone with fallback
-        let modelPosition;
-        if (model.positionContainer.position.clone && typeof model.positionContainer.position.clone === 'function') {
-          modelPosition = model.positionContainer.position.clone();
-        } else {
-          // Fallback for testing when clone is not available
-          const pos = model.positionContainer.position;
-          modelPosition = new THREE.Vector3(pos.x || 0, pos.y || 0, pos.z || 0);
+        const surfacePosition = model.surfaceAnchor.clone();
+        if (globeMesh) {
+          surfacePosition.applyMatrix4(globeMesh.matrixWorld);
         }
 
-        // Create line geometry
+        const modelPosition = new THREE.Vector3();
+        model.positionContainer.getWorldPosition(modelPosition);
+
         const points = [surfacePosition, modelPosition];
         const geometry = new THREE.BufferGeometry().setFromPoints(points);
         
@@ -523,7 +545,7 @@ export const Enhanced3DGlobeInteractivity: React.FC<Enhanced3DGlobeInteractivity
     } catch (error) {
       console.warn('Failed to update connection lines:', error);
     }
-  }, [models, isIntelReportsMode]);
+  }, [models, isIntelReportsMode, globeRef]);
 
   // Note: Intel Report creation is now handled through the right-click context menu
   // to avoid interference with globe drag interactions

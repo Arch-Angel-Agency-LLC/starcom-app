@@ -46,6 +46,16 @@ export class LayerRegistry {
     if (st.status === 'disposed') return;
     if (!st.group) this.build(id);
     if (st.group && !scene.children.includes(st.group)) {
+      // Ensure a stable base renderOrder for the entire layer before attaching
+      const baseOrder = st.def.order;
+      const applyOrder = (obj: THREE.Object3D) => {
+        // Only apply a base order if the object hasn't been explicitly ordered
+        if (!('renderOrder' in obj) || obj.renderOrder === 0) {
+          obj.renderOrder = baseOrder;
+        }
+        obj.children.forEach(applyOrder);
+      };
+      applyOrder(st.group);
       scene.add(st.group);
       st.status = 'active';
       st.def.onActivate?.(st.group);

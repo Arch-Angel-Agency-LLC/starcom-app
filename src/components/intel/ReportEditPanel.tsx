@@ -15,24 +15,11 @@ const statusLabels: IntelReportStatus[] = ['DRAFT','SUBMITTED','REVIEWED','APPRO
 const ReportEditPanel: React.FC<Props> = ({ report, onCancel, onSaved, onStatusChanged }) => {
   const [working, setWorking] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [form, setForm] = useState(()=> report ? { ...report } : null);
-  if (!report || !form) return null;
+  const [form, setForm] = useState(() => (report ? { ...report } : null));
 
-  const changed = useMemo(()=>{
-    return JSON.stringify({
-      title: form.title,
-      summary: form.summary,
-      content: form.content,
-      category: form.category,
-      tags: form.tags,
-      conclusions: form.conclusions,
-      recommendations: form.recommendations,
-      methodology: form.methodology,
-      confidence: form.confidence,
-      priority: form.priority,
-      targetAudience: form.targetAudience,
-      sourceIntelIds: form.sourceIntelIds
-    }) !== JSON.stringify({
+  const changed = useMemo(() => {
+    if (!report || !form) return false;
+    const before = {
       title: report.title,
       summary: report.summary,
       content: report.content,
@@ -44,23 +31,45 @@ const ReportEditPanel: React.FC<Props> = ({ report, onCancel, onSaved, onStatusC
       confidence: report.confidence,
       priority: report.priority,
       targetAudience: report.targetAudience,
-      sourceIntelIds: report.sourceIntelIds
-    });
+      sourceIntelIds: report.sourceIntelIds,
+      latitude: report.latitude,
+      longitude: report.longitude
+    };
+    const after = {
+      title: form.title,
+      summary: form.summary,
+      content: form.content,
+      category: form.category,
+      tags: form.tags,
+      conclusions: form.conclusions,
+      recommendations: form.recommendations,
+      methodology: form.methodology,
+      confidence: form.confidence,
+      priority: form.priority,
+      targetAudience: form.targetAudience,
+      sourceIntelIds: form.sourceIntelIds,
+      latitude: form.latitude,
+      longitude: form.longitude
+    };
+    return JSON.stringify(after) !== JSON.stringify(before);
   }, [form, report]);
 
-  const validation = useMemo(()=>{
+  const validation = useMemo(() => {
+    if (!form) return [] as string[];
     const errs: string[] = [];
     if (!form.title.trim()) errs.push('Title required');
     if (form.title.length > 200) errs.push('Title too long');
     if (!form.content.trim()) errs.push('Content required');
     if (form.content.length < 10) errs.push('Content too short');
     if (form.confidence != null && (form.confidence < 0 || form.confidence > 1)) errs.push('Confidence must be 0..1');
+    if (form.latitude != null && Number.isNaN(form.latitude)) errs.push('Latitude must be a number');
+    if (form.longitude != null && Number.isNaN(form.longitude)) errs.push('Longitude must be a number');
     return errs;
   }, [form]);
 
   const updateArrayField = (key: keyof IntelReportUI, value: string) => {
-    const list = value.split(',').map(v=>v.trim()).filter(Boolean);
-    setForm(prev => prev ? { ...prev, [key]: list } as IntelReportUI : prev);
+    const list = value.split(',').map(v => v.trim()).filter(Boolean);
+    setForm(prev => (prev ? { ...prev, [key]: list } as IntelReportUI : prev));
   };
 
   const save = async () => {
@@ -71,8 +80,9 @@ const ReportEditPanel: React.FC<Props> = ({ report, onCancel, onSaved, onStatusC
       await intelReportService.saveReport(form as IntelReportUI);
       const refreshed = await intelReportService.getReport(form.id);
       if (refreshed) onSaved(refreshed);
-    } catch (e: any) {
-      setError(e.message || 'Save failed');
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : 'Save failed';
+      setError(message);
     } finally { setWorking(false); }
   };
 
@@ -81,8 +91,9 @@ const ReportEditPanel: React.FC<Props> = ({ report, onCancel, onSaved, onStatusC
     try {
       const updated = await intelReportService.updateStatus(form.id, next);
       if (updated) { setForm(updated); onStatusChanged(updated); }
-    } catch (e: any) {
-      setError(e.message || 'Status change failed');
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : 'Status change failed';
+      setError(message);
     } finally { setWorking(false); }
   };
 
@@ -93,16 +104,26 @@ const ReportEditPanel: React.FC<Props> = ({ report, onCancel, onSaved, onStatusC
       await intelReportService.deleteReport(form.id);
       onStatusChanged({ ...form, status: form.status }); // trigger refresh externally
       onCancel();
-    } catch (e:any) { setError(e.message||'Delete failed'); } finally { setWorking(false); }
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : 'Delete failed';
+      setError(message);
+    } finally { setWorking(false); }
   };
 
-  const nextStatuses = useMemo(()=> {
-    if (!report) return [] as IntelReportStatus[];
-    return statusLabels.filter(s => s !== form.status); // UI side filter; service enforces validity
-  }, [form.status, report]);
+  const nextStatuses = useMemo(() => {
+    if (!form) return [] as IntelReportStatus[];
+    return statusLabels.filter(s => s !== form.status);
+  }, [form]);
 
   // highlight helper
-  const fieldChanged = (key: string) => changed && JSON.stringify((form as any)[key]) !== JSON.stringify((report as any)[key]);
+  const fieldChanged = (key: keyof IntelReportUI) => {
+    if (!report || !form) return false;
+    const before = report[key];
+    const after = form[key];
+    return changed && JSON.stringify(after) !== JSON.stringify(before);
+  };
+
+  if (!report || !form) return null;
 
   return (
     <div className={styles.panelRoot}>
@@ -126,14 +147,6 @@ const ReportEditPanel: React.FC<Props> = ({ report, onCancel, onSaved, onStatusC
           <label>Category
             <input value={form.category} onChange={e=>setForm({...form, category:e.target.value})} />
           </label>
-          <label>Classification
-            <select value={form.classification} onChange={e=>setForm({...form, classification: e.target.value as any})}>
-              <option value="UNCLASSIFIED">UNCLASSIFIED</option>
-              <option value="CONFIDENTIAL">CONFIDENTIAL</option>
-              <option value="SECRET">SECRET</option>
-              <option value="TOP_SECRET">TOP_SECRET</option>
-            </select>
-          </label>
           <label>Priority
             <select value={form.priority || 'ROUTINE'} onChange={e=>setForm({...form, priority: e.target.value as IntelReportPriority})}>
               <option value="ROUTINE">ROUTINE</option>
@@ -141,6 +154,27 @@ const ReportEditPanel: React.FC<Props> = ({ report, onCancel, onSaved, onStatusC
               <option value="IMMEDIATE">IMMEDIATE</option>
             </select>
           </label>
+        </div>
+        <div className={styles.section}>
+          <h4 className={styles.sectionTitle}>GEOINT Coordinates</h4>
+          <div className={styles.row}>
+            <label style={fieldChanged('latitude') ? {borderLeft:'3px solid #0f6', paddingLeft:5}:undefined}>Latitude
+              <input
+                type="number"
+                step="0.0001"
+                value={form.latitude ?? ''}
+                onChange={e=>setForm({...form, latitude: e.target.value === '' ? undefined : parseFloat(e.target.value)})}
+              />
+            </label>
+            <label style={fieldChanged('longitude') ? {borderLeft:'3px solid #0f6', paddingLeft:5}:undefined}>Longitude
+              <input
+                type="number"
+                step="0.0001"
+                value={form.longitude ?? ''}
+                onChange={e=>setForm({...form, longitude: e.target.value === '' ? undefined : parseFloat(e.target.value)})}
+              />
+            </label>
+          </div>
         </div>
         <div className={styles.row}>
           <label>Tags

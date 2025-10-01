@@ -71,7 +71,6 @@ export interface IntelReport3DData {
   title: string;
   
   // Security and source
-  classification?: string;
   source?: string;
   timestamp?: Date;
   
@@ -99,7 +98,7 @@ export interface IntelReport3DData {
     category?: string;
     tags?: string[];
     confidence?: number;
-    priority?: string;
+    priority?: IntelPriority;
     threat_level?: string;
     reliability?: number;  // Quality measure
     freshness?: number;    // Temporal relevance
@@ -128,6 +127,8 @@ export interface IntelReport3DViewport {
   zoom: number;
   rotation: number;
   tilt: number;
+  lodLevel?: IntelLODLevel;
+  maxItems?: number;
   bounds?: {
     north: number;
     south: number;

@@ -9,6 +9,29 @@ import { IntelReportUI } from '../../types/intel/IntelReportUI';
 import { parseReport } from '../../services/intel/serialization/intelReportSerialization';
 import { validateReport } from '../../services/intel/validation/reportValidation';
 import { buildIndex, search as searchReports } from '../../services/intel/search/reportSearchIndex';
+import type { IntelItemClassification, IntelReliability } from '../../types/intel/IntelItemUI';
+
+type ImportResultPreview = {
+  id: string;
+  status: 'OK' | 'WARN' | 'ERROR';
+  warnings?: string[];
+  errors?: string[];
+  report?: IntelReportUI;
+};
+
+type FormState = {
+  title: string;
+  content: string;
+  classification: IntelItemClassification;
+  category: string;
+  tags: string;
+  type: string;
+  source: string;
+  reliability: IntelReliability;
+  confidence: number;
+  latitude: string;
+  longitude: string;
+};
 
 // Placeholder console bringing together Reports & Intel lists side by side.
 // Future: tabs, detail panel, create/edit drawers.
@@ -18,14 +41,24 @@ export const IntelWorkspaceConsole: React.FC = () => {
   const [view, setView] = useState<'reports' | 'intel'>('reports');
   const [showCreate, setShowCreate] = useState(false);
   const [selectedReport, setSelectedReport] = useState<IntelReportUI | null>(null);
-  const [form, setForm] = useState({
-    title: '', content: '', classification: 'UNCLASSIFIED', category: 'GENERAL', tags: '', type: 'OBSERVATION', source: 'UNKNOWN', reliability: 'C', confidence: 0.5
+  const [form, setForm] = useState<FormState>({
+    title: '',
+    content: '',
+    classification: 'UNCLASSIFIED',
+    category: 'GENERAL',
+    tags: '',
+    type: 'OBSERVATION',
+    source: 'UNKNOWN',
+    reliability: 'C',
+    confidence: 0.5,
+    latitude: '',
+    longitude: ''
   });
   const [creating, setCreating] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [showImport, setShowImport] = useState(false);
   const [importText, setImportText] = useState('');
-  const [importResults, setImportResults] = useState<any[]>([]);
+  const [importResults, setImportResults] = useState<ImportResultPreview[]>([]);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [importStrategy, setImportStrategy] = useState<'newId'|'overwrite'|'skip'>('newId');
   const [query, setQuery] = useState('');
@@ -45,28 +78,46 @@ export const IntelWorkspaceConsole: React.FC = () => {
     setCreating(true);
     try {
       if (isReportView) {
+        const latitude = form.latitude.trim() === '' ? undefined : parseFloat(form.latitude);
+        const longitude = form.longitude.trim() === '' ? undefined : parseFloat(form.longitude);
         const r = await intelReportService.createReport({
           title: form.title.trim(),
           content: form.content.trim(),
           category: form.category,
           tags: form.tags.split(',').map(t=>t.trim()).filter(Boolean),
-          classification: form.classification as any
+          classification: 'UNCLASSIFIED',
+          latitude,
+          longitude
         }, 'anonymous');
         setSelectedReport(r);
       } else {
         intelWorkspaceManager.addIntelItem({
           title: form.title.trim(),
           type: form.type,
-          classification: form.classification as any,
+          classification: form.classification,
           source: form.source,
-          reliability: form.reliability as any,
+          reliability: form.reliability,
           confidence: form.confidence,
           tags: form.tags.split(',').map(t=>t.trim()).filter(Boolean),
           categories: form.category ? [form.category] : [],
-          content: form.content.trim()
+          content: form.content.trim(),
+          latitude: form.latitude.trim() === '' ? undefined : parseFloat(form.latitude),
+          longitude: form.longitude.trim() === '' ? undefined : parseFloat(form.longitude)
         });
       }
-      setForm({ title: '', content: '', classification: 'UNCLASSIFIED', category: 'GENERAL', tags: '', type: 'OBSERVATION', source: 'UNKNOWN', reliability: 'C', confidence: 0.5 });
+      setForm({
+        title: '',
+        content: '',
+        classification: 'UNCLASSIFIED',
+        category: 'GENERAL',
+        tags: '',
+        type: 'OBSERVATION',
+        source: 'UNKNOWN',
+        reliability: 'C',
+        confidence: 0.5,
+        latitude: '',
+        longitude: ''
+      });
       setShowCreate(false);
     } finally { setCreating(false); }
   };
@@ -84,13 +135,16 @@ export const IntelWorkspaceConsole: React.FC = () => {
         const issues = validateReport(report, { mode: 'import' });
         setImportResults([{ id: report.id, status: errors.length ? 'ERROR' : (issues.some(i=>i.severity==='ERROR')?'ERROR': (issues.some(i=>i.severity==='WARN')?'WARN':'OK')), warnings: [...warnings, ...issues.filter(i=>i.severity!=='ERROR').map(i=>i.message)], errors: issues.filter(i=>i.severity==='ERROR').map(i=>i.message), report }]);
       }
-    } catch (e:any) {
-      setImportResults([{ id: 'N/A', status: 'ERROR', errors: ['JSON parse failure: '+e.message] }]);
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : 'Unknown error';
+      setImportResults([{ id: 'N/A', status: 'ERROR', errors: [`JSON parse failure: ${message}`] }]);
     }
   };
 
   const handleImportCommit = async () => {
-    const successful = importResults.filter(r => r.report && r.status !== 'ERROR');
+    const successful = importResults.filter((r): r is ImportResultPreview & { report: IntelReportUI } => {
+      return Boolean(r.report) && r.status !== 'ERROR';
+    });
     for (const r of successful) {
       await intelReportService.importReport(r.report, { strategy: importStrategy });
     }
@@ -128,16 +182,18 @@ export const IntelWorkspaceConsole: React.FC = () => {
               <h3>Create {isReportView ? 'Report' : 'Intel Item'}</h3>
               <div className={styles.formRow}>
                 <input placeholder="Title" value={form.title} onChange={e=>setForm({...form,title:e.target.value})} />
-                <select value={form.classification} onChange={e=>setForm({...form,classification:e.target.value})}>
-                  <option>UNCLASSIFIED</option><option>CONFIDENTIAL</option><option>SECRET</option><option>TOP_SECRET</option>
-                </select>
+                {!isReportView && (
+                  <select value={form.classification} onChange={e=>setForm({...form,classification: e.target.value as IntelItemClassification})}>
+                    <option>UNCLASSIFIED</option><option>CONFIDENTIAL</option><option>SECRET</option><option>TOP_SECRET</option>
+                  </select>
+                )}
                 <input placeholder="Category" value={form.category} onChange={e=>setForm({...form,category:e.target.value})} />
               </div>
               {!isReportView && (
                 <div className={styles.formRow}>
                   <input placeholder="Type" value={form.type} onChange={e=>setForm({...form,type:e.target.value})} />
                   <input placeholder="Source" value={form.source} onChange={e=>setForm({...form,source:e.target.value})} />
-                  <select value={form.reliability} onChange={e=>setForm({...form,reliability:e.target.value})}>
+                  <select value={form.reliability} onChange={e=>setForm({...form,reliability: e.target.value as IntelReliability})}>
                     <option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option>
                   </select>
                   <input type="number" step="0.05" min={0} max={1} value={form.confidence} onChange={e=>setForm({...form,confidence:parseFloat(e.target.value)})} />
@@ -145,6 +201,22 @@ export const IntelWorkspaceConsole: React.FC = () => {
               )}
               <textarea placeholder={isReportView ? 'Report content...' : 'Intel markdown content...'} value={form.content} onChange={e=>setForm({...form,content:e.target.value})} rows={5} />
               <input placeholder="tags (comma separated)" value={form.tags} onChange={e=>setForm({...form,tags:e.target.value})} />
+              <div className={styles.formRow}>
+                <input
+                  placeholder="Latitude"
+                  value={form.latitude}
+                  onChange={e=>setForm({...form, latitude: e.target.value})}
+                  type="number"
+                  step="0.0001"
+                />
+                <input
+                  placeholder="Longitude"
+                  value={form.longitude}
+                  onChange={e=>setForm({...form, longitude: e.target.value})}
+                  type="number"
+                  step="0.0001"
+                />
+              </div>
               <div className={styles.formActions}>
                 <button onClick={()=>setShowCreate(false)} className={styles.cancelBtn}>Cancel</button>
                 <button onClick={create} disabled={creating || !form.title.trim() || !form.content.trim()} className={styles.saveBtn}>{creating ? 'Saving...' : 'Create'}</button>
@@ -162,7 +234,7 @@ export const IntelWorkspaceConsole: React.FC = () => {
               </div>
               <div className={styles.formRow}>
                 <label>Strategy: </label>
-                <select value={importStrategy} onChange={e=>setImportStrategy(e.target.value as any)}>
+                <select value={importStrategy} onChange={e=>setImportStrategy(e.target.value as 'newId' | 'overwrite' | 'skip')}>
                   <option value="newId">New ID</option>
                   <option value="overwrite">Overwrite</option>
                   <option value="skip">Skip if exists</option>
@@ -196,7 +268,12 @@ export const IntelWorkspaceConsole: React.FC = () => {
                 {filteredReports.map(r => (
                   <li key={r.id} className={styles.listItem} onClick={()=> setSelectedReport(r)}>
                     <div className={styles.itemTitle}>{r.title}</div>
-                    <div className={styles.itemMeta}>{r.status} · {r.classification} · {r.category}</div>
+                    <div className={styles.itemMeta}>
+                      {r.status} · {r.category}
+                      {r.latitude !== undefined && r.longitude !== undefined && (
+                        <span> · {r.latitude.toFixed(2)}, {r.longitude.toFixed(2)}</span>
+                      )}
+                    </div>
                   </li>
                 ))}
               </ul>

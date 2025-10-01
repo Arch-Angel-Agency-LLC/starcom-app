@@ -1,4 +1,4 @@
-import { IntelReportUI, IntelClassification, IntelReportPriority, IntelReportHistoryEntry } from '../../../types/intel/IntelReportUI';
+import { IntelReportUI, IntelReportPriority, IntelReportHistoryEntry } from '../../../types/intel/IntelReportUI';
 import { IntelReportData, IntelReportFile } from '../../../types/IntelWorkspace';
 
 // Derive summary from content (first paragraph or first 240 chars)
@@ -16,7 +16,6 @@ export function uiToWorkspaceReportData(ui: IntelReportUI): IntelReportData {
     id: ui.id,
     title: ui.title,
     type: 'INTEL_REPORT',
-    classification: ui.classification,
     summary,
     content: ui.content,
     conclusions: ui.conclusions || [],
@@ -81,7 +80,6 @@ export function workspaceFileToUI(file: IntelReportFile): IntelReportUI {
     longitude: geo.lon as number | undefined,
     createdAt: new Date(d.createdAt),
     updatedAt: new Date(d.modifiedAt),
-    classification: d.classification as IntelClassification,
     status,
     conclusions: d.conclusions || [],
     recommendations: d.recommendations || [],

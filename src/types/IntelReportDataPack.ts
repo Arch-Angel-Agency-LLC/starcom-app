@@ -13,7 +13,6 @@ import { DataPack } from './DataPack';
 export interface IntelReportDataPack extends DataPack {
   // Intelligence-specific metadata
   intelligence: {
-    classification: 'UNCLASSIFIED' | 'CONFIDENTIAL' | 'SECRET' | 'TOP_SECRET';
     sources: IntelSource[];
     confidence: number; // 0.0 - 1.0
     reliability: 'A' | 'B' | 'C' | 'D' | 'E' | 'F'; // Source reliability rating
@@ -115,7 +114,6 @@ export interface ObsidianFolder {
   
   // Intelligence-specific
   entityType?: 'person' | 'organization' | 'location' | 'event' | 'document';
-  classification?: string;
 }
 
 /**
@@ -156,7 +154,6 @@ export interface ObsidianFrontmatter {
   modified?: string;
   
   // Intelligence-specific frontmatter
-  classification?: string;
   source?: string;
   confidence?: number;
   verified?: boolean;
@@ -246,7 +243,6 @@ export interface ObsidianGraphConfig {
   colorGroups: ObsidianColorGroup[];
   
   // Intelligence-specific
-  showClassification: boolean;
   filterByConfidence: boolean;
   minConfidence: number;
   showSources: boolean;
@@ -282,7 +278,6 @@ export interface IntelEntity {
   // Intelligence metadata
   confidence: number;
   sources: string[];
-  classification: string;
   verified: boolean;
   
   // Graph visualization
@@ -360,7 +355,6 @@ export interface IntelCluster {
   // Intelligence context
   primaryType: string; // Most common entity type
   confidence: number; // Average confidence
-  classification: string; // Highest classification level
   
   // Visualization
   color: string;

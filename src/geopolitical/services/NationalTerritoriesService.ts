@@ -50,17 +50,27 @@ export interface RecognitionMatrixEntry {
   perspectives: Record<string, PerspectiveRecognition>;
 }
 
-function buildRecognitionMatrix(rawFeatures: any[]): RecognitionMatrixEntry[] {
+type AnyGeoFeature = { id?: string; properties?: Record<string, unknown>; geometry?: { type: string; coordinates: unknown } };
+type LineStringGeom = { type: 'LineString'; coordinates: [number, number][] };
+type MultiLineStringGeom = { type: 'MultiLineString'; coordinates: [number, number][][] };
+type PolygonGeom = { type: 'Polygon'; coordinates: [number, number][][] };
+type MultiPolygonGeom = { type: 'MultiPolygon'; coordinates: [number, number][][][] };
+
+function buildRecognitionMatrix(rawFeatures: AnyGeoFeature[]): RecognitionMatrixEntry[] {
   return rawFeatures.map(f => {
-    const props = f.properties || {};
-    const classification = normalizeFeatureCla(props.FEATURECLA);
+    const props = (f.properties || {}) as Record<string, unknown>;
+    const classification = normalizeFeatureCla(typeof props.FEATURECLA === 'string' ? props.FEATURECLA : undefined);
     const perspectives: Record<string, PerspectiveRecognition> = {};
     Object.keys(props).forEach(k => {
       if (k.startsWith('FCLASS_')) {
-        perspectives[k.substring('FCLASS_'.length)] = normalizePerspectiveValue(props[k]);
+        perspectives[k.substring('FCLASS_'.length)] = normalizePerspectiveValue(typeof props[k] === 'string' ? (props[k] as string) : undefined);
       }
     });
-    return { featureId: props.NE_ID || props.BRK_A3 || f.id || 'border', classification, perspectives };
+    const id = (typeof props.NE_ID === 'string' && props.NE_ID)
+      || (typeof props.BRK_A3 === 'string' && props.BRK_A3)
+      || f.id
+      || 'border';
+    return { featureId: String(id), classification, perspectives };
   });
 }
 // --- End WS1 Scaffold ---
@@ -97,7 +107,7 @@ export class NationalTerritoriesService {
           default: return 'unknown';
         }
       };
-      const features: ClassifiedLineFeature[] = json.features.map((f: any) => ({
+  const features: ClassifiedLineFeature[] = json.features.map((f: { id: string; coordinates: [number, number][]; classification?: string }) => ({
         id: f.id,
         coordinates: f.coordinates,
         classification: mapClass(f.classification)
@@ -122,7 +132,7 @@ export class NationalTerritoriesService {
       const lodData = topo.lods[lodKey];
       if (!lodData) return null;
       const arcs: number[][][] = topo.arcs;
-      const features: ClassifiedLineFeature[] = lodData.features.map((f: any) => {
+  const features: ClassifiedLineFeature[] = lodData.features.map((f: { id: string | number; arcIndices: number[]; classification?: string }) => {
         const arcCoords = f.arcIndices.flatMap((ai: number) => arcs[ai]?.map((p: number[]) => [ (p[0]/topo.quantization)*360 - 180, (p[1]/topo.quantization)*180 - 90 ]) || []);
         return {
           id: f.id.toString(),
@@ -156,7 +166,7 @@ export class NationalTerritoriesService {
       const lodData = topo.lods[lodKey];
       if (!lodData) return null;
       const arcs: number[][][] = topo.arcs;
-      const features: MaritimeFeature[] = lodData.features.map((f: any) => {
+  const features: MaritimeFeature[] = lodData.features.map((f: { id: string | number; arcIndices: number[]; classification?: string }) => {
         const arcCoords = f.arcIndices.flatMap((ai: number) => arcs[ai]?.map((p: number[]) => [ (p[0]/topo.quantization)*360 - 180, (p[1]/topo.quantization)*180 - 90 ]) || []);
         const clsRaw = (f.classification || '').toLowerCase();
         const classification: BorderClassification = clsRaw === 'maritimeoverlap' || clsRaw === 'maritime_overlap' ? 'maritime_overlap' : 'maritime_eez';
@@ -176,17 +186,24 @@ export class NationalTerritoriesService {
     this.cache.set(`${url}::matrix`, matrix);
 
     const features: ClassifiedLineFeature[] = (geo.features || [])
-      .filter((f: any) => f.geometry?.type === 'LineString' || f.geometry?.type === 'MultiLineString')
-      .flatMap((f: any) => {
-        const baseId = f.properties?.BRK_A3 || f.id || 'border';
-        const classification = normalizeFeatureCla(f.properties?.FEATURECLA);
-        const build = (coords: any, idx?: number) => ({
-          id: idx !== undefined ? `${baseId}:${idx}` : baseId,
-            coordinates: coords,
-            classification
+      .filter((f: AnyGeoFeature) => f.geometry?.type === 'LineString' || f.geometry?.type === 'MultiLineString')
+      .flatMap((f: AnyGeoFeature) => {
+        const props = (f.properties || {}) as Record<string, unknown>;
+        const baseId = (typeof props.BRK_A3 === 'string' && props.BRK_A3) || f.id || 'border';
+        const classification = normalizeFeatureCla(typeof props.FEATURECLA === 'string' ? props.FEATURECLA : undefined);
+        const build = (coords: [number, number][], idx?: number): ClassifiedLineFeature => ({
+          id: idx !== undefined ? `${baseId}:${idx}` : String(baseId),
+          coordinates: coords,
+          classification
         });
-        if (f.geometry.type === 'LineString') return [build(f.geometry.coordinates)];
-        if (f.geometry.type === 'MultiLineString') return f.geometry.coordinates.map((coords: any, idx: number) => build(coords, idx));
+        if (f.geometry?.type === 'LineString') {
+          const g = f.geometry as LineStringGeom;
+          return [build(g.coordinates)];
+        }
+        if (f.geometry?.type === 'MultiLineString') {
+          const g = f.geometry as MultiLineStringGeom;
+          return g.coordinates.map((coords, idx) => build(coords, idx));
+        }
         return [];
       });
     this.cache.set(url, features);
@@ -197,7 +214,7 @@ export class NationalTerritoriesService {
     return this.cache.get(`${url}::matrix`) as RecognitionMatrixEntry[] | undefined;
   }
 
-  async loadBordersLOD(lod: 0 | 1 | 2): Promise<LineFeature[]> {
+  async loadBordersLOD(lod: 0 | 1 | 2): Promise<ClassifiedLineFeature[]> {
     // Prefer topology -> normalized -> raw
     const topo = await this.tryLoadTopologyLOD(lod);
     if (topo) return topo;
@@ -211,14 +228,19 @@ export class NationalTerritoriesService {
     const res = await fetch(url);
     const geo = await res.json();
     const features: PolygonFeature[] = (geo.features || [])
-      .filter((f: any) => f.geometry?.type === 'Polygon' || f.geometry?.type === 'MultiPolygon')
-      .flatMap((f: any) => {
-        const idBase = f.properties?.ADM0_A3 || f.id || 'territory';
-        if (f.geometry.type === 'Polygon') {
-          return [{ id: idBase, rings: f.geometry.coordinates }];
+      .filter((f: AnyGeoFeature) => f.geometry?.type === 'Polygon' || f.geometry?.type === 'MultiPolygon')
+      .flatMap((f: AnyGeoFeature) => {
+        const props = (f.properties || {}) as Record<string, unknown>;
+        const idBase = (typeof props.ADM0_A3 === 'string' && props.ADM0_A3) || f.id || 'territory';
+        if (f.geometry?.type === 'Polygon') {
+          const g = f.geometry as PolygonGeom;
+          return [{ id: String(idBase), rings: g.coordinates }];
         }
-        // MultiPolygon: create a feature per polygon set
-        return f.geometry.coordinates.map((poly: any, idx: number) => ({ id: `${idBase}:${idx}` , rings: poly }));
+        if (f.geometry?.type === 'MultiPolygon') {
+          const g = f.geometry as MultiPolygonGeom;
+          return g.coordinates.map((poly, idx) => ({ id: `${String(idBase)}:${idx}`, rings: poly }));
+        }
+        return [];
       });
     this.cache.set(url, features);
     return features;
@@ -239,16 +261,35 @@ export class NationalTerritoriesService {
       if (child instanceof THREE.Line) {
         const featureId = child.name.replace('border:', '');
         const f = filtered.find(ft => `border:${ft.id}` === child.name);
-        const params = resolveBorderMaterialConfig(cfg, featureId, f?.classification || 'international');
-        (child as THREE.Line).material = createLineMaterial(params);
-        child.userData.classification = f?.classification || 'international';
+        const classification = (f?.classification || 'international') as BorderClassification;
+        const params = resolveBorderMaterialConfig(cfg, featureId, classification);
+        const mat = createLineMaterial(params);
+        mat.depthWrite = false; // Enforce overlay line rendering does not write depth
+        (child as THREE.Line).material = mat;
+        const priority = classification === 'disputed' ? 3
+          : classification === 'line_of_control' ? 3
+          : classification === 'maritime_overlap' ? 2
+          : classification === 'maritime_eez' ? 1
+          : 0;
+        child.renderOrder = 100 + priority; // base 100, layered within borders
+        child.userData.classification = classification;
       }
     });
     return group;
   }
 
   buildTerritories(features: PolygonFeature[], cfg: GeoPoliticalConfig['nationalTerritories']): THREE.Group {
-    return GeometryFactory.buildTerritoryPolygons(features, { color: 0x0044ff, opacity: cfg.territoryColors.opacity / 100 });
+    // Apply config-driven rendering flags
+    return GeometryFactory.buildTerritoryPolygons(features, {
+      color: 0x0044ff,
+      opacity: cfg.territoryColors.opacity / 100,
+  // If user did not specify, let GeometryFactory apply dynamic default (0.5% radius)
+  elevation: typeof cfg.fillElevationEpsilon === 'number' ? cfg.fillElevationEpsilon : undefined,
+  side: (cfg.frontSideOnly ? THREE.FrontSide : THREE.DoubleSide),
+  usePolygonOffset: cfg.usePolygonOffset ?? true,
+  polygonOffsetFactor: cfg.polygonOffsetFactor ?? -1.5,
+  polygonOffsetUnits: cfg.polygonOffsetUnits ?? -1.5
+    });
   }
 
   buildMaritimeBorders(features: MaritimeFeature[], cfg: GeoPoliticalConfig['nationalTerritories']): THREE.Group {
@@ -256,8 +297,14 @@ export class NationalTerritoriesService {
     group.children.forEach(child => {
       if (child instanceof THREE.Line) {
         const f = features.find(ft => `border:${ft.id}` === child.name);
-        const params = resolveBorderMaterialConfig(cfg, f?.id || 'maritime', f?.classification || 'maritime_eez');
-        (child as THREE.Line).material = createLineMaterial(params);
+  const classification = (f?.classification || 'maritime_eez') as BorderClassification;
+  const params = resolveBorderMaterialConfig(cfg, f?.id || 'maritime', classification);
+  const mat = createLineMaterial(params);
+  mat.depthWrite = false; // Enforce overlay line rendering does not write depth
+  (child as THREE.Line).material = mat;
+  const priority = classification === 'maritime_overlap' ? 2 : 1;
+  child.renderOrder = 98 + priority; // maritime base below borders base
+  child.userData.classification = classification;
       }
     });
     group.userData.maritime = true;

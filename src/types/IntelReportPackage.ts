@@ -69,8 +69,7 @@ export interface IntelReportPackageMetadata {
   title: string;
   summary: string; // Brief description (max 500 chars)
   
-  // Classification and security
-  classification: 'UNCLASSIFIED' | 'CONFIDENTIAL' | 'SECRET' | 'TOP_SECRET';
+  // Priority and urgency
   priority: 'ROUTINE' | 'PRIORITY' | 'IMMEDIATE' | 'FLASH';
   
   // Basic metadata
@@ -114,7 +113,6 @@ export function toIntelReportUIFromPackage(pkg: IntelReportPackage): IntelReport
     author: pkg.metadata.author,
     category: pkg.metadata.intelligence.type || 'GENERAL',
     tags: pkg.metadata.intelligence.keyTags || [],
-    classification: pkg.metadata.classification,
     status: 'DRAFT', // Packages currently represent distributable drafts; status pipeline TBD
     createdAt: new Date(pkg.createdAt),
     updatedAt: new Date(pkg.updatedAt),
@@ -146,7 +144,6 @@ export function toCreateIntelReportInputFromPackage(pkg: IntelReportPackage): Cr
     summary: pkg.metadata.summary,
     category: pkg.metadata.intelligence.type || 'general',
     tags: pkg.metadata.intelligence.keyTags || [],
-    classification: pkg.metadata.classification,
     status: 'DRAFT',
     latitude: pkg.metadata.location?.lat,
     longitude: pkg.metadata.location?.lng,
@@ -177,7 +174,6 @@ export function toIntelReportPackageFromUI(report: IntelReportUI): Pick<IntelRep
       id: report.id,
       title: report.title,
       summary: report.summary || report.content.slice(0, 300),
-      classification: report.classification,
       priority: ((): IntelReportPackage['metadata']['priority'] => {
         // IntelReportPriority shares all except FLASH (incoming) mapping already normalized.
         if (report.priority === 'IMMEDIATE') return 'IMMEDIATE';

@@ -32,6 +32,14 @@ export class IntelReportVisualizationService {
   private cacheTimeout = 5 * 60 * 1000; // 5 minutes
   private lastFilteredResult: IntelReportOverlayMarker[] = [];
   private lastOptionsHash: string = '';
+  private subscribers = new Set<(markers: IntelReportOverlayMarker[]) => void>();
+  private subscriptionInitialized = false;
+  private realtimeUnsubscribe: (() => void) | null = null;
+  private invalidCoordinateReports = new Set<string>();
+
+  constructor() {
+    this.initializeRealtimeSubscription();
+  }
 
   /**
    * Fetch Intel Reports for visualization on the globe
@@ -40,6 +48,8 @@ export class IntelReportVisualizationService {
     options: IntelReportVisualizationOptions = {}
   ): Promise<IntelReportOverlayMarker[]> {
     try {
+      this.initializeRealtimeSubscription();
+
       // Create options hash for memoization
       const optionsHash = JSON.stringify(options);
       
@@ -56,17 +66,17 @@ export class IntelReportVisualizationService {
         return filtered;
       }
 
-  console.log('Fetching Intel Reports (UI) for 3D visualization...');
+      console.log('Fetching Intel Reports (UI) for 3D visualization...');
       
-  // Fetch via centralized intelReportService
-  const uiReports = await intelReportService.listReports();
+      // Fetch via centralized intelReportService
+      const uiReports = await intelReportService.listReports();
       
-  // Transform to overlay markers
-  const markers = uiReports.map((report: IntelReportUI) => this.transformReportToMarker(report));
+      // Transform to overlay markers with validation
+      const markers = this.buildMarkersFromReports(uiReports);
 
       // Update cache
-      this.cache = markers;
-      this.lastFetch = new Date();
+      this.updateCache(markers);
+  this.notifySubscribers(markers);
 
       console.log(`Loaded ${markers.length} Intel Report markers for 3D visualization`);
       
@@ -82,20 +92,160 @@ export class IntelReportVisualizationService {
     }
   }
 
+  subscribe(listener: (markers: IntelReportOverlayMarker[]) => void): () => void {
+    this.subscribers.add(listener);
+
+    if (this.cache.length > 0) {
+      listener(this.cloneMarkers(this.cache));
+    }
+
+    return () => {
+      this.subscribers.delete(listener);
+    };
+  }
+
+  private initializeRealtimeSubscription(): void {
+    if (this.subscriptionInitialized) {
+      return;
+    }
+
+    // Avoid initializing during SSR
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    this.subscriptionInitialized = true;
+
+    try {
+      this.realtimeUnsubscribe = intelReportService.onChange((reports) => {
+        this.refreshCacheFromReports(reports);
+      });
+
+      // Prime the cache on first subscription
+      void intelReportService.listReports()
+        .then((reports) => {
+          this.refreshCacheFromReports(reports);
+        })
+        .catch((error) => {
+          console.warn('Failed to prime Intel Report visualization cache:', error);
+        });
+    } catch (error) {
+      console.warn('Failed to subscribe to intelReportService changes:', error);
+      this.subscriptionInitialized = false;
+    }
+  }
+
+  private refreshCacheFromReports(reports: IntelReportUI[]): void {
+    const markers = this.buildMarkersFromReports(reports);
+    this.updateCache(markers);
+    this.notifySubscribers(markers);
+  }
+
+  private buildMarkersFromReports(reports: IntelReportUI[]): IntelReportOverlayMarker[] {
+    const markers: IntelReportOverlayMarker[] = [];
+
+    reports.forEach((report) => {
+      const marker = this.transformReportToMarker(report);
+      if (marker) {
+        markers.push(marker);
+      }
+    });
+
+    return markers;
+  }
+
+  private updateCache(markers: IntelReportOverlayMarker[]): void {
+    this.cache = markers;
+    this.lastFetch = new Date();
+    this.lastOptionsHash = '';
+    this.lastFilteredResult = [];
+  }
+
+  private notifySubscribers(markers: IntelReportOverlayMarker[]): void {
+    if (this.subscribers.size === 0) {
+      return;
+    }
+
+    const snapshot = this.cloneMarkers(markers);
+    this.subscribers.forEach((listener) => {
+      try {
+        listener(snapshot);
+      } catch (error) {
+        console.warn('IntelReportVisualizationService subscriber threw an error:', error);
+      }
+    });
+  }
+
+  private cloneMarkers(markers: IntelReportOverlayMarker[]): IntelReportOverlayMarker[] {
+    return markers.map((marker) => ({
+      ...marker,
+      tags: [...marker.tags]
+    }));
+  }
+
   /**
    * Transform IntelReport to overlay marker format
    */
-  private transformReportToMarker(report: IntelReportUI): IntelReportOverlayMarker {
+  private transformReportToMarker(report: IntelReportUI): IntelReportOverlayMarker | null {
+    const latitude = this.normalizeCoordinate(report.latitude);
+    const longitude = this.normalizeCoordinate(report.longitude);
+
+    if (latitude === null || longitude === null) {
+      if (!this.invalidCoordinateReports.has(report.id)) {
+        this.invalidCoordinateReports.add(report.id);
+        console.warn(
+          `Skipping intel report "${report.title}" (${report.id}) due to missing or invalid coordinates.`
+        );
+      }
+      return null;
+    }
+
+    // Coordinate is now valid, ensure the warning can fire again if it becomes invalid later
+    if (this.invalidCoordinateReports.has(report.id)) {
+      this.invalidCoordinateReports.delete(report.id);
+    }
+
     return {
       pubkey: report.id,
       title: report.title || 'Unknown Intel Report',
       content: report.content || '',
       tags: report.tags || [],
-      latitude: report.latitude ?? 0,
-      longitude: report.longitude ?? 0,
-      timestamp: (report.createdAt instanceof Date ? report.createdAt : new Date(report.createdAt)).getTime(),
+      latitude,
+      longitude,
+      timestamp: this.normalizeTimestamp(report.updatedAt ?? report.createdAt),
       author: report.author || 'Unknown'
     };
+  }
+
+  private normalizeCoordinate(value: number | string | undefined | null): number | null {
+    if (typeof value === 'number' && Number.isFinite(value)) {
+      return value;
+    }
+
+    if (typeof value === 'string') {
+      const parsed = Number.parseFloat(value);
+      return Number.isFinite(parsed) ? parsed : null;
+    }
+
+    return null;
+  }
+
+  private normalizeTimestamp(value: Date | string | number | undefined | null): number {
+    if (value instanceof Date) {
+      const time = value.getTime();
+      return Number.isFinite(time) ? time : Date.now();
+    }
+
+    if (typeof value === 'number' && Number.isFinite(value)) {
+      return value;
+    }
+
+    if (typeof value === 'string') {
+      const parsed = Date.parse(value);
+      return Number.isFinite(parsed) ? parsed : Date.now();
+    }
+
+    return Date.now();
   }
 
   /**
@@ -184,6 +334,8 @@ export class IntelReportVisualizationService {
   clearCache(): void {
     this.cache = [];
     this.lastFetch = null;
+    this.lastFilteredResult = [];
+    this.lastOptionsHash = '';
   }
 
   /**
@@ -191,7 +343,15 @@ export class IntelReportVisualizationService {
    */
   addMarker(report: IntelReportUI): void {
     const marker = this.transformReportToMarker(report);
+    if (!marker) {
+      return;
+    }
+
     this.cache.unshift(marker); // Add to beginning for recency
+    this.lastFetch = new Date();
+    this.lastFilteredResult = [];
+    this.lastOptionsHash = '';
+    this.notifySubscribers(this.cache);
   }
 
   /**

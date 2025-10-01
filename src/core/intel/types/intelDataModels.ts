@@ -19,7 +19,7 @@ export interface BaseEntity {
   createdAt: string;
   updatedAt: string;
   createdBy: string;
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
   tags: string[];
 }
 
@@ -34,7 +34,7 @@ export interface Relationship {
   createdAt: string;
   updatedAt: string;
   createdBy: string;
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
   confidence: number; // 0-100 scale indicating confidence in the relationship
   tags: string[];
 }
@@ -49,7 +49,6 @@ export interface IntelEntity extends BaseEntity {
   // === EXISTING PROPERTIES (100% Backward Compatible) ===
   title: string;
   description: string;
-  classification: ClassificationLevel;
   source: string;
   sourceUrl?: string;
   verified: boolean;
@@ -126,7 +125,7 @@ export interface IntelEntity extends BaseEntity {
  */
 export interface NodeEntity extends IntelEntity {
   nodeType: NodeType;
-  properties: Record<string, any>; // Additional type-specific properties
+  properties: Record<string, unknown>; // Additional type-specific properties
   coordinates?: {
     latitude?: number;
     longitude?: number;
@@ -240,7 +239,7 @@ export interface ActivityLogEntry {
   action: ActivityAction;
   timestamp: string;
   userId: string;
-  details: Record<string, any>;
+  details: Record<string, unknown>;
   entityId?: string; // ID of related entity if applicable
 }
 
@@ -374,7 +373,7 @@ export interface Attachment {
   thumbnailUrl?: string;
   createdAt: string;
   uploadedBy: string;
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
 }
 
 /**
@@ -394,7 +393,7 @@ export interface IntelQueryOptions {
   offset?: number;
   sortBy?: string;
   sortDirection?: 'asc' | 'desc';
-  filters?: Record<string, any>;
+  filters?: Record<string, unknown>;
   includeRelationships?: boolean;
   relationshipDepth?: number;
   pagination?: {
@@ -412,7 +411,7 @@ export interface EventSubscription {
   id: string;
   topics: string[];
   callback: (event: DataEvent) => void;
-  filters?: Record<string, any>;
+  filters?: Record<string, unknown>;
 }
 
 /**
@@ -425,7 +424,7 @@ export interface DataEvent {
   timestamp: string;
   entityId: string;
   entityType: string;
-  data: any;
+  data: unknown;
   source: string;
 }
 

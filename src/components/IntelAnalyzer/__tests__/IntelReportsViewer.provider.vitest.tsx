@@ -5,9 +5,9 @@ import { IntelWorkspaceProvider } from '../../../services/intel/IntelWorkspaceCo
 import { intelReportService } from '../../../services/intel/IntelReportService';
 import IntelReportsViewer from '../IntelReportsViewer';
 
-const Wrap: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <IntelWorkspaceProvider>{children}</IntelWorkspaceProvider>
-);
+function wrap(children: React.ReactNode) {
+  return <IntelWorkspaceProvider>{children}</IntelWorkspaceProvider>;
+}
 
 describe('IntelReportsViewer (provider → intel-ui path)', () => {
   beforeEach(() => {
@@ -34,8 +34,7 @@ describe('IntelReportsViewer (provider → intel-ui path)', () => {
       }, 'tester');
     });
 
-  render(<Wrap><IntelReportsViewer /></Wrap>);
-    // Expect titles to appear (list mode default)
+    render(wrap(<IntelReportsViewer />));
     expect(await screen.findByText('Viewer Test A')).toBeTruthy();
     expect(await screen.findByText('Viewer Test B')).toBeTruthy();
   });

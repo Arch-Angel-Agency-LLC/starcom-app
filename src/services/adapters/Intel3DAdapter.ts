@@ -28,29 +28,41 @@ export class Intel3DAdapter {
    * Transform IntelReportData to IntelReport3DData for 3D visualization
    */
   static toIntelReport3D(data: IntelReportData): IntelReport3DData {
+    const priorityEnum = this.mapPriority(data.priority);
+    const timestampMs = this.normalizeTimestamp(data.timestamp);
+    const normalizedConfidence = this.normalizeConfidence(data.confidence);
+    const tags = data.tags ?? [];
+
+    const location = typeof data.latitude === 'number' && typeof data.longitude === 'number'
+      ? {
+          lat: data.latitude,
+          lng: data.longitude,
+          altitude: data.location3D?.altitude,
+          region: data.location3D?.region
+        }
+      : undefined;
+
     return {
       id: data.id || data.pubkey || 'unknown',
       title: data.title,
-      classification: data.classification,
       source: data.author,
-      timestamp: new Date(data.timestamp * 1000), // Convert from Unix timestamp
-      location: {
-        lat: data.latitude,
-        lng: data.longitude,
-        altitude: data.location3D?.altitude
-      },
+      timestamp: new Date(timestampMs),
+      location,
       content: {
         summary: data.content,
         details: data.content,
-        keywords: data.tags
+        keywords: tags
       },
       metadata: {
         category: data.categories?.[0],
-        tags: data.tags,
-        confidence: data.confidence,
-        priority: data.priority
+        tags,
+        confidence: normalizedConfidence,
+        reliability: this.mapReliability(data.reliability),
+        freshness: this.calculateFreshness(timestampMs),
+        priority: priorityEnum,
+        threat_level: this.mapPriorityToThreat(priorityEnum)
       },
-      visualization: this.createVisualization3D(data),
+      visualization: this.createVisualization3D(data, priorityEnum),
       lodLevel: this.determineLODLevel(data),
       contextVisible: true
     };
@@ -60,7 +72,8 @@ export class Intel3DAdapter {
    * Transform IntelReportData to IntelRender3D for Globe.gl rendering
    */
   static toRender3D(data: IntelReportData): IntelRender3D {
-    const vis = this.createVisualization3D(data);
+    const priorityEnum = this.mapPriority(data.priority);
+    const vis = this.createVisualization3D(data, priorityEnum);
     
     return {
       id: data.id || data.pubkey || 'unknown',
@@ -81,7 +94,7 @@ export class Intel3DAdapter {
   /**
    * Create 3D visualization properties from report data
    */
-  private static createVisualization3D(data: IntelReportData): IntelVisualization3D {
+  private static createVisualization3D(data: IntelReportData, priorityEnum: IntelPriority): IntelVisualization3D {
     // Use existing 3D visualization or create default
     if (data.visualization3D) {
       return data.visualization3D;
@@ -89,10 +102,10 @@ export class Intel3DAdapter {
 
     return {
       markerType: this.determineMarkerType(data),
-      color: this.getClassificationColor(data.classification),
+      color: this.getPriorityColor(data.priority),
       size: this.getPrioritySize(data.priority),
       opacity: 0.8,
-      priority: this.mapPriority(data.priority),
+      priority: priorityEnum,
       icon: this.getMarkerIcon(data),
       label: {
         text: data.title,
@@ -114,19 +127,17 @@ export class Intel3DAdapter {
    * Determine marker type based on report data
    */
   private static determineMarkerType(data: IntelReportData): IntelMarkerType {
-    if (data.classification && ['SECRET', 'TOP_SECRET'].includes(data.classification)) {
-      return 'classified';
-    }
-    
     if (data.priority === 'IMMEDIATE') {
       return 'priority';
     }
-    
-    if (data.confidence && data.confidence > 85) {
+
+    const confidence = this.normalizeConfidence(data.confidence);
+
+    if (confidence !== undefined && confidence >= 0.85) {
       return 'verified';
     }
-    
-    if (data.confidence && data.confidence < 60) {
+
+    if (confidence !== undefined && confidence <= 0.5) {
       return 'unverified';
     }
     
@@ -134,21 +145,17 @@ export class Intel3DAdapter {
   }
 
   /**
-   * Get color based on classification level
+   * Get color based on priority level
    */
-  private static getClassificationColor(classification?: string): string {
-    switch (classification) {
-      case 'TOP_SECRET':
-        return '#ff0000'; // Red
-      case 'SECRET':
-        return '#ff8c00'; // Dark orange
-      case 'CONFIDENTIAL':
-        return '#ffd700'; // Gold
-      case 'CUI':
-        return '#87ceeb'; // Sky blue
-      case 'UNCLASS':
+  private static getPriorityColor(priority?: string): string {
+    switch (priority) {
+      case 'IMMEDIATE':
+        return '#ff3b30'; // Red for urgent reports
+      case 'PRIORITY':
+        return '#ff9500'; // Orange for high priority
+      case 'ROUTINE':
       default:
-        return '#00ff00'; // Green
+        return '#34c759'; // Green for routine reports
     }
   }
 
@@ -241,12 +248,11 @@ export class Intel3DAdapter {
     if (data.priority === 'IMMEDIATE') {
       return 'high';
     }
-    
-    // Classified reports get medium detail
-    if (data.classification && data.classification !== 'UNCLASS') {
+
+    if (data.priority === 'PRIORITY') {
       return 'medium';
     }
-    
+
     return 'medium'; // Default level
   }
 
@@ -288,5 +294,75 @@ export class Intel3DAdapter {
     return sorted
       .slice(0, maxVisible)
       .map(report => this.toRender3D(report));
+  }
+
+  private static mapReliability(reliability?: string): number | undefined {
+    if (!reliability) return undefined;
+    const map: Record<string, number> = {
+      A: 1.0,
+      B: 0.9,
+      C: 0.75,
+      D: 0.6,
+      E: 0.45,
+      F: 0.3
+    };
+    const normalized = map[reliability.toUpperCase()] ?? undefined;
+    return normalized;
+  }
+
+  private static calculateFreshness(timestampMs?: number): number | undefined {
+    if (!timestampMs) return undefined;
+    const ageHours = (Date.now() - timestampMs) / (1000 * 60 * 60);
+    if (ageHours <= 1) return 1;
+    if (ageHours <= 6) return 0.9;
+    if (ageHours <= 24) return 0.75;
+    if (ageHours <= 72) return 0.6;
+    if (ageHours <= 168) return 0.4;
+    return 0.2;
+  }
+
+  private static mapPriorityToThreat(priority: IntelPriority): string {
+    switch (priority) {
+      case 'critical':
+        return 'critical';
+      case 'high':
+        return 'high';
+      case 'medium':
+        return 'moderate';
+      case 'low':
+        return 'low';
+      case 'background':
+      default:
+        return 'minimal';
+    }
+  }
+
+  private static normalizeTimestamp(timestamp?: number): number {
+    if (!timestamp) {
+      return Date.now();
+    }
+
+    // If timestamp looks like seconds (10 digits), convert to ms
+    if (timestamp < 1e12) {
+      return timestamp * 1000;
+    }
+
+    return timestamp;
+  }
+
+  private static normalizeConfidence(confidence?: number): number | undefined {
+    if (confidence === undefined) {
+      return undefined;
+    }
+
+    if (confidence > 1) {
+      return Math.min(confidence / 100, 1);
+    }
+
+    if (confidence < 0) {
+      return undefined;
+    }
+
+    return confidence;
   }
 }

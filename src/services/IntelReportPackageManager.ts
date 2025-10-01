@@ -11,7 +11,7 @@
 
 import { 
   IntelReportPackage, 
-  IntelReport, 
+  IntelReportPackageMetadata,
   CreatePackageOptions,
   LoadPackageOptions,
   PackageValidationResult,
@@ -168,7 +168,6 @@ export class IntelReportPackageManager {
       external_url: `https://starcom.app/intel/${intelPackage.packageId}`,
       
       attributes: [
-        { trait_type: 'Classification', value: metadata.classification },
         { trait_type: 'Intelligence Type', value: metadata.intelligence.type },
         { trait_type: 'Priority', value: metadata.priority },
         { trait_type: 'Confidence', value: Math.round(metadata.intelligence.confidence * 100) },
@@ -212,7 +211,7 @@ export class IntelReportPackageManager {
   async getPackageForIntelWeb(packageId: string): Promise<{
     entities: unknown[];
     relationships: unknown[];
-    metadata: IntelReport;
+    metadata: IntelReportPackageMetadata;
   }> {
     const intelPackage = await this.loadPackage(packageId, {
       cacheEnabled: true,
@@ -241,20 +240,19 @@ export class IntelReportPackageManager {
    * List packages for marketplace
    */
   async listPackagesForMarketplace(filters?: {
-    classification?: string;
     intelType?: string;
     minConfidence?: number;
     region?: string;
     priceRange?: { min: number; max: number };
   }): Promise<Array<{
     packageId: string;
-    metadata: IntelReport;
+    metadata: IntelReportPackageMetadata;
     marketplace: MarketplaceMetadata;
     preview: string;
   }>> {
     const results: Array<{
       packageId: string;
-      metadata: IntelReport;
+      metadata: IntelReportPackageMetadata;
       marketplace: MarketplaceMetadata;
       preview: string;
     }> = [];
@@ -262,7 +260,6 @@ export class IntelReportPackageManager {
     for (const [packageId, intelPackage] of this.packages) {
       // Apply filters
       if (filters) {
-        if (filters.classification && intelPackage.metadata.classification !== filters.classification) continue;
         if (filters.intelType && intelPackage.metadata.intelligence.type !== filters.intelType) continue;
         if (filters.minConfidence && intelPackage.metadata.intelligence.confidence < filters.minConfidence) continue;
         if (filters.region && intelPackage.metadata.location.region !== filters.region) continue;
@@ -294,12 +291,11 @@ export class IntelReportPackageManager {
   
   // Private helper methods
   
-  private async createIntelReportMetadata(sourceReport: IntelReportData): Promise<IntelReport> {
+  private async createIntelReportMetadata(sourceReport: IntelReportData): Promise<IntelReportPackageMetadata> {
     return {
       id: sourceReport.id || this.generateReportId(),
       title: sourceReport.title,
       summary: sourceReport.content.substring(0, 500) + (sourceReport.content.length > 500 ? '...' : ''),
-      classification: (sourceReport.classification as 'UNCLASSIFIED' | 'CONFIDENTIAL' | 'SECRET' | 'TOP_SECRET') || 'UNCLASSIFIED',
       priority: (sourceReport.priority as 'ROUTINE' | 'PRIORITY' | 'IMMEDIATE' | 'FLASH') || 'ROUTINE',
       author: sourceReport.author,
       timestamp: sourceReport.timestamp,
@@ -362,7 +358,6 @@ export class IntelReportPackageManager {
     const intelDataPack: IntelReportDataPack = {
       ...baseDataPack,
       intelligence: {
-        classification: (sourceReport.classification as 'UNCLASSIFIED' | 'CONFIDENTIAL' | 'SECRET' | 'TOP_SECRET') || 'UNCLASSIFIED',
         sources: [{
           id: 'source-1',
           name: 'Original Intel Report',
@@ -444,7 +439,6 @@ export class IntelReportPackageManager {
               color: '#FF9800',
               name: 'Locations'
             }],
-            showClassification: true,
             filterByConfidence: true,
             minConfidence: 0.5,
             showSources: true
@@ -463,7 +457,7 @@ export class IntelReportPackageManager {
     return intelDataPack;
   }
   
-  private async generatePackageSignature(metadata: IntelReport, dataPack: IntelReportDataPack): Promise<PackageSignature> {
+  private async generatePackageSignature(metadata: IntelReportPackageMetadata, dataPack: IntelReportDataPack): Promise<PackageSignature> {
     try {
       const { publicKey, privateKey } = await cryptoService.getOrCreateLocalKeyPair();
   // We sign only a reduced subset (metadata + manifest + contentHash) to keep signature deterministic
@@ -637,7 +631,6 @@ export class IntelReportPackageManager {
       version: intelPackage.version,
       metadata: {
         title: intelPackage.metadata.title,
-        classification: intelPackage.metadata.classification,
         dataPackHash: intelPackage.metadata.dataPackHash
       },
       dataPack: {
@@ -680,7 +673,7 @@ export class IntelReportPackageManager {
   ): Promise<{
     packageId: string;
     version: string;
-    metadata: { title: string; classification: string; dataPackHash?: string };
+    metadata: { title: string; dataPackHash?: string };
     dataPack: { id: string; contentHash: string; manifest: unknown };
   }> {
     const url = `${gateway.replace(/\/$/, '')}/${cid}`;
@@ -692,7 +685,7 @@ export class IntelReportPackageManager {
     const json = (await resp.json()) as {
       packageId: string;
       version: string;
-      metadata: { title: string; classification: string; dataPackHash?: string };
+      metadata: { title: string; dataPackHash?: string };
       dataPack: { id: string; contentHash: string; manifest: unknown };
     };
     // Minimal validation

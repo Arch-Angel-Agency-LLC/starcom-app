@@ -14,10 +14,6 @@ const ReportDetailPanel: React.FC<Props> = ({ report, onClose, onEnterEdit }) =>
 
   const handleExport = () => {
     if (!report) return;
-    if (['SECRET','TOP_SECRET'].includes(report.classification)) {
-      const confirmed = window.confirm(`This report is classified as ${report.classification}. Confirm export?`);
-      if (!confirmed) return;
-    }
     const serialized = serializeReport(report);
     const blob = new Blob([JSON.stringify(serialized, null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
@@ -40,7 +36,6 @@ const ReportDetailPanel: React.FC<Props> = ({ report, onClose, onEnterEdit }) =>
       </div>
       <div className={styles.metaRow}>
         <span className={`${styles.badge} status-${report.status}`}>{report.status}</span>
-        <span className={styles.badge}>{report.classification}</span>
         {report.priority && <span className={`${styles.badge} priority-${report.priority}`}>{report.priority}</span>}
         <span className={styles.badge}>v{report.version || 1}</span>
       </div>
@@ -75,6 +70,9 @@ const ReportDetailPanel: React.FC<Props> = ({ report, onClose, onEnterEdit }) =>
         <h4>Metadata</h4>
         <div className={styles.small}>Author: {report.author}</div>
         <div className={styles.small}>Category: {report.category}</div>
+        {report.latitude !== undefined && report.longitude !== undefined && (
+          <div className={styles.small}>Location: {report.latitude.toFixed(4)}, {report.longitude.toFixed(4)}</div>
+        )}
         {report.confidence !== undefined && <div className={styles.small}>Confidence: {Math.round((report.confidence||0)*100)}%</div>}
         {report.targetAudience && report.targetAudience.length>0 && <div className={styles.small}>Audience: {report.targetAudience.join(', ')}</div>}
         <div className={styles.small}>Created: {report.createdAt.toLocaleString()}</div>

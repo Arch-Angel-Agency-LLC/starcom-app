@@ -106,7 +106,6 @@ export class IntelWorkspaceManager {
                 id,
                 title: item.title || 'Untitled',
                 type: 'INTEL_REPORT',
-                classification: item.classification || 'UNCLASSIFIED',
                 summary,
                 content: item.content || '',
                 conclusions: [],

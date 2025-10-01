@@ -7,21 +7,34 @@ import { IntelReportUI, IntelReportHistoryEntry, IntelReportStatus } from '../..
 
 // Fields considered for change detection (content + analytical + metadata subset)
 const TRACKED_FIELDS: (keyof IntelReportUI)[] = [
-  'title','summary','content','category','tags','classification','conclusions','recommendations','methodology','confidence','priority','targetAudience','sourceIntelIds'
+  'title',
+  'summary',
+  'content',
+  'category',
+  'tags',
+  'conclusions',
+  'recommendations',
+  'methodology',
+  'confidence',
+  'priority',
+  'targetAudience',
+  'sourceIntelIds',
+  'latitude',
+  'longitude'
 ];
 
 export function computeChangedFields(before: IntelReportUI, after: IntelReportUI): string[] {
   const changed: string[] = [];
   for (const f of TRACKED_FIELDS) {
-    const a: any = (before as any)[f];
-    const b: any = (after as any)[f];
+    const a = before[f];
+    const b = after[f];
     const eq = Array.isArray(a) && Array.isArray(b) ? a.join('\u0001') === b.join('\u0001') : a === b;
     if (!eq) changed.push(String(f));
   }
   return changed;
 }
 
-export function nextVersion(prev: IntelReportUI, changes: string[], statusChanged: boolean, toStatus?: IntelReportStatus): number {
+export function nextVersion(prev: IntelReportUI, changes: string[], statusChanged: boolean, _toStatus?: IntelReportStatus): number {
   // Simple numeric increment for now (Phase 6 introduces semver logic)
   if (!changes.length && !statusChanged) return prev.version || 1;
   return (prev.version || 1) + 1;

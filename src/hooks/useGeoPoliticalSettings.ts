@@ -14,6 +14,16 @@ export interface GeoPoliticalConfig {
       colorScheme: 'default' | 'political' | 'economic' | 'population';
       opacity: number; // 0-100
     };
+  // Motion/accessibility
+  reducedMotion?: boolean; // prefer minimal/no easing
+  // Picking/interaction flags
+  bvhPicking?: boolean; // enable three-mesh-bvh accelerated picking
+  // Rendering controls (Stage 1 flags)
+  fillElevationEpsilon?: number; // default ≈0.5 (0.5% of radius when unspecified)
+  usePolygonOffset?: boolean; // default true
+  polygonOffsetFactor?: number; // default -1.5
+  polygonOffsetUnits?: number; // default -1.5
+  frontSideOnly?: boolean; // default true
     showDisputedTerritories: boolean;
     showMaritimeBorders: boolean;
     labelVisibility: number; // 0-100
@@ -87,6 +97,13 @@ const defaultConfig: GeoPoliticalConfig = {
       colorScheme: 'default',
       opacity: 50
     },
+  reducedMotion: false,
+  bvhPicking: true,
+  fillElevationEpsilon: 0.5,
+  usePolygonOffset: true,
+  polygonOffsetFactor: -1.5,
+  polygonOffsetUnits: -1.5,
+  frontSideOnly: true,
     showDisputedTerritories: true,
     showMaritimeBorders: false,
     labelVisibility: 60,

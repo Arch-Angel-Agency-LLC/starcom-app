@@ -7,6 +7,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
+import type { IntelReport3DData } from '../../../models/Intel/IntelVisualization3D';
 import { useIntelReportsGlobe, useIntelReportsMain } from '../Core/IntelReports3DProvider';
 
 // =============================================================================
@@ -76,12 +77,13 @@ export const IntelGlobeMarkers: React.FC<IntelGlobeMarkersProps> = ({
     initializeGlobe,
     destroyGlobe,
     addIntelReports,
+    clearIntelReports,
     setInteractionHandlers
   } = useIntelReportsGlobe();
   
   // Refs for tracking initialization state
   const isInitializedRef = useRef<boolean>(false);
-  const lastReportsCountRef = useRef<number>(0);
+  const lastSyncSignatureRef = useRef<string | null>(null);
   
   // Initialize globe service when Three.js components are available
   useEffect(() => {
@@ -132,22 +134,51 @@ export const IntelGlobeMarkers: React.FC<IntelGlobeMarkersProps> = ({
   
   // Sync Intel reports with globe markers
   useEffect(() => {
-    if (!globeInitialized || reportsLoading || !intelReports.length) {
+    if (!globeInitialized || reportsLoading) {
       return;
     }
-    
-    // Only update if the reports count has changed to prevent unnecessary re-renders
-    if (intelReports.length !== lastReportsCountRef.current) {
-      try {
-        addIntelReports(intelReports);
-        lastReportsCountRef.current = intelReports.length;
-        
-        console.log(`Intel Globe Markers: Updated ${intelReports.length} markers`);
-      } catch (error) {
-        console.error('Intel Globe Markers: Failed to add reports to globe:', error);
+
+    const computeSignature = (reports: IntelReport3DData[]): string => {
+      if (!reports.length) return 'empty';
+      const normalized = [...reports].sort((a, b) => a.id.localeCompare(b.id));
+      return normalized
+        .map(report => {
+          const timestampValue = report.timestamp
+            ? (report.timestamp instanceof Date
+              ? report.timestamp.getTime()
+              : new Date(report.timestamp).getTime())
+            : 0;
+          const freshness = report.metadata?.freshness ?? '';
+          const confidence = report.metadata?.confidence ?? '';
+          const priority = report.visualization.priority;
+          return `${report.id}:${timestampValue}:${freshness}:${confidence}:${priority}`;
+        })
+        .join('|');
+    };
+
+    const syncReports = async () => {
+      const nextSignature = computeSignature(intelReports);
+
+      if (lastSyncSignatureRef.current === nextSignature) {
+        return;
       }
-    }
-  }, [globeInitialized, intelReports, reportsLoading, addIntelReports]);
+
+      if (!intelReports.length) {
+        clearIntelReports();
+        lastSyncSignatureRef.current = 'empty';
+        console.log('Intel Globe Markers: Cleared all markers');
+        return;
+      }
+
+      await addIntelReports(intelReports);
+      lastSyncSignatureRef.current = nextSignature;
+      console.log(`Intel Globe Markers: Synced ${intelReports.length} markers`);
+    };
+
+    syncReports().catch(error => {
+      console.error('Intel Globe Markers: Failed to sync reports to globe:', error);
+    });
+  }, [globeInitialized, intelReports, reportsLoading, addIntelReports, clearIntelReports]);
   
   // Component doesn't render any DOM elements - it's purely for Three.js integration
   // The actual 3D markers are rendered directly into the Three.js scene

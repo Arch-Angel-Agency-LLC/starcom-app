@@ -82,7 +82,6 @@ class WorkspaceBackedIntelReportService implements IntelReportService {
       author,
       category: input.category,
       tags: input.tags,
-      classification: input.classification,
       status: input.status || 'DRAFT',
       createdAt: now,
       updatedAt: now,

@@ -31,7 +31,6 @@ export interface IntelReportMetadata {
   
   // Lightweight content (blockchain-safe)
   summary: string; // Max 300 chars
-  classification: 'UNCLASSIFIED' | 'CONFIDENTIAL' | 'SECRET' | 'TOP_SECRET';
   confidence: number; // 0.0-1.0
   
   // Geographic (required for blockchain)
@@ -58,7 +57,6 @@ export interface IntelReportData {
   id: string;
   title: string;
   summary: string;
-  classification: 'UNCLASSIFIED' | 'CONFIDENTIAL' | 'SECRET' | 'TOP_SECRET';
   confidence: number;
   latitude: number;
   longitude: number;
@@ -176,7 +174,6 @@ export class IntelReportConverter {
       title: this.truncateString(data.title, 100),
       version: '1.0.0',
       summary: this.truncateString(data.summary || data.content, 300),
-      classification: data.classification,
       confidence: data.confidence,
       latitude: data.latitude,
       longitude: data.longitude,

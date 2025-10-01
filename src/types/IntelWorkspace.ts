@@ -220,7 +220,6 @@ export interface IntelReportData {
   id: string;
   title: string;
   type: string;
-  classification: string;
   
   // Report Content
   summary: string;

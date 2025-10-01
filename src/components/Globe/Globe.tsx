@@ -60,6 +60,8 @@ const GlobeView: React.FC = () => {
   const cyberAttacksGroupRef = useRef<THREE.Group>(new THREE.Group());
   const networkInfraGroupRef = useRef<THREE.Group>(new THREE.Group());
   const commHubsGroupRef = useRef<THREE.Group>(new THREE.Group());
+  // Debug: Prime meridian/equator marker(s)
+  const primeMeridianMarkerRef = useRef<THREE.Group>(new THREE.Group());
   
   // Cyber data services and state
   const threatServiceRef = useRef<ThreatIntelligenceService | null>(null);
@@ -78,6 +80,9 @@ const GlobeView: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isInitializing, setIsInitializing] = useState(!hasGlobeLoadedBefore);
   const [containerSize, setContainerSize] = useState({ width: 800, height: 600 });
+  const snapDoneRef = useRef(false);
+  // GeoPolitical settings (used for dev-only geoSnap toggles)
+  const { config: geoPoliticalConfig, updateNationalTerritories } = useGeoPoliticalSettings();
 
   // Solar system integration (optional feature - can be enabled/disabled)
   // Only activate in compatible visualization modes to prevent conflicts
@@ -166,29 +171,276 @@ const GlobeView: React.FC = () => {
     setGlobeData([]); // TODO: Use overlay/event data from GlobeEngine if needed
   }, [globeEngine]);
 
+  // DEV: scripted camera snapshots for alignment/QA baseline
+  useEffect(() => {
+    if (process?.env?.NODE_ENV !== 'development') return;
+    if (!globeRef.current || !containerRef.current) return;
+    if (snapDoneRef.current) return;
+
+    const params = new URLSearchParams(window.location.search);
+    const snapParam = params.get('geoSnap');
+    if (!snapParam) return;
+
+    const shots: Record<string, { lat: number; lng: number; altitude?: number; ms?: number } > = {
+      seam0: { lat: 0, lng: 0, altitude: 2.6, ms: 700 },
+      eq90E: { lat: 0, lng: 90, altitude: 2.6, ms: 700 },
+      eq90W: { lat: 0, lng: -90, altitude: 2.6, ms: 700 },
+      anti180: { lat: 0, lng: 180, altitude: 2.6, ms: 700 },
+      pm45N: { lat: 45, lng: 0, altitude: 2.8, ms: 800 },
+      pm45S: { lat: -45, lng: 0, altitude: 2.8, ms: 800 },
+      lat45E: { lat: 45, lng: 90, altitude: 2.8, ms: 800 },
+      lat45W: { lat: 45, lng: -90, altitude: 2.8, ms: 800 },
+      // Limb comparison viewpoint
+      limb: { lat: 0, lng: 90, altitude: 2.6, ms: 800 },
+      limbNoBias: { lat: 0, lng: 90, altitude: 2.6, ms: 800 },
+      limbWithBias: { lat: 0, lng: 90, altitude: 2.6, ms: 800 },
+      // Poles
+      northPole: { lat: 85, lng: 0, altitude: 3.0, ms: 800 },
+      southPole: { lat: -85, lng: 0, altitude: 3.0, ms: 800 },
+      // Small islands regions (approximate centers)
+      maldives: { lat: 3.2, lng: 73.2, altitude: 2.2, ms: 900 },
+      aegean: { lat: 37.9, lng: 25.0, altitude: 2.2, ms: 900 },
+      caribbean: { lat: 13.1, lng: -59.6, altitude: 2.2, ms: 900 },
+      pacificMicro: { lat: 7.0, lng: 158.0, altitude: 2.3, ms: 900 },
+  // Disputed and maritime hotspots (approximate views for QA)
+  kashmirLoC: { lat: 34.4, lng: 74.3, altitude: 3.0, ms: 900 },
+  westSahara: { lat: 24.5, lng: -13.0, altitude: 3.0, ms: 900 },
+  southChinaSea: { lat: 15.0, lng: 115.0, altitude: 2.9, ms: 900 },
+    };
+
+    const keys = snapParam === 'all' ? Object.keys(shots) : snapParam.split(',').map(s => s.trim()).filter(Boolean);
+    // Helper to wait for animation frames (ensure renders settled)
+    const awaitFrames = async (count = 2) => {
+      for (let i = 0; i < count; i++) {
+        await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+      }
+    };
+
+    const g = globeRef.current as unknown as GlobeMethods;
+    const doSnap = (name: string) => {
+      const canvas = containerRef.current?.querySelector('canvas') as HTMLCanvasElement | null;
+      if (!canvas) {
+        console.warn('Snapshot skipped, canvas not found for', name);
+        return;
+      }
+      try {
+        const url = canvas.toDataURL('image/png');
+        const a = document.createElement('a');
+        const ts = new Date().toISOString().replace(/[:.]/g, '-');
+        a.href = url;
+        a.download = `globe-${name}-${ts}.png`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+  console.log(`📸 Captured snapshot: ${name}`);
+      } catch (err) {
+  console.warn('Snapshot failed for', name, err);
+      }
+    };
+
+    snapDoneRef.current = true; // ensure single run
+    (async () => {
+      // Optional: apply URL flags for maritime/disputed visibility to stabilize QA flows
+      const fParams = new URLSearchParams(window.location.search);
+    const maritimeFlag = fParams.get('geoMaritime');
+    const disputedFlag = fParams.get('geoDisputed');
+    const lodFlag = fParams.get('geoLod'); // 0|1|2 to lock LOD deterministically
+    if (maritimeFlag !== null || disputedFlag !== null || lodFlag !== null) {
+        updateNationalTerritories({
+          ...(maritimeFlag !== null ? { showMaritimeBorders: maritimeFlag !== '0' && maritimeFlag !== 'false' } : {}),
+      ...(disputedFlag !== null ? { showDisputedTerritories: disputedFlag !== '0' && disputedFlag !== 'false' } : {}),
+      ...(lodFlag !== null ? { lod: { mode: 'locked', lockedLevel: (['0','1','2'].includes(lodFlag) ? Number(lodFlag) : 2) as 0|1|2, hysteresis: geoPoliticalConfig?.nationalTerritories?.lod?.hysteresis ?? 25 } } : {})
+        });
+        // allow settings to propagate
+        await new Promise(r => setTimeout(r, 300));
+      }
+      // Capture original rendering bias settings to restore later
+      const originalBias = {
+        fillElevationEpsilon: geoPoliticalConfig?.nationalTerritories?.fillElevationEpsilon,
+        usePolygonOffset: geoPoliticalConfig?.nationalTerritories?.usePolygonOffset,
+        polygonOffsetFactor: geoPoliticalConfig?.nationalTerritories?.polygonOffsetFactor,
+        polygonOffsetUnits: geoPoliticalConfig?.nationalTerritories?.polygonOffsetUnits,
+      };
+      for (const k of keys) {
+        const s = shots[k];
+        if (!s) { console.warn('Unknown geoSnap key:', k); continue; }
+        try {
+          // For limb comparison keys, toggle rendering bias first
+          if (k === 'limbNoBias') {
+            updateNationalTerritories({
+              fillElevationEpsilon: 0,
+              usePolygonOffset: false
+            });
+            // Give time for rerender and settle
+            await new Promise(r => setTimeout(r, 500));
+            await awaitFrames(2);
+          }
+          if (k === 'limbWithBias') {
+            updateNationalTerritories({
+              fillElevationEpsilon: 0.3,
+              usePolygonOffset: true,
+              polygonOffsetFactor: -1.5,
+              polygonOffsetUnits: -1.5
+            });
+            // Give time for rerender and settle
+            await new Promise(r => setTimeout(r, 600));
+            await awaitFrames(2);
+          }
+          // Move camera
+          g.pointOfView({ lat: s.lat, lng: s.lng, altitude: s.altitude ?? 2.6 }, s.ms ?? 700);
+        } catch {
+          // ignore
+        }
+        // Wait for POV transition, then ensure a couple of frames
+        await new Promise(r => setTimeout(r, (s.ms ?? 700) + 300));
+        await awaitFrames(2);
+        doSnap(k);
+        await new Promise(r => setTimeout(r, 250));
+      }
+      // Restore original rendering bias settings
+      if (originalBias) {
+        updateNationalTerritories({
+          fillElevationEpsilon: originalBias.fillElevationEpsilon,
+          usePolygonOffset: originalBias.usePolygonOffset,
+          polygonOffsetFactor: originalBias.polygonOffsetFactor,
+          polygonOffsetUnits: originalBias.polygonOffsetUnits
+        });
+      }
+    })();
+  }, [globeRef, containerRef, updateNationalTerritories, geoPoliticalConfig]);
+
+  // -----------------------------------------------------------------------------
+  // DEBUG MARKERS: Prime meridian / equator alignment indicators
+  // Uses the same phi/theta convention as other Globe overlays (theta = lon+180, inverted X)
+  // Only renders in development; full marker set is toggled via ?geoDebugOverlay=markers
+  useEffect(() => {
+    if (process?.env?.NODE_ENV !== 'development') return;
+    if (!globeRef.current) return;
+
+    const globeObj = globeRef.current as unknown as { scene: () => THREE.Scene };
+    const scene = globeObj?.scene();
+    if (!scene) return;
+
+    const group = primeMeridianMarkerRef.current;
+
+    // Clean any previous marker content
+    while (group.children.length > 0) {
+      const child = group.children[0];
+      group.remove(child);
+      if (child instanceof THREE.Mesh || child instanceof THREE.Line) {
+        const geom = (child as THREE.Mesh | THREE.Line).geometry as THREE.BufferGeometry | undefined;
+        geom?.dispose();
+        const material = (child as THREE.Mesh | THREE.Line).material as THREE.Material | THREE.Material[] | undefined;
+        if (Array.isArray(material)) {
+          material.forEach((m) => m.dispose());
+        } else if (material) {
+          material.dispose();
+        }
+      }
+    }
+
+    // Helper to add a small marker just above the globe surface
+    const radius = 102; // Globe radius is ~100; place slightly above to avoid z-fighting
+    const addMarker = (latDeg: number, lonDeg: number, color = 0xffff00) => {
+      const phi = (90 - latDeg) * (Math.PI / 180);
+      const theta = (lonDeg + 180) * (Math.PI / 180);
+      const pos = new THREE.Vector3(
+        -radius * Math.sin(phi) * Math.cos(theta),
+        radius * Math.cos(phi),
+        radius * Math.sin(phi) * Math.sin(theta)
+      );
+      const sphere = new THREE.Mesh(
+        new THREE.SphereGeometry(1.2, 16, 12),
+        new THREE.MeshBasicMaterial({ color, depthTest: false })
+      );
+      sphere.position.copy(pos);
+      group.add(sphere);
+      // short radial line
+      const lineGeom = new THREE.BufferGeometry().setFromPoints([
+        pos.clone().multiplyScalar(0.985),
+        pos.clone().multiplyScalar(1.015)
+      ]);
+      const line = new THREE.Line(
+        lineGeom,
+        new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.9, depthTest: false })
+      );
+      group.add(line);
+    };
+
+    // Always show the prime-meridian/equator marker at (0,0) in dev
+    addMarker(0, 0, 0xffff00);
+
+    // Optionally show full alignment set if URL param is enabled
+    const params = new URLSearchParams(window.location.search);
+    const showFull = params.get('geoDebugOverlay') === 'markers';
+    if (showFull) {
+      // (0°, ±90°)
+      addMarker(0, 90, 0x00ffff);
+      addMarker(0, -90, 0x00ffff);
+      // (±45°, 0/90/180)
+      const lats = [45, -45];
+      const lons = [0, 90, 180];
+      for (const lat of lats) {
+        for (const lon of lons) {
+          addMarker(lat, lon, 0xff66ff);
+        }
+      }
+    }
+
+    if (!scene.children.includes(group)) {
+      scene.add(group);
+    }
+
+    return () => {
+      if (scene && group && scene.children.includes(group)) {
+        scene.remove(group);
+      }
+      while (group.children.length > 0) {
+        const child = group.children[0];
+        group.remove(child);
+        if (child instanceof THREE.Mesh || child instanceof THREE.Line) {
+          const geom = (child as THREE.Mesh | THREE.Line).geometry as THREE.BufferGeometry | undefined;
+          geom?.dispose();
+          const material = (child as THREE.Mesh | THREE.Line).material as THREE.Material | THREE.Material[] | undefined;
+          if (Array.isArray(material)) {
+            material.forEach((m) => m.dispose());
+          } else if (material) {
+            material.dispose();
+          }
+        }
+      }
+    };
+  }, [globeRef, isInitializing]);
+
   // Intel Report 3D markers integration - only show when CyberCommand + IntelReports mode
   useEffect(() => {
     let mounted = true;
     let currentLoadRequest: Promise<void> | null = null;
+    let interval: ReturnType<typeof setInterval> | null = null;
+    let unsubscribe: (() => void) | undefined;
 
-    // Only fetch Intel Reports when in the correct visualization mode
-    if (visualizationMode.mode === 'CyberCommand' && visualizationMode.subMode === 'IntelReports') {
-      // Prevent duplicate loading if already in progress
-      if (currentLoadRequest) {
+    const applyMarkers = (markers: IntelReportOverlayMarker[]) => {
+      if (!mounted) {
         return;
       }
+      const limited = markers.slice(0, 25);
+      setIntelReports(limited);
+      if (limited.length > 0) {
+        console.log(`📊 Intel Report 3D markers synced (${limited.length} visible)`);
+      }
+    };
 
-      // Fetch Intel Reports for 3D visualization
+    const refreshMarkers = async () => {
+      if (currentLoadRequest) {
+        return currentLoadRequest;
+      }
+
       currentLoadRequest = (async () => {
         try {
           const markers = await intelReportVisualizationService.getIntelReportMarkers({
-            maxReports: 25 // Reduced from 50 for better performance
+            maxReports: 25
           });
-          
-          if (mounted) {
-            setIntelReports(markers);
-            console.log(`📊 Loaded ${markers.length} Intel Report 3D markers for CyberCommand/IntelReports mode`);
-          }
+          applyMarkers(markers);
         } catch (error) {
           if (mounted) {
             console.error('Error loading Intel Report markers:', error);
@@ -198,43 +450,32 @@ const GlobeView: React.FC = () => {
         }
       })();
 
-      // Set up periodic refresh (every 60 seconds instead of 30) only when in correct mode
-      const interval = setInterval(() => {
-        if (mounted && visualizationMode.mode === 'CyberCommand' && visualizationMode.subMode === 'IntelReports') {
-          currentLoadRequest = (async () => {
-            try {
-              const markers = await intelReportVisualizationService.getIntelReportMarkers({
-                maxReports: 25
-              });
-              if (mounted) {
-                setIntelReports(markers);
-              }
-            } catch (error) {
-              if (mounted) {
-                console.error('Error refreshing Intel Report markers:', error);
-              }
-            } finally {
-              currentLoadRequest = null;
-            }
-          })();
-        }
-      }, 60000); // Increased from 30s to 60s
+      return currentLoadRequest;
+    };
 
-      return () => {
-        mounted = false;
-        clearInterval(interval);
-        currentLoadRequest = null;
-      };
-    } else {
-      // Clear Intel Reports when not in the correct mode
-      if (mounted) {
-        setIntelReports([]);
-        console.log('🧹 Intel Report 3D markers cleared - not in CyberCommand/IntelReports mode');
-      }
+    if (visualizationMode.mode === 'CyberCommand' && visualizationMode.subMode === 'IntelReports') {
+      console.log('🛰️ CYBERCOMMAND INTEL REPORTS MODE ACTIVATED - Live intel updates enabled');
+      unsubscribe = intelReportVisualizationService.subscribe(applyMarkers);
+
+      void refreshMarkers();
+
+      interval = setInterval(() => {
+        if (mounted) {
+          void refreshMarkers();
+        }
+      }, 60000);
+    } else if (mounted) {
+      setIntelReports([]);
+      console.log('🧹 Intel Report 3D markers cleared - not in CyberCommand/IntelReports mode');
     }
 
     return () => {
       mounted = false;
+      if (interval) {
+        clearInterval(interval);
+      }
+      currentLoadRequest = null;
+      unsubscribe?.();
     };
   }, [visualizationMode.mode, visualizationMode.subMode]);
 
@@ -1032,8 +1273,7 @@ const GlobeView: React.FC = () => {
     };
   }, [globeRef, cyberAttacksData, visualizationMode.mode, visualizationMode.subMode]);
 
-  // GeoPolitical settings
-  const { config: geoPoliticalConfig, updateNationalTerritories } = useGeoPoliticalSettings();
+  // GeoPolitical settings (declared earlier for dev geoSnap too)
   // Always enable borders/territories for ANY GeoPolitical sub-mode
   const geoEnabled = visualizationMode.mode === 'GeoPolitical';
   const nationalTerritories = useNationalTerritories3D({

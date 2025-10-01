@@ -85,7 +85,6 @@ export async function processAndStoreIntel(intelObjects: Intel[]): Promise<Intel
       tags: intelligence.tags,
       title: generateTitle(intelligence),
       description: generateDescription(intelligence),
-      classification: intelligence.classification,
       source: intelligence.source,
       verified: intelligence.verified,
       confidence: intelligence.confidence,

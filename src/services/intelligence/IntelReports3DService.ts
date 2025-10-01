@@ -6,17 +6,20 @@
  * real-time updates and viewport-based optimization.
  */
 
-import { 
-  IntelReport3DData, 
+import {
+  IntelReport3DData,
   IntelReport3DViewport
 } from '../../models/Intel/IntelVisualization3D';
-import { 
-  IntelClassification,
+import {
   IntelCategory,
   IntelThreatLevel
 } from '../../models/Intel/IntelEnums';
 import { IntelReport3DContextState } from '../../types/intelligence/IntelContextTypes';
 import { IntelCompatibilityAdapter } from '../../types/intelligence/IntelCompatibilityTypes';
+import { Intel3DAdapter } from '../adapters/Intel3DAdapter';
+import { intelWorkspaceManager } from '../intel/IntelWorkspaceManager';
+import type { IntelReportData as WorkspaceIntelReportData } from '../../types/IntelWorkspace';
+import type { IntelReportData } from '../../models/IntelReportData';
 
 // =============================================================================
 // SERVICE CONFIGURATION & TYPES
@@ -51,7 +54,6 @@ const DEFAULT_OPTIONS: Required<IntelServiceOptions> = {
  */
 export interface IntelReportFilters {
   tags?: string[];
-  classification?: IntelClassification[];
   category?: IntelCategory[];
   threatLevel?: IntelThreatLevel[];
   timeRange?: {
@@ -136,6 +138,8 @@ export class IntelReports3DService {
   private metrics: IntelServiceMetrics;
   private batchQueue: Array<{ operation: string; data: unknown }> = [];
   private batchTimeout: NodeJS.Timeout | null = null;
+  private workspaceUnsubscribe: (() => void) | null = null;
+  private workspaceSyncInitialized = false;
 
   constructor(contextState: IntelReport3DContextState, options: IntelServiceOptions = {}) {
     this.options = { ...DEFAULT_OPTIONS, ...options };
@@ -144,11 +148,38 @@ export class IntelReports3DService {
     
     // Set up batch processing
     this.setupBatchProcessing();
+
+    // Bridge local workspace data into the 3D service when running in the browser
+    this.initializeWorkspaceBridge();
     
     console.debug('IntelReports3DService initialized', {
       options: this.options,
       contextMode: contextState.hudContext.operationMode
     });
+  }
+
+  private initializeWorkspaceBridge(): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    if (this.workspaceSyncInitialized) {
+      return;
+    }
+
+    this.workspaceSyncInitialized = true;
+
+    void (async () => {
+      try {
+        await intelWorkspaceManager.ensureInitialized();
+        this.ingestWorkspaceReports(intelWorkspaceManager.getReports());
+        this.workspaceUnsubscribe = intelWorkspaceManager.subscribe(() => {
+          this.ingestWorkspaceReports(intelWorkspaceManager.getReports());
+        });
+      } catch (error) {
+        console.error('IntelReports3DService failed to initialize workspace bridge', error);
+      }
+    })();
   }
 
   // =============================================================================
@@ -350,7 +381,7 @@ export class IntelReports3DService {
       reports = this.applyLODFiltering(reports, viewport);
       
       // Limit results
-      if (reports.length > viewport.maxItems) {
+      if (viewport.maxItems && reports.length > viewport.maxItems) {
         reports = reports
           .sort((a, b) => this.calculateReportPriority(b) - this.calculateReportPriority(a))
           .slice(0, viewport.maxItems);
@@ -676,8 +707,10 @@ export class IntelReports3DService {
     if (!activeLayers.length) return true;
     
     // Check if report matches active layers (simplified logic)
+    const tags = report.metadata?.tags ?? [];
+
     return activeLayers.includes('intel-reports') || 
-           activeLayers.some(layer => report.metadata.tags.includes(layer));
+      activeLayers.some(layer => tags.includes(layer));
   }
 
   private passesViewportFilter(report: IntelReport3DData, viewport: IntelReport3DViewport): boolean {
@@ -692,29 +725,30 @@ export class IntelReports3DService {
 
   private passesCustomFilters(report: IntelReport3DData, filters: IntelReportFilters): boolean {
     // Tag filtering
+    const metadata = report.metadata ?? {};
+    const tags = metadata.tags ?? [];
+
     if (filters.tags && filters.tags.length > 0) {
-      const hasMatchingTag = filters.tags.some(tag => report.metadata.tags.includes(tag));
+      const hasMatchingTag = filters.tags.some(tag => tags.includes(tag));
       if (!hasMatchingTag) return false;
-    }
-    
-    // Classification filtering
-    if (filters.classification && filters.classification.length > 0) {
-      if (!filters.classification.includes(report.classification)) return false;
     }
     
     // Category filtering
     if (filters.category && filters.category.length > 0) {
-      if (!filters.category.includes(report.metadata.category)) return false;
+      const categoryValue = metadata.category as IntelCategory | undefined;
+      if (!categoryValue || !filters.category.includes(categoryValue)) return false;
     }
     
     // Threat level filtering
-    if (filters.threatLevel && filters.threatLevel.length > 0 && report.metadata.threat_level) {
-      if (!filters.threatLevel.includes(report.metadata.threat_level)) return false;
+    if (filters.threatLevel && filters.threatLevel.length > 0 && metadata.threat_level) {
+      const threatLevel = metadata.threat_level as IntelThreatLevel;
+      if (!filters.threatLevel.includes(threatLevel)) return false;
     }
     
     // Time range filtering
     if (filters.timeRange) {
-      const timestamp = report.timestamp.getTime();
+      if (!report.timestamp) return false;
+      const timestamp = (report.timestamp instanceof Date ? report.timestamp : new Date(report.timestamp)).getTime();
       const start = filters.timeRange.start.getTime();
       const end = filters.timeRange.end.getTime();
       if (timestamp < start || timestamp > end) return false;
@@ -722,6 +756,7 @@ export class IntelReports3DService {
     
     // Geographic filtering
     if (filters.geographic) {
+      if (!report.location) return false;
       const { lat, lng } = report.location;
       const { bounds } = filters.geographic;
       if (lat < bounds.south || lat > bounds.north || lng < bounds.west || lng > bounds.east) {
@@ -731,7 +766,7 @@ export class IntelReports3DService {
     
     // Confidence filtering
     if (filters.confidence) {
-      const confidence = report.metadata.confidence;
+      const confidence = metadata.confidence ?? 0;
       if (confidence < filters.confidence.min || confidence > filters.confidence.max) {
         return false;
       }
@@ -739,7 +774,7 @@ export class IntelReports3DService {
     
     // Reliability filtering
     if (filters.reliability) {
-      const reliability = report.metadata.reliability;
+      const reliability = metadata.reliability ?? 0;
       if (reliability < filters.reliability.min || reliability > filters.reliability.max) {
         return false;
       }
@@ -747,7 +782,7 @@ export class IntelReports3DService {
     
     // Freshness filtering
     if (filters.freshness) {
-      const freshness = report.metadata.freshness;
+      const freshness = metadata.freshness ?? 0;
       if (freshness < filters.freshness.min || freshness > filters.freshness.max) {
         return false;
       }
@@ -757,11 +792,12 @@ export class IntelReports3DService {
     if (filters.searchText) {
       const searchLower = filters.searchText.toLowerCase();
       const titleMatch = report.title.toLowerCase().includes(searchLower);
-      const contentMatch = report.content.summary.toLowerCase().includes(searchLower) ||
-                          report.content.details.toLowerCase().includes(searchLower);
-      const tagMatch = report.metadata.tags.some(tag => tag.toLowerCase().includes(searchLower));
+      const summary = report.content?.summary?.toLowerCase() ?? '';
+      const details = report.content?.details?.toLowerCase() ?? '';
+      const keywordMatch = (report.content?.keywords ?? []).some(keyword => keyword?.toLowerCase().includes(searchLower));
+      const tagMatch = tags.some(tag => tag.toLowerCase().includes(searchLower));
       
-      if (!titleMatch && !contentMatch && !tagMatch) return false;
+      if (!titleMatch && !summary.includes(searchLower) && !details.includes(searchLower) && !keywordMatch && !tagMatch) return false;
     }
     
     // Author filtering
@@ -774,7 +810,7 @@ export class IntelReports3DService {
 
   private applyLODFiltering(reports: IntelReport3DData[], viewport: IntelReport3DViewport): IntelReport3DData[] {
     // Apply Level of Detail filtering based on zoom level
-    switch (viewport.lodLevel) {
+    switch (viewport.lodLevel ?? 'high') {
       case 'low':
         // Only show high priority reports
         return reports.filter(report => 
@@ -824,7 +860,8 @@ export class IntelReports3DService {
     score += report.metadata.freshness * 20;
     
     // Confidence contribution
-    score += report.metadata.confidence * 10;
+  const confidence = report.metadata?.confidence ?? 0;
+  score += confidence * 10;
     
     return score;
   }
@@ -937,7 +974,108 @@ export class IntelReports3DService {
       clearTimeout(this.batchTimeout);
       this.batchTimeout = null;
     }
+
+    if (this.workspaceUnsubscribe) {
+      this.workspaceUnsubscribe();
+      this.workspaceUnsubscribe = null;
+    }
     
     console.debug('IntelReports3DService destroyed');
+  }
+
+  private ingestWorkspaceReports(reports: WorkspaceIntelReportData[]): void {
+    if (!Array.isArray(reports)) {
+      return;
+    }
+
+    const nextData = new Map<string, IntelReport3DData>();
+
+    reports.forEach(report => {
+      const converted = this.convertWorkspaceReport(report);
+      if (converted) {
+        nextData.set(converted.id, converted);
+      }
+    });
+
+    if (nextData.size === 0 && this.data.size === 0) {
+      return;
+    }
+
+    this.data.clear();
+    nextData.forEach((value, key) => this.data.set(key, value));
+
+    this.invalidateCache();
+    this.updateMetrics('sync', 0);
+    void this.notifySubscribers();
+  }
+
+  private convertWorkspaceReport(report: WorkspaceIntelReportData): IntelReport3DData | null {
+    if (!report) {
+      return null;
+    }
+
+    type WorkspaceReportMetadata = {
+      tags?: unknown;
+      categories?: unknown;
+      geo?: {
+        lat?: number;
+        lon?: number;
+        lng?: number;
+        latitude?: number;
+        longitude?: number;
+      };
+      [key: string]: unknown;
+    };
+
+    const metadata = (report.metadata || {}) as WorkspaceReportMetadata;
+    const geo = metadata.geo || {};
+
+    const lat = this.extractCoordinate(geo.lat ?? geo.latitude);
+    const lon = this.extractCoordinate(geo.lon ?? geo.lng ?? geo.longitude);
+
+    if (typeof lat !== 'number' || typeof lon !== 'number') {
+      return null;
+    }
+
+    const tags = Array.isArray(metadata.tags)
+      ? (metadata.tags as unknown[]).map(String)
+      : [];
+
+    const categories = Array.isArray(metadata.categories)
+      ? (metadata.categories as unknown[]).map(String)
+      : [];
+
+    const normalized: IntelReportData = {
+      id: report.id,
+      title: report.title,
+      content: report.content || report.summary || '',
+      tags,
+      latitude: lat,
+      longitude: lon,
+      timestamp: this.parseTimestamp(report.modifiedAt || report.createdAt),
+      author: report.author,
+      priority: report.priority,
+      confidence: report.confidence,
+      categories,
+      summary: report.summary
+    };
+
+    return Intel3DAdapter.toIntelReport3D(normalized);
+  }
+
+  private extractCoordinate(value?: number): number | null {
+    if (typeof value === 'number' && !Number.isNaN(value)) {
+      return value;
+    }
+    return null;
+  }
+
+  private parseTimestamp(value?: string): number {
+    if (!value) {
+      return Date.now();
+    }
+
+    const parsed = Date.parse(value);
+    return Number.isNaN(parsed) ? Date.now() : parsed;
   }
 }

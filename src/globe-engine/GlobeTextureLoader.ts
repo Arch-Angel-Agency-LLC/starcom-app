@@ -39,13 +39,20 @@ export class GlobeTextureLoader {
    * Load texture by name (see globe-textures.artifact)
    */
   static async loadTexture(name: string): Promise<THREE.Texture> {
-    if (textureCache[name]) return textureCache[name];
+    if (textureCache[name]) {
+      // Ensure cached textures also have normalized parameters
+      const cached = textureCache[name];
+      GlobeTextureLoader.normalizeTexture(cached);
+      return cached;
+    }
     const entry = textureManifest[name];
     if (!entry) throw new Error(`Unknown texture: ${name}`);
     return new Promise((resolve, reject) => {
       new THREE.TextureLoader().load(
         entry.url,
         (texture: THREE.Texture) => {
+          // Normalize texture orientation consistently
+          GlobeTextureLoader.normalizeTexture(texture);
           textureCache[name] = texture;
           resolve(texture);
         },
@@ -53,6 +60,19 @@ export class GlobeTextureLoader {
         reject
       );
     });
+  }
+
+  /** Normalize texture sampling and orientation.
+   * - Repeat in U to allow seam wrapping
+   * - Clamp in V to avoid polar artifacts
+   * - Shift by -90° along U (offset.x = 0.75) to align with globe overlays
+   */
+  private static normalizeTexture(texture: THREE.Texture) {
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.ClampToEdgeWrapping;
+    // Apply -90° shift (equivalent to +270°): 0.75 on U axis
+    texture.offset.x = 0.75;
+    texture.needsUpdate = true;
   }
 
   /**

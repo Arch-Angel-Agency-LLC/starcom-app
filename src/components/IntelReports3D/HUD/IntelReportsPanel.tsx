@@ -53,7 +53,8 @@ export const IntelReportsPanel: React.FC<IntelReportsPanelProps> = ({
     if (!intelReports) return [];
 
     return intelReports.filter(report => {
-      const categoryMatch = activeFilter === 'all' || report.metadata.category === activeFilter;
+      const category = report.metadata?.category as IntelCategory | undefined;
+      const categoryMatch = activeFilter === 'all' || (!!category && category === activeFilter);
       const priorityMatch = priorityFilter === 'all' || report.visualization.priority === priorityFilter;
       return categoryMatch && priorityMatch;
     });
@@ -100,7 +101,6 @@ export const IntelReportsPanel: React.FC<IntelReportsPanelProps> = ({
           await addIntelReport({
             id: `threat-${Date.now()}`,
             title: 'New Threat Report',
-            classification: 'UNCLASSIFIED',
             source: 'Panel',
             timestamp: new Date(),
             location: { lat: 0, lng: 0 },
@@ -125,7 +125,6 @@ export const IntelReportsPanel: React.FC<IntelReportsPanelProps> = ({
           await addIntelReport({
             id: `incident-${Date.now()}`,
             title: 'New Incident Report',
-            classification: 'UNCLASSIFIED',
             source: 'Panel',
             timestamp: new Date(),
             location: { lat: 0, lng: 0 },
@@ -302,33 +301,41 @@ export const IntelReportsPanel: React.FC<IntelReportsPanelProps> = ({
             {!isCollapsed && <span>No reports found</span>}
           </div>
         ) : (
-          filteredReports.slice(0, isCollapsed ? 3 : 10).map(report => (
-            <div
-              key={report.id}
-              className={styles.reportItem}
-              onClick={() => handleReportClick(report.id)}
-              title={isCollapsed ? report.title : undefined}
-            >
-              <div className={styles.reportHeader}>
-                <span className={styles.reportIcon}>{getCategoryIcon(report.metadata.category)}</span>
-                <div
-                  className={styles.priorityDot}
-                  style={{ backgroundColor: getPriorityColor(report.visualization.priority) }}
-                ></div>
+          filteredReports.slice(0, isCollapsed ? 3 : 10).map(report => {
+            const category = (report.metadata?.category as IntelCategory | undefined) ?? 'cyber_threat';
+
+            return (
+              <div
+                key={report.id}
+                className={styles.reportItem}
+                onClick={() => handleReportClick(report.id)}
+                title={isCollapsed ? report.title : undefined}
+              >
+                <div className={styles.reportHeader}>
+                  <span className={styles.reportIcon}>{getCategoryIcon(category)}</span>
+                  <div
+                    className={styles.priorityDot}
+                    style={{ backgroundColor: getPriorityColor(report.visualization.priority) }}
+                  ></div>
+                  {!isCollapsed && (
+                    <span className={styles.reportTitle}>{report.title}</span>
+                  )}
+                </div>
                 {!isCollapsed && (
-                  <span className={styles.reportTitle}>{report.title}</span>
+                  <div className={styles.reportMeta}>
+                    <span className={styles.reportType}>{category}</span>
+                    <span className={styles.reportTime}>
+                      {report.timestamp
+                        ? (report.timestamp instanceof Date
+                            ? report.timestamp
+                            : new Date(report.timestamp)).toLocaleTimeString()
+                        : 'Unknown'}
+                    </span>
+                  </div>
                 )}
               </div>
-              {!isCollapsed && (
-                <div className={styles.reportMeta}>
-                  <span className={styles.reportType}>{report.metadata.category}</span>
-                  <span className={styles.reportTime}>
-                    {new Date(report.timestamp).toLocaleTimeString()}
-                  </span>
-                </div>
-              )}
-            </div>
-          ))
+            );
+          })
         )}
       </div>
 

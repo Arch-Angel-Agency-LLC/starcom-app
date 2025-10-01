@@ -102,8 +102,11 @@ export class IntelGlobeService extends EventEmitter {
   
   // Performance monitoring
   private performanceMetrics: IntelPerformanceMetrics = {
+    fps: 60,
     totalIntelReports: 0,
     visibleIntelReports: 0,
+    markerCount: 0,
+    visibleMarkers: 0,
     renderTime: 0,
     memoryUsage: 0,
     frameRate: 60,
@@ -115,6 +118,13 @@ export class IntelGlobeService extends EventEmitter {
   private clock = new THREE.Clock();
   private raycaster = new THREE.Raycaster();
   private mouse = new THREE.Vector2();
+
+  private readonly handleMouseMove = (event: MouseEvent) => this.onMouseMove(event);
+  private readonly handleMouseClick = (event: MouseEvent) => this.onMouseClick(event);
+  private readonly handleContextMenu = (event: MouseEvent) => this.onContextMenu(event);
+  private readonly handleTouchStart = (event: TouchEvent) => this.onTouchStart(event);
+  private readonly handleTouchMove = (event: TouchEvent) => this.onTouchMove(event);
+  private readonly handleTouchEnd = (event: TouchEvent) => this.onTouchEnd(event);
   
   constructor(config: Partial<IntelGlobeConfig> = {}) {
     super();
@@ -183,14 +193,16 @@ export class IntelGlobeService extends EventEmitter {
     
     const canvas = this.renderer.domElement;
     
-    canvas.addEventListener('mousemove', this.onMouseMove.bind(this));
-    canvas.addEventListener('click', this.onMouseClick.bind(this));
-    canvas.addEventListener('contextmenu', this.onContextMenu.bind(this));
+    this.removeEventListeners();
+
+    canvas.addEventListener('mousemove', this.handleMouseMove);
+    canvas.addEventListener('click', this.handleMouseClick);
+    canvas.addEventListener('contextmenu', this.handleContextMenu);
     
     // Touch events for mobile
-    canvas.addEventListener('touchstart', this.onTouchStart.bind(this));
-    canvas.addEventListener('touchmove', this.onTouchMove.bind(this));
-    canvas.addEventListener('touchend', this.onTouchEnd.bind(this));
+    canvas.addEventListener('touchstart', this.handleTouchStart, { passive: true });
+    canvas.addEventListener('touchmove', this.handleTouchMove, { passive: true });
+    canvas.addEventListener('touchend', this.handleTouchEnd, { passive: true });
   }
   
   // =============================================================================
@@ -202,16 +214,28 @@ export class IntelGlobeService extends EventEmitter {
    */
   async addIntelReports(reports: IntelReport3DData[]): Promise<void> {
     const startTime = performance.now();
-    
+    const incomingIds = new Set(reports.map(report => report.id));
+
+    // Remove markers that are no longer present
+    Array.from(this.markers.keys()).forEach(markerId => {
+      if (!incomingIds.has(markerId)) {
+        this.removeIntelReport(markerId);
+      }
+    });
+
+    // Add or update incoming reports
     for (const report of reports) {
-      await this.addIntelReport(report);
+      if (this.markers.has(report.id)) {
+        await this.updateIntelReport(report);
+      } else {
+        await this.addIntelReport(report);
+      }
     }
-    
-    this.performanceMetrics.totalIntelReports = this.markers.size;
-    this.performanceMetrics.renderTime = performance.now() - startTime;
-    this.performanceMetrics.lastUpdate = new Date();
-    
-    this.emit('reportsAdded', reports);
+
+    // Update performance metrics
+    this.updatePerformanceSnapshot(startTime);
+
+    this.emit('reportsSynced', reports);
   }
   
   /**
@@ -228,6 +252,8 @@ export class IntelGlobeService extends EventEmitter {
     if (this.scene) {
       this.scene.add(marker.group);
     }
+    
+    this.updatePerformanceSnapshot();
     
     this.emit('reportAdded', report, marker);
     return marker;
@@ -252,6 +278,8 @@ export class IntelGlobeService extends EventEmitter {
     // Update position if changed
     this.updateMarkerPosition(existingMarker);
     
+    this.updatePerformanceSnapshot();
+    
     this.emit('reportUpdated', report, existingMarker);
     return existingMarker;
   }
@@ -274,7 +302,7 @@ export class IntelGlobeService extends EventEmitter {
     // Remove from tracking
     this.markers.delete(reportId);
     
-    this.performanceMetrics.totalIntelReports = this.markers.size;
+    this.updatePerformanceSnapshot();
     this.emit('reportRemoved', reportId);
     
     return true;
@@ -292,8 +320,25 @@ export class IntelGlobeService extends EventEmitter {
     });
     
     this.markers.clear();
-    this.performanceMetrics.totalIntelReports = 0;
+    this.updatePerformanceSnapshot();
     this.emit('reportsCleared');
+  }
+
+  private updatePerformanceSnapshot(renderStart?: number): void {
+    const visibleCount = this.getVisibleMarkers().length;
+    const frameRate = this.performanceMetrics.frameRate ?? this.performanceMetrics.fps ?? 0;
+
+    this.performanceMetrics.totalIntelReports = this.markers.size;
+    this.performanceMetrics.markerCount = this.markers.size;
+    this.performanceMetrics.visibleIntelReports = visibleCount;
+    this.performanceMetrics.visibleMarkers = visibleCount;
+    if (typeof renderStart === 'number') {
+      this.performanceMetrics.renderTime = performance.now() - renderStart;
+    } else if (this.markers.size === 0) {
+      this.performanceMetrics.renderTime = 0;
+    }
+    this.performanceMetrics.fps = frameRate;
+    this.performanceMetrics.lastUpdate = new Date();
   }
   
   // =============================================================================
@@ -959,7 +1004,9 @@ export class IntelGlobeService extends EventEmitter {
       });
       
       // Update performance metrics
-      this.performanceMetrics.frameRate = 1 / delta;
+        const frameRate = 1 / delta;
+        this.performanceMetrics.frameRate = frameRate;
+        this.performanceMetrics.fps = frameRate;
       this.performanceMetrics.lastUpdate = new Date();
     };
     
@@ -1045,16 +1092,23 @@ export class IntelGlobeService extends EventEmitter {
     
     this.clearIntelReports();
     this.removeAllListeners();
-    
-    if (this.renderer?.domElement) {
-      const canvas = this.renderer.domElement;
-      canvas.removeEventListener('mousemove', this.onMouseMove.bind(this));
-      canvas.removeEventListener('click', this.onMouseClick.bind(this));
-      canvas.removeEventListener('contextmenu', this.onContextMenu.bind(this));
-      canvas.removeEventListener('touchstart', this.onTouchStart.bind(this));
-      canvas.removeEventListener('touchmove', this.onTouchMove.bind(this));
-      canvas.removeEventListener('touchend', this.onTouchEnd.bind(this));
+
+    this.removeEventListeners();
+  }
+
+  private removeEventListeners(): void {
+    if (!this.renderer?.domElement) {
+      return;
     }
+
+    const canvas = this.renderer.domElement;
+
+    canvas.removeEventListener('mousemove', this.handleMouseMove);
+    canvas.removeEventListener('click', this.handleMouseClick);
+    canvas.removeEventListener('contextmenu', this.handleContextMenu);
+    canvas.removeEventListener('touchstart', this.handleTouchStart);
+    canvas.removeEventListener('touchmove', this.handleTouchMove);
+    canvas.removeEventListener('touchend', this.handleTouchEnd);
   }
 }
 

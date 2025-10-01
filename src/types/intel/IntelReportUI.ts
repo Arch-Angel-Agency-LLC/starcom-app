@@ -2,7 +2,6 @@
 // Bridges existing IntelDashboard component and the richer IntelWorkspace types.
 // Dates are concrete Date objects in UI layer; persistence adapters serialize to ISO strings.
 
-export type IntelClassification = 'UNCLASSIFIED' | 'CONFIDENTIAL' | 'SECRET' | 'TOP_SECRET';
 export type IntelReportStatus = 'DRAFT' | 'SUBMITTED' | 'REVIEWED' | 'APPROVED' | 'ARCHIVED';
 export type IntelReportPriority = 'ROUTINE' | 'PRIORITY' | 'IMMEDIATE';
 
@@ -27,7 +26,6 @@ export interface IntelReportUI {
   longitude?: number;
   createdAt: Date;
   updatedAt: Date;
-  classification: IntelClassification;
   status: IntelReportStatus;
   // Optional Analyzer round-trip deep link for provenance/return navigation
   analysisDeepLink?: string;
@@ -52,7 +50,6 @@ export interface CreateIntelReportInput {
   summary?: string;
   category: string;
   tags: string[]; // already split & trimmed
-  classification: IntelClassification;
   latitude?: number;
   longitude?: number;
   status?: IntelReportStatus; // optional (defaults to DRAFT)

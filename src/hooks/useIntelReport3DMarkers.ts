@@ -42,8 +42,11 @@ interface ModelInstance {
   mesh: THREE.Object3D;             // The actual model
   report: IntelReportOverlayMarker;
   basePosition: THREE.Vector3;
+  surfaceAnchor: THREE.Vector3;
   hoverOffset: number;
   localRotationY: number;
+  globeRadius: number;
+  hoverAltitude: number;
 }
 
 export const useIntelReport3DMarkers = (
@@ -65,6 +68,8 @@ export const useIntelReport3DMarkers = (
   const [gltfModel, setGltfModel] = useState<THREE.Object3D | null>(null);
   const animationFrameRef = useRef<number>();
   const groupRef = useRef<THREE.Group>(new THREE.Group());
+  const meshPoolRef = useRef<THREE.Object3D[]>([]);
+  const globeMeshRef = useRef<THREE.Object3D | null>(null);
 
   // Load the GLB model once using robust asset loader with proper memoization
   useEffect(() => {
@@ -217,19 +222,39 @@ export const useIntelReport3DMarkers = (
   }, [scene]);
 
   // Memoize model creation to prevent recreation storms
+  useEffect(() => {
+    if (!scene) {
+      globeMeshRef.current = null;
+    }
+  }, [scene]);
+
   const memoizedModels = useMemo(() => {
     if (!gltfModel || !reports.length) {
       return [];
     }
 
     const newModels: ModelInstance[] = reports.map((report) => {
-      const mesh = gltfModel.clone();
+      const pooledMesh = meshPoolRef.current.pop();
+      const mesh = pooledMesh ?? gltfModel.clone(true);
+
+      if (mesh.parent) {
+        mesh.parent.remove(mesh);
+      }
+      mesh.position.set(0, 0, 0);
+      mesh.rotation.set(0, 0, 0);
+      mesh.scale.setScalar(scale);
       
       // Create nested container hierarchy for proper 3D math
       const positionContainer = new THREE.Group();      // Level 1: Position on globe
       const orientationContainer = new THREE.Group();   // Level 2: World/camera orientation
       const rotationContainer = new THREE.Group();      // Level 3: Local rotation animation
       
+      const surfaceAnchor = latLngToVector3(
+        report.latitude,
+        report.longitude,
+        globeRadius
+      );
+
       const basePosition = latLngToVector3(
         report.latitude, 
         report.longitude, 
@@ -253,19 +278,24 @@ export const useIntelReport3DMarkers = (
         mesh,
         report,
         basePosition: basePosition.clone(),
+        surfaceAnchor: surfaceAnchor.clone(),
         hoverOffset: Math.random() * Math.PI * 2,
-        localRotationY: 0
+        localRotationY: 0,
+        globeRadius,
+        hoverAltitude
       };
     });
 
     return newModels;
-  }, [gltfModel, reports, globeRadius, hoverAltitude]);
+  }, [gltfModel, reports, globeRadius, hoverAltitude, scale]);
 
   // Update models state and scene when memoizedModels change
   useEffect(() => {
     // Clear existing models first
     setModels(prevModels => {
       prevModels.forEach(model => {
+        model.rotationContainer.remove(model.mesh);
+        meshPoolRef.current.push(model.mesh);
         groupRef.current.remove(model.positionContainer);
       });
       return [];
@@ -286,15 +316,21 @@ export const useIntelReport3DMarkers = (
     const animate = () => {
       const time = Date.now() * 0.001;
 
-      // Find the globe mesh to track its rotation
-      let globeMesh: THREE.Object3D | null = null;
-      scene.traverse((child) => {
-        if (child instanceof THREE.Mesh && 
-            child.geometry instanceof THREE.SphereGeometry) {
-          globeMesh = child;
-          return false; // Stop traversing once found
-        }
-      });
+      let globeMesh = globeMeshRef.current;
+      if (!globeMesh || globeMesh.parent === null) {
+        let found: THREE.Object3D | null = null;
+        scene.traverse((child) => {
+          if (!found && child instanceof THREE.Mesh && child.geometry instanceof THREE.SphereGeometry) {
+            found = child;
+          }
+        });
+        globeMeshRef.current = found;
+        globeMesh = found;
+      }
+
+      if (globeMesh) {
+        globeMesh.updateMatrixWorld(true);
+      }
 
       models.forEach((model) => {
         // Level 1: Position animation - hovering on globe surface

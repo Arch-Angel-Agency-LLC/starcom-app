@@ -14,8 +14,7 @@ import type {
 import type {
   IntelCategory,
   IntelPriority,
-  IntelThreatLevel,
-  IntelClassification
+  IntelThreatLevel
 } from '../../models/Intel/IntelEnums';
 import type {
   IntelReport3DContextState
@@ -208,7 +207,6 @@ export const useIntelReports3D = (
   const updatePerformanceMetrics = useCallback(() => {
     const now = performance.now();
     performanceMetrics.current.renderTimes.push(now);
-    
     // Keep metrics arrays manageable
     if (performanceMetrics.current.renderTimes.length > 100) {
       performanceMetrics.current.renderTimes = performanceMetrics.current.renderTimes.slice(-50);
@@ -760,52 +758,90 @@ function createDefaultContext(): IntelReport3DContextState {
  * Apply filters to intel reports
  */
 function applyFilters(reports: IntelReport3DData[], filters: IntelReportFilters): IntelReport3DData[] {
+  if (!reports.length) return reports;
+
   let filtered = [...reports];
-  
+
   if (filters.tags?.length) {
-    filtered = filtered.filter(report => 
-      filters.tags!.some(tag => report.metadata.tags.includes(tag))
-    );
+    filtered = filtered.filter(report => {
+      const tags = report.metadata?.tags ?? [];
+      return filters.tags!.some(tag => tags.includes(tag));
+    });
   }
-  
-  if (filters.classification?.length) {
-    // Skip classification filtering as IntelMetadata uses threat_level instead
-    // This would need custom mapping between classification and threat_level
-    console.warn('Classification filtering not supported - IntelMetadata uses threat_level');
-  }
-  
+
   if (filters.category?.length) {
-    filtered = filtered.filter(report =>
-      filters.category!.includes(report.metadata.category as IntelCategory)
-    );
+    filtered = filtered.filter(report => {
+      const categoryValue = report.metadata?.category as IntelCategory | undefined;
+      return !!categoryValue && filters.category!.includes(categoryValue);
+    });
   }
-  
+
+  if (filters.threatLevel?.length) {
+    filtered = filtered.filter(report => {
+      const threatLevel = report.metadata?.threat_level as IntelThreatLevel | undefined;
+      return !!threatLevel && filters.threatLevel!.includes(threatLevel);
+    });
+  }
+
   if (filters.timeRange) {
-    filtered = filtered.filter(report =>
-      report.timestamp >= filters.timeRange!.start &&
-      report.timestamp <= filters.timeRange!.end
-    );
+    const { start, end } = filters.timeRange;
+    filtered = filtered.filter(report => {
+      if (!report.timestamp) return false;
+      const timestamp = report.timestamp instanceof Date ? report.timestamp : new Date(report.timestamp);
+      return timestamp >= start && timestamp <= end;
+    });
   }
-  
+
   if (filters.geographic) {
     const bounds = filters.geographic.bounds;
-    filtered = filtered.filter(report =>
-      report.location.lat >= bounds.south &&
-      report.location.lat <= bounds.north &&
-      report.location.lng >= bounds.west &&
-      report.location.lng <= bounds.east
-    );
+    filtered = filtered.filter(report => {
+      if (!report.location) return false;
+      const { lat, lng } = report.location;
+      return lat >= bounds.south &&
+        lat <= bounds.north &&
+        lng >= bounds.west &&
+        lng <= bounds.east;
+    });
   }
-  
+
+  if (filters.confidence) {
+    filtered = filtered.filter(report => {
+      const confidence = report.metadata?.confidence ?? 0;
+      return confidence >= filters.confidence!.min && confidence <= filters.confidence!.max;
+    });
+  }
+
+  if (filters.reliability) {
+    filtered = filtered.filter(report => {
+      const reliability = report.metadata?.reliability ?? 0;
+      return reliability >= filters.reliability!.min && reliability <= filters.reliability!.max;
+    });
+  }
+
+  if (filters.freshness) {
+    filtered = filtered.filter(report => {
+      const freshness = report.metadata?.freshness ?? 0;
+      return freshness >= filters.freshness!.min && freshness <= filters.freshness!.max;
+    });
+  }
+
   if (filters.searchText) {
     const searchLower = filters.searchText.toLowerCase();
-    filtered = filtered.filter(report =>
-      report.title.toLowerCase().includes(searchLower) ||
-      report.content.summary.toLowerCase().includes(searchLower) ||
-      report.metadata.tags.some(tag => tag.toLowerCase().includes(searchLower))
-    );
+    filtered = filtered.filter(report => {
+      const tags = report.metadata?.tags ?? [];
+      const titleMatch = report.title?.toLowerCase().includes(searchLower);
+      const summaryMatch = report.content?.summary?.toLowerCase().includes(searchLower);
+      const detailsMatch = report.content?.details?.toLowerCase().includes(searchLower);
+      const keywordMatch = (report.content?.keywords ?? []).some(keyword => keyword.toLowerCase().includes(searchLower));
+      return titleMatch || summaryMatch || detailsMatch || keywordMatch ||
+        tags.some(tag => tag.toLowerCase().includes(searchLower));
+    });
   }
-  
+
+  if (filters.authorFilter?.length) {
+    filtered = filtered.filter(report => filters.authorFilter!.includes(report.source));
+  }
+
   return filtered;
 }
 
@@ -858,7 +894,6 @@ function createIntelReportFromCSV(headers: string[], values: string[]): IntelRep
       category: (getValue('category') || 'general') as IntelCategory,
       threat_level: (getValue('threat_level') || 'minimal') as IntelThreatLevel
     },
-    classification: (getValue('classification') || 'UNCLASSIFIED') as IntelClassification,
     source: getValue('source') || 'CSV Import',
     visualization: {
       markerType: 'standard',
