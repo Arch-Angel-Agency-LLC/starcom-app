@@ -37,6 +37,7 @@ import {
   getIndependentDatasets,
   getDependentDatasets
 } from './NOAADataConfig';
+import { spaceWeatherDiagnostics } from '../../space-weather/SpaceWeatherDiagnostics';
 
 export class NOAADataProvider implements DataProvider<NOAADataTypes> {
   readonly id: string = 'noaa-space-weather';
@@ -82,6 +83,7 @@ export class NOAADataProvider implements DataProvider<NOAADataTypes> {
       if (cached && !options.forceRefresh) {
         const duration = performance.now() - startTime;
         this.observer?.onFetchEnd?.(key, duration, this.id);
+        this.recordProviderMetric(key, duration, true);
         return cached;
       }
 
@@ -130,12 +132,15 @@ export class NOAADataProvider implements DataProvider<NOAADataTypes> {
 
       const duration = performance.now() - startTime;
       this.observer?.onFetchEnd?.(key, duration, this.id);
+      this.recordProviderMetric(key, duration, true);
 
       return data;
     } catch (error) {
       const duration = performance.now() - startTime;
       this.observer?.onFetchEnd?.(key, duration, this.id);
       this.observer?.onError?.(key, error as Error, this.id);
+      const message = error instanceof Error ? error.message : 'unknown error';
+      this.recordProviderMetric(key, duration, false, message);
       throw error;
     }
   }
@@ -221,6 +226,16 @@ export class NOAADataProvider implements DataProvider<NOAADataTypes> {
   private setCachedData(key: string, data: NOAADataTypes): void {
     this.dataCache.set(key, {
       data,
+      timestamp: Date.now()
+    });
+  }
+
+  private recordProviderMetric(datasetId: string, durationMs: number, success: boolean, error?: string) {
+    spaceWeatherDiagnostics.recordProviderMetric({
+      datasetId,
+      durationMs,
+      success,
+      error,
       timestamp: Date.now()
     });
   }

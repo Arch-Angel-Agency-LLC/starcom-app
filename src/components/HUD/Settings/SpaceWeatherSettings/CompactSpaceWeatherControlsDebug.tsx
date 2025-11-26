@@ -22,11 +22,16 @@ const CompactSpaceWeatherControls: React.FC<CompactSpaceWeatherControlsProps> = 
     lastUpdated,
     refresh,
     interMagData,
-  usCanadaData,
-  telemetry
+    usCanadaData,
+    telemetry,
+    diagnostics
   } = useSpaceWeatherContext();
 
   // Debug information
+  const cacheStats = diagnostics?.cache?.stats;
+  const latestProvider = diagnostics?.providers?.entries?.[0];
+  const latestAdapter = diagnostics?.adapters?.entries?.[0];
+
   const debugInfo = {
     electricFieldsEnabled: config.spaceWeather.showElectricFields,
     vectorCount: visualizationVectors?.length || 0,
@@ -35,7 +40,8 @@ const CompactSpaceWeatherControls: React.FC<CompactSpaceWeatherControlsProps> = 
   totalRawData: (interMagData?.vectors?.length || 0) + (usCanadaData?.vectors?.length || 0),
   samplingStrategy: telemetry?.samplingStrategy,
   sampled: telemetry?.sampled,
-  unit: telemetry?.unit
+    unit: telemetry?.unit,
+    cacheEntries: cacheStats?.totalEntries ?? 0
   };
 
   console.log('🔍 Space Weather Debug Info:', debugInfo);
@@ -64,6 +70,9 @@ const CompactSpaceWeatherControls: React.FC<CompactSpaceWeatherControlsProps> = 
         IM:{debugInfo.interMagCount} US:{debugInfo.usCanadaCount} R:{debugInfo.vectorCount}
         <br /> Samp:{telemetry?.sampled} Strat:{telemetry?.samplingStrategy === 'grid-binning' ? 'GRID' : 'TOPN'}
         <br /> Unit:{telemetry?.unit}
+        <br /> Cache:{cacheStats?.totalEntries ?? 0} entries
+        <br /> Provider:{latestProvider ? `${latestProvider.datasetId} ${latestProvider.success ? '✅' : '⚠️'} ${Math.round(latestProvider.durationMs)}ms` : '—'}
+        <br /> Adapter:{latestAdapter ? `${latestAdapter.adapterId} ${latestAdapter.success ? '✅' : '⚠️'} ${Math.round(latestAdapter.durationMs)}ms` : '—'}
       </div>
 
       {/* Main toggle for electric fields */}
@@ -184,6 +193,10 @@ const CompactSpaceWeatherControls: React.FC<CompactSpaceWeatherControlsProps> = 
               <div>Sampling: {telemetry?.samplingStrategy}</div>
               <div>Sampled Count: {telemetry?.sampled}</div>
               <div>Unit: {telemetry?.unit}</div>
+              <div>Cache Entries: {cacheStats?.totalEntries ?? 0}</div>
+              <div>Avg Cache Hits: {cacheStats ? cacheStats.averageHits.toFixed(1) : '0.0'}</div>
+              <div>Provider Last: {latestProvider ? `${latestProvider.datasetId} (${Math.round(latestProvider.durationMs)}ms)` : '—'}</div>
+              <div>Adapter Last: {latestAdapter ? `${latestAdapter.adapterId} (${Math.round(latestAdapter.durationMs)}ms)` : '—'}</div>
             </div>
 
             <div style={{ marginBottom: '6px' }}>

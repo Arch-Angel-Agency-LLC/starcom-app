@@ -40,6 +40,7 @@ export class RealTimeAttackService extends CyberCommandDataService {
   private mockDataEnabled = false; // 🔥 REAL DATA MODE ENABLED!
   private activeAttacks = new Map<string, CyberAttackData>();
   private eventEmitter: EventTarget;
+  private mockStreamInterval?: ReturnType<typeof setInterval>;
 
   constructor() {
     super('CyberAttacks');
@@ -177,18 +178,22 @@ export class RealTimeAttackService extends CyberCommandDataService {
     this.streamSubscriptions.forEach(sub => {
       sub.active = false;
     });
+    this.clearMockStreamInterval();
   }
 
   private startMockStreaming(): void {
+    if (this.mockStreamInterval) {
+      return;
+    }
     // Setup initial mock data when streaming starts
     if (this.activeAttacks.size === 0) {
       this.setupMockDataStreaming();
     }
     
     // Generate periodic mock attacks for demonstration
-    const streamInterval = setInterval(() => {
+    this.mockStreamInterval = setInterval(() => {
       if (this.streamSubscriptions.size === 0) {
-        clearInterval(streamInterval);
+        this.clearMockStreamInterval();
         return;
       }
 
@@ -209,6 +214,13 @@ export class RealTimeAttackService extends CyberCommandDataService {
       }
 
     }, CYBER_ATTACK_CONSTANTS.DEFAULT_UPDATE_INTERVAL);
+  }
+
+  private clearMockStreamInterval(): void {
+    if (this.mockStreamInterval) {
+      clearInterval(this.mockStreamInterval);
+      this.mockStreamInterval = undefined;
+    }
   }
 
   private async startExternalStreaming(): Promise<void> {

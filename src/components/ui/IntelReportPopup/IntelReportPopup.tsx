@@ -241,7 +241,7 @@ export const IntelReportPopup: React.FC<IntelReportPopupProps> = ({
 
   return (
     <div className={styles.overlay} onClick={handleOverlayClick}>
-      <div 
+      <div
         ref={popupRef}
         className={`${styles.popup} ${visible ? styles.visible : ''} ${isClosing ? styles.closing : ''}`}
         onClick={(e) => e.stopPropagation()}
@@ -251,15 +251,14 @@ export const IntelReportPopup: React.FC<IntelReportPopupProps> = ({
         aria-describedby="popup-content"
         tabIndex={-1}
       >
-        {/* Header */}
         <div className={styles.header}>
           <div className={styles.headerContent}>
             <div className={styles.titleSection}>
               <div className={styles.modelPreview}>
-                <IntelReport3DPreview 
+                <IntelReport3DPreview
                   report={report}
-                  size={80}
-                  animated={true}
+                  size={96}
+                  animated
                   className={styles.headerModel}
                 />
               </div>
@@ -267,6 +266,9 @@ export const IntelReportPopup: React.FC<IntelReportPopupProps> = ({
                 <h2 id="popup-title" className={styles.title}>
                   {report.title || 'Untitled Report'}
                 </h2>
+                <p className={styles.subtitle}>
+                  {sourceInfo} • {coordinateDisplay}
+                </p>
                 <div className={styles.headerTags}>
                   <span className={`${styles.priority} ${priorityInfo.class}`}>
                     {priorityInfo.label}
@@ -278,7 +280,7 @@ export const IntelReportPopup: React.FC<IntelReportPopupProps> = ({
               </div>
             </div>
           </div>
-          <button 
+          <button
             className={styles.closeButton}
             onClick={handleClose}
             aria-label="Close popup"
@@ -287,44 +289,48 @@ export const IntelReportPopup: React.FC<IntelReportPopupProps> = ({
           </button>
         </div>
 
-        {/* Content */}
         <div id="popup-content" className={styles.content}>
-          {/* Metadata */}
-          <div className={styles.metadata}>
-            <div className={styles.metadataItem}>
-              <span className={styles.metadataLabel}>📅 Timestamp:</span>
-              <span className={styles.metadataValue}>
-                {formattedTimestamp}
-              </span>
+          <div className={styles.summaryGrid}>
+            <div className={styles.summaryCard}>
+              <span className={styles.summaryIcon} aria-hidden="true">📅</span>
+              <div className={styles.summaryCopy}>
+                <span className={styles.summaryLabel}>Timestamp</span>
+                <span className={styles.summaryValue}>{formattedTimestamp}</span>
+              </div>
             </div>
-            
-            <div className={styles.metadataItem}>
-              <span className={styles.metadataLabel}>🌍 Location:</span>
-              <span className={styles.metadataValue}>
-                {coordinateDisplay}
-              </span>
+            <div className={styles.summaryCard}>
+              <span className={styles.summaryIcon} aria-hidden="true">🌍</span>
+              <div className={styles.summaryCopy}>
+                <span className={styles.summaryLabel}>Location</span>
+                <span className={styles.summaryValue}>{coordinateDisplay}</span>
+              </div>
             </div>
-            
-            <div className={styles.metadataItem}>
-              <span className={styles.metadataLabel}>📡 Source:</span>
-              <span className={styles.metadataValue}>
-                {sourceInfo}
-              </span>
+            <div className={styles.summaryCard}>
+              <span className={styles.summaryIcon} aria-hidden="true">📡</span>
+              <div className={styles.summaryCopy}>
+                <span className={styles.summaryLabel}>Source</span>
+                <span className={styles.summaryValue}>{sourceInfo}</span>
+              </div>
+            </div>
+            <div className={styles.summaryCard}>
+              <span className={styles.summaryIcon} aria-hidden="true">🛡️</span>
+              <div className={styles.summaryCopy}>
+                <span className={styles.summaryLabel}>Classification</span>
+                <span className={styles.summaryValue}>{classification}</span>
+              </div>
             </div>
           </div>
 
-          {/* Description */}
-          <div className={styles.description}>
-            <h3 className={styles.sectionTitle}>Report Details</h3>
+          <section className={`${styles.panel} ${styles.descriptionPanel}`}>
+            <h3 className={styles.panelTitle}>Report Narrative</h3>
             <p className={styles.descriptionText}>
               {report.content || 'No detailed description available for this intelligence report.'}
             </p>
-          </div>
+          </section>
 
-          {/* Tags */}
           {report.tags && report.tags.length > 0 && (
-            <div className={styles.tagsSection}>
-              <h3 className={styles.sectionTitle}>Tags & Classifications</h3>
+            <section className={`${styles.panel} ${styles.tagsPanel}`}>
+              <h3 className={styles.panelTitle}>Tags &amp; Classifications</h3>
               <div className={styles.tags}>
                 {report.tags.map((tag, index) => (
                   <span key={`${tag}-${index}`} className={styles.tag}>
@@ -332,18 +338,17 @@ export const IntelReportPopup: React.FC<IntelReportPopupProps> = ({
                   </span>
                 ))}
               </div>
-            </div>
+            </section>
           )}
 
-          {/* Advanced Analysis Section */}
-          <div className={styles.analysisSection}>
-            <h3 className={styles.sectionTitle}>Intelligence Analysis</h3>
-            
-            {/* Threat Assessment */}
-            <div className={styles.analysisCard}>
-              <h4 className={styles.analysisTitle}>🛡️ Threat Assessment</h4>
+          <section className={styles.analysisGrid}>
+            <div className={`${styles.analysisCard} ${styles.panel}`}>
+              <div className={styles.analysisHeader}>
+                <span className={styles.analysisIcon} aria-hidden="true">🛡️</span>
+                <h4 className={styles.analysisTitle}>Threat Assessment</h4>
+              </div>
               <div className={styles.threatLevel}>
-                <span className={styles.threatLabel}>Threat Level:</span>
+                <span className={styles.threatLabel}>Threat Level</span>
                 <span className={`${styles.threatIndicator} ${getThreatLevel(report.tags).class}`}>
                   {getThreatLevel(report.tags).level}
                 </span>
@@ -353,13 +358,15 @@ export const IntelReportPopup: React.FC<IntelReportPopupProps> = ({
               </p>
             </div>
 
-            {/* Confidence Level */}
-            <div className={styles.analysisCard}>
-              <h4 className={styles.analysisTitle}>📊 Intelligence Confidence</h4>
+            <div className={`${styles.analysisCard} ${styles.panel}`}>
+              <div className={styles.analysisHeader}>
+                <span className={styles.analysisIcon} aria-hidden="true">📊</span>
+                <h4 className={styles.analysisTitle}>Intelligence Confidence</h4>
+              </div>
               <div className={styles.confidenceBar}>
-                <div className={styles.confidenceLabel}>Source Reliability:</div>
+                <div className={styles.confidenceLabel}>Source Reliability</div>
                 <div className={styles.confidenceIndicator}>
-                  <div 
+                  <div
                     className={styles.confidenceFill}
                     style={{ width: `${getConfidenceLevel(report.tags)}%` }}
                   />
@@ -373,9 +380,11 @@ export const IntelReportPopup: React.FC<IntelReportPopupProps> = ({
               </p>
             </div>
 
-            {/* Recommended Actions */}
-            <div className={styles.analysisCard}>
-              <h4 className={styles.analysisTitle}>⚡ Recommended Actions</h4>
+            <div className={`${styles.analysisCard} ${styles.panel}`}>
+              <div className={styles.analysisHeader}>
+                <span className={styles.analysisIcon} aria-hidden="true">⚡</span>
+                <h4 className={styles.analysisTitle}>Recommended Actions</h4>
+              </div>
               <div className={styles.actionItems}>
                 {generateRecommendedActions(report).map((action, index) => (
                   <div key={index} className={styles.actionItem}>
@@ -386,9 +395,11 @@ export const IntelReportPopup: React.FC<IntelReportPopupProps> = ({
               </div>
             </div>
 
-            {/* Related Intelligence */}
-            <div className={styles.analysisCard}>
-              <h4 className={styles.analysisTitle}>🔗 Related Intelligence</h4>
+            <div className={`${styles.analysisCard} ${styles.panel}`}>
+              <div className={styles.analysisHeader}>
+                <span className={styles.analysisIcon} aria-hidden="true">🔗</span>
+                <h4 className={styles.analysisTitle}>Related Intelligence</h4>
+              </div>
               <div className={styles.relatedItems}>
                 {generateRelatedIntelligence(report).map((item, index) => (
                   <div key={index} className={styles.relatedItem}>
@@ -398,41 +409,33 @@ export const IntelReportPopup: React.FC<IntelReportPopupProps> = ({
                 ))}
               </div>
             </div>
-          </div>
+          </section>
 
-          {/* Additional Info */}
-          <div className={styles.additionalInfo}>
+          <section className={`${styles.panel} ${styles.infoPanel}`}>
             <div className={styles.infoGrid}>
               <div className={styles.infoItem}>
-                <span className={styles.infoLabel}>Report ID:</span>
+                <span className={styles.infoLabel}>Report ID</span>
                 <span className={styles.infoValue}>{report.pubkey.slice(0, 8)}...</span>
               </div>
               <div className={styles.infoItem}>
-                <span className={styles.infoLabel}>Author:</span>
-                <span className={styles.infoValue}>
-                  {report.author.slice(0, 8)}...
-                </span>
+                <span className={styles.infoLabel}>Author</span>
+                <span className={styles.infoValue}>{report.author.slice(0, 8)}...</span>
               </div>
               <div className={styles.infoItem}>
-                <span className={styles.infoLabel}>Collection Method:</span>
-                <span className={styles.infoValue}>
-                  {getCollectionMethod(report.tags)}
-                </span>
+                <span className={styles.infoLabel}>Collection Method</span>
+                <span className={styles.infoValue}>{getCollectionMethod(report.tags)}</span>
               </div>
               <div className={styles.infoItem}>
-                <span className={styles.infoLabel}>Distribution:</span>
-                <span className={styles.infoValue}>
-                  {getDistributionLevel(report.tags)}
-                </span>
+                <span className={styles.infoLabel}>Distribution</span>
+                <span className={styles.infoValue}>{getDistributionLevel(report.tags)}</span>
               </div>
             </div>
-          </div>
+          </section>
         </div>
 
-        {/* Footer with enhanced actions */}
         <div className={styles.footer}>
           <div className={styles.navigation}>
-            <button 
+            <button
               className={`${styles.navButton} ${!hasPrevious ? styles.disabled : ''}`}
               onClick={onPrevious}
               disabled={!hasPrevious}
@@ -440,7 +443,7 @@ export const IntelReportPopup: React.FC<IntelReportPopupProps> = ({
             >
               ← Previous
             </button>
-            <button 
+            <button
               className={`${styles.navButton} ${!hasNext ? styles.disabled : ''}`}
               onClick={onNext}
               disabled={!hasNext}
@@ -450,41 +453,45 @@ export const IntelReportPopup: React.FC<IntelReportPopupProps> = ({
             </button>
           </div>
           <div className={styles.actions}>
-            <button className={styles.actionButton} onClick={() => {
-              // Advanced export with analysis
-              const exportData = {
-                report,
-                analysis: {
-                  threatLevel: getThreatLevel(report.tags),
-                  confidence: getConfidenceLevel(report.tags),
-                  actions: generateRecommendedActions(report),
-                  relatedIntel: generateRelatedIntelligence(report)
-                }
-              };
-              console.log('Export detailed analysis:', exportData);
-              // Future: Implement PDF export with full analysis
-            }}>
+            <button
+              className={styles.actionButton}
+              onClick={() => {
+                const exportData = {
+                  report,
+                  analysis: {
+                    threatLevel: getThreatLevel(report.tags),
+                    confidence: getConfidenceLevel(report.tags),
+                    actions: generateRecommendedActions(report),
+                    relatedIntel: generateRelatedIntelligence(report)
+                  }
+                };
+                console.log('Export detailed analysis:', exportData);
+              }}
+            >
               📄 Export Analysis
             </button>
-            <button className={styles.actionButton} onClick={() => {
-              // Create task from intelligence
-              console.log('Create investigation task from report:', report.pubkey);
-              // Future: Integration with task management system
-            }}>
+            <button
+              className={styles.actionButton}
+              onClick={() => {
+                console.log('Create investigation task from report:', report.pubkey);
+              }}
+            >
               📋 Create Task
             </button>
-            <button className={styles.actionButton} onClick={() => {
-              // Flag for follow-up
-              console.log('Flag report for follow-up:', report.pubkey);
-              // Future: Integration with follow-up tracking system
-            }}>
+            <button
+              className={styles.actionButton}
+              onClick={() => {
+                console.log('Flag report for follow-up:', report.pubkey);
+              }}
+            >
               🔄 Follow-up
             </button>
-            <button className={styles.actionButton} onClick={() => {
-              // Share with team/agency
-              console.log('Share report with team:', report.pubkey);
-              // Future: Team collaboration features
-            }}>
+            <button
+              className={styles.actionButton}
+              onClick={() => {
+                console.log('Share report with team:', report.pubkey);
+              }}
+            >
               👥 Share
             </button>
           </div>

@@ -6,6 +6,7 @@
 import { DataCacheService, DataServiceObserver } from './data-service-interfaces';
 import type { ProcessedElectricFieldData, SpaceWeatherAlert } from '../types';
 import type { DataQualityMetrics } from './data-management/DataQualityService';
+import { spaceWeatherDiagnostics, CacheSnapshotEntry } from './space-weather/SpaceWeatherDiagnostics';
 
 interface SpaceWeatherCacheData {
   interMagData?: ProcessedElectricFieldData;
@@ -98,6 +99,7 @@ export class SpaceWeatherCacheService implements DataCacheService<SpaceWeatherCa
     
     this.cache.set(key, { value, expiresAt, metadata });
     this.accessOrder.set(key, Date.now());
+    this.emitDiagnostics();
   }
 
   private calculateIntelligentTTL(value: SpaceWeatherCacheData, requestedTTL?: number): number {
@@ -163,6 +165,7 @@ export class SpaceWeatherCacheService implements DataCacheService<SpaceWeatherCa
       this.cache.delete(oldestKey);
       this.accessOrder.delete(oldestKey);
       this.observer?.onCacheEvict?.(oldestKey);
+      this.emitDiagnostics();
     }
   }
 
@@ -170,11 +173,13 @@ export class SpaceWeatherCacheService implements DataCacheService<SpaceWeatherCa
     this.cache.delete(key);
     this.accessOrder.delete(key);
     this.observer?.onCacheEvict?.(key);
+    this.emitDiagnostics();
   }
 
   clear(): void {
     this.cache.clear();
     this.accessOrder.clear();
+    this.emitDiagnostics();
   }
 
   has(key: string): boolean {
@@ -283,6 +288,17 @@ export class SpaceWeatherCacheService implements DataCacheService<SpaceWeatherCa
     return this.cache.size;
   }
 
+  getSnapshot(): CacheSnapshotEntry[] {
+    return Array.from(this.cache.entries()).map(([key, entry]) => ({
+      key,
+      hits: entry.metadata.hits,
+      lastAccessed: entry.metadata.lastAccessed,
+      expiresAt: entry.expiresAt,
+      priorityLevel: entry.metadata.priorityLevel,
+      size: JSON.stringify(entry.value).length
+    }));
+  }
+
   async cleanup(): Promise<void> {
     const now = Date.now();
     const keysToDelete: string[] = [];
@@ -300,6 +316,10 @@ export class SpaceWeatherCacheService implements DataCacheService<SpaceWeatherCa
     
     if (keysToDelete.length > 0) {
       this.observer?.onCacheEvict?.(`Cleanup removed ${keysToDelete.length} expired entries`);
+    }
+
+    if (keysToDelete.length > 0) {
+      this.emitDiagnostics();
     }
   }
 
@@ -322,6 +342,14 @@ export class SpaceWeatherCacheService implements DataCacheService<SpaceWeatherCa
       : SpaceWeatherCacheService.DEFAULT_TTL;
     
     console.log(`🔥 Cache warmed for ${provider} provider with ${expectedTTL}ms TTL`);
+  }
+
+  private emitDiagnostics() {
+    spaceWeatherDiagnostics.updateCache({
+      stats: this.getCacheStatistics(),
+      snapshot: this.getSnapshot(),
+      timestamp: Date.now()
+    });
   }
 }
 

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import styles from './ReportEditPanel.module.css';
 import { IntelReportUI, IntelReportStatus, IntelReportPriority } from '../../types/intel/IntelReportUI';
 import { intelReportService } from '../../services/intel/IntelReportService';
@@ -12,10 +12,80 @@ interface Props {
 
 const statusLabels: IntelReportStatus[] = ['DRAFT','SUBMITTED','REVIEWED','APPROVED','ARCHIVED'];
 
+const hintContent = {
+  title: {
+    hover: 'Short headline for the report',
+    detail: 'Provide a concise name that operators will see in lists, search results, and globe overlays.'
+  },
+  summary: {
+    hover: 'Executive summary',
+    detail: 'Use the summary to highlight key findings; it appears in condensed views and can be auto-generated when left blank.'
+  },
+  content: {
+    hover: 'Full analytical body',
+    detail: 'Capture the full narrative, supporting evidence, and analytical detail for this report. Supports markdown formatting.'
+  },
+  category: {
+    hover: 'Operational category',
+    detail: 'Classify the report for filtering and dashboards (e.g., GENERAL, CYBER, GEOINT).'
+  },
+  priority: {
+    hover: 'Urgency level',
+    detail: 'Set the urgency to control ordering, alerting, and workflow escalation.'
+  },
+  geoint: {
+    hover: 'Geospatial anchor',
+    detail: 'Latitude and longitude place this report on the CyberCommand globe and other spatial views.'
+  },
+  latitude: {
+    hover: 'North / South coordinate',
+    detail: 'Decimal degrees between -90 and 90. Positive values are north of the equator.'
+  },
+  longitude: {
+    hover: 'East / West coordinate',
+    detail: 'Decimal degrees between -180 and 180. Positive values are east of Greenwich.'
+  },
+  tags: {
+    hover: 'Searchable keywords',
+    detail: 'Comma-separated tags drive search facets and automation triggers.'
+  },
+  targetAudience: {
+    hover: 'Intended recipients',
+    detail: 'List teams or stakeholders who should act on this report (comma separated).'
+  },
+  confidence: {
+    hover: 'Analyst confidence score',
+    detail: 'Set a value between 0 and 1 to convey confidence in the findings.'
+  },
+  sourceIntelIds: {
+    hover: 'Linked source IDs',
+    detail: 'Reference related source intel or collection IDs to maintain provenance.'
+  },
+  conclusions: {
+    hover: 'Key takeaways',
+    detail: 'Capture concise conclusions, one per line, to summarise analytical outcomes.'
+  },
+  recommendations: {
+    hover: 'Actionable steps',
+    detail: 'List recommended actions or mitigations derived from the analysis (one per line).'
+  },
+  methodology: {
+    hover: 'How the analysis was produced',
+    detail: 'Document methods, data sources, and analytical frameworks used to reach the findings.'
+  },
+  statusTransitions: {
+    hover: 'Workflow controls',
+    detail: 'Advance the report through review states. Only valid forward transitions are enabled here.'
+  }
+} as const;
+
+type HintKey = keyof typeof hintContent;
+
 const ReportEditPanel: React.FC<Props> = ({ report, onCancel, onSaved, onStatusChanged }) => {
   const [working, setWorking] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [form, setForm] = useState(() => (report ? { ...report } : null));
+  const [form, setForm] = useState<IntelReportUI | null>(() => (report ? { ...report } : null));
+  const [activeHint, setActiveHint] = useState<HintKey | null>(null);
 
   const changed = useMemo(() => {
     if (!report || !form) return false;
@@ -123,6 +193,57 @@ const ReportEditPanel: React.FC<Props> = ({ report, onCancel, onSaved, onStatusC
     return changed && JSON.stringify(after) !== JSON.stringify(before);
   };
 
+  useEffect(() => {
+    if (!activeHint) return;
+    const handleClick = () => setActiveHint(null);
+    document.addEventListener('click', handleClick);
+    return () => document.removeEventListener('click', handleClick);
+  }, [activeHint]);
+
+  const InfoHint: React.FC<{ id: HintKey }> = ({ id }) => {
+    const info = hintContent[id];
+    const isOpen = activeHint === id;
+
+    if (!info) return null;
+
+    return (
+      <span className={styles.infoWrapper}>
+        <button
+          type="button"
+          className={styles.infoIcon}
+          title={info.hover}
+          aria-label={`${info.hover} (help)`}
+          onClick={(event) => {
+            event.stopPropagation();
+            setActiveHint(isOpen ? null : id);
+          }}
+        >
+          ?
+        </button>
+        {isOpen && (
+          <div
+            className={styles.infoPopover}
+            role="tooltip"
+            aria-live="polite"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <p>{info.detail}</p>
+            <button
+              type="button"
+              className={styles.closePopover}
+              onClick={(event) => {
+                event.stopPropagation();
+                setActiveHint(null);
+              }}
+            >
+              Got it
+            </button>
+          </div>
+        )}
+      </span>
+    );
+  };
+
   if (!report || !form) return null;
 
   return (
@@ -134,20 +255,25 @@ const ReportEditPanel: React.FC<Props> = ({ report, onCancel, onSaved, onStatusC
         </div>
       </div>
       <div className={styles.formGrid}>
-        <label style={fieldChanged('title') ? {borderLeft:'3px solid #0f6', paddingLeft:5}:undefined}>Title
+        <label style={fieldChanged('title') ? {borderLeft:'3px solid #0f6', paddingLeft:5}:undefined}>
+          <span className={styles.labelHeader}>Title <InfoHint id="title" /></span>
           <input value={form.title} onChange={e=>setForm({...form, title:e.target.value})} />
         </label>
-        <label style={fieldChanged('summary') ? {borderLeft:'3px solid #0f6', paddingLeft:5}:undefined}>Summary
+        <label style={fieldChanged('summary') ? {borderLeft:'3px solid #0f6', paddingLeft:5}:undefined}>
+          <span className={styles.labelHeader}>Summary <InfoHint id="summary" /></span>
           <textarea rows={2} value={form.summary || ''} onChange={e=>setForm({...form, summary:e.target.value, manualSummary: !!e.target.value})} />
         </label>
-        <label style={fieldChanged('content') ? {borderLeft:'3px solid #0f6', paddingLeft:5}:undefined}>Content
+        <label style={fieldChanged('content') ? {borderLeft:'3px solid #0f6', paddingLeft:5}:undefined}>
+          <span className={styles.labelHeader}>Content <InfoHint id="content" /></span>
           <textarea rows={6} value={form.content} onChange={e=>setForm({...form, content:e.target.value})} />
         </label>
         <div className={styles.row}>
-          <label>Category
+          <label>
+            <span className={styles.labelHeader}>Category <InfoHint id="category" /></span>
             <input value={form.category} onChange={e=>setForm({...form, category:e.target.value})} />
           </label>
-          <label>Priority
+          <label>
+            <span className={styles.labelHeader}>Priority <InfoHint id="priority" /></span>
             <select value={form.priority || 'ROUTINE'} onChange={e=>setForm({...form, priority: e.target.value as IntelReportPriority})}>
               <option value="ROUTINE">ROUTINE</option>
               <option value="PRIORITY">PRIORITY</option>
@@ -156,9 +282,13 @@ const ReportEditPanel: React.FC<Props> = ({ report, onCancel, onSaved, onStatusC
           </label>
         </div>
         <div className={styles.section}>
-          <h4 className={styles.sectionTitle}>GEOINT Coordinates</h4>
+          <div className={styles.sectionHeading}>
+            <h4 className={styles.sectionTitle}>GEOINT Coordinates</h4>
+            <InfoHint id="geoint" />
+          </div>
           <div className={styles.row}>
-            <label style={fieldChanged('latitude') ? {borderLeft:'3px solid #0f6', paddingLeft:5}:undefined}>Latitude
+            <label style={fieldChanged('latitude') ? {borderLeft:'3px solid #0f6', paddingLeft:5}:undefined}>
+              <span className={styles.labelHeader}>Latitude <InfoHint id="latitude" /></span>
               <input
                 type="number"
                 step="0.0001"
@@ -166,7 +296,8 @@ const ReportEditPanel: React.FC<Props> = ({ report, onCancel, onSaved, onStatusC
                 onChange={e=>setForm({...form, latitude: e.target.value === '' ? undefined : parseFloat(e.target.value)})}
               />
             </label>
-            <label style={fieldChanged('longitude') ? {borderLeft:'3px solid #0f6', paddingLeft:5}:undefined}>Longitude
+            <label style={fieldChanged('longitude') ? {borderLeft:'3px solid #0f6', paddingLeft:5}:undefined}>
+              <span className={styles.labelHeader}>Longitude <InfoHint id="longitude" /></span>
               <input
                 type="number"
                 step="0.0001"
@@ -177,35 +308,51 @@ const ReportEditPanel: React.FC<Props> = ({ report, onCancel, onSaved, onStatusC
           </div>
         </div>
         <div className={styles.row}>
-          <label>Tags
+          <label>
+            <span className={styles.labelHeader}>Tags <InfoHint id="tags" /></span>
             <input value={form.tags.join(', ')} onChange={e=>updateArrayField('tags', e.target.value)} />
           </label>
-          <label>Target Audience
+          <label>
+            <span className={styles.labelHeader}>Target Audience <InfoHint id="targetAudience" /></span>
             <input value={(form.targetAudience||[]).join(', ')} onChange={e=>updateArrayField('targetAudience', e.target.value)} />
           </label>
         </div>
         <div className={styles.row}>
-          <label>Confidence
+          <label>
+            <span className={styles.labelHeader}>Confidence <InfoHint id="confidence" /></span>
             <input type="number" min={0} max={1} step="0.05" value={form.confidence ?? 0.5} onChange={e=>setForm({...form, confidence: parseFloat(e.target.value)})} />
           </label>
-          <label>Source Intel IDs
+          <label>
+            <span className={styles.labelHeader}>Source Intel IDs <InfoHint id="sourceIntelIds" /></span>
             <input value={(form.sourceIntelIds||[]).join(', ')} onChange={e=>updateArrayField('sourceIntelIds', e.target.value)} />
           </label>
         </div>
         <div className={styles.section}>
-          <h4 className={styles.sectionTitle}>Conclusions</h4>
+          <div className={styles.sectionHeading}>
+            <h4 className={styles.sectionTitle}>Conclusions</h4>
+            <InfoHint id="conclusions" />
+          </div>
           <textarea rows={2} value={(form.conclusions||[]).join('\n')} onChange={e=>setForm({...form, conclusions: e.target.value.split(/\n+/).map(l=>l.trim()).filter(Boolean)})} />
         </div>
         <div className={styles.section}>
-          <h4 className={styles.sectionTitle}>Recommendations</h4>
+          <div className={styles.sectionHeading}>
+            <h4 className={styles.sectionTitle}>Recommendations</h4>
+            <InfoHint id="recommendations" />
+          </div>
           <textarea rows={2} value={(form.recommendations||[]).join('\n')} onChange={e=>setForm({...form, recommendations: e.target.value.split(/\n+/).map(l=>l.trim()).filter(Boolean)})} />
         </div>
         <div className={styles.section}>
-          <h4 className={styles.sectionTitle}>Methodology</h4>
+          <div className={styles.sectionHeading}>
+            <h4 className={styles.sectionTitle}>Methodology</h4>
+            <InfoHint id="methodology" />
+          </div>
           <textarea rows={2} value={(form.methodology||[]).join('\n')} onChange={e=>setForm({...form, methodology: e.target.value.split(/\n+/).map(l=>l.trim()).filter(Boolean)})} />
         </div>
         <div className={styles.section}>
-          <h4 className={styles.sectionTitle}>Status Transitions</h4>
+          <div className={styles.sectionHeading}>
+            <h4 className={styles.sectionTitle}>Status Transitions</h4>
+            <InfoHint id="statusTransitions" />
+          </div>
           <div className={styles.statusRow}>
             <span className={styles.msg}>Current: {form.status}</span>
             {nextStatuses.map(s => (

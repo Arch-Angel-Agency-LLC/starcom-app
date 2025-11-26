@@ -23,6 +23,11 @@ export const useGlobeSolarSystemIntegration = ({
   const [solarSystemState, setSolarSystemState] = useState<SolarSystemState | null>(null);
   const animationFrameRef = useRef<number>();
   const managerRef = useRef<SolarSystemManager | null>(null);
+  const onStateChangeRef = useRef<typeof onStateChange>();
+
+  useEffect(() => {
+    onStateChangeRef.current = onStateChange;
+  }, [onStateChange]);
 
   // Initialize SolarSystemManager when Globe is ready
   useEffect(() => {
@@ -92,10 +97,10 @@ export const useGlobeSolarSystemIntegration = ({
         debugMode
       });
 
-      // Set up state change listener
+      // Set up state change listener without tying hook lifecycle to callback identity
       manager.onStateChange((state) => {
         setSolarSystemState(state);
-        onStateChange?.(state);
+        onStateChangeRef.current?.(state);
       });
 
       setSolarSystemManager(manager);
@@ -123,7 +128,7 @@ export const useGlobeSolarSystemIntegration = ({
         managerRef.current = null;
       }
     };
-  }, [globeRef, enabled, debugMode, onStateChange]);
+  }, [globeRef, enabled, debugMode]);
 
   // Set up camera distance monitoring
   useEffect(() => {

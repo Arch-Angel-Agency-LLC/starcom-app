@@ -17,6 +17,8 @@ import type { ProcessedElectricFieldData, SpaceWeatherAlert } from '../types';
 import { createAdapterOrchestrator } from '../services/space-weather/AdapterOrchestrator';
 import { createNoaaInterMagAdapter } from '../services/space-weather/adapters/NoaaInterMagAdapter';
 import { createNoaaUSCanadaAdapter } from '../services/space-weather/adapters/NoaaUSCanadaAdapter';
+import { spaceWeatherDiagnostics, SpaceWeatherDiagnosticsState } from '../services/space-weather/SpaceWeatherDiagnostics';
+import { visualizationResourceMonitor } from '../services/visualization/VisualizationResourceMonitor';
 // Tertiary mode data hooks (Phase 1 stubs)
 import { useGeomagneticData } from '../hooks/useGeomagneticData';
 import { useAuroralOvalData } from '../hooks/useAuroralOvalData';
@@ -33,6 +35,11 @@ declare global {
 
 // Data provider options
 type DataProvider = 'legacy' | 'enterprise' | 'enhanced';
+
+const SPACE_WEATHER_MODE_KEY = 'EcoNatural.SpaceWeather' as const;
+const VECTOR_BYTES_ESTIMATE = 64;
+const PIPELINE_VECTOR_BYTES_ESTIMATE = 48;
+const DIAGNOSTIC_ENTRY_BYTES_ESTIMATE = 128;
 
 export interface VisualizationVector {
   latitude: number;
@@ -104,7 +111,9 @@ interface SpaceWeatherContextType {
       magnetopause: { active: boolean; standoffRe: number | null; lastUpdate: number | null };
       magneticField: { active: boolean; sampleCount: number | null; lastUpdate: number | null };
     };
+    diagnostics: SpaceWeatherDiagnosticsState;
   };
+  diagnostics: SpaceWeatherDiagnosticsState;
   
   // Enhanced feature controls
   enableDataCorrelation: boolean;
@@ -137,6 +146,13 @@ export const SpaceWeatherProvider: React.FC<{ children: ReactNode }> = ({ childr
   const [lastPipelineError, setLastPipelineError] = useState<string | null>(null);
   const pipelineIntervalRef = useRef<number | null>(null);
   const orchestratorRef = useRef<ReturnType<typeof createAdapterOrchestrator> | null>(null);
+  const [diagnosticsState, setDiagnosticsState] = useState<SpaceWeatherDiagnosticsState>(() => spaceWeatherDiagnostics.getState());
+
+  // Subscribe to diagnostics store so context stays in sync with backend instrumentation
+  useEffect(() => {
+    const unsubscribe = spaceWeatherDiagnostics.subscribe(setDiagnosticsState);
+    return () => unsubscribe();
+  }, []);
 
   const { 
     config, 
@@ -529,7 +545,8 @@ export const SpaceWeatherProvider: React.FC<{ children: ReactNode }> = ({ childr
         solarWind: { active: solarWindActive, speed: solarWind.data?.speed ?? null, density: solarWind.data?.density ?? null, bz: solarWind.data?.bz ?? null, lastUpdate: solarWind.lastUpdated?.getTime() ?? null },
         magnetopause: { active: magnetopauseActive, standoffRe: magnetopause.data?.standoffRe ?? null, lastUpdate: magnetopause.lastUpdated?.getTime() ?? null },
         magneticField: { active: magneticFieldActive, sampleCount: magneticField.data?.sampleCount ?? null, lastUpdate: magneticField.lastUpdated?.getTime() ?? null }
-      }
+      },
+      diagnostics: diagnosticsState
     };
   }, [
     baseData.interMagData,
@@ -544,24 +561,43 @@ export const SpaceWeatherProvider: React.FC<{ children: ReactNode }> = ({ childr
   lastPipelineError,
   geomagneticActive, auroralOvalActive, solarWindActive, magnetopauseActive, magneticFieldActive,
   geomagnetic.data, auroralOval.data, solarWind.data, magnetopause.data, magneticField.data,
-  geomagnetic.lastUpdated, auroralOval.lastUpdated, solarWind.lastUpdated, magnetopause.lastUpdated, magneticField.lastUpdated
+  geomagnetic.lastUpdated, auroralOval.lastUpdated, solarWind.lastUpdated, magnetopause.lastUpdated, magneticField.lastUpdated,
+  diagnosticsState
   ]);
 
   // Pipeline async fetch effect
   useEffect(() => {
-    // Cleanup helper
     const clearTimer = () => {
       if (pipelineIntervalRef.current) {
         clearInterval(pipelineIntervalRef.current);
         pipelineIntervalRef.current = null;
       }
     };
-    if (!(config.spaceWeather.pipelineEnabled && shouldShowSpaceWeatherVisualization)) {
+
+    const disposeOrchestrator = () => {
+      if (orchestratorRef.current) {
+        orchestratorRef.current.clear();
+        orchestratorRef.current = null;
+      }
+    };
+
+    const resetPipelineState = () => {
+      setPipelineVectors(null);
+      setPipelineMeta(null);
+      setLastPipelineError(null);
+      vectorCacheRef.current = { key: undefined, vectors: [] };
+      visualizationResourceMonitor.clearMode(SPACE_WEATHER_MODE_KEY);
+    };
+
+    const tearDownPipeline = () => {
       clearTimer();
-  setPipelineVectors(null);
-  setPipelineMeta(null);
-  setLastPipelineError(null);
-      return;
+      disposeOrchestrator();
+      resetPipelineState();
+    };
+
+    if (!(config.spaceWeather.pipelineEnabled && shouldShowSpaceWeatherVisualization)) {
+      tearDownPipeline();
+      return () => tearDownPipeline();
     }
     // Lazy init orchestrator
     if (!orchestratorRef.current) {
@@ -618,8 +654,52 @@ export const SpaceWeatherProvider: React.FC<{ children: ReactNode }> = ({ childr
     // Schedule
     const intervalMs = Math.max(15_000, dataSettings.refreshIntervalMs || 60_000); // floor 15s
     pipelineIntervalRef.current = window.setInterval(fetchPipeline, intervalMs);
-    return () => clearTimer();
+    return () => {
+      tearDownPipeline();
+    };
   }, [config.spaceWeather.pipelineEnabled, shouldShowSpaceWeatherVisualization, dataSettings.refreshIntervalMs]);
+
+  // Resource instrumentation: capture vector counts, diagnostics footprint, and heap usage when data changes
+  useEffect(() => {
+    if (!shouldShowSpaceWeatherVisualization) {
+      visualizationResourceMonitor.clearMode(SPACE_WEATHER_MODE_KEY);
+      return;
+    }
+
+    const vectorCount = visualizationVectors.length;
+    visualizationResourceMonitor.recordVectors(SPACE_WEATHER_MODE_KEY, {
+      count: vectorCount,
+      approxBytes: vectorCount * VECTOR_BYTES_ESTIMATE
+    });
+
+    const pipelineCount = pipelineVectors?.length ?? 0;
+    visualizationResourceMonitor.recordPipelineVectors(SPACE_WEATHER_MODE_KEY, {
+      count: pipelineCount,
+      approxBytes: pipelineCount * PIPELINE_VECTOR_BYTES_ESTIMATE
+    });
+
+    const diagnosticsEntries = (
+      diagnosticsState.cache.snapshot.length +
+      diagnosticsState.providers.entries.length +
+      diagnosticsState.adapters.entries.length
+    );
+    visualizationResourceMonitor.recordDiagnosticsUsage(
+      SPACE_WEATHER_MODE_KEY,
+      diagnosticsEntries,
+      diagnosticsEntries * DIAGNOSTIC_ENTRY_BYTES_ESTIMATE
+    );
+
+    const cachedVectors = vectorCacheRef.current.vectors.length;
+    visualizationResourceMonitor.recordOverlayCache(
+      SPACE_WEATHER_MODE_KEY,
+      cachedVectors * VECTOR_BYTES_ESTIMATE
+    );
+
+    if (typeof performance !== 'undefined' && 'memory' in performance) {
+      const mem = (performance as unknown as { memory: { usedJSHeapSize: number; jsHeapSizeLimit: number } }).memory;
+      visualizationResourceMonitor.recordHeap(SPACE_WEATHER_MODE_KEY, mem.usedJSHeapSize, mem.jsHeapSizeLimit);
+    }
+  }, [shouldShowSpaceWeatherVisualization, visualizationVectors, pipelineVectors, diagnosticsState]);
 
   const contextValue: SpaceWeatherContextType = {
     // Settings
@@ -654,7 +734,8 @@ export const SpaceWeatherProvider: React.FC<{ children: ReactNode }> = ({ childr
     // Computed
   shouldShowOverlay: shouldShowSpaceWeatherVisualization,
   visualizationVectors,
-  telemetry
+    telemetry,
+    diagnostics: diagnosticsState
   };
 
   return (

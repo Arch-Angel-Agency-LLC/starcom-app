@@ -8,6 +8,7 @@ export interface SolarSystemManagerConfig {
   transitionDuration: number;
   performanceMode: 'high' | 'balanced' | 'low';
   debugMode: boolean;
+  enableSolarActivityIntegration: boolean;
 }
 
 export interface SunRenderConfig {

@@ -46,14 +46,14 @@ const MainBottomBar: React.FC = () => {
     { 
       id: 'inteldashboard', 
       label: 'IntelDashboard', 
-      icon: '�',
+      icon: '📑',
       tooltip: 'Intelligence reports and dashboard management',
       category: 'intel'
     },
     { 
       id: 'intelanalyzer', 
       label: 'IntelAnalyzer', 
-      icon: '�',
+      icon: '🔬',
       tooltip: 'Intelligence analysis and data processing',
       category: 'intel'
     },

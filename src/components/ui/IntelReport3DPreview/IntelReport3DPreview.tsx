@@ -7,6 +7,8 @@
 import React, { useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
 import { IntelReportOverlayMarker } from '../../../interfaces/IntelReportOverlay';
+import { assetLoader } from '../../../utils/assetLoader';
+import intelReportModelUrl from '../../../assets/models/intel_report-01d.glb?url';
 
 interface IntelReport3DPreviewProps {
   report: IntelReportOverlayMarker;
@@ -24,8 +26,9 @@ export const IntelReport3DPreview: React.FC<IntelReport3DPreviewProps> = ({
   const mountRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
-  const meshRef = useRef<THREE.Mesh | null>(null);
+  const meshRef = useRef<THREE.Group | null>(null);
   const animationIdRef = useRef<number | null>(null);
+  const baseScaleRef = useRef<number>(1);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -33,6 +36,7 @@ export const IntelReport3DPreview: React.FC<IntelReport3DPreviewProps> = ({
 
     // Store mount element reference for cleanup
     const mountElement = mountRef.current;
+    let isCancelled = false;
 
     // Initialize Three.js scene
     const scene = new THREE.Scene();
@@ -44,6 +48,7 @@ export const IntelReport3DPreview: React.FC<IntelReport3DPreviewProps> = ({
     });
 
     renderer.setSize(size, size);
+  renderer.setPixelRatio(window.devicePixelRatio || 1);
     renderer.setClearColor(0x000000, 0);
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -59,68 +64,111 @@ export const IntelReport3DPreview: React.FC<IntelReport3DPreviewProps> = ({
     directionalLight.shadow.mapSize.height = 512;
     scene.add(directionalLight);
 
-    // Create Intel Report model based on priority
-    const geometry = createIntelGeometry(report);
-    const material = createIntelMaterial(report);
-    const mesh = new THREE.Mesh(geometry, material);
-    mesh.castShadow = true;
-    mesh.receiveShadow = true;
-
-    scene.add(mesh);
+    const container = new THREE.Group();
+    scene.add(container);
 
     // Position camera
-    camera.position.set(0, 0, 3);
+    camera.position.set(0, 0.4, 2.8);
     camera.lookAt(0, 0, 0);
 
     // Store references
     sceneRef.current = scene;
     rendererRef.current = renderer;
-    meshRef.current = mesh;
+    meshRef.current = container;
 
     // Mount renderer
     mountElement.appendChild(renderer.domElement);
 
-    // Start animation
     const startTime = Date.now();
+
     const animate = () => {
-      if (!meshRef.current || !rendererRef.current || !sceneRef.current) return;
+      if (!rendererRef.current || !sceneRef.current) {
+        animationIdRef.current = requestAnimationFrame(animate);
+        return;
+      }
 
       const elapsed = (Date.now() - startTime) * 0.001;
+      const mesh = meshRef.current;
 
-      if (animated) {
-        // Rotate the model
-        meshRef.current.rotation.y = elapsed * 0.5;
-        meshRef.current.rotation.x = Math.sin(elapsed * 0.3) * 0.1;
+      if (mesh && animated) {
+        mesh.rotation.y = elapsed * 0.5;
+        mesh.rotation.x = Math.sin(elapsed * 0.3) * 0.1;
+        mesh.position.y = Math.sin(elapsed * 0.8) * 0.08;
 
-        // Gentle floating animation
-        meshRef.current.position.y = Math.sin(elapsed * 0.8) * 0.1;
-
-        // Pulse effect based on priority
         const pulseFactor = 1 + Math.sin(elapsed * getPulseSpeed(report)) * 0.05;
-        meshRef.current.scale.setScalar(pulseFactor);
+        mesh.scale.setScalar(baseScaleRef.current * pulseFactor);
       }
 
       rendererRef.current.render(sceneRef.current, camera);
       animationIdRef.current = requestAnimationFrame(animate);
     };
 
-    // Small delay to show loading state
-    setTimeout(() => {
-      setIsLoading(false);
-      animate();
-    }, 300);
+    const loadModel = async () => {
+      setIsLoading(true);
+      try {
+        const baseModel = await assetLoader.loadModel(intelReportModelUrl, {
+          scale: 1,
+          fallbackColor: 0xff6b35,
+          fallbackGeometry: 'sphere',
+          retryCount: 1,
+          timeout: 8000
+        });
+
+        if (isCancelled) {
+          return;
+        }
+
+        const modelInstance = baseModel.clone(true);
+
+        const containerGroup = meshRef.current;
+        containerGroup?.clear();
+
+        const boundingBox = new THREE.Box3().setFromObject(modelInstance);
+        const center = boundingBox.getCenter(new THREE.Vector3());
+        const sizeVector = boundingBox.getSize(new THREE.Vector3());
+        const maxDimension = Math.max(sizeVector.x, sizeVector.y, sizeVector.z) || 1;
+
+        modelInstance.position.sub(center);
+
+        const desiredSize = 1.6;
+        const scaleFactor = desiredSize / maxDimension;
+        containerGroup?.add(modelInstance);
+        baseScaleRef.current = scaleFactor;
+        containerGroup?.scale.setScalar(scaleFactor);
+
+        containerGroup?.traverse(child => {
+          if (child instanceof THREE.Mesh) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+          }
+        });
+      } catch (error) {
+        console.error('Failed to load Intel Report preview model', error);
+      } finally {
+        if (!isCancelled) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    loadModel();
+    animate();
 
     return () => {
       if (animationIdRef.current) {
         cancelAnimationFrame(animationIdRef.current);
       }
+      isCancelled = true;
       if (rendererRef.current && mountElement) {
         mountElement.removeChild(rendererRef.current.domElement);
         rendererRef.current.dispose();
       }
       if (sceneRef.current) {
         sceneRef.current.clear();
+        sceneRef.current = null;
       }
+      meshRef.current = null;
+      baseScaleRef.current = 1;
     };
   }, [report, size, animated]);
 
@@ -181,41 +229,6 @@ export const IntelReport3DPreview: React.FC<IntelReport3DPreviewProps> = ({
     </div>
   );
 };
-
-// Helper functions
-function createIntelGeometry(report: IntelReportOverlayMarker): THREE.BufferGeometry {
-  const priority = extractPriority(report);
-  
-  switch (priority) {
-    case 'critical':
-      // Sharp crystalline structure for critical reports
-      return new THREE.OctahedronGeometry(0.8, 1);
-    case 'high':
-      // Angular pyramid for high priority
-      return new THREE.ConeGeometry(0.7, 1.2, 6);
-    case 'medium':
-      // Rounded cylinder for medium priority
-      return new THREE.CylinderGeometry(0.6, 0.6, 1.0, 8);
-    case 'low':
-    default:
-      // Simple sphere for low priority
-      return new THREE.SphereGeometry(0.6, 16, 12);
-  }
-}
-
-function createIntelMaterial(report: IntelReportOverlayMarker): THREE.Material {
-  const baseColor = getPriorityColor(report);
-  
-  return new THREE.MeshStandardMaterial({
-    color: baseColor,
-    metalness: 0.7,
-    roughness: 0.3,
-    emissive: baseColor,
-    emissiveIntensity: 0.2,
-    transparent: true,
-    opacity: 0.9
-  });
-}
 
 function extractPriority(report: IntelReportOverlayMarker): string {
   // Extract priority from tags or content

@@ -1,5 +1,5 @@
 // src/components/Globe/Globe.tsx
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Globe, { GlobeMethods } from 'react-globe.gl';
 import * as THREE from 'three';
 import { useVisualizationMode } from '../../context/VisualizationModeContext';
@@ -14,10 +14,13 @@ import { intelReportVisualizationService } from '../../services/IntelReportVisua
 import { IntelReportOverlayMarker } from '../../interfaces/IntelReportOverlay';
 import { Enhanced3DGlobeInteractivity } from './Enhanced3DGlobeInteractivity';
 import { useGlobeSolarSystemIntegration } from './GlobeSolarSystemIntegration';
-import GlobePerformanceMonitor from './GlobePerformanceMonitor';
+import type { SolarSystemState } from '../../solar-system/SolarSystemManager';
 // Cyber visualization services
 import { ThreatIntelligenceService } from '../../services/CyberThreats/ThreatIntelligenceService';
 import { RealTimeAttackService } from '../../services/CyberAttacks/RealTimeAttackService';
+import { satelliteVisualizationService } from '../../services/Satellites/SatelliteVisualizationService';
+import { visualizationResourceMonitor } from '../../services/visualization/VisualizationResourceMonitor';
+import { collectGeometryStats } from '../../utils/threeResourceMetrics';
 import type { CyberThreatData } from '../../types/CyberThreats';
 import type { CyberAttackData } from '../../types/CyberAttacks';
 // GeoPolitical + territories integration
@@ -40,6 +43,8 @@ interface ModelInstance {
   hoverOffset: number;
   localRotationY: number;
 }
+
+const SATELLITES_MODE_KEY = 'CyberCommand.Satellites' as const;
 
 const GlobeView: React.FC = () => {
   const [globeData, setGlobeData] = useState<object[]>([]);
@@ -89,17 +94,19 @@ const GlobeView: React.FC = () => {
   const solarSystemEnabled = visualizationMode.mode === 'EcoNatural' || 
                               (visualizationMode.mode === 'CyberCommand' && visualizationMode.subMode !== 'IntelReports');
   
+  const handleSolarSystemStateChange = useCallback((state: SolarSystemState) => {
+    // Optional: Handle solar system state changes for UI updates
+    if (state.sunState?.isVisible) {
+      console.log(`Sun is now visible in ${state.currentContext} scale`);
+    }
+    console.log('Solar system state change:', state);
+  }, []);
+
   const _solarSystemIntegration = useGlobeSolarSystemIntegration({
     globeRef,
     enabled: solarSystemEnabled, // Only enable in compatible modes
     debugMode: false, // Disabled debug mode to reduce console noise
-    onStateChange: (state) => {
-      // Optional: Handle solar system state changes for UI updates
-      if (state.sunState?.isVisible) {
-        console.log(`Sun is now visible in ${state.currentContext} scale`);
-      }
-      console.log('Solar system state change:', state);
-    }
+    onStateChange: handleSolarSystemStateChange
   });
 
   useEffect(() => {
@@ -514,7 +521,14 @@ const GlobeView: React.FC = () => {
   // =============================================================================
   useEffect(() => {
     let mounted = true;
-  let dataRefreshInterval: ReturnType<typeof setInterval> | null = null;
+    let dataRefreshInterval: ReturnType<typeof setInterval> | null = null;
+
+    const disposeThreatService = () => {
+      if (threatServiceRef.current) {
+        threatServiceRef.current.dispose();
+        threatServiceRef.current = null;
+      }
+    };
 
     if (visualizationMode.mode === 'CyberCommand' && visualizationMode.subMode === 'CyberThreats') {
       console.log('🔒 CYBER THREATS MODE ACTIVATED - Loading real threat data');
@@ -581,6 +595,7 @@ const GlobeView: React.FC = () => {
         if (dataRefreshInterval) {
           clearInterval(dataRefreshInterval);
         }
+        disposeThreatService();
       };
     } else {
       // Clear data when leaving CyberThreats mode
@@ -588,10 +603,15 @@ const GlobeView: React.FC = () => {
         setCyberThreatsData([]);
         console.log('🧹 Cyber threats data cleared - left CyberThreats mode');
       }
+      disposeThreatService();
     }
 
     return () => {
       mounted = false;
+      if (dataRefreshInterval) {
+        clearInterval(dataRefreshInterval);
+      }
+      disposeThreatService();
     };
   }, [visualizationMode.mode, visualizationMode.subMode]);
 
@@ -600,7 +620,14 @@ const GlobeView: React.FC = () => {
   // =============================================================================
   useEffect(() => {
     let mounted = true;
-  let dataRefreshInterval: ReturnType<typeof setInterval> | null = null;
+    let dataRefreshInterval: ReturnType<typeof setInterval> | null = null;
+
+    const disposeAttackService = () => {
+      if (attackServiceRef.current) {
+        attackServiceRef.current.dispose();
+        attackServiceRef.current = null;
+      }
+    };
 
     if (visualizationMode.mode === 'CyberCommand' && visualizationMode.subMode === 'CyberAttacks') {
       console.log('⚡ CYBER ATTACKS MODE ACTIVATED - Loading real attack data');
@@ -660,6 +687,7 @@ const GlobeView: React.FC = () => {
         if (dataRefreshInterval) {
           clearInterval(dataRefreshInterval);
         }
+        disposeAttackService();
       };
     } else {
       // Clear data when leaving CyberAttacks mode
@@ -667,10 +695,15 @@ const GlobeView: React.FC = () => {
         setCyberAttacksData([]);
         console.log('🧹 Cyber attacks data cleared - left CyberAttacks mode');
       }
+      disposeAttackService();
     }
 
     return () => {
       mounted = false;
+      if (dataRefreshInterval) {
+        clearInterval(dataRefreshInterval);
+      }
+      disposeAttackService();
     };
   }, [visualizationMode.mode, visualizationMode.subMode]);
 
@@ -682,136 +715,156 @@ const GlobeView: React.FC = () => {
 
     const globeObj = globeRef.current as unknown as { scene: () => THREE.Scene };
     const scene = globeObj?.scene();
-    const satellitesGroup = networkInfraGroupRef.current; // Reuse existing group
+    const satellitesGroup = networkInfraGroupRef.current;
+    if (!scene || !satellitesGroup) return;
 
-    if (visualizationMode.mode === 'CyberCommand' && visualizationMode.subMode === 'Satellites') {
+    let cancelled = false;
+
+    const disposeMaterial = (material: THREE.Material | THREE.Material[] | undefined) => {
+      if (!material) return;
+      if (Array.isArray(material)) {
+        material.forEach(m => m.dispose());
+      } else {
+        material.dispose();
+      }
+    };
+
+    const clearSatellitesGroup = () => {
+      while (satellitesGroup.children.length > 0) {
+        const child = satellitesGroup.children[0];
+        satellitesGroup.remove(child);
+        if (child instanceof THREE.Mesh || child instanceof THREE.InstancedMesh) {
+          child.geometry?.dispose();
+          disposeMaterial(child.material as THREE.Material | THREE.Material[] | undefined);
+        }
+      }
+    };
+
+    const teardownSatellites = () => {
+      clearSatellitesGroup();
+      if (scene.children.includes(satellitesGroup)) {
+        scene.remove(satellitesGroup);
+      }
+      satelliteVisualizationService.dispose();
+      visualizationResourceMonitor.clearMode(SATELLITES_MODE_KEY);
+    };
+
+    const recordSatelliteGeometry = (target: THREE.Object3D | THREE.Object3D[], instanceCount = 0) => {
+      const stats = collectGeometryStats(target);
+      if (instanceCount > 0) {
+        const perInstanceMatrixBytes = 64; // approx 4x4 matrix + color buffer per instance
+        stats.approxGpuBytes += instanceCount * perInstanceMatrixBytes;
+      }
+      visualizationResourceMonitor.recordGeometry(SATELLITES_MODE_KEY, stats);
+    };
+
+    const loadSatellites = async () => {
+      try {
+        await satelliteVisualizationService.initialize();
+        if (cancelled) return;
+        const satellites = await satelliteVisualizationService.getSatelliteData();
+        if (cancelled) return;
+
+        clearSatellitesGroup();
+
+        const maxSatellites = Math.max(100, satellites.length);
+        const geometry = new THREE.SphereGeometry(0.3, 8, 6);
+        const material = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.8 });
+        const instancedMesh = new THREE.InstancedMesh(geometry, material, maxSatellites);
+        const tempMatrix = new THREE.Matrix4();
+        const tempColor = new THREE.Color();
+
+        satellites.forEach((satellite, index) => {
+          const { lat, lng, altitude, type } = satellite;
+          const phi = (90 - lat) * (Math.PI / 180);
+          const theta = (lng + 180) * (Math.PI / 180);
+          const radius = 100 + (altitude / 1000);
+
+          const position = new THREE.Vector3(
+            -radius * Math.sin(phi) * Math.cos(theta),
+            radius * Math.cos(phi),
+            radius * Math.sin(phi) * Math.sin(theta)
+          );
+
+          const scale = type === 'space_station' ? 2.0 :
+                         type === 'scientific' ? 1.5 :
+                         type === 'gps_satellite' ? 1.2 : 1.0;
+
+          tempMatrix.compose(position, new THREE.Quaternion(), new THREE.Vector3(scale, scale, scale));
+          instancedMesh.setMatrixAt(index, tempMatrix);
+
+          const color = type === 'space_station' ? 0x00ff88 :
+                       type === 'scientific' ? 0xff8800 :
+                       type === 'gps_satellite' ? 0x4488ff :
+                       type === 'starlink' ? 0xaaaaaa :
+                       type === 'weather' ? 0x88ff44 :
+                       type === 'communication' ? 0xff4488 :
+                       0xffffff;
+          tempColor.setHex(color);
+          instancedMesh.setColorAt(index, tempColor);
+
+          if (index === 0) {
+            instancedMesh.userData = {
+              type: 'satelliteGroup',
+              satellites: satellites.map(sat => ({
+                id: sat.id,
+                name: sat.name,
+                type: sat.type,
+                altitude: sat.altitude,
+                position: { lat: sat.lat, lng: sat.lng }
+              }))
+            };
+          }
+        });
+
+        instancedMesh.instanceMatrix.needsUpdate = true;
+        if (instancedMesh.instanceColor) {
+          instancedMesh.instanceColor.needsUpdate = true;
+        }
+
+        if (cancelled) {
+          instancedMesh.geometry.dispose();
+          disposeMaterial(instancedMesh.material as THREE.Material | THREE.Material[] | undefined);
+          return;
+        }
+
+        satellitesGroup.add(instancedMesh);
+        recordSatelliteGeometry(instancedMesh, maxSatellites);
+        console.log(`🛰️ Created instanced satellite visualization with ${satellites.length} satellites`);
+      } catch (error) {
+        if (cancelled) return;
+        console.error('🛰️ Failed to load satellite data:', error);
+
+        clearSatellitesGroup();
+        const fallbackGeometry = new THREE.SphereGeometry(0.5, 8, 6);
+        const fallbackMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff88 });
+        const issMesh = new THREE.Mesh(fallbackGeometry, fallbackMaterial);
+        issMesh.position.set(0, 110, 0);
+        issMesh.userData = { type: 'satellite', name: 'ISS (Fallback)', id: 'iss-fallback' };
+        satellitesGroup.add(issMesh);
+        recordSatelliteGeometry(issMesh);
+        console.log('🛰️ Added fallback satellite visualization');
+      }
+    };
+
+    const isActive = visualizationMode.mode === 'CyberCommand' && visualizationMode.subMode === 'Satellites';
+
+    if (isActive) {
       console.log('🛰️ SATELLITES MODE ACTIVATED - Enhanced satellite tracking');
       console.log('📊 Data Source: CelesTrak with intelligent curation');
       console.log('🎯 Showing: ~100 carefully selected satellites from 21K+ database');
-      
-      // Add satellitesGroup to scene
-      if (scene && satellitesGroup && !scene.children.includes(satellitesGroup)) {
+      if (!scene.children.includes(satellitesGroup)) {
         scene.add(satellitesGroup);
         console.log('🛰️ Satellites visualization group added to Globe scene');
-        
-        // Load satellite data with new service
-        import('../../services/Satellites/SatelliteVisualizationService').then(({ satelliteVisualizationService }) => {
-          // Initialize service if not already done
-          satelliteVisualizationService.initialize().then(() => {
-            return satelliteVisualizationService.getSatelliteData();
-          }).then(satellites => {
-            console.log(`🛰️ Loaded ${satellites.length} satellites for visualization`);
-            
-            // Clear previous satellites
-            while (satellitesGroup.children.length > 0) {
-              const child = satellitesGroup.children[0];
-              satellitesGroup.remove(child);
-              if (child instanceof THREE.Mesh) {
-                child.geometry?.dispose();
-                if (child.material instanceof THREE.Material) {
-                  child.material.dispose();
-                }
-              }
-            }
-            
-            // Use Three.js InstancedMesh for better performance with many satellites
-            const maxSatellites = Math.max(100, satellites.length);
-            const geometry = new THREE.SphereGeometry(0.3, 8, 6); // Small, low-poly spheres
-            const material = new THREE.MeshBasicMaterial({ 
-              transparent: true,
-              opacity: 0.8
-            });
-            
-            const instancedMesh = new THREE.InstancedMesh(geometry, material, maxSatellites);
-            const tempMatrix = new THREE.Matrix4();
-            const tempColor = new THREE.Color();
-            
-            // Create satellite markers using instanced rendering
-            satellites.forEach((satellite, index) => {
-              const { lat, lng, altitude, type } = satellite;
-              
-              // Convert lat/lng/alt to 3D position
-              const phi = (90 - lat) * (Math.PI / 180);
-              const theta = (lng + 180) * (Math.PI / 180);
-              const radius = 100 + (altitude / 1000); // Scale altitude for visibility
-              
-              const position = new THREE.Vector3(
-                -radius * Math.sin(phi) * Math.cos(theta),
-                radius * Math.cos(phi),
-                radius * Math.sin(phi) * Math.sin(theta)
-              );
-              
-              // Set instance matrix (position and scale)
-              const scale = type === 'space_station' ? 2.0 : 
-                           type === 'scientific' ? 1.5 :
-                           type === 'gps_satellite' ? 1.2 : 1.0;
-              
-              tempMatrix.compose(position, new THREE.Quaternion(), new THREE.Vector3(scale, scale, scale));
-              instancedMesh.setMatrixAt(index, tempMatrix);
-              
-              // Set instance color
-              const color = type === 'space_station' ? 0x00ff88 : // Green for stations
-                           type === 'scientific' ? 0xff8800 : // Orange for scientific
-                           type === 'gps_satellite' ? 0x4488ff : // Blue for GPS
-                           type === 'starlink' ? 0xaaaaaa : // Gray for Starlink
-                           type === 'weather' ? 0x88ff44 : // Light green for weather
-                           type === 'communication' ? 0xff4488 : // Pink for communication
-                           0xffffff; // White for others
-              
-              tempColor.setHex(color);
-              instancedMesh.setColorAt(index, tempColor);
-              
-              // Store metadata for interaction (will be used in Phase 3)
-              if (index === 0) {
-                instancedMesh.userData = {
-                  type: 'satelliteGroup',
-                  satellites: satellites.map(sat => ({
-                    id: sat.id,
-                    name: sat.name,
-                    type: sat.type,
-                    altitude: sat.altitude,
-                    position: { lat: sat.lat, lng: sat.lng }
-                  }))
-                };
-              }
-            });
-            
-            // Update instance matrices and colors
-            instancedMesh.instanceMatrix.needsUpdate = true;
-            if (instancedMesh.instanceColor) {
-              instancedMesh.instanceColor.needsUpdate = true;
-            }
-            
-            satellitesGroup.add(instancedMesh);
-            console.log(`🛰️ Created instanced satellite visualization with ${satellites.length} satellites`);
-          }).catch(error => {
-            console.error('🛰️ Failed to load satellite data:', error);
-            
-            // Fallback: Show a few demo satellites
-            const fallbackGeometry = new THREE.SphereGeometry(0.5, 8, 6);
-            const fallbackMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff88 });
-            
-            const issMesh = new THREE.Mesh(fallbackGeometry, fallbackMaterial);
-            issMesh.position.set(0, 110, 0); // Above Earth
-            issMesh.userData = { type: 'satellite', name: 'ISS (Fallback)', id: 'iss-fallback' };
-            satellitesGroup.add(issMesh);
-            
-            console.log('🛰️ Added fallback satellite visualization');
-          });
-        });
       }
+      loadSatellites();
     } else {
-      // Remove from scene if mode changed
-      if (scene && satellitesGroup && scene.children.includes(satellitesGroup)) {
-        scene.remove(satellitesGroup);
-        console.log('🛰️ Satellites visualization group removed from Globe scene');
-      }
+      teardownSatellites();
     }
 
     return () => {
-      if (scene && satellitesGroup) {
-        scene.remove(satellitesGroup);
-      }
+      cancelled = true;
+      teardownSatellites();
     };
   }, [globeRef, visualizationMode.mode, visualizationMode.subMode]);
 
@@ -1509,16 +1562,6 @@ const GlobeView: React.FC = () => {
           containerRef={containerRef}
           onCreateIntelReport={handleCreateIntelReport}
         />
-        
-        {/* Performance Monitor for debugging data issues */}
-        <GlobePerformanceMonitor 
-          enabled={process.env.NODE_ENV === 'development'}
-          visualizationMode={visualizationMode}
-          onPerformanceIssue={(issue) => {
-            console.warn('🐌 Globe Performance Issue:', issue);
-          }}
-        />
-
   {/* Space Weather Telemetry HUD removed: telemetry now provided in sidebars */}
         
         {/* Cyber Data Loading Indicator */}

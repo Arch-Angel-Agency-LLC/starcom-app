@@ -55,7 +55,8 @@ export class SolarSystemManager {
     enableTransitions: true,
     transitionDuration: 500,
     performanceMode: 'balanced',
-    debugMode: false
+    debugMode: false,
+    enableSolarActivityIntegration: true
   };
 
   constructor(
@@ -104,9 +105,6 @@ export class SolarSystemManager {
     // Initialize sun manager
     this.initializeSunManager();
 
-    // Initialize solar activity integration (Phase 2)
-    this.initializeSolarActivity();
-
     // Initialize planetary system (Phase 4)
     this.initializePlanetarySystem();
 
@@ -121,18 +119,35 @@ export class SolarSystemManager {
       enableLighting: true
     });
 
-    // Set up sun state change listener
-    this.sunManager.onStateChange(() => {
-      this.notifyStateChange();
+    // Set up sun state change listener (drives solar activity gating + state broadcasts)
+    this.sunManager.onStateChange((state) => {
+      this.handleSunStateChange(state);
     });
 
     // Initialize sun for current context
     this.sunManager.updateForScale(this.currentContext);
+
+    if (this.config.enableSolarActivityIntegration && this.sunManager.isVisible()) {
+      this.initializeSolarActivity();
+    }
   }
 
   private initializeSolarActivity(): void {
+    if (!this.config.enableSolarActivityIntegration) {
+      return;
+    }
+
+    if (this.solarActivityIntegration) {
+      return;
+    }
+
     if (!this.sunManager) {
       console.warn('Cannot initialize solar activity without sun manager');
+      return;
+    }
+
+    if (!this.sunManager.isVisible()) {
+      this.log('Solar activity initialization deferred until sun is visible');
       return;
     }
 
@@ -163,6 +178,26 @@ export class SolarSystemManager {
       console.warn('Solar activity integration initialization deferred:', error);
       // Note: This is now expected behavior when sun mesh isn't ready
     }
+  }
+
+  private handleSunStateChange(state: SunState): void {
+    if (this.disposed) {
+      return;
+    }
+
+    if (this.config.enableSolarActivityIntegration) {
+      if (state.isVisible) {
+        if (!this.solarActivityIntegration) {
+          this.initializeSolarActivity();
+        } else {
+          this.solarActivityIntegration.resume();
+        }
+      } else if (this.solarActivityIntegration) {
+        this.solarActivityIntegration.pause();
+      }
+    }
+
+    this.notifyStateChange();
   }
 
   private initializePlanetarySystem(): void {

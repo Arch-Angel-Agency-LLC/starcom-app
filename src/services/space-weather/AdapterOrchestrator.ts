@@ -2,6 +2,7 @@
 // Collects registered SourceAdapters, fetches them, aggregates vectors, and exposes simple telemetry.
 
 import { SourceAdapter, AdapterDataset, VectorFieldPoint } from './adapters/SourceAdapter';
+import { spaceWeatherDiagnostics } from './SpaceWeatherDiagnostics';
 
 export interface OrchestratorResult {
   datasets: AdapterDataset[];
@@ -33,12 +34,19 @@ export class AdapterOrchestrator {
     const errors: { adapterId: string; error: string }[] = [];
 
     for (const adapter of this.adapters) {
+      const adapterStart = performance.now();
       try {
         const ds = await adapter.fetch();
-        if (ds) datasets.push(ds);
+        if (ds) {
+          datasets.push(ds);
+          this.recordAdapterMetric(adapter.id, performance.now() - adapterStart, true, ds.vectors?.length || 0);
+        } else {
+          this.recordAdapterMetric(adapter.id, performance.now() - adapterStart, true, 0);
+        }
       } catch (err) {
         const message = err instanceof Error ? err.message : 'unknown';
         errors.push({ adapterId: adapter.id, error: message });
+        this.recordAdapterMetric(adapter.id, performance.now() - adapterStart, false, 0, message);
       }
     }
 
@@ -55,6 +63,17 @@ export class AdapterOrchestrator {
       },
       errors
     };
+  }
+
+  private recordAdapterMetric(adapterId: string, durationMs: number, success: boolean, vectors: number, error?: string) {
+    spaceWeatherDiagnostics.recordAdapterMetric({
+      adapterId,
+      durationMs,
+      success,
+      vectors,
+      error,
+      timestamp: Date.now()
+    });
   }
 }
 

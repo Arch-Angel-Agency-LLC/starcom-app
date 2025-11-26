@@ -227,6 +227,14 @@ export class SatelliteVisualizationService {
     await this.updateSelection();
   }
 
+  dispose(): void {
+    this.selectedSatellites = [];
+    this.currentSelectionCriteria = { maxCount: 100 };
+    this.lastSelectionUpdate = null;
+    this.dataManager.clear();
+    console.log('🛰️ SatelliteVisualizationService disposed - caches cleared');
+  }
+
   // =============================================================================
   // PRIVATE METHODS
   // =============================================================================

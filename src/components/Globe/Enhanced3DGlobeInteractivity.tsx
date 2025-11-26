@@ -13,11 +13,12 @@ import * as THREE from 'three';
 import { IntelReportOverlayMarker } from '../../interfaces/IntelReportOverlay';
 import { useGlobeRightClickInteraction } from '../../hooks/useGlobeRightClickInteraction';
 import { IntelReportTooltip } from '../ui/IntelReportTooltip/IntelReportTooltip';
-import { IntelReportPopup } from '../ui/IntelReportPopup/IntelReportPopup';
+import { IntelReportPopupPortal } from '../ui/IntelReportPopup/IntelReportPopupPortal';
 import { GlobeContextAction, GlobeContextActionData } from '../ui/GlobeContextMenu/GlobeContextMenu';
 import { OfflineIntelReportService } from '../../services/OfflineIntelReportService';
 import { OfflineIntelReportsManager } from '../Intel/OfflineIntelReportsManager';
 import { useWallet } from '@solana/wallet-adapter-react';
+import { usePopup } from '../Popup/PopupManager';
 
 interface Enhanced3DGlobeInteractivityProps {
   globeRef: React.RefObject<{ camera: () => THREE.Camera; scene: () => THREE.Scene }>;
@@ -57,6 +58,10 @@ export const Enhanced3DGlobeInteractivity: React.FC<Enhanced3DGlobeInteractivity
 }) => {
   const localContainerRef = useRef<HTMLDivElement>(null);
   const containerRef = parentContainerRef || localContainerRef;
+  const { showPopup, hidePopup } = usePopup();
+  const intelPopupIdRef = useRef<string | null>(null);
+  const intelReportsRef = useRef(intelReports);
+  const lastPopupReportRef = useRef<string | null>(null);
   
   // Wallet connection for online/offline Intel Report creation
   const { connected, publicKey } = useWallet();
@@ -69,8 +74,6 @@ export const Enhanced3DGlobeInteractivity: React.FC<Enhanced3DGlobeInteractivity
   
   // State for UI components
   const [tooltipVisible, setTooltipVisible] = useState(false);
-  const [popupVisible, setPopupVisible] = useState(false);
-  const [selectedReport, setSelectedReport] = useState<IntelReportOverlayMarker | null>(null);
 
   // New features state
   const [mousePositionIndicator, setMousePositionIndicator] = useState<THREE.Mesh | null>(null);
@@ -131,6 +134,10 @@ export const Enhanced3DGlobeInteractivity: React.FC<Enhanced3DGlobeInteractivity
     hoverDetections: 0,
     lastResetTime: Date.now()
   });
+
+  useEffect(() => {
+    intelReportsRef.current = intelReports;
+  }, [intelReports]);
 
   // Direct cursor management without React re-renders
   const updateCursor = useCallback((newCursor: string) => {
@@ -340,13 +347,77 @@ export const Enhanced3DGlobeInteractivity: React.FC<Enhanced3DGlobeInteractivity
     setTooltipVisible(shouldShowTooltip);
   }, [unifiedInteractionState.hoveredModel, isIntelReportsMode]);
 
-  // Update popup visibility and selected report based on clicked state
-  useEffect(() => {
-    if (unifiedInteractionState.clickedModel) {
-      setSelectedReport(unifiedInteractionState.clickedModel.report);
-      setPopupVisible(true);
+  const teardownIntelPopupState = useCallback(() => {
+    intelPopupIdRef.current = null;
+    lastPopupReportRef.current = null;
+    clearClickedState();
+    onHoverChange?.(null);
+  }, [clearClickedState, onHoverChange]);
+
+  const closeIntelPopup = useCallback(() => {
+    if (intelPopupIdRef.current) {
+      hidePopup(intelPopupIdRef.current);
+    } else {
+      teardownIntelPopupState();
     }
-  }, [unifiedInteractionState.clickedModel]);
+  }, [hidePopup, teardownIntelPopupState]);
+
+  // Update popup visibility based on clicked state using top-level popup manager
+  useEffect(() => {
+    if (!isIntelReportsMode) {
+      return;
+    }
+
+    const clickedReport = unifiedInteractionState.clickedModel?.report;
+    if (!clickedReport) {
+      return;
+    }
+
+    if (intelPopupIdRef.current && lastPopupReportRef.current === clickedReport.pubkey) {
+      clearClickedState();
+      return;
+    }
+
+    if (intelPopupIdRef.current) {
+      hidePopup(intelPopupIdRef.current);
+    }
+
+    const reportsSnapshot = intelReportsRef.current.slice();
+
+    const popupId = showPopup({
+      component: IntelReportPopupPortal as unknown as React.ComponentType<{ onClose: () => void; [key: string]: unknown }>,
+      props: {
+        reports: reportsSnapshot,
+        initialPubkey: clickedReport.pubkey,
+        onCloseComplete: () => {
+          teardownIntelPopupState();
+        },
+        onReportChange: (report: IntelReportOverlayMarker | null) => {
+          const reportId = report?.pubkey || null;
+          lastPopupReportRef.current = reportId;
+          onHoverChange?.(reportId);
+        }
+      },
+      backdrop: true,
+      onClose: () => {
+        teardownIntelPopupState();
+      },
+      zIndex: 4000
+    });
+
+    intelPopupIdRef.current = popupId;
+    lastPopupReportRef.current = clickedReport.pubkey;
+    setTooltipVisible(false);
+    clearClickedState();
+  }, [
+    isIntelReportsMode,
+    unifiedInteractionState.clickedModel,
+    showPopup,
+    hidePopup,
+    teardownIntelPopupState,
+    clearClickedState,
+    onHoverChange
+  ]);
 
   // Notify parent of hover changes
   useEffect(() => {
@@ -354,33 +425,16 @@ export const Enhanced3DGlobeInteractivity: React.FC<Enhanced3DGlobeInteractivity
     onHoverChange?.(reportId);
   }, [unifiedInteractionState.hoveredModel, onHoverChange]);
 
-  // Handle popup close
-  const handlePopupClose = () => {
-    setPopupVisible(false);
-    setSelectedReport(null);
-    clearClickedState();
-  };
-
-  // Navigation handlers for popup
-  const handleNavigatePrevious = () => {
-    if (!selectedReport) return;
-    
-    const currentIndex = intelReports.findIndex(r => r.pubkey === selectedReport.pubkey);
-    if (currentIndex > 0) {
-      const previousReport = intelReports[currentIndex - 1];
-      setSelectedReport(previousReport);
+  // Close popup when leaving Intel Reports mode or unmounting
+  useEffect(() => {
+    if (!isIntelReportsMode) {
+      closeIntelPopup();
     }
-  };
 
-  const handleNavigateNext = () => {
-    if (!selectedReport) return;
-    
-    const currentIndex = intelReports.findIndex(r => r.pubkey === selectedReport.pubkey);
-    if (currentIndex < intelReports.length - 1) {
-      const nextReport = intelReports[currentIndex + 1];
-      setSelectedReport(nextReport);
-    }
-  };
+    return () => {
+      closeIntelPopup();
+    };
+  }, [isIntelReportsMode, closeIntelPopup]);
 
   // Calculate tooltip position
   const getTooltipPosition = () => {
@@ -403,11 +457,6 @@ export const Enhanced3DGlobeInteractivity: React.FC<Enhanced3DGlobeInteractivity
       y: unifiedInteractionState.mousePosition.y - 10
     };
   };
-
-  // Calculate navigation state
-  const currentIndex = selectedReport ? 
-    intelReports.findIndex(r => r.pubkey === selectedReport.pubkey) : -1;
-
   // Initialize mouse position indicator
   useEffect(() => {
     if (!globeRef.current) return;
@@ -961,20 +1010,6 @@ export const Enhanced3DGlobeInteractivity: React.FC<Enhanced3DGlobeInteractivity
           }}
         />
       )}
-
-      {/* Popup for detailed view */}
-      {isIntelReportsMode && (
-        <IntelReportPopup
-          report={selectedReport}
-          visible={popupVisible}
-          onClose={handlePopupClose}
-          onPrevious={handleNavigatePrevious}
-          onNext={handleNavigateNext}
-          hasPrevious={currentIndex > 0}
-          hasNext={currentIndex < intelReports.length - 1}
-        />
-      )}
-
       {/* Offline Intel Reports Manager */}
       <OfflineIntelReportsManager
         wallet={connected ? { publicKey } : undefined}
@@ -1006,35 +1041,6 @@ export const Enhanced3DGlobeInteractivity: React.FC<Enhanced3DGlobeInteractivity
           </div>
         )}
       </div>
-
-      {/* Debug information (development only) */}
-      {process.env.NODE_ENV === 'development' && (
-        <div
-          style={{
-            position: 'absolute',
-            top: '10px',
-            right: '10px',
-            background: 'rgba(0, 0, 0, 0.8)',
-            color: 'white',
-            padding: '10px',
-            borderRadius: '4px',
-            fontSize: '12px',
-            fontFamily: 'monospace',
-            pointerEvents: 'none',
-            zIndex: 10000
-          }}
-        >
-          <div>🎮 UNIFIED 3D Interaction Debug:</div>
-          <div>Mode: {visualizationMode.mode}/{visualizationMode.subMode}</div>
-          <div>Models: {models.length}</div>
-          <div>Hovered: {unifiedInteractionState.hoveredModel ? unifiedInteractionState.hoveredModel.report.title : 'None'}</div>
-          <div>Clicked: {unifiedInteractionState.clickedModel ? unifiedInteractionState.clickedModel.report.title : 'None'}</div>
-          <div>Dragging: {unifiedInteractionState.isDragging ? 'Yes' : 'No'}</div>
-          <div>Globe Pos: {unifiedInteractionState.globeHoverPosition ? `${unifiedInteractionState.globeHoverPosition.lat.toFixed(2)}, ${unifiedInteractionState.globeHoverPosition.lng.toFixed(2)}` : 'None'}</div>
-          <div>Tooltip: {tooltipVisible ? 'Visible' : 'Hidden'}</div>
-          <div>Popup: {popupVisible ? 'Visible' : 'Hidden'}</div>
-        </div>
-      )}
     </>
   );
 };

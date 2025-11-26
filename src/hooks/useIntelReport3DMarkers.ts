@@ -6,6 +6,8 @@ import * as THREE from 'three';
 import { IntelReportOverlayMarker } from '../interfaces/IntelReportOverlay';
 import { assetLoader } from '../utils/assetLoader';
 import DeploymentDebugger from '../utils/deploymentDebugger';
+import { visualizationResourceMonitor } from '../services/visualization/VisualizationResourceMonitor';
+import { collectGeometryStats } from '../utils/threeResourceMetrics';
 
 // Import GLB asset using Vite's asset handling for static deployment compatibility
 import intelReportModelUrl from '../assets/models/intel_report-01d.glb?url';
@@ -27,6 +29,7 @@ if (import.meta.env.PROD) {
 
 // Default scale constant for Intel Report models
 const DEFAULT_INTEL_REPORT_SCALE = 4.0; // Make models visible and interactive
+const INTEL_REPORTS_MODE_KEY = 'CyberCommand.IntelReports' as const;
 
 interface UseIntelReport3DMarkersOptions {
   globeRadius?: number;
@@ -419,6 +422,19 @@ export const useIntelReport3DMarkers = (
       }
     };
   }, [models, camera, scene, rotationSpeed, globeRadius, hoverAltitude, hoveredReportId, scale]);
+
+  useEffect(() => {
+    const group = groupRef.current;
+    if (!scene || !group || !models.length || !reports.length) {
+      visualizationResourceMonitor.clearMode(INTEL_REPORTS_MODE_KEY);
+      return;
+    }
+    const stats = collectGeometryStats(group);
+    visualizationResourceMonitor.recordGeometry(INTEL_REPORTS_MODE_KEY, stats);
+    return () => {
+      visualizationResourceMonitor.clearMode(INTEL_REPORTS_MODE_KEY);
+    };
+  }, [scene, models.length, reports.length]);
 
   return {
     group: groupRef.current,

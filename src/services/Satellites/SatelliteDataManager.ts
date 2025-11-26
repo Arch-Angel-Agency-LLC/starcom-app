@@ -286,6 +286,11 @@ export class SatelliteDataManager {
     };
   }
 
+  clear(): void {
+    this.satelliteCache.clear();
+    this.lastUpdate = null;
+  }
+
   // =============================================================================
   // PRIVATE METHODS
   // =============================================================================
