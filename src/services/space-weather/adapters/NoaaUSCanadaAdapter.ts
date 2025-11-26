@@ -13,7 +13,8 @@ export class NoaaUSCanadaAdapter implements SourceAdapter {
 
   async fetch(_options: AdapterFetchOptions = {}): Promise<AdapterDataset | null> {
     try {
-      const electricFieldKey = 'electric-field-uscanada';
+      // Match the NOAA configuration id (see NOAADataConfig.ts)
+      const electricFieldKey = 'electric-field-us-canada';
       const data = await this.provider.fetchData(electricFieldKey) as unknown as {
         features?: Array<{ geometry?: { coordinates?: [number, number] }; properties?: { Ex?: number; Ey?: number; quality_flag?: number } }>;
         time_tag?: string;
