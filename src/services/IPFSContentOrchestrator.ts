@@ -918,15 +918,12 @@ export class IPFSContentOrchestrator {
   // ✅ Additional helper methods for IPFS orchestration
 
   private mapClassification(classification: string): 'UNCLASSIFIED' | 'CONFIDENTIAL' | 'SECRET' | 'TOP_SECRET' | 'PUBLIC' {
-    // Map classification to RelayNode service format
-    const mapping: Record<string, 'UNCLASSIFIED' | 'CONFIDENTIAL' | 'SECRET' | 'TOP_SECRET' | 'PUBLIC'> = {
+    // OSINT-only: normalize everything to UNCLASSIFIED/PUBLIC
+    const mapping: Record<string, 'UNCLASSIFIED' | 'PUBLIC'> = {
       'UNCLASSIFIED': 'UNCLASSIFIED',
-      'CONFIDENTIAL': 'CONFIDENTIAL', 
-      'SECRET': 'SECRET',
-      'TOP_SECRET': 'TOP_SECRET',
       'PUBLIC': 'PUBLIC'
     };
-    return mapping[classification] || 'CONFIDENTIAL';
+    return mapping[classification] || 'UNCLASSIFIED';
   }
 
   private emitSyncEvent(event: ContentSyncEvent): void {

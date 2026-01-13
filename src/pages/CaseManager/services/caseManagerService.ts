@@ -34,8 +34,7 @@ function simulateCaseData(filter: CaseFilter = {}): CaseData {
     
     const status: CaseStatus = ['active', 'pending', 'closed', 'archived'][Math.floor(Math.random() * 4)] as CaseStatus;
     const priority: CasePriority = ['low', 'medium', 'high', 'critical'][Math.floor(Math.random() * 4)] as CasePriority;
-    const classification: ClassificationLevel = 
-      ['unclassified', 'restricted', 'confidential', 'secret', 'top-secret'][Math.floor(Math.random() * 5)] as ClassificationLevel;
+    const classification: ClassificationLevel = 'unclassified';
     
     const tags = [
       'cyber', 'financial', 'terrorism', 'espionage', 'intelligence', 'counterintelligence',

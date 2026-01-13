@@ -69,7 +69,7 @@ const IPFS_CONFIG = {
   PQC_ENCRYPTION_REQUIRED: true,        // Post-Quantum Cryptography mandatory
   ZERO_TRUST_VALIDATION: true,          // Never trust, always verify
   AUDIT_TRAIL_ENABLED: true,            // Complete audit logging
-  CLASSIFICATION_ENFORCEMENT: true,      // Clearance level validation
+  CLASSIFICATION_ENFORCEMENT: false,      // OSINT-only: disable clearance validation
   DID_VERIFICATION_REQUIRED: true,      // Decentralized Identity verification
   OTK_FORWARD_SECRECY: true,           // One-Time Keys for forward secrecy
   TSS_DISTRIBUTED_SIGNING: true,        // Threshold signatures
@@ -338,8 +338,8 @@ export class IPFSService {
     }
     
     if ('classification' in data && data.classification) {
-      if (!['UNCLASSIFIED', 'CONFIDENTIAL', 'SECRET', 'TOP_SECRET'].includes(data.classification)) {
-        warnings.push(`Unknown classification: ${data.classification}`);
+      if (!['UNCLASSIFIED', 'PUBLIC'].includes(data.classification)) {
+        warnings.push(`Non-OSINT classification downgraded: ${data.classification}`);
       }
     }
     

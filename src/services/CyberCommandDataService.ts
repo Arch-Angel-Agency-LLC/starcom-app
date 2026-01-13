@@ -125,7 +125,7 @@ class MockDataGenerator {
       metadata: {
         source: 'MockGenerator',
         confidence: Math.random(),
-        classification: ['UNCLASSIFIED', 'CONFIDENTIAL', 'SECRET'][Math.floor(Math.random() * 3)]
+        classification: 'UNCLASSIFIED'
       },
       priority: (['low', 'medium', 'high', 'critical'] as const)[Math.floor(Math.random() * 4)],
       status: (['active', 'inactive', 'pending', 'resolved'] as const)[Math.floor(Math.random() * 4)]
@@ -213,7 +213,7 @@ class MockDataGenerator {
         hubType: hubTypes[Math.floor(Math.random() * hubTypes.length)],
         frequency: (Math.random() * 30 + 1).toFixed(1) + 'GHz',
         coverage: Math.floor(Math.random() * 500) + 50 + 'km',
-        classification: Math.random() > 0.7 ? 'CLASSIFIED' : 'UNCLASSIFIED'
+        classification: 'UNCLASSIFIED'
       },
       priority: (['low', 'medium', 'high'] as const)[Math.floor(Math.random() * 3)],
       status: 'active' as const
