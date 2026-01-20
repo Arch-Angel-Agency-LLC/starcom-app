@@ -105,7 +105,7 @@ export const useIntelReport3DMarkers = (
           { category: DeploymentDebugger.categories.MODEL_LOADING }
         );
         
-        // Try to fetch the model URL directly to verify it exists
+        // Try to fetch the model URL directly to verify it exists (log-only)
         try {
           await DeploymentDebugger.testUrlAccessibility(intelReportModelUrl, 'Intel Report 3D Model');
         } catch (fetchError) {
@@ -117,14 +117,33 @@ export const useIntelReport3DMarkers = (
         }
         
         if (cancelled) return;
-        
-        const model = await assetLoader.loadModel(intelReportModelUrl, {
-          scale,
-          fallbackColor: 0xff6b35,
-          fallbackGeometry: 'cone',
-          retryCount: 2, // Reduced from 3 to 2
-          timeout: 10000 // Reduced from 15000 to 10000
-        });
+
+        // Attempt primary URL first; if it fails (404), try canonical public path
+        const publicFallbackUrl = '/assets/models/intel_report-01d.glb';
+        let model: THREE.Object3D | null = null;
+
+        try {
+          model = await assetLoader.loadModel(intelReportModelUrl, {
+            scale,
+            fallbackColor: 0xff6b35,
+            fallbackGeometry: 'cone',
+            retryCount: 1,
+            timeout: 10000
+          });
+        } catch (primaryError) {
+          DeploymentDebugger.log(
+            'Primary Intel Report model URL failed, trying public fallback',
+            { primaryError, fallback: publicFallbackUrl },
+            { category: DeploymentDebugger.categories.ERRORS, level: 'warn' }
+          );
+          model = await assetLoader.loadModel(publicFallbackUrl, {
+            scale,
+            fallbackColor: 0xff6b35,
+            fallbackGeometry: 'cone',
+            retryCount: 1,
+            timeout: 10000
+          });
+        }
         
         if (cancelled) return;
         
