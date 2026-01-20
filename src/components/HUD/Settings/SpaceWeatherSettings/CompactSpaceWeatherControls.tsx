@@ -17,13 +17,22 @@ interface CompactSpaceWeatherControlsProps {
  * Compact, modular space weather controls designed for 100px width
  * Simplifies 30+ NOAA datasets into manageable presets and categories
  */
+type DatasetKey = 'intermag' | 'usCanada' | 'pipeline';
+
+const defaultDatasetState: Record<DatasetKey, boolean> = {
+  intermag: true,
+  usCanada: true,
+  pipeline: false
+};
+
 const CompactSpaceWeatherControls: React.FC<CompactSpaceWeatherControlsProps> = ({ subMode }) => {
   const { config, updateSpaceWeather } = useEcoNaturalSettings();
   const { 
     visualizationVectors, 
     isLoading, 
     error, 
-    lastUpdated
+    lastUpdated,
+    telemetry
   } = useSpaceWeatherContext();
   
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -78,6 +87,8 @@ const CompactSpaceWeatherControls: React.FC<CompactSpaceWeatherControlsProps> = 
     }
   };
 
+  const enabledDatasets = config.spaceWeather.enabledDatasets || defaultDatasetState;
+
   // Handler for category toggles
   const handleCategoryToggle = (category: 'solar' | 'geomagnetic' | 'radiation', enabled: boolean) => {
     switch (category) {
@@ -102,6 +113,44 @@ const CompactSpaceWeatherControls: React.FC<CompactSpaceWeatherControlsProps> = 
         });
         break;
     }
+  };
+
+  const handleDatasetToggle = (dataset: DatasetKey) => {
+    const nextState: Record<DatasetKey, boolean> = {
+      ...defaultDatasetState,
+      ...enabledDatasets,
+      [dataset]: !enabledDatasets[dataset]
+    };
+    updateSpaceWeather({ enabledDatasets: nextState });
+  };
+
+  const datasetOptions: Array<{ key: DatasetKey; label: string; accent: string; count: number }> = [
+    { key: 'intermag', label: 'InterMag', accent: 'cyan', count: telemetry?.rawInterMag ?? 0 },
+    { key: 'usCanada', label: 'US/Canada', accent: 'orange', count: telemetry?.rawUSCanada ?? 0 },
+    { key: 'pipeline', label: 'Pipeline', accent: 'purple', count: telemetry?.rawPipeline ?? 0 }
+  ];
+
+  const samplingMode = config.spaceWeather.samplingMode || 'legacy-topN';
+
+  const handleSamplingModeChange = (mode: 'legacy-topN' | 'grid-binning') => {
+    updateSpaceWeather({ samplingMode: mode });
+  };
+
+  const handleSamplingNumberChange = (field: 'gridBinSize' | 'legacyCap' | 'magnitudeFloor', value: number) => {
+    if (Number.isNaN(value)) return;
+    let clamped = value;
+    switch (field) {
+      case 'gridBinSize':
+        clamped = Math.min(20, Math.max(1, value));
+        break;
+      case 'legacyCap':
+        clamped = Math.min(5000, Math.max(50, value));
+        break;
+      case 'magnitudeFloor':
+        clamped = Math.min(5000, Math.max(0, value));
+        break;
+    }
+    updateSpaceWeather({ [field]: clamped } as Partial<typeof config.spaceWeather>);
   };
 
   if (subMode !== 'SpaceWeather') {
@@ -132,6 +181,87 @@ const CompactSpaceWeatherControls: React.FC<CompactSpaceWeatherControlsProps> = 
         onIntensityChange={(intensity) => updateSpaceWeather({ vectorIntensity: intensity })}
         onOpacityChange={(opacity) => updateSpaceWeather({ vectorOpacity: opacity })}
       />
+
+      {/* Dataset toggles */}
+      <div className={styles.datasetGroup}>
+        <div className={styles.datasetHeader}>Datasets</div>
+        <div className={styles.datasetButtons}>
+          {datasetOptions.map(option => {
+            const active = enabledDatasets?.[option.key];
+            return (
+              <button
+                key={option.key}
+                type="button"
+                className={`${styles.datasetButton} ${active ? styles.datasetButtonActive : ''}`}
+                onClick={() => handleDatasetToggle(option.key)}
+                aria-pressed={active}
+                title={`${option.label} • ${option.count} vectors`}
+                style={{ borderColor: active ? option.accent : undefined }}
+              >
+                <span>{option.label}</span>
+                <span className={styles.datasetCount}>{option.count}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+        {/* Sampling controls */}
+        <div className={styles.samplingGroup}>
+          <div className={styles.samplingHeader}>Sampling</div>
+          <div className={styles.samplingModes}>
+            <button
+              type="button"
+              className={`${styles.samplingModeButton} ${samplingMode === 'legacy-topN' ? styles.samplingModeActive : ''}`}
+              onClick={() => handleSamplingModeChange('legacy-topN')}
+              title="Legacy: Top-N vectors prioritized by magnitude and quality"
+            >
+              Legacy
+            </button>
+            <button
+              type="button"
+              className={`${styles.samplingModeButton} ${samplingMode === 'grid-binning' ? styles.samplingModeActive : ''}`}
+              onClick={() => handleSamplingModeChange('grid-binning')}
+              title="Grid: Spatial binning to balance hemispheres"
+            >
+              Grid
+            </button>
+          </div>
+          <div className={styles.samplingInputs}>
+            <label className={styles.samplingInput}>
+              <span>Bin °</span>
+              <input
+                type="number"
+                min={1}
+                max={20}
+                value={config.spaceWeather.gridBinSize ?? 5}
+                onChange={(e) => handleSamplingNumberChange('gridBinSize', parseInt(e.target.value, 10))}
+                disabled={samplingMode !== 'grid-binning'}
+              />
+            </label>
+            <label className={styles.samplingInput}>
+              <span>Cap</span>
+              <input
+                type="number"
+                min={50}
+                max={5000}
+                value={config.spaceWeather.legacyCap ?? 500}
+                onChange={(e) => handleSamplingNumberChange('legacyCap', parseInt(e.target.value, 10))}
+                disabled={samplingMode !== 'legacy-topN'}
+              />
+            </label>
+            <label className={styles.samplingInput}>
+              <span>Floor mV</span>
+              <input
+                type="number"
+                min={0}
+                max={5000}
+                value={config.spaceWeather.magnitudeFloor ?? 0}
+                onChange={(e) => handleSamplingNumberChange('magnitudeFloor', parseInt(e.target.value, 10))}
+              />
+            </label>
+          </div>
+        </div>
 
       {/* Quick Data Category Toggles */}
       <NOAADataToggle

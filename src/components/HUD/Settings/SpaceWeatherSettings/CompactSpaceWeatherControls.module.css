@@ -98,3 +98,124 @@
   0%, 100% { opacity: 1; }
   50% { opacity: 0.3; }
 }
+
+.datasetGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px;
+  background: rgba(0, 12, 24, 0.55);
+  border: 1px solid rgba(0, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+.datasetHeader {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: rgba(126, 238, 255, 0.8);
+}
+
+.datasetButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.datasetButton {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 6px;
+  font-size: 11px;
+  color: #e0f7ff;
+  background: rgba(10, 40, 60, 0.8);
+  border: 1px solid rgba(0, 255, 255, 0.2);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.datasetButton:hover {
+  background: rgba(0, 196, 255, 0.15);
+}
+
+.datasetButtonActive {
+  background: rgba(0, 196, 255, 0.15);
+  border-color: rgba(0, 196, 255, 0.8);
+  color: #7eeeff;
+}
+
+.datasetCount {
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.samplingGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  background: rgba(0, 8, 16, 0.55);
+}
+
+.samplingHeader {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.samplingModes {
+  display: flex;
+  gap: 4px;
+}
+
+.samplingModeButton {
+  flex: 1;
+  padding: 4px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+}
+
+.samplingModeActive {
+  border-color: rgba(0, 196, 255, 0.8);
+  color: #7eeeff;
+  background: rgba(0, 196, 255, 0.15);
+}
+
+.samplingInputs {
+  display: flex;
+  gap: 4px;
+}
+
+.samplingInput {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  font-size: 9px;
+  color: rgba(224, 247, 255, 0.8);
+}
+
+.samplingInput input {
+  margin-top: 2px;
+  padding: 2px 4px;
+  font-size: 11px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.3);
+  color: #fff;
+}
+
+.samplingInput input:disabled {
+  opacity: 0.4;
+}

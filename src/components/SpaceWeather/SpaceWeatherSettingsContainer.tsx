@@ -1,6 +1,4 @@
 import React, { Suspense } from 'react';
-import { useEcoNaturalSettings } from '../../hooks/useEcoNaturalSettings';
-import { useVisualizationMode } from '../../context/VisualizationModeContext';
 import { getSpaceWeatherLayer } from './SpaceWeatherLayerRegistry';
 
 // Dynamically map layer.id -> settings component (lazy load implemented for future scaling)
@@ -28,20 +26,22 @@ const containerStyle: React.CSSProperties = {
   position: 'relative'
 };
 
-export const SpaceWeatherSettingsContainer: React.FC = () => {
-  const { config } = useEcoNaturalSettings();
-  const { visualizationMode } = useVisualizationMode();
-  const active = visualizationMode.mode === 'EcoNatural' && visualizationMode.subMode === 'SpaceWeather';
-  if (!active) return null;
+interface SpaceWeatherSettingsContainerProps {
+  layerId: string;
+  layerLabel?: string;
+}
 
-  const activeLayerId = config.spaceWeather.activeLayer;
-  const layer = getSpaceWeatherLayer(activeLayerId);
-  const Component = registryComponentMap[activeLayerId];
+export const SpaceWeatherSettingsContainer: React.FC<SpaceWeatherSettingsContainerProps> = ({ layerId, layerLabel }) => {
+  if (!layerId) return null;
+
+  const layer = getSpaceWeatherLayer(layerId);
+  const Component = registryComponentMap[layerId];
+  const displayLabel = layerLabel ?? layer?.label ?? 'Layer';
 
   return (
     <div style={containerStyle}>
       <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.5, opacity: 0.8 }}>
-        {layer ? layer.label : 'Layer'} Settings
+        {displayLabel} Settings
       </div>
       <Suspense fallback={<div style={{ fontSize: 11, opacity: 0.7 }}>Loading layer settings...</div>}>
         {Component ? <Component /> : <div style={{ fontSize: 11, opacity: 0.6 }}>No settings implemented yet.</div>}

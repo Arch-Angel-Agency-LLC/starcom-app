@@ -1,64 +1,63 @@
 import React from 'react';
-import { useEcoNaturalSettings } from '../../hooks/useEcoNaturalSettings';
 import { useVisualizationMode } from '../../context/VisualizationModeContext';
-import { SPACE_WEATHER_LAYERS } from './SpaceWeatherLayerRegistry';
+import { useSpaceWeatherContext } from '../../context/SpaceWeatherContext';
+import { SPACE_WEATHER_LAYERS, type SpaceWeatherLayerDefinition } from './SpaceWeatherLayerRegistry';
+import styles from './SpaceWeatherLayerSelector.module.css';
 
-// Vertical square emoji buttons hugging right edge of left sidebar
-const containerStyle: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 4,
-  position: 'absolute',
-  top: 8,
-  right: 4,
-  zIndex: 5
-};
+interface SpaceWeatherLayerSelectorProps {
+  className?: string;
+}
 
-const buttonStyle: React.CSSProperties = {
-  width: 32,
-  height: 32,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  fontSize: 18,
-  background: 'rgba(0,0,0,0.35)',
-  border: '1px solid rgba(255,255,255,0.15)',
-  borderRadius: 6,
-  cursor: 'pointer',
-  color: '#e0f7ff',
-  userSelect: 'none',
-  transition: 'all 0.15s ease'
-};
-
-const activeStyle: React.CSSProperties = {
-  background: 'linear-gradient(135deg,#1e88e5,#42a5f5)',
-  color: '#fff',
-  boxShadow: '0 0 0 1px rgba(255,255,255,0.3), 0 2px 6px rgba(0,0,0,0.4)'
-};
-
-export const SpaceWeatherLayerSelector: React.FC = () => {
-  const { config, updateSpaceWeather } = useEcoNaturalSettings();
+export const SpaceWeatherLayerSelector: React.FC<SpaceWeatherLayerSelectorProps> = ({ className }) => {
   const { visualizationMode } = useVisualizationMode();
+  const context = useSpaceWeatherContext();
   const active = visualizationMode.mode === 'EcoNatural' && visualizationMode.subMode === 'SpaceWeather';
-  if (!active) return null;
+  if (!active || !context) return null;
 
-  const { activeLayer } = config.spaceWeather;
+  const { settings, updateSettings } = context;
+  const activeLayer = settings.activeLayer;
+
+  const handleSelect = (layer: SpaceWeatherLayerDefinition) => {
+    if (layer.capability === 'planned') {
+      return;
+    }
+    if (layer.id === activeLayer) {
+      return;
+    }
+    updateSettings({ activeLayer: layer.id });
+  };
 
   return (
-    <div style={containerStyle}>
+    <div className={[styles.layerSelector, className].filter(Boolean).join(' ')}>
       {SPACE_WEATHER_LAYERS.map(layer => {
         const isActive = layer.id === activeLayer;
+        const isPlanned = layer.capability === 'planned';
+        const buttonTitleParts = [
+          layer.label,
+          layer.experimental ? 'experimental' : null,
+          layer.statusHint ?? null
+        ].filter(Boolean);
+        const buttonTitle = buttonTitleParts.join(' · ');
+        const classNames = [
+          styles.railButton,
+          isActive ? styles.railButtonActive : '',
+          layer.experimental ? styles.railButtonExperimental : '',
+          isPlanned ? styles.railButtonDisabled : '',
+          layer.capability === 'hud' ? styles.railButtonHudOnly : ''
+        ].filter(Boolean).join(' ');
         return (
-          <div
+          <button
             key={layer.id}
-            role="button"
-            title={`${layer.label}${layer.experimental ? ' (experimental)' : ''}`}
+            type="button"
+            className={classNames}
+            title={buttonTitle}
             aria-pressed={isActive}
-            onClick={() => updateSpaceWeather({ activeLayer: layer.id })}
-            style={{ ...buttonStyle, ...(isActive ? activeStyle : {}), opacity: layer.experimental && !isActive ? 0.6 : 1 }}
+            aria-disabled={isPlanned}
+            data-capability={layer.capability}
+            onClick={() => handleSelect(layer)}
           >
             {layer.emoji}
-          </div>
+          </button>
         );
       })}
     </div>

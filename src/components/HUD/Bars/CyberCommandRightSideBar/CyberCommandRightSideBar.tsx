@@ -1,28 +1,149 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { useCyberCommandRightSideBar } from '../../../../context/useCyberCommandRightSideBar';
 import { useVisualizationMode } from '../../../../context/VisualizationModeContext';
 import SpaceWeatherMetricsPanel from '../../../SpaceWeather/SpaceWeatherMetricsPanel';
+import { SpaceWeatherAlertPanel } from '../../../SpaceWeather/SpaceWeatherAlertPanel';
+import { SpaceWeatherTelemetryHistoryCard } from '../../../SpaceWeather/SpaceWeatherTelemetryHistoryCard';
+import { SpaceWeatherLayerPassiveCard } from '../../../SpaceWeather/SpaceWeatherLayerPassiveCards';
+import { SpaceWeatherStatusCard } from '../../../SpaceWeather/SpaceWeatherStatusCard';
+import { useSpaceWeatherSidebarLayout, type SpaceWeatherSidebarLayout } from '../../../SpaceWeather/SpaceWeatherSidebarLayout';
+import { exportSpaceWeatherSnapshot } from '../../../../services/spaceWeather/SpaceWeatherExportService';
+import useEcoNaturalSettings from '../../../../hooks/useEcoNaturalSettings';
+import { useGeoEvents } from '../../../../hooks/useGeoEvents';
+import EcoDisastersStatusCard from '../../../EcoNatural/EcoDisastersStatusCard';
+import EcoDisastersLegend, { type EcoDisasterLegendCounts } from '../../../EcoNatural/EcoDisastersLegend';
 import styles from './CyberCommandRightSideBar.module.css';
 
 // Clean tab components for future implementation
-const MissionTab: React.FC = () => {
+const StatusTab: React.FC<{ layout: SpaceWeatherSidebarLayout }> = ({ layout }) => {
   const { visualizationMode } = useVisualizationMode();
-  const showSW = visualizationMode.mode === 'EcoNatural' && visualizationMode.subMode === 'SpaceWeather';
+  const { config: ecoConfig } = useEcoNaturalSettings();
+  const ecoDisastersActive =
+    visualizationMode.mode === 'EcoNatural' && visualizationMode.subMode === 'EcologicalDisasters';
+
+  const {
+    data: ecoData,
+    filtered: ecoFiltered,
+    stale: ecoStale,
+    lastUpdated: ecoLastUpdated,
+    error: ecoError,
+    status: ecoStatus,
+    refetch: refetchEco
+  } = useGeoEvents({
+    enabled: ecoDisastersActive,
+    refreshMinutes: Math.max(1, ecoConfig.globalSettings.updateFrequency || 5),
+    timeRangeDays: ecoConfig.ecologicalDisasters.timeRange,
+    disasterTypes: ecoConfig.ecologicalDisasters.disasterTypes,
+    severity: ecoConfig.ecologicalDisasters.severity
+  });
+
+  const severityCounts = useMemo<EcoDisasterLegendCounts>(() => {
+    return ecoFiltered.reduce(
+      (acc, event) => {
+        acc[event.severityBucket] = (acc[event.severityBucket] || 0) + 1;
+        return acc;
+      },
+      { minor: 0, major: 0, catastrophic: 0 }
+    );
+  }, [ecoFiltered]);
+
+  const mockVolcanoes = useMemo(
+    () => ecoFiltered.some((event) => event.isMock || event.source === 'volcano-mock'),
+    [ecoFiltered]
+  );
+
+  const showEcoEmpty = ecoDisastersActive && !ecoError && ecoStatus === 'success' && ecoFiltered.length === 0;
+
+  const interactive = layout.interactive;
+  const passive = layout.passive;
+  const showSW = Boolean(interactive && passive);
+  const [exporting, setExporting] = useState(false);
+
+  const handleExport = async () => {
+    if (!passive) return;
+    setExporting(true);
+    try {
+      await exportSpaceWeatherSnapshot({
+        telemetry: passive.telemetry,
+        history: passive.telemetryHistory,
+        providerStatus: passive.providerStatus,
+        currentProvider: passive.currentProvider,
+        alerts: passive.alerts,
+        enhancedAlerts: passive.enhancedAlerts
+      });
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  if (ecoDisastersActive) {
+    return (
+      <div className={styles.tabContent}>
+        <EcoDisastersStatusCard
+          total={ecoData.length}
+          filtered={ecoFiltered.length}
+          stale={ecoStale}
+          lastUpdated={ecoLastUpdated}
+          error={ecoError?.message ?? null}
+          mockVolcanoes={mockVolcanoes}
+          onRetry={refetchEco}
+        />
+
+        <EcoDisastersLegend
+          counts={severityCounts}
+          lastUpdated={ecoLastUpdated}
+          stale={ecoStale}
+          mockVolcanoes={mockVolcanoes}
+        />
+
+        {ecoError && (
+          <div className={styles.tabPlaceholder}>
+            <div>Unable to load ecological disasters right now.</div>
+            <div>{ecoError.message}</div>
+          </div>
+        )}
+
+        {showEcoEmpty && <div className={styles.tabPlaceholder}>No events match the current filters.</div>}
+      </div>
+    );
+  }
+
   return (
     <div className={styles.tabContent}>
       {showSW && (
-        <div style={{ marginBottom: 8 }}>
-          <SpaceWeatherMetricsPanel />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 8 }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <button
+              type="button"
+              className={styles.navBtn}
+              onClick={handleExport}
+              disabled={exporting}
+              title="Export space weather telemetry"
+            >
+              {exporting ? 'Exporting…' : 'Export Telemetry (stub)'}
+            </button>
+          </div>
+          <SpaceWeatherStatusCard interactive={interactive} passive={passive} />
+          <SpaceWeatherMetricsPanel passive={passive} />
+          <SpaceWeatherTelemetryHistoryCard entries={passive?.telemetryHistory} />
+          <SpaceWeatherLayerPassiveCard layerId={layout.layerId} passive={passive} />
         </div>
       )}
-      <div className={styles.tabPlaceholder}>Mission Content</div>
+      <div className={styles.tabPlaceholder}>Status Content</div>
     </div>
   );
 };
 
-const IntelTab: React.FC = () => {
+const IntelTab: React.FC<{ layout: SpaceWeatherSidebarLayout }> = ({ layout }) => {
+  const passive = layout.passive;
+  const showSW = Boolean(passive);
   return (
     <div className={styles.tabContent}>
+      {showSW && (
+        <div style={{ marginBottom: 8 }}>
+          <SpaceWeatherAlertPanel passive={passive} />
+        </div>
+      )}
       <div className={styles.tabPlaceholder}>Intel Content</div>
     </div>
   );
@@ -68,6 +189,7 @@ const CyberCommandRightSideBar: React.FC = () => {
     activeSection, 
     setActiveSection
   } = useCyberCommandRightSideBar();
+  const layout = useSpaceWeatherSidebarLayout();
   
   // Apply dynamic width to sidebar element
   const getContainerClassName = () => {
@@ -84,10 +206,10 @@ const CyberCommandRightSideBar: React.FC = () => {
   // Render tab content based on active section
   const renderTabContent = () => {
     switch (activeSection) {
-      case 'mission':
-        return <MissionTab />;
+      case 'status':
+        return <StatusTab layout={layout} />;
       case 'intel':
-        return <IntelTab />;
+        return <IntelTab layout={layout} />;
       case 'controls':
         return <ControlsTab />;
       case 'chat':
@@ -97,22 +219,22 @@ const CyberCommandRightSideBar: React.FC = () => {
       case 'developer':
         return process.env.NODE_ENV === 'development' ? <DeveloperTab /> : null;
       default:
-        return <MissionTab />;
+        return <StatusTab layout={layout} />;
     }
   };
 
   return (
     <div className={getContainerClassName()}>
-      {/* Mission Control Header */}
+      {/* Status Header */}
       <div className={styles.missionHeader}>
         <div className={styles.missionTitle}>
-          {!isCollapsed && <span>MISSION CONTROL</span>}
+          {!isCollapsed && <span>STATUS</span>}
         </div>
         <button 
           className={styles.collapseBtn}
           onClick={() => setIsCollapsed(!isCollapsed)}
           aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-          title={isCollapsed ? "Expand Mission Control" : "Collapse Mission Control"}
+          title={isCollapsed ? "Expand Status" : "Collapse Status"}
         >
           {isCollapsed ? '▶' : '◀'}
         </button>
@@ -121,10 +243,10 @@ const CyberCommandRightSideBar: React.FC = () => {
       {/* Section Navigation - Keep tab structure */}
       <div className={styles.sectionNav}>
         <button 
-          className={`${styles.navBtn} ${activeSection === 'mission' ? styles.active : ''}`}
-          onClick={() => setActiveSection('mission')}
-          title="Mission"
-          aria-label="Mission"
+          className={`${styles.navBtn} ${activeSection === 'status' ? styles.active : ''}`}
+          onClick={() => setActiveSection('status')}
+          title="Status"
+          aria-label="Status"
         >
           📡
         </button>
@@ -178,7 +300,7 @@ const CyberCommandRightSideBar: React.FC = () => {
         {renderTabContent()}
       </div>
 
-      {/* Enhanced Status Footer with Mission Control Status */}
+      {/* Enhanced Status Footer with Status label */}
       <div className={styles.statusFooter}>
         <div className={`${styles.statusDot} ${styles.operationalDot}`}></div>
         {!isCollapsed ? (
@@ -188,7 +310,7 @@ const CyberCommandRightSideBar: React.FC = () => {
             </div>
             <div className={styles.phaseStatus}>
               <span className={styles.phaseIcon}>🌍</span>
-              <span className={styles.phaseLabel}>Mission Control</span>
+              <span className={styles.phaseLabel}>Status</span>
             </div>
           </div>
         ) : (

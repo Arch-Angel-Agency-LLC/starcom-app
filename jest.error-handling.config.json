@@ -26,8 +26,7 @@
         "sourceMap": true
       }
     }]
-  }
-},
+  },
   "collectCoverageFrom": [
     "src/core/intel/errors/**/*.ts",
     "src/core/intel/adapters/**/*.ts",
@@ -71,4 +70,5 @@
     "^@core/(.*)$": "<rootDir>/src/core/$1",
     "^@errors/(.*)$": "<rootDir>/src/core/intel/errors/$1"
 
+  }
 }

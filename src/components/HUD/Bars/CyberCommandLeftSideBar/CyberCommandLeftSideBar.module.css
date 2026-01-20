@@ -1,3 +1,14 @@
+.cyberCommandLeftDock {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  z-index: 1001;
+  pointer-events: none;
+}
+
 .cyberCommandLeftSideBar {
   background: linear-gradient(135deg, rgba(0, 10, 20, 0.95) 0%, rgba(0, 25, 50, 0.9) 100%);
   backdrop-filter: blur(10px);
@@ -10,14 +21,9 @@
   font-family: 'Orbitron', Arial, sans-serif; /* Futuristic font */
   width: 128px; /* Expanded width for better usability */
   height: 100vh; /* Full viewport height - stretch to bottom */
-  position: fixed; /* Fixed position to establish dominance */
-  top: 0;
-  bottom: 0; /* Stretch all the way to bottom */
-  left: 0;
   pointer-events: auto; /* Allow interaction */
   overflow-x: hidden; /* Allow scrolling for compact content */
   overflow-y: auto; /* Allow vertical scrolling if needed */
-  z-index: 1001; /* Higher than other elements to maintain dominance */
   transition: background 0.3s ease; /* Smooth background transitions */
   transform: translateZ(0); /* Force GPU acceleration */
 }
@@ -144,6 +150,38 @@
   padding: 20px 0;
 }
 
+.spaceWeatherRailDock {
+  pointer-events: auto;
+  display: flex;
+  align-items: flex-start;
+  padding-top: 8px;
+  margin-left: -2px; /* overlap border seam */
+  width: 56px;
+  height: 100vh;
+}
+
+.spaceWeatherRailPanel {
+  position: relative;
+  padding: 10px 8px;
+  background: linear-gradient(180deg, rgba(0, 20, 40, 0.95), rgba(0, 10, 25, 0.9));
+  border: 1px solid rgba(0, 196, 255, 0.35);
+  border-left: none;
+  border-radius: 0 10px 10px 0;
+  box-shadow: 6px 0 18px rgba(0, 0, 0, 0.45);
+}
+
+.spaceWeatherRailPanel::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 12px;
+  bottom: 12px;
+  width: 8px;
+  background: linear-gradient(180deg, rgba(0, 196, 255, 0.4), rgba(0, 196, 255, 0.1));
+  border-radius: 8px 0 0 8px;
+  box-shadow: -2px 0 8px rgba(0, 196, 255, 0.25);
+}
+
 @keyframes pulse {
   0% { opacity: 0.6; }
   50% { opacity: 1; }
@@ -162,13 +200,26 @@
 
 /* Responsive design for LeftSideBar */
 @media (max-width: 768px) {
-  .cyberCommandLeftSideBar {
-    width: 100px; /* Smaller width on mobile but still usable */
+  .cyberCommandLeftDock {
+    position: static;
+    height: auto;
+    flex-direction: column;
+    align-items: stretch;
   }
-  
+
+  .cyberCommandLeftSideBar {
+    width: 100%;
+    height: auto;
+  }
+
   .tinyGlobePlaceholder {
     height: 60px;
     width: 60px;
     font-size: 8px;
+  }
+
+  .spaceWeatherRailDock {
+    margin-left: 0;
+    padding: 8px 0 0;
   }
 }

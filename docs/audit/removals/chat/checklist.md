@@ -7,7 +7,7 @@ Pre-checks
 Stage 1 — Unmount UI
 - [x] Remove imports/usages of `<SecureChatManager />` in both files (or gate with feature flag).
 - [x] Build: `npm run build`.
-- [x] Typecheck: `npx tsc --noEmit --project tsconfig.netrunner.json`.
+- [x] Typecheck: `npx tsc --noEmit --project tsconfig.starcom.json`.
 - [ ] Dev run: verify no button/popup and no errors in console.
 
 Stage 2 — Remove legacy UI code (optional, after Stage 1)

@@ -26,7 +26,7 @@ Option B: Feature flag (if you want quick toggle/rollback without code diffs)
 
 Post-Stage 1 checks
 - Build: `npm run build` (or task: NetRunner: Build Check)
-- Typecheck: `npx tsc --noEmit --project tsconfig.netrunner.json` (task exists)
+- Typecheck: `npx tsc --noEmit --project tsconfig.starcom.json` ("Starcom: Type Check" task)
 - Quick smoke: run dev and verify the button/popup no longer appear.
 
 Stage 2 — Remove dead legacy UI code (safe once Stage 1 is merged)

@@ -70,8 +70,8 @@ export class GlobeTextureLoader {
   private static normalizeTexture(texture: THREE.Texture) {
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.ClampToEdgeWrapping;
-    // Apply -90° shift (equivalent to +270°): 0.75 on U axis
-    texture.offset.x = 0.75;
+    // Keep native longitudinal alignment so overlays using lat/lon remain accurate
+    texture.offset.x = 0;
     texture.needsUpdate = true;
   }
 

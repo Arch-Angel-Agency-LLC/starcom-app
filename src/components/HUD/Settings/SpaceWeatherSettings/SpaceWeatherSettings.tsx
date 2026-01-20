@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useEcoNaturalSettings } from '../../../../hooks/useEcoNaturalSettings';
 import { useSettingsValidation } from '../../../../utils/uiSettingsReflection';
-import CompactSpaceWeatherControls from './CompactSpaceWeatherControlsMock';
+import CompactSpaceWeatherControls from './CompactSpaceWeatherControls';
 import styles from './SpaceWeatherSettings.module.css';
 
 // AI-NOTE: EcoNatural visualization settings panel for all natural/environmental data
@@ -391,7 +391,7 @@ const SpaceWeatherSettings: React.FC<SpaceWeatherSettingsProps> = ({ subMode }) 
   const renderEcologicalDisastersSettings = () => (
     <div className={styles.ecoNaturalSettings}>
       <div className={styles.section}>
-        <div className={styles.sectionTitle}>🌪️ Disaster Types</div>
+        <div className={styles.sectionTitle}>🌋 Disaster Types</div>
         {Object.entries(config.ecologicalDisasters.disasterTypes).map(([key, enabled]) => (
           <label key={key} className={styles.toggleRow}>
             <input

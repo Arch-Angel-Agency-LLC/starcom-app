@@ -12,7 +12,7 @@ interface RightSideBarContextType {
 const defaultContext: RightSideBarContextType = {
   isCollapsed: false,
   sidebarWidth: 120, // Default width
-  activeSection: 'mission',
+  activeSection: 'status',
   setIsCollapsed: () => {},
   setSidebarWidth: () => {},
   setActiveSection: () => {}
@@ -27,7 +27,7 @@ interface RightSideBarProviderProps {
 export const RightSideBarProvider: React.FC<RightSideBarProviderProps> = ({ children }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(120);
-  const [activeSection, setActiveSection] = useState('mission');
+  const [activeSection, setActiveSection] = useState('status');
 
   // Calculate and update width when state changes
   useEffect(() => {

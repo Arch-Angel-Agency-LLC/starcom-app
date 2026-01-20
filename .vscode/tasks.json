@@ -23,14 +23,14 @@
 			]
 		},
 		{
-			"label": "NetRunner: Type Check",
+			"label": "Starcom: Type Check",
 			"type": "shell",
 			"command": "npx",
 			"args": [
 				"tsc",
 				"--noEmit",
 				"--project",
-				"tsconfig.netrunner.json"
+				"tsconfig.starcom.json"
 			],
 			"group": "build",
 			"presentation": {
