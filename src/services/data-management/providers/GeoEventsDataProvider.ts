@@ -204,42 +204,46 @@ export class GeoEventsDataProvider implements DataProvider<GeoEventsDataTypes> {
     if (!endpoint) {
       throw new Error('Wildfire endpoint not configured');
     }
-
-    const response = await fetch(endpoint.url);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch wildfire data: ${response.status}`);
-    }
-
-    const csvText = await response.text();
-    const lines = csvText.split('\n');
-    const headers = lines[0].split(',');
-    
-    const events: NaturalEvent[] = [];
-    
-    for (let i = 1; i < lines.length; i++) {
-      const values = lines[i].split(',');
-      if (values.length < headers.length) continue;
-      
-      const lat = parseFloat(values[0]);
-      const lng = parseFloat(values[1]);
-      const brightness = parseFloat(values[2]);
-      const confidence = parseFloat(values[8]);
-      
-      if (!isNaN(lat) && !isNaN(lng) && confidence > 30) { // Filter low confidence detections
-        events.push({
-          id: `fire_${i}_${Date.now()}`,
-          lat,
-          lng,
-          type: 'wildfire',
-          intensity: brightness,
-          timestamp: values[5], // scan time
-          description: `Wildfire detection (confidence: ${confidence}%)`,
-          source: 'NASA FIRMS VIIRS'
-        });
+    try {
+      const response = await fetch(endpoint.url, { mode: 'cors' as RequestMode });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch wildfire data: ${response.status}`);
       }
-    }
 
-    return events;
+      const csvText = await response.text();
+      const lines = csvText.split('\n');
+      const headers = lines[0].split(',');
+
+      const events: NaturalEvent[] = [];
+
+      for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split(',');
+        if (values.length < headers.length) continue;
+        
+        const lat = parseFloat(values[0]);
+        const lng = parseFloat(values[1]);
+        const brightness = parseFloat(values[2]);
+        const confidence = parseFloat(values[8]);
+        
+        if (!isNaN(lat) && !isNaN(lng) && confidence > 30) {
+          events.push({
+            id: `fire_${i}_${Date.now()}`,
+            lat,
+            lng,
+            type: 'wildfire',
+            intensity: brightness,
+            timestamp: values[5],
+            description: `Wildfire detection (confidence: ${confidence}%)`,
+            source: 'NASA FIRMS VIIRS'
+          });
+        }
+      }
+
+      return events;
+    } catch (error) {
+      console.warn('Wildfire feed unavailable (likely CORS); returning empty wildfire set', error);
+      return [];
+    }
   }
 
   // New volcanic activity data
