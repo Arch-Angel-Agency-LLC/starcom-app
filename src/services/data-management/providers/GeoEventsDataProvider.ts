@@ -276,18 +276,36 @@ export class GeoEventsDataProvider implements DataProvider<GeoEventsDataTypes> {
 
   // Transform USGS data to our unified NaturalEvent format
   transformUSGSToNaturalEvents(usgsData: USGSEarthquakeData): NaturalEvent[] {
-    return usgsData.features.map(feature => ({
-      id: feature.id,
-      lat: feature.geometry.coordinates[1],
-      lng: feature.geometry.coordinates[0],
-      type: 'earthquake',
-      magnitude: feature.properties.mag,
-      intensity: feature.properties.sig, // Significance
-      status: feature.properties.status,
-      timestamp: new Date(feature.properties.time).toISOString(),
-      description: feature.properties.title,
-      source: 'USGS'
-    }));
+    return usgsData.features.reduce<NaturalEvent[]>((events, feature, index) => {
+      const coords = feature?.geometry?.coordinates;
+      const props = feature?.properties;
+
+      if (!Array.isArray(coords) || coords.length < 2) {
+        console.error('Invalid USGS feature geometry; dropping feature.', { id: feature?.id, index });
+        return events;
+      }
+
+      const [lng, lat] = coords;
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+        console.error('Invalid USGS feature coordinates; dropping feature.', { id: feature?.id, index });
+        return events;
+      }
+
+      events.push({
+        id: feature.id,
+        lat,
+        lng,
+        type: 'earthquake',
+        magnitude: props?.mag,
+        intensity: props?.sig, // Significance
+        status: props?.status,
+        timestamp: props?.time ? new Date(props.time).toISOString() : undefined,
+        description: props?.title,
+        source: 'USGS'
+      });
+
+      return events;
+    }, []);
   }
 
   subscribe(

@@ -1,0 +1,219 @@
+# Ecological Disasters Visualization – Progress Tracker
+
+> Seeded checklist for staged delivery. Check items as completed.
+
+## Stage 1 – Foundations
+- [ ] 1.0 Define scope and success criteria
+  - [ ] 1.1 Phase: Documentation readiness
+    - [ ] 1.1.1 Step: Confirm doc set exists (overview, data-sources, architecture, rendering-ux, settings, integration, testing, perf-resilience, telemetry, rollout, glossary)
+      - [ ] 1.1.1.a Task: Review each doc for completeness vs. requirements
+        - [ ] 1.1.1.a.i Sub-task: Spot-check against success criteria list
+        - [ ] 1.1.1.a.ii Sub-task: Confirm each doc has ≥150 lines and key sections
+        - [ ] 1.1.1.a.iii Sub-task: Log any required revisions in tracker
+      - [ ] 1.1.1.b Task: Flag any gaps or inconsistencies to resolve
+        - [ ] 1.1.1.b.i Sub-task: Cross-compare terminology across docs
+        - [ ] 1.1.1.b.ii Sub-task: Raise GitHub issue or TODO per gap
+        - [ ] 1.1.1.b.iii Sub-task: Assign owner and target date
+    - [ ] 1.1.2 Step: Align iconography
+      - [x] 1.1.2.a Task: Replace 🌪️ with 🌋 in right sidebar controls
+        - [x] 1.1.2.a.i Sub-task: Identify component file(s) using 🌪️ icon
+        - [ ] 1.1.2.a.ii Sub-task: Swap asset and run lint/typecheck
+        - [ ] 1.1.2.a.iii Sub-task: Visual verify in UI preview
+      - [ ] 1.1.2.b Task: Verify SecondaryModeSelector tooltip/icon consistency
+        - [ ] 1.1.2.b.i Sub-task: Inspect tooltip text for mode label match
+        - [ ] 1.1.2.b.ii Sub-task: Confirm keyboard focus/aria-label correctness
+        - [ ] 1.1.2.b.iii Sub-task: Capture screenshot for doc evidence
+  - [ ] 1.2 Phase: Data path decision
+    - [ ] 1.2.1 Step: Choose overlay vs direct globeData injection
+      - [ ] 1.2.1.a Task: Document chosen path in integration guide
+        - [ ] 1.2.1.a.i Sub-task: Add data flow diagram snippet
+        - [ ] 1.2.1.a.ii Sub-task: Note implications for caching/refresh
+        - [ ] 1.2.1.a.iii Sub-task: Update glossary terms if new primitives
+      - [ ] 1.2.1.b Task: Update testing plan assumptions
+        - [ ] 1.2.1.b.i Sub-task: Reflect chosen path in test fixtures scope
+        - [ ] 1.2.1.b.ii Sub-task: Add edge cases for offline/stale mode
+        - [ ] 1.2.1.b.iii Sub-task: Confirm perf test entry criteria
+
+## Stage 2 – Data Integration
+- [ ] 2.0 Wire data fetch and filtering
+  - [ ] 2.1 Phase: Hook implementation
+    - [ ] 2.1.1 Step: Build useGeoEvents hook (fetch, poll, filter)
+      - [x] 2.1.1.a Task: Integrate DataManagerHelpers/getNaturalEventsData
+        - [x] 2.1.1.a.i Sub-task: Define request params (bbox, limit, window)
+        - [x] 2.1.1.a.ii Sub-task: Add abort handling and timeouts
+        - [x] 2.1.1.a.iii Sub-task: Mock responses for unit tests
+      - [x] 2.1.1.b Task: Apply hazard/severity/time filters from settings
+        - [x] 2.1.1.b.i Sub-task: Normalize settings defaults
+        - [x] 2.1.1.b.ii Sub-task: Add predicate helpers with tests
+        - [x] 2.1.1.b.iii Sub-task: Verify filter chaining order
+      - [x] 2.1.1.c Task: Expose lastUpdated/error/stale flags
+        - [x] 2.1.1.c.i Sub-task: Add state machine for fetch lifecycle
+        - [x] 2.1.1.c.ii Sub-task: Emit stale flag when beyond SLA
+        - [x] 2.1.1.c.iii Sub-task: Unit test flag transitions
+    - [ ] 2.1.2 Step: Telemetry in hook
+      - [x] 2.1.2.a Task: Emit fetch/transform/render events
+        - [x] 2.1.2.a.i Sub-task: Define event schema and dimensions
+        - [x] 2.1.2.a.ii Sub-task: Add sampling/guardrails config
+        - [x] 2.1.2.a.iii Sub-task: Validate events in dev console
+      - [ ] 2.1.2.b Task: Wire resource monitor budgets
+          - [x] 2.1.2.b.i Sub-task: Set thresholds for memory/CPU usage
+          - [x] 2.1.2.b.ii Sub-task: Trigger alerts when budgets exceeded
+          - [x] 2.1.2.b.iii Sub-task: Document remediation steps
+  - [ ] 2.2 Phase: Globe data plumbing
+    - [x] 2.2.1 Step: Inject filtered NaturalEvent[] into globeData when subMode=EcologicalDisasters
+      - [x] 2.2.1.a Task: Map to marker attributes (color/size/altitude/labels)
+        - [x] 2.2.1.a.i Sub-task: Define severity-to-color scale
+          - [x] 2.2.1.a.ii Sub-task: Add label formatting (magnitude, depth)
+          - [x] 2.2.1.a.iii Sub-task: Validate marker schema with globe renderer
+      - [x] 2.2.1.b Task: Ensure cleanup on mode exit (remove hazard markers)
+        - [x] 2.2.1.b.i Sub-task: Add dispose/cleanup hook
+        - [x] 2.2.1.b.ii Sub-task: Test mode toggle spam for leaks
+        - [x] 2.2.1.b.iii Sub-task: Confirm no orphaned overlays remain
+    - [ ] 2.2.2 Step: Optional overlay update
+      - [ ] 2.2.2.a Task: If using GlobeEngine overlay, repoint to providerRegistry
+        - [ ] 2.2.2.a.i Sub-task: Register provider key and metadata
+        - [ ] 2.2.2.a.ii Sub-task: Verify overlay lifecycle hooks fire
+        - [ ] 2.2.2.a.iii Sub-task: Measure overlay render time
+      - [ ] 2.2.2.b Task: Verify overlayDataUpdated events received by Globe
+        - [ ] 2.2.2.b.i Sub-task: Add event listener test
+        - [ ] 2.2.2.b.ii Sub-task: Log payload sample for QA
+        - [ ] 2.2.2.b.iii Sub-task: Ensure debouncing where needed
+
+## Stage 3 – UI & UX
+- [ ] 3.0 Surface controls and status
+  - [ ] 3.1 Phase: Settings wiring
+    - [ ] 3.1.1 Step: Flip defaults (earthquakes/volcanoes ON) per rollout plan
+        - [x] 3.1.1.a Task: Update useEcoNaturalSettings defaults and migrations
+          - [x] 3.1.1.a.i Sub-task: Add migration for prior users
+          - [x] 3.1.1.a.ii Sub-task: Write unit test for migrated defaults
+          - [ ] 3.1.1.a.iii Sub-task: Verify UI shows toggles ON by default
+      - [ ] 3.1.1.b Task: Validate persistence and clamps
+          - [x] 3.1.1.b.i Sub-task: Check localStorage/feature store writes
+          - [x] 3.1.1.b.ii Sub-task: Bound sliders to allowed ranges
+        - [x] 3.1.1.b.iii Sub-task: Add e2e to reload page and confirm state
+    - [x] 3.1.2 Step: Right sidebar content
+      - [ ] 3.1.2.a Task: Add status card (counts, freshness, stale badge)
+        - [x] 3.1.2.a.i Sub-task: Wire to hook outputs (counts, timestamps)
+        - [x] 3.1.2.a.ii Sub-task: Add stale/error visual treatment
+        - [x] 3.1.2.a.iii Sub-task: Snapshot test card states
+      - [ ] 3.1.2.b Task: Add error/empty-state messaging
+        - [x] 3.1.2.b.i Sub-task: Define copy for no-data vs error
+        - [x] 3.1.2.b.ii Sub-task: Include retry action wiring
+        - [x] 3.1.2.b.iii Sub-task: RTL and accessibility check
+  - [x] 3.2 Phase: Legend and tooltips
+    - [x] 3.2.1 Step: Add legend component aligned to markers
+      - [x] 3.2.1.a Task: Include severity buckets and mock badge
+        - [x] 3.2.1.a.i Sub-task: Match colors to marker scale
+        - [x] 3.2.1.a.ii Sub-task: Add mock badge label and description
+        - [x] 3.2.1.a.iii Sub-task: Responsive layout test (mobile/desktop)
+      - [x] 3.2.1.b Task: Show last-updated timestamp
+        - [x] 3.2.1.b.i Sub-task: Format in UTC ISO short
+        - [x] 3.2.1.b.ii Sub-task: Handle "stale" visual when threshold passed
+        - [x] 3.2.1.b.iii Sub-task: Add tooltip for precise time
+    - [x] 3.2.2 Step: Tooltip content
+      - [x] 3.2.2.a Task: Ensure UTC times, magnitude/depth formatting
+        - [x] 3.2.2.a.i Sub-task: Add formatter utilities with tests
+        - [x] 3.2.2.a.ii Sub-task: Verify locale independence
+        - [x] 3.2.2.a.iii Sub-task: Clamp decimals to UX spec
+      - [x] 3.2.2.b Task: Add mock disclaimer for volcanoes
+        - [x] 3.2.2.b.i Sub-task: Add inline badge text
+        - [x] 3.2.2.b.ii Sub-task: Ensure screenreader reads disclaimer
+        - [x] 3.2.2.b.iii Sub-task: Include link to docs/faq
+
+## Stage 4 – Performance & Resilience
+- [x] 4.0 Validate budgets and thinning
+  - [x] 4.1 Phase: Thinning/declutter
+    - [x] 4.1.1 Step: Implement cap and thinning rules
+        - [x] 4.1.1.a Task: Drop minor first; optional grid thinning
+            - [x] 4.1.1.a.i Sub-task: Define severity threshold per hazard
+            - [x] 4.1.1.a.ii Sub-task: Implement grid bucket sampling
+            - [x] 4.1.1.a.iii Sub-task: Add benchmark for thinning time
+        - [x] 4.1.1.b Task: Emit render.thin_applied telemetry
+            - [x] 4.1.1.b.i Sub-task: Include counts before/after thinning
+            - [x] 4.1.1.b.ii Sub-task: Add sampling control to avoid spam
+            - [x] 4.1.1.b.iii Sub-task: Validate event appears in dashboard
+  - [x] 4.2 Phase: Error handling
+    - [x] 4.2.1 Step: Stale path
+        - [x] 4.2.1.a Task: Show stale badge; retain last-good data
+          - [x] 4.2.1.a.i Sub-task: Cache last-good payload
+          - [x] 4.2.1.a.ii Sub-task: Display last-updated relative time
+          - [x] 4.2.1.a.iii Sub-task: Add UX copy for stale state
+        - [x] 4.2.1.b Task: Backoff retry logic
+          - [x] 4.2.1.b.i Sub-task: Implement exponential backoff with jitter
+          - [x] 4.2.1.b.ii Sub-task: Cap retries and surface error
+          - [x] 4.2.1.b.iii Sub-task: Unit test retry scheduler
+
+## Stage 5 – Testing & QA
+- [ ] 5.0 Automated coverage
+  - [ ] 5.1 Phase: Unit/contract
+    - [x] 5.1.1 Step: Transformer tests with fixtures (USGS, volcano mock)
+      - [x] 5.1.1.a Task: Positive cases
+        - [x] 5.1.1.a.i Sub-task: Cover multiple magnitudes/depths
+        - [x] 5.1.1.a.ii Sub-task: Validate timestamp parsing
+        - [x] 5.1.1.a.iii Sub-task: Snapshot normalized outputs
+      - [x] 5.1.1.b Task: Malformed payload cases
+        - [x] 5.1.1.b.i Sub-task: Null/undefined field handling
+          - [x] 5.1.1.b.ii Sub-task: Unexpected hazard type fallback
+          - [x] 5.1.1.b.iii Sub-task: Assert errors are surfaced not swallowed
+  - [ ] 5.2 Phase: Integration/visual
+    - [x] 5.2.1 Step: Mode switch renders markers and legend
+        - [x] 5.2.1.a Task: Snapshot legend/tooltip
+          - [x] 5.2.1.a.i Sub-task: Desktop viewport snapshot
+          - [x] 5.2.1.a.ii Sub-task: Mobile viewport snapshot
+          - [x] 5.2.1.a.iii Sub-task: Dark/light theme snapshot (if applicable)
+        - [x] 5.2.1.b Task: Verify icon consistency (🌋) across UI
+            - [x] 5.2.1.b.i Sub-task: Check right sidebar tab icon
+            - [x] 5.2.1.b.ii Sub-task: Check map markers/icons for mismatch
+            - [x] 5.2.1.b.iii Sub-task: Update docs with final iconography
+  - [ ] 5.3 Phase: Perf/Resilience
+    - [ ] 5.3.1 Step: Large dataset render within budget
+      - [x] 5.3.1.a Task: Thinning activates; no crash
+        - [x] 5.3.1.a.i Sub-task: Load 10k+ events fixture
+        - [x] 5.3.1.a.ii Sub-task: Capture render time p95
+        - [x] 5.3.1.a.iii Sub-task: Confirm FPS stays above target
+      - [ ] 5.3.1.b Task: No leaks after repeated refresh
+        - [x] 5.3.1.b.i Sub-task: Run refresh loop 100 cycles
+        - [x] 5.3.1.b.ii Sub-task: Monitor memory over time
+        - [x] 5.3.1.b.iii Sub-task: Verify event listeners cleaned up
+
+## Stage 6 – Rollout
+- [ ] 6.0 Enable and monitor
+  - [ ] 6.1 Phase: Flag management
+    - [ ] 6.1.1 Step: Add/verify feature flag
+      - [ ] 6.1.1.a Task: Enable in dev, then staging
+          - [ ] 6.1.1.a.i Sub-task: Add flag to config with default OFF
+          - [ ] 6.1.1.a.ii Sub-task: Flip flag in dev; validate
+          - [ ] 6.1.1.a.iii Sub-task: Flip flag in staging; validate
+      - [ ] 6.1.1.b Task: Prep cohort for limited prod
+          - [ ] 6.1.1.b.i Sub-task: Define cohort size and criteria
+          - [ ] 6.1.1.b.ii Sub-task: Communicate rollout to stakeholders
+          - [ ] 6.1.1.b.iii Sub-task: Schedule go/no-go review
+  - [ ] 6.2 Phase: Monitoring
+    - [ ] 6.2.1 Step: Dashboards and alerts live
+      - [ ] 6.2.1.a Task: Validate telemetry in staging
+        - [ ] 6.2.1.a.i Sub-task: Check event volume and schema adherence
+        - [ ] 6.2.1.a.ii Sub-task: Compare counts vs server logs
+        - [ ] 6.2.1.a.iii Sub-task: Document any dropped fields
+      - [ ] 6.2.1.b Task: Set alert thresholds (fetch failure, render p95)
+        - [ ] 6.2.1.b.i Sub-task: Define SLOs for fetch success rate
+        - [ ] 6.2.1.b.ii Sub-task: Configure alert routing/escalation
+        - [ ] 6.2.1.b.iii Sub-task: Dry-run alert to verify signal
+  - [ ] 6.3 Phase: Smoke tests per deploy
+    - [ ] 6.3.1 Step: Run checklist (render, legend, filters, stale handling)
+      - [ ] 6.3.1.a Task: Log results; block release on failures
+        - [ ] 6.3.1.a.i Sub-task: Use standardized runbook template
+        - [ ] 6.3.1.a.ii Sub-task: Capture screenshots of key states
+        - [ ] 6.3.1.a.iii Sub-task: File follow-ups for any deviations
+
+## Stage 7 – Post-Launch
+- [ ] 7.0 Assess and iterate
+  - [ ] 7.1 Phase: Feedback and metrics
+    - [ ] 7.1.1 Step: Review adoption and error rates after first week
+      - [ ] 7.1.1.a Task: Capture follow-up items for v1.1 (clustering, live volcano feed)
+        - [ ] 7.1.1.a.i Sub-task: Prioritize backlog items by impact/effort
+        - [ ] 7.1.1.a.ii Sub-task: Validate clustering library options
+        - [ ] 7.1.1.a.iii Sub-task: Outline live volcano feed integration steps
+      - [ ] 7.1.1.b Task: Update roadmap and docs accordingly
+        - [ ] 7.1.1.b.i Sub-task: Sync roadmap with stakeholders
+        - [ ] 7.1.1.b.ii Sub-task: Update changelog and doc references
+        - [ ] 7.1.1.b.iii Sub-task: Announce learnings in release notes
