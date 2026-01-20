@@ -96,14 +96,28 @@ const GlobeView: React.FC = () => {
   const {
     filtered: ecoEvents,
     error: ecoEventsError,
-    stale: ecoEventsStale
+    stale: ecoEventsStale,
+    refetch: refetchEcoEvents
   } = useGeoEvents({
     enabled: ecoDisastersEnabled,
-    refreshMinutes: 5,
+    refreshMinutes: 1,
     timeRangeDays: ecoSettings.ecologicalDisasters.timeRange,
     disasterTypes: ecoSettings.ecologicalDisasters.disasterTypes,
     severity: ecoSettings.ecologicalDisasters.severity
   });
+
+  const ecoRefetchTriggered = useRef(false);
+
+  useEffect(() => {
+    if (!ecoDisastersEnabled) {
+      ecoRefetchTriggered.current = false;
+      return;
+    }
+    if (!globeEngine) return;
+    if (ecoRefetchTriggered.current) return;
+    ecoRefetchTriggered.current = true;
+    refetchEcoEvents().catch((err) => console.warn('EcoNatural refetch failed after engine init', err));
+  }, [ecoDisastersEnabled, globeEngine, refetchEcoEvents]);
 
   useEffect(() => {
     if (ecoResourceBudgetSet.current) return;
@@ -160,7 +174,14 @@ const GlobeView: React.FC = () => {
     const initDelay = hasGlobeLoadedBefore ? 0 : 800; // No delay for subsequent loads
     
     const initTimer = setTimeout(() => {
-      const engine = new GlobeEngine({ mode: visualizationMode.mode });
+      const overlays: string[] = [];
+      if (visualizationMode.mode === 'EcoNatural' && visualizationMode.subMode === 'SpaceWeather') {
+        overlays.push('spaceWeather', 'spaceWeatherMagnetopause', 'spaceWeatherBowShock', 'spaceWeatherAurora');
+      }
+      if (visualizationMode.mode === 'EcoNatural' && visualizationMode.subMode === 'EcologicalDisasters') {
+        overlays.push('naturalEvents');
+      }
+      const engine = new GlobeEngine({ mode: visualizationMode.mode, overlays });
       setGlobeEngine(engine);
       
       // Check for material with appropriate timing
@@ -186,7 +207,7 @@ const GlobeView: React.FC = () => {
     }, initDelay);
 
     return () => clearTimeout(initTimer);
-  }, [visualizationMode.mode, hasGlobeLoadedBefore, markGlobeAsLoaded, setGlobeInitialized]);
+  }, [visualizationMode.mode, visualizationMode.subMode, hasGlobeLoadedBefore, markGlobeAsLoaded, setGlobeInitialized]);
 
   // Track container size for responsive Globe
   useEffect(() => {
@@ -220,8 +241,8 @@ const GlobeView: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    // Example: update globe data if needed (can be extended for overlays)
-    setGlobeData([]); // TODO: Use overlay/event data from GlobeEngine if needed
+    // If additional globeEngine-driven overlays are needed, merge them instead of wiping data.
+    // Intentionally avoid clearing globeData here to preserve the first paint from hooks.
   }, [globeEngine]);
 
   // Ecological disasters data -> globe markers
@@ -246,11 +267,11 @@ const GlobeView: React.FC = () => {
     const sizeForSeverity = (bucket?: string) => {
       switch (bucket) {
         case 'catastrophic':
-          return 0.75;
+          return 0.85;
         case 'major':
-          return 0.55;
+          return 0.65;
         default:
-          return 0.35;
+          return 0.45;
       }
     };
 
@@ -1617,7 +1638,11 @@ const GlobeView: React.FC = () => {
       quality: vector.quality,
       type: 'space-weather'
     }));
-    globeEngine.updateSpaceWeatherVisualization(spaceWeatherMarkers);
+    const allowedBoundaryOverlays: string[] = [];
+    if (spaceWeatherSettings?.showMagnetopause) allowedBoundaryOverlays.push('spaceWeatherMagnetopause');
+    if (spaceWeatherSettings?.showSolarWind) allowedBoundaryOverlays.push('spaceWeatherBowShock');
+    if (spaceWeatherSettings?.showAuroralOval) allowedBoundaryOverlays.push('spaceWeatherAurora');
+    globeEngine.updateSpaceWeatherVisualization(spaceWeatherMarkers, allowedBoundaryOverlays);
     setGlobeData(prevData => {
       const nonSpace = prevData.filter((d: { type?: string }) => d.type !== 'space-weather');
       return [...nonSpace, ...spaceWeatherMarkers];

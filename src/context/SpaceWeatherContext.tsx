@@ -320,7 +320,6 @@ export const SpaceWeatherProvider: React.FC<{ children: ReactNode }> = ({ childr
   const shouldShowSpaceWeatherVisualization = (
     visualizationMode.mode === 'EcoNatural' &&
     visualizationMode.subMode === 'SpaceWeather' &&
-    activeLayer === 'electricFields' &&
     isElectricFieldsEnabled
   );
   // Performance metrics ref must be defined before hooks that reference it
@@ -424,7 +423,7 @@ export const SpaceWeatherProvider: React.FC<{ children: ReactNode }> = ({ childr
     const gridSampleVectors = (vectors: RawVectorLike[]) => {
       const bins = new Map<string, RawVectorLike>();
       for (const v of vectors) {
-        if (v.quality < 3) continue; // quality pre-filter
+        if (v.quality < 1) continue; // softened quality pre-filter
         const latBin = Math.floor((v.latitude + 90) / gridBinSize);
         const lonBin = Math.floor((v.longitude + 180) / gridBinSize);
         const key = `${latBin}:${lonBin}`;
@@ -453,11 +452,11 @@ export const SpaceWeatherProvider: React.FC<{ children: ReactNode }> = ({ childr
       // Legacy biased top-N sampling
       if (filteredVectors.length > legacySamplingCap) {
         const sortedVectors = filteredVectors
-          .filter(v => v.quality >= 3)
+          .filter(v => v.quality >= 1)
           .sort((a, b) => (b.magnitude * b.quality) - (a.magnitude * a.quality));
         sampledVectors = sortedVectors.slice(0, legacySamplingCap);
       } else {
-        sampledVectors = filteredVectors.filter(v => v.quality >= 3);
+        sampledVectors = filteredVectors.filter(v => v.quality >= 1);
       }
     }
     samplingMs = performance.now() - samplingStart;
@@ -496,8 +495,8 @@ export const SpaceWeatherProvider: React.FC<{ children: ReactNode }> = ({ childr
     
   const finalVectors = normalizedVectors
       .filter(vector => {
-        // Magnitude threshold for visualization
-        const magnitudeThreshold = 50 / 1000; // 50 mV converted to V
+        // Magnitude threshold for visualization (lowered to keep quiet conditions visible)
+        const magnitudeThreshold = 20 / 1000; // 20 mV converted to V
         return vector.originalMagnitude >= magnitudeThreshold;
       })
       .map(vector => {
@@ -584,9 +583,11 @@ export const SpaceWeatherProvider: React.FC<{ children: ReactNode }> = ({ childr
     const combinedRaw = rawInterMag + rawUSCanada + rawPipeline;
     let gatingReason: null | 'inactiveLayer' | 'disabled' | 'noData' = null;
     if (!shouldShowSpaceWeatherVisualization) {
-      if (config.spaceWeather.activeLayer !== 'electricFields') gatingReason = 'inactiveLayer';
-      else if (!isElectricFieldsEnabled) gatingReason = 'disabled';
+      if (!isElectricFieldsEnabled) gatingReason = 'disabled';
       else if (combinedRaw === 0) gatingReason = 'noData';
+    } else if (config.spaceWeather.activeLayer !== 'electricFields') {
+      // Render electric vectors as fallback even when a non-electric layer is selected; surface gating reason for UX.
+      gatingReason = 'inactiveLayer';
     }
     return {
       rawInterMag,

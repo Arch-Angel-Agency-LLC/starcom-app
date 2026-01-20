@@ -481,7 +481,17 @@ export class GlobeEngine {
    * Update space weather visualization with settings-based processing
    * Called by Globe component when settings change
    */
-  updateSpaceWeatherVisualization(processedData: unknown): void {
+  updateSpaceWeatherVisualization(processedData: unknown, allowedBoundaryOverlays?: string[]): void {
+    if (!this.overlays.includes('spaceWeather')) {
+      this.addOverlay('spaceWeather');
+    }
+    const boundaryList = allowedBoundaryOverlays ?? ['spaceWeatherMagnetopause', 'spaceWeatherBowShock', 'spaceWeatherAurora'];
+    // Only add boundary overlays that the caller allows (respects user toggles)
+    boundaryList.forEach((overlay) => {
+      if (!this.overlays.includes(overlay)) {
+        this.addOverlay(overlay);
+      }
+    });
     this.setOverlayData('spaceWeather', processedData);
   }
 

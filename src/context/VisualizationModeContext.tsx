@@ -19,7 +19,7 @@ const DEFAULT_MODE: VisualizationMode = { mode: 'CyberCommand', subMode: 'IntelR
 const DEFAULT_SUBMODES: LastSelectedSubmodes = {
   CyberCommand: 'IntelReports',
   GeoPolitical: 'NationalTerritories',
-  EcoNatural: 'SpaceWeather'
+  EcoNatural: 'EcologicalDisasters'
 };
 
 // Storage keys for persistence

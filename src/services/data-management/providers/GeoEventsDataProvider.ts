@@ -90,7 +90,7 @@ export class GeoEventsDataProvider implements DataProvider<GeoEventsDataTypes> {
     // USGS Earthquake data - real-time
     {
       id: 'earthquakes-recent',
-      url: 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_day.geojson',
+      url: 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson',
       method: 'GET'
     },
     {

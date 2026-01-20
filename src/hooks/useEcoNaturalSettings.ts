@@ -192,7 +192,7 @@ const defaultConfig: EcoNaturalConfig = {
       volcanoes: true
     },
     severity: {
-      showMinor: false,
+      showMinor: true,
       showMajor: true,
       showCatastrophic: true
     },

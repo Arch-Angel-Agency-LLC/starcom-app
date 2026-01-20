@@ -103,6 +103,16 @@ const statusPalette: Record<StatusVariant, { background: string; color: string; 
   blocked: { background: 'rgba(255, 82, 82, 0.25)', color: '#ffb0b0', label: 'Blocked' }
 };
 
+const gatingNoticeStyle: React.CSSProperties = {
+  background: 'rgba(255, 110, 110, 0.12)',
+  color: '#ffc7c7',
+  border: '1px solid rgba(255, 110, 110, 0.35)',
+  borderRadius: 4,
+  padding: '6px 8px',
+  fontSize: 10,
+  lineHeight: 1.4
+};
+
 const datasetLabels: Record<keyof SpaceWeatherInteractiveBundle['datasetFlags'], string> = {
   intermag: 'InterMag',
   usCanada: 'US/Canada',
@@ -161,6 +171,12 @@ export const SpaceWeatherStatusCard: React.FC<SpaceWeatherStatusCardProps> = ({ 
           {statusPaletteEntry.label}
         </span>
       </div>
+
+      {gating && (
+        <div style={gatingNoticeStyle}>
+          Rendering limited: {gatingLabel}. Switch to Electric Fields or enable the selected layer to resume overlays.
+        </div>
+      )}
 
       <div style={rowStyle}>
         <span style={labelStyle}>Layer</span>

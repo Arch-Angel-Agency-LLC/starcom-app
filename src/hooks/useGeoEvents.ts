@@ -55,7 +55,7 @@ export interface UseGeoEventsState {
   refetch: () => Promise<void>;
 }
 
-const DEFAULT_REFRESH_MIN = 5;
+const DEFAULT_REFRESH_MIN = 1;
 const MS_PER_MINUTE = 60 * 1000;
 const CACHE_TTL_MINUTES = 5;
 const BACKOFF_MAX_ATTEMPTS = 5;
