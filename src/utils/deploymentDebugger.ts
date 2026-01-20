@@ -994,22 +994,11 @@ export function runComprehensiveDiagnostics(specificAssetUrl?: string): void {
 
   // Test 3D model paths - prioritizing Vite asset imports
   const modelPaths = [
-    // Primary path with Vite's asset imports (used by components)
-    '/assets/models/intel_report-01d.glb', // This should be the actual path with Vite's ?url handling
-    
-    // Alternative paths to check for fallback
-    '/src/assets/models/intel_report-01d.glb',
-    '/public/models/intel_report-01d.glb',
-    '/models/intel_report-01d.glb',
-    '/public/assets/models/intel_report-01d.glb',
-    '/intel_report-01d.glb',  // root level
-    '/3d/intel_report-01d.glb',
-    '/assets/3d/intel_report-01d.glb',
+    '/assets/models/intel_report-01d.glb' // Canonical path served from public assets
   ];
 
-  // Log that we're checking model paths
   debugLog(
-    '🔍 Testing common 3D model paths',
+    '🔍 Testing 3D model path',
     { modelPaths },
     {
       category: DEBUG_CATEGORIES.FILE_RESOLUTION,

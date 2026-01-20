@@ -139,7 +139,8 @@ export class GeoEventsDataProvider implements DataProvider<GeoEventsDataTypes> {
           result = await this.fetchUSGSEarthquakes(key);
           break;
         case 'wildfires-viirs':
-          result = await this.fetchWildfireData();
+          // Disable direct FIRMS fetch in browser (CORS). Return empty to avoid noisy errors.
+          result = [];
           break;
         case 'volcanoes':
           result = await this.fetchVolcanicData();

@@ -511,7 +511,7 @@ class AssetLoaderService {
           isVercel: typeof window !== 'undefined' && window.location.hostname.includes('vercel.app'),
         },
         origin: window.location.origin,
-        testModel: '/assets/models/intel_report-01d.glb', // Primary path with Vite import
+        testModel: '/assets/models/intel_report-01d.glb'
       },
       { 
         category: DeploymentDebugger.categories.MODEL_LOADING,
@@ -520,17 +520,8 @@ class AssetLoaderService {
       }
     );
 
-    // Test model loading paths - prioritizing Vite asset imports
-    const testPaths = [
-      '/assets/models/intel_report-01d.glb', // Vite asset import path
-      '/models/intel_report-01d.glb',
-      '/public/models/intel_report-01d.glb'
-    ];
-
-    // Perform fetch tests on all paths
-    testPaths.forEach(path => {
-      DeploymentDebugger.testUrlAccessibility(path, `Diagnostic test path: ${path}`);
-    });
+    // Test only the canonical model path to avoid noisy 404 spam
+    DeploymentDebugger.testUrlAccessibility('/assets/models/intel_report-01d.glb', 'Diagnostic test path: /assets/models/intel_report-01d.glb');
   }
 }
 
