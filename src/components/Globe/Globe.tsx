@@ -20,6 +20,7 @@ import type { SolarSystemState } from '../../solar-system/SolarSystemManager';
 import useEcoNaturalSettings from '../../hooks/useEcoNaturalSettings';
 import useGeoEvents from '../../hooks/useGeoEvents';
 import { visualizationResourceMonitor } from '../../services/visualization/VisualizationResourceMonitor';
+import { memoryBudgetConfig } from '../../config/memoryBudgets';
 // Cyber visualization services
 import { ThreatIntelligenceService } from '../../services/CyberThreats/ThreatIntelligenceService';
 import { RealTimeAttackService } from '../../services/CyberAttacks/RealTimeAttackService';
@@ -124,7 +125,7 @@ const GlobeView: React.FC = () => {
     visualizationResourceMonitor.setBudgets('EcoNatural.EcologicalDisasters', {
       maxVectors: 900,
       maxPipelineVectors: 1800,
-      maxHeapBytes: 320_000_000
+      maxHeapBytes: memoryBudgetConfig.ecoHeapBudgetBytes
     });
     ecoResourceBudgetSet.current = true;
   }, []);
@@ -250,6 +251,7 @@ const GlobeView: React.FC = () => {
     if (!ecoDisastersEnabled) {
       visualizationResourceMonitor.clearMode('EcoNatural.EcologicalDisasters');
       setGlobeData(prevData => prevData.filter((d: { type?: string }) => d.type !== 'eco-disaster'));
+      console.info('[Globe][Eco] Cleared eco-disaster markers (mode disabled)');
       return;
     }
 
@@ -301,6 +303,16 @@ const GlobeView: React.FC = () => {
     setGlobeData(prevData => {
       const nonEco = prevData.filter((d: { type?: string }) => d.type !== 'eco-disaster');
       return [...nonEco, ...markers];
+    });
+
+    const volcanoCount = markers.filter(m => m.hazardType === 'volcano').length;
+    console.info('[Globe][Eco] Applied eco-disaster markers', {
+      markers: markers.length,
+      volcanoes: volcanoCount,
+      earthquakes: markers.filter(m => m.hazardType === 'earthquake').length,
+      wildfires: markers.filter(m => m.hazardType === 'wildfire').length,
+      stale: ecoEventsStale,
+      error: Boolean(ecoEventsError)
     });
 
     visualizationResourceMonitor.recordPipelineVectors('EcoNatural.EcologicalDisasters', {

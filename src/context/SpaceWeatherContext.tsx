@@ -20,6 +20,8 @@ import { createNoaaUSCanadaAdapter } from '../services/space-weather/adapters/No
 import { spaceWeatherDiagnostics, SpaceWeatherDiagnosticsState } from '../services/space-weather/SpaceWeatherDiagnostics';
 import { visualizationResourceMonitor } from '../services/visualization/VisualizationResourceMonitor';
 import { recordSpaceWeatherTelemetrySnapshot, getSpaceWeatherTelemetryHistory, type SpaceWeatherTelemetrySnapshot } from '../utils/spaceWeatherTelemetryTracker';
+import { pollerRegistry, type PollerHandle } from '../services/pollerRegistry';
+import { combineScopes, makeModeScope, makeRouteScope } from '../services/pollerScopes';
 // Tertiary mode data hooks (Phase 1 stubs)
 import { useGeomagneticData } from '../hooks/useGeomagneticData';
 import { useAuroralOvalData } from '../hooks/useAuroralOvalData';
@@ -147,7 +149,7 @@ export const SpaceWeatherProvider: React.FC<{ children: ReactNode }> = ({ childr
   const [pipelineVectors, setPipelineVectors] = useState<VisualizationVector[] | null>(null);
   const [pipelineMeta, setPipelineMeta] = useState<null | { adapterCount: number; fetchMs: number; failures: number; totalVectors: number; lastFetch: number }>(null);
   const [lastPipelineError, setLastPipelineError] = useState<string | null>(null);
-  const pipelineIntervalRef = useRef<number | null>(null);
+  const pipelinePollerHandleRef = useRef<PollerHandle | null>(null);
   const orchestratorRef = useRef<ReturnType<typeof createAdapterOrchestrator> | null>(null);
   const [diagnosticsState, setDiagnosticsState] = useState<SpaceWeatherDiagnosticsState>(() => spaceWeatherDiagnostics.getState());
 
@@ -705,10 +707,10 @@ export const SpaceWeatherProvider: React.FC<{ children: ReactNode }> = ({ childr
 
   // Pipeline async fetch effect
   useEffect(() => {
-    const clearTimer = () => {
-      if (pipelineIntervalRef.current) {
-        clearInterval(pipelineIntervalRef.current);
-        pipelineIntervalRef.current = null;
+    const stopPipelinePoller = () => {
+      if (pipelinePollerHandleRef.current) {
+        pipelinePollerHandleRef.current.stop();
+        pipelinePollerHandleRef.current = null;
       }
     };
 
@@ -728,7 +730,7 @@ export const SpaceWeatherProvider: React.FC<{ children: ReactNode }> = ({ childr
     };
 
     const tearDownPipeline = () => {
-      clearTimer();
+      stopPipelinePoller();
       disposeOrchestrator();
       resetPipelineState();
     };
@@ -748,11 +750,12 @@ export const SpaceWeatherProvider: React.FC<{ children: ReactNode }> = ({ childr
         return;
       }
     }
-    const fetchPipeline = async () => {
-      if (!orchestratorRef.current) return;
+    const fetchPipeline = async (signal: AbortSignal) => {
+      if (!orchestratorRef.current || signal.aborted) return;
       try {
         const start = performance.now();
         const result = await orchestratorRef.current.fetchAll();
+        if (signal.aborted) return;
         const fetchMs = performance.now() - start;
         setPipelineMeta({
           adapterCount: result.metrics.adapterCount,
@@ -775,6 +778,7 @@ export const SpaceWeatherProvider: React.FC<{ children: ReactNode }> = ({ childr
           size: 1
         })));
       } catch (e) {
+        if (signal.aborted) return;
         const message = e instanceof Error ? e.message : 'Unknown pipeline error';
         console.warn('Pipeline fetch failed', message);
         setLastPipelineError(message);
@@ -787,15 +791,24 @@ export const SpaceWeatherProvider: React.FC<{ children: ReactNode }> = ({ childr
         }));
       }
     };
-    // Initial fetch
-    fetchPipeline();
-    // Schedule
     const intervalMs = Math.max(15_000, dataSettings.refreshIntervalMs || 60_000); // floor 15s
-    pipelineIntervalRef.current = window.setInterval(fetchPipeline, intervalMs);
+    const scopeTags = combineScopes(
+      makeModeScope(visualizationMode.mode),
+      makeRouteScope('cybercommand'),
+      'spaceWeather'
+    );
+
+    pipelinePollerHandleRef.current = pollerRegistry.register('space-weather-pipeline', fetchPipeline, {
+      intervalMs,
+      minIntervalMs: 15_000,
+      jitterMs: 1_000,
+      immediate: true,
+      scope: scopeTags
+    });
     return () => {
       tearDownPipeline();
     };
-  }, [config.spaceWeather.pipelineEnabled, config.spaceWeather.enabledDatasets, shouldShowSpaceWeatherVisualization, dataSettings.refreshIntervalMs]);
+  }, [config.spaceWeather.pipelineEnabled, config.spaceWeather.enabledDatasets, shouldShowSpaceWeatherVisualization, dataSettings.refreshIntervalMs, visualizationMode.mode]);
 
   // Resource instrumentation: capture vector counts, diagnostics footprint, and heap usage when data changes
   useEffect(() => {

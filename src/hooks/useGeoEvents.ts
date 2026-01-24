@@ -97,6 +97,8 @@ const classifySeverity = (event: RawNaturalEvent): SeverityBucket => {
 };
 
 const withinTimeRange = (event: RawNaturalEvent, days?: number): boolean => {
+  // Volcano events are slow-changing; keep them always visible to avoid flicker from old timestamps
+  if (event.type === 'volcano') return true;
   if (!days || days <= 0) return true;
   if (!event.timestamp) return true;
   const ts = Date.parse(event.timestamp);
@@ -330,12 +332,21 @@ export const useGeoEvents = (options: UseGeoEventsOptions): UseGeoEventsState =>
       logTelemetry({ type: 'fetch_start', params: { refreshMinutes: safeRefreshMinutes } });
 
       try {
-        const raw = await fetchNaturalEventsFn({ signal: controller.signal });
+        const raw = await fetchNaturalEventsFn({ signal: controller.signal, timeoutMs: 10000, retries: 1 });
         if (!enabledRef.current) return;
         const mapped: NaturalEvent[] = raw.map((event) => ({
           ...event,
           severityBucket: classifySeverity(event)
         }));
+        const validCoords = mapped.filter((e) => Number.isFinite(e.lat) && Number.isFinite(e.lng)).length;
+        console.info('[useGeoEvents] Fetch succeeded', {
+          total: mapped.length,
+          validCoords,
+          mode: 'EcoNatural.EcologicalDisasters',
+          timeRangeDays,
+          disasterTypes,
+          severity
+        });
         const now = Date.now();
         cacheRef.current = { timestamp: now, data: mapped };
         lastGoodRef.current = mapped;
@@ -364,9 +375,11 @@ export const useGeoEvents = (options: UseGeoEventsOptions): UseGeoEventsState =>
         if (cacheFresh) {
           setData(cacheRef.current!.data);
           setLastUpdated(cacheRef.current!.timestamp);
+          console.info('[useGeoEvents] Served cached data after fetch error', { cachedAt: cacheRef.current!.timestamp });
         } else if (lastGoodRef.current.length > 0) {
           setData(lastGoodRef.current);
           setLastUpdated(lastUpdated);
+          console.info('[useGeoEvents] Served last known good data after fetch error');
         }
 
         failureCountRef.current += 1;
@@ -382,6 +395,9 @@ export const useGeoEvents = (options: UseGeoEventsOptions): UseGeoEventsState =>
         const jitterMs = baseDelay * BACKOFF_JITTER_RATIO * Math.random();
         const nextDelay = baseDelay + jitterMs;
         logTelemetry({ type: 'backoff_scheduled', metrics: { attempt, delayMs: nextDelay, jitterMs } });
+        if (import.meta.env?.DEV) {
+          console.info('[useGeoEvents] Scheduling backoff after error', { attempt, delayMs: nextDelay, jitterMs, error: (err as Error).message });
+        }
 
         timerRef.current = window.setTimeout(() => {
           performFetch('auto');
@@ -390,7 +406,7 @@ export const useGeoEvents = (options: UseGeoEventsOptions): UseGeoEventsState =>
         setLoading(false);
       }
     },
-    [enabled, fetchNaturalEventsFn, logTelemetry, refreshIntervalMs, safeRefreshMinutes, lastUpdated]
+    [enabled, fetchNaturalEventsFn, logTelemetry, refreshIntervalMs, safeRefreshMinutes]
   );
 
   const refetch = useCallback(async () => performFetch('manual'), [performFetch]);

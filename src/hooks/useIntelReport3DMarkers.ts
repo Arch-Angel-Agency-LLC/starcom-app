@@ -8,20 +8,25 @@ import { assetLoader } from '../utils/assetLoader';
 import DeploymentDebugger from '../utils/deploymentDebugger';
 import { visualizationResourceMonitor } from '../services/visualization/VisualizationResourceMonitor';
 import { collectGeometryStats } from '../utils/threeResourceMetrics';
+import { disposeGLTF } from '../utils/disposeGLTF';
 
 // Import GLB asset using Vite's asset handling for static deployment compatibility
 import intelReportModelUrl from '../assets/models/intel_report-01d.glb?url';
 
-// Log the GLB URL resolution for debugging
-DeploymentDebugger.pathResolution(
-  intelReportModelUrl,
-  intelReportModelUrl, // With Vite imports, this is already the resolved URL
-  'Intel Report 3D Model'
-);
+const VERBOSE_DEPLOYMENT_DEBUG = import.meta.env.VITE_DEPLOYMENT_DEBUG === 'true';
+const deploymentLoggingEnabled = import.meta.env.DEV || VERBOSE_DEPLOYMENT_DEBUG;
 
-// Run comprehensive diagnostics in production (Vercel)
-if (import.meta.env.PROD) {
-  // Wait for DOM to be ready
+// Log the GLB URL resolution for debugging (dev or explicit opt-in)
+if (deploymentLoggingEnabled) {
+  DeploymentDebugger.pathResolution(
+    intelReportModelUrl,
+    intelReportModelUrl,
+    'Intel Report 3D Model'
+  );
+}
+
+// Run comprehensive diagnostics only when explicitly enabled
+if (deploymentLoggingEnabled) {
   window.addEventListener('DOMContentLoaded', () => {
     DeploymentDebugger.runComprehensiveDiagnostics(intelReportModelUrl);
   });
@@ -72,6 +77,7 @@ export const useIntelReport3DMarkers = (
   const animationFrameRef = useRef<number>();
   const groupRef = useRef<THREE.Group>(new THREE.Group());
   const meshPoolRef = useRef<THREE.Object3D[]>([]);
+  const modelsRef = useRef<ModelInstance[]>([]);
   const globeMeshRef = useRef<THREE.Object3D | null>(null);
 
   // Load the GLB model once using robust asset loader with proper memoization
@@ -322,6 +328,7 @@ export const useIntelReport3DMarkers = (
       });
       return [];
     });
+    modelsRef.current = [];
 
     // Add new models to scene
     memoizedModels.forEach(model => {
@@ -329,7 +336,23 @@ export const useIntelReport3DMarkers = (
     });
 
     setModels(memoizedModels);
+    modelsRef.current = memoizedModels;
   }, [memoizedModels]);
+
+  // Dispose pooled meshes and active instances on unmount
+  useEffect(() => {
+    return () => {
+      modelsRef.current.forEach(model => {
+        model.rotationContainer.remove(model.mesh);
+        disposeGLTF(model.mesh);
+        groupRef.current.remove(model.positionContainer);
+      });
+      modelsRef.current = [];
+
+      meshPoolRef.current.forEach(disposeGLTF);
+      meshPoolRef.current = [];
+    };
+  }, []);
 
   // Animation loop
   useEffect(() => {

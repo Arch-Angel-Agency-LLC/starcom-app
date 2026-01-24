@@ -16,6 +16,8 @@ import { fetchAlerts } from '../services/AlertsService';
 import { fetchNaturalEvents } from '../services/GeoEventsService';
 import { fetchSpaceAssets } from '../services/SpaceAssetsService';
 import { fetchLatestElectricFieldData, transformNOAAToIntelMarkers } from '../services/noaaSpaceWeather';
+import { pollerRegistry } from '../services/pollerRegistry';
+import { combineScopes, makeInstanceScope, makeModeScope, makeRouteScope } from '../services/pollerScopes';
 import {
   buildAuroralPayload,
   buildBowShockPayload,
@@ -55,6 +57,7 @@ export interface GlobeEngineConfig {
 export class GlobeEngine {
   private static readonly SOLAR_WIND_STALE_MS = 10 * 60 * 1000; // 10 minutes
   private static readonly KP_STALE_MS = 90 * 60 * 1000; // 90 minutes (Kp cadence)
+  private static instanceCounter = 0;
   private mode: string;
   private overlays: string[];
   private material: THREE.Material | null = null;
@@ -66,10 +69,16 @@ export class GlobeEngine {
   private overlayObjects: Record<string, THREE.Object3D | undefined> = {};
   // Checksums to debounce redundant space weather geometry rebuilds
   private spaceWeatherChecksums: Record<string, string> = {};
-  private spaceAssetsInterval: NodeJS.Timeout | null = null; // For periodic updates
-  private spaceWeatherInterval: NodeJS.Timeout | null = null; // For space weather updates
+  private readonly instanceId: string;
+  private pollerScopes: string[];
+  private readonly spaceAssetsPollerKey: string;
+  private readonly spaceWeatherPollerKey: string;
 
   constructor(config: GlobeEngineConfig) {
+    this.instanceId = `globe-${++GlobeEngine.instanceCounter}`;
+    this.pollerScopes = this.computePollerScopes(config.mode);
+    this.spaceAssetsPollerKey = `${this.instanceId}-space-assets`;
+    this.spaceWeatherPollerKey = `${this.instanceId}-space-weather`;
     this.mode = config.mode;
     this.overlays = config.overlays || [];
     if (config.onEvent) {
@@ -137,83 +146,89 @@ export class GlobeEngine {
     }
   }
 
+  private computePollerScopes(mode: string) {
+    return combineScopes(makeModeScope(mode), makeRouteScope('cybercommand'), makeInstanceScope(this.instanceId));
+  }
+
   private startSpaceAssetsUpdates() {
     this.stopSpaceAssetsUpdates();
-    // Fetch immediately, then every 60s (artifact-driven: periodic/real-time, see globe-overlays.artifact)
-    this.fetchAndUpdateSpaceAssets();
-    this.spaceAssetsInterval = setInterval(() => {
-      this.fetchAndUpdateSpaceAssets();
-    }, 60000);
+    pollerRegistry.register(this.spaceAssetsPollerKey, (signal) => this.fetchAndUpdateSpaceAssets(signal), {
+      intervalMs: 60_000,
+      minIntervalMs: 60_000,
+      jitterMs: 2_000,
+      immediate: true,
+      scope: this.pollerScopes,
+    });
   }
 
   private stopSpaceAssetsUpdates() {
-    if (this.spaceAssetsInterval) {
-      clearInterval(this.spaceAssetsInterval);
-      this.spaceAssetsInterval = null;
-    }
+    pollerRegistry.stop(this.spaceAssetsPollerKey);
   }
 
-  private fetchAndUpdateSpaceAssets() {
+  private async fetchAndUpdateSpaceAssets(signal?: AbortSignal) {
+    if (signal?.aborted) return;
     this.emit('overlayDataLoading', { overlay: 'spaceAssets' });
-    fetchSpaceAssets()
-      .then((data) => {
-        this.overlayDataCache['spaceAssets'] = data;
-        this.setOverlayData('spaceAssets', data);
-      })
-      .catch((err) => {
-        this.emit('overlayDataError', { overlay: 'spaceAssets', error: err?.message || String(err) });
-      });
+    try {
+      const data = await fetchSpaceAssets();
+      if (signal?.aborted) return;
+      this.overlayDataCache['spaceAssets'] = data;
+      this.setOverlayData('spaceAssets', data);
+    } catch (err) {
+      if (signal?.aborted) return;
+      this.emit('overlayDataError', { overlay: 'spaceAssets', error: err instanceof Error ? err.message : String(err) });
+    }
   }
 
   // AI-NOTE: Space weather periodic update methods
   private startSpaceWeatherUpdates() {
     this.stopSpaceWeatherUpdates();
-    // Fetch immediately, then every 5 minutes (matches NOAA update frequency)
-    this.fetchAndUpdateSpaceWeather();
-    this.spaceWeatherInterval = setInterval(() => {
-      this.fetchAndUpdateSpaceWeather();
-    }, 5 * 60 * 1000); // 5 minutes
+    pollerRegistry.register(this.spaceWeatherPollerKey, (signal) => this.fetchAndUpdateSpaceWeather(signal), {
+      intervalMs: 5 * 60 * 1000,
+      minIntervalMs: 5 * 60 * 1000,
+      jitterMs: 5_000,
+      immediate: true,
+      scope: this.pollerScopes,
+    });
   }
 
   private stopSpaceWeatherUpdates() {
-    if (this.spaceWeatherInterval) {
-      clearInterval(this.spaceWeatherInterval);
-      this.spaceWeatherInterval = null;
-    }
+    pollerRegistry.stop(this.spaceWeatherPollerKey);
   }
 
-  private async fetchAndUpdateSpaceWeather() {
+  private async fetchAndUpdateSpaceWeather(signal?: AbortSignal) {
+    if (signal?.aborted) return;
     try {
       this.emit('overlayDataLoading', { overlay: 'spaceWeather' });
       
-      // Fetch both InterMag and US-Canada data
       const [interMagData, usCanadaData] = await Promise.all([
         fetchLatestElectricFieldData('InterMag'),
         fetchLatestElectricFieldData('US-Canada')
       ]);
 
-      // Transform to intelligence markers for globe visualization
+      if (signal?.aborted) return;
+
       const interMagMarkers = transformNOAAToIntelMarkers(interMagData, 'electric-field-intermag');
       const usCanadaMarkers = transformNOAAToIntelMarkers(usCanadaData, 'electric-field-us-canada');
       
-      // Combine both datasets
       const combinedMarkers = [...interMagMarkers, ...usCanadaMarkers];
       
-      // Cache and update - Note: actual rendering will be controlled by Globe component with settings
       this.overlayDataCache['spaceWeather'] = combinedMarkers;
       this.setOverlayData('spaceWeather', combinedMarkers);
-      // Update boundary overlays (magnetopause, bow shock, aurora) using modeled fallbacks for now
-      await this.fetchAndUpdateSpaceWeatherBoundaries();
+      await this.fetchAndUpdateSpaceWeatherBoundaries(signal);
     } catch (err) {
+      if (signal?.aborted) return;
       this.emit('overlayDataError', { overlay: 'spaceWeather', error: err instanceof Error ? err.message : String(err) });
     }
   }
 
   // AI-NOTE: Modeled boundaries for MVP until live endpoints are wired
-  private async fetchAndUpdateSpaceWeatherBoundaries() {
+  private async fetchAndUpdateSpaceWeatherBoundaries(signal?: AbortSignal) {
+    if (signal?.aborted) return;
     try {
       const { snapshot: solarWind, quality: solarWindQuality } = await fetchLiveSolarWindSnapshot();
       const { snapshot: kp, quality: kpQuality } = await fetchLiveKpSnapshot();
+
+      if (signal?.aborted) return;
 
       const now = Date.now();
       const solarWindAgeMs = Math.max(0, now - Date.parse(solarWind.timestamp));
@@ -243,6 +258,7 @@ export class GlobeEngine {
       this.setOverlayData('spaceWeatherBowShock', bowShock);
       this.setOverlayData('spaceWeatherAurora', aurora);
     } catch (error) {
+      if (signal?.aborted) return;
       this.emit('overlayDataError', { overlay: 'spaceWeatherBoundaries', error: error instanceof Error ? error.message : String(error) });
     }
   }
@@ -251,6 +267,11 @@ export class GlobeEngine {
    * Switch globe mode (see globe-modes.artifact)
    */
   setMode(mode: string): void {
+    const previousScopes = this.pollerScopes;
+    this.pollerScopes = this.computePollerScopes(mode);
+    previousScopes.forEach((scope) => pollerRegistry.stopAll(scope));
+    this.stopSpaceAssetsUpdates();
+    this.stopSpaceWeatherUpdates();
     this.mode = mode;
     // Artifact-driven: Reset overlays to mode defaults (see globe-modes.artifact, globe-mode-mapping-reference.artifact)
     const modeDefaults: Record<string, string[]> = {
@@ -391,7 +412,7 @@ export class GlobeEngine {
       // Modeled space weather boundary overlays (magnetopause, bow shock, aurora)
       if (overlay === 'spaceWeatherMagnetopause' || overlay === 'spaceWeatherBowShock' || overlay === 'spaceWeatherAurora') {
         // Start periodic updates if not already running
-        if (!this.spaceWeatherInterval) {
+        if (!pollerRegistry.isActive(this.spaceWeatherPollerKey)) {
           this.startSpaceWeatherUpdates();
         }
         // If cached data exists, emit immediately; otherwise compute fallback once
@@ -423,7 +444,7 @@ export class GlobeEngine {
             });
           });
         // Start space weather updates if not already running
-        if (!this.spaceWeatherInterval) {
+        if (!pollerRegistry.isActive(this.spaceWeatherPollerKey)) {
           this.startSpaceWeatherUpdates();
         }
         return;
@@ -445,7 +466,7 @@ export class GlobeEngine {
             });
           });
         // Start space weather updates if not already running
-        if (!this.spaceWeatherInterval) {
+        if (!pollerRegistry.isActive(this.spaceWeatherPollerKey)) {
           this.startSpaceWeatherUpdates();
         }
         return;

@@ -4,6 +4,7 @@
  */
 
 import { SyncEvent, CollaborationNotification } from '../types';
+import { playNotificationTone, type NotificationTone } from './audio/notificationAudio';
 
 export type UIEventType = 
   | 'UI_UPDATE_ANNOTATION'
@@ -29,6 +30,12 @@ export interface EventSubscription {
   priority: number;
 }
 
+type LoopTelemetryEvent =
+  | { type: 'batch_processed'; processed: number; remaining: number; delayMs: number }
+  | { type: 'idle_sleep'; delayMs: number }
+  | { type: 'slow_handler_backoff'; durationMs: number; backoffMs: number }
+  | { type: 'loop_tick'; durationMs: number; delayMs: number };
+
 export class RealTimeEventSystem {
   private static instance: RealTimeEventSystem;
   private subscriptions: Map<string, EventSubscription> = new Map();
@@ -36,12 +43,30 @@ export class RealTimeEventSystem {
   private isProcessing = false;
   private soundEnabled = true;
   private notificationBadgeElement: HTMLElement | null = null;
+  private loopTimer: number | null = null;
+  private backoffMs = 0;
+  private readonly baseIntervalMs = 100;
+  private readonly idleIntervalMs = 400;
+  private readonly slowHandlerThresholdMs = 24;
+  private onLoopTelemetry?: (event: LoopTelemetryEvent) => void;
 
   public static getInstance(): RealTimeEventSystem {
     if (!RealTimeEventSystem.instance) {
       RealTimeEventSystem.instance = new RealTimeEventSystem();
     }
     return RealTimeEventSystem.instance;
+  }
+
+  private emitLoopTelemetry(event: LoopTelemetryEvent): void {
+    try {
+      this.onLoopTelemetry?.(event);
+    } catch (error) {
+      console.warn('Loop telemetry handler threw', error);
+    }
+  }
+
+  public setLoopTelemetryHandler(handler: (event: LoopTelemetryEvent) => void): void {
+    this.onLoopTelemetry = handler;
   }
 
   private constructor() {
@@ -78,7 +103,9 @@ export class RealTimeEventSystem {
    */
   public emit(event: UIUpdateEvent): void {
     this.eventQueue.push(event);
-    this.processEventQueue();
+    if (this.loopTimer === null) {
+      this.scheduleLoop(0);
+    }
   }
 
   /**
@@ -232,16 +259,52 @@ export class RealTimeEventSystem {
    * Start the event processor
    */
   private startEventProcessor(): void {
-    setInterval(() => {
-      this.processEventQueue();
-    }, 100); // Process every 100ms
+    this.scheduleLoop(this.baseIntervalMs);
+  }
+
+  private scheduleLoop(delay: number): void {
+    if (this.loopTimer !== null) return;
+    this.loopTimer = window.setTimeout(() => {
+      this.loopTimer = null;
+      this.tickEventLoop();
+    }, delay);
+  }
+
+  private tickEventLoop(): void {
+    const start = performance.now();
+    const processed = this.processEventQueue();
+    const duration = performance.now() - start;
+
+    if (duration > this.slowHandlerThresholdMs) {
+      this.backoffMs = Math.min(1000, Math.max(this.baseIntervalMs * 2, this.backoffMs * 2 || this.baseIntervalMs * 2));
+      this.emitLoopTelemetry({ type: 'slow_handler_backoff', durationMs: duration, backoffMs: this.backoffMs });
+    } else {
+      this.backoffMs = 0;
+    }
+
+    let nextDelay = this.backoffMs || this.baseIntervalMs;
+
+    if (processed === 0 && this.eventQueue.length === 0) {
+      nextDelay = Math.max(nextDelay, this.idleIntervalMs);
+      this.emitLoopTelemetry({ type: 'idle_sleep', delayMs: nextDelay });
+    } else if (this.eventQueue.length > 0) {
+      nextDelay = Math.min(nextDelay, 50);
+    }
+
+    if (processed > 0) {
+      this.emitLoopTelemetry({ type: 'batch_processed', processed, remaining: this.eventQueue.length, delayMs: nextDelay });
+    }
+
+    this.emitLoopTelemetry({ type: 'loop_tick', durationMs: duration, delayMs: nextDelay });
+
+    this.scheduleLoop(nextDelay);
   }
 
   /**
    * Process the event queue
    */
-  private processEventQueue(): void {
-    if (this.isProcessing || this.eventQueue.length === 0) return;
+  private processEventQueue(): number {
+    if (this.isProcessing || this.eventQueue.length === 0) return 0;
 
     this.isProcessing = true;
 
@@ -253,14 +316,15 @@ export class RealTimeEventSystem {
       return b.timestamp.getTime() - a.timestamp.getTime();
     });
 
-    // Process events
-    const eventsToProcess = this.eventQueue.splice(0, 5); // Process max 5 events at once
-    
+    const batchSize = Math.min(10, Math.max(1, Math.ceil(this.eventQueue.length / 2)));
+
+    const eventsToProcess = this.eventQueue.splice(0, batchSize);
     eventsToProcess.forEach(event => {
       this.processEvent(event);
     });
 
     this.isProcessing = false;
+    return eventsToProcess.length;
   }
 
   /**
@@ -316,35 +380,22 @@ export class RealTimeEventSystem {
   private playNotificationSound(payload: { soundType: string }): void {
     if (!this.soundEnabled) return;
 
-    // Simple audio feedback using Web Audio API or HTML5 Audio
     try {
-      const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-      const audioContext = new AudioContextClass();
-      const oscillator = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
-
-      oscillator.connect(gainNode);
-      gainNode.connect(audioContext.destination);
-
-      // Different sounds for different types
-      switch (payload.soundType) {
-        case 'message':
-          oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-          break;
-        case 'alert':
-          oscillator.frequency.setValueAtTime(1000, audioContext.currentTime);
-          break;
-        default:
-          oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
-      }
-
-      gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
-
-      oscillator.start(audioContext.currentTime);
-      oscillator.stop(audioContext.currentTime + 0.2);
+      const tone = this.getNotificationTone(payload.soundType);
+      playNotificationTone(tone);
     } catch (error) {
       console.warn('Audio not available:', error);
+    }
+  }
+
+  private getNotificationTone(soundType: string): NotificationTone {
+    switch (soundType) {
+      case 'message':
+        return { frequency: 800, duration: 0.18 };
+      case 'alert':
+        return { frequency: 1000, duration: 0.24, gain: 0.1, type: 'square' };
+      default:
+        return { frequency: 600, duration: 0.16 };
     }
   }
 

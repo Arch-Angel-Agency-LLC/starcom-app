@@ -1,5 +1,6 @@
 // Copy exact pattern from useEnterpriseSpaceWeatherData
 import { useState, useEffect, useCallback } from 'react';
+import { pollerRegistry } from '../services/pollerRegistry';
 import { DiscordService, DiscordServerStats } from '../services/DiscordService';
 import { DiscordNotifications } from '../utils/discordNotifications';
 
@@ -82,18 +83,22 @@ export const useDiscordStats = (
     await fetchStats(); // Force refresh
   }, [fetchStats]);
 
-  // Auto-refresh setup - same pattern as space weather
   useEffect(() => {
-    if (!autoRefresh) return;
+    if (!autoRefresh) {
+      pollerRegistry.stop('discord-stats');
+      return;
+    }
 
-    const interval = setInterval(fetchStats, refreshInterval);
-    return () => clearInterval(interval);
+    const handle = pollerRegistry.register('discord-stats', () => fetchStats(), {
+      intervalMs: refreshInterval,
+      minIntervalMs: refreshInterval,
+      jitterMs: 1000,
+      immediate: true,
+      scope: 'discord',
+    });
+
+    return () => handle.stop();
   }, [autoRefresh, refreshInterval, fetchStats]);
-
-  // Initial data fetch
-  useEffect(() => {
-    fetchStats();
-  }, [fetchStats]);
 
   return {
     stats,

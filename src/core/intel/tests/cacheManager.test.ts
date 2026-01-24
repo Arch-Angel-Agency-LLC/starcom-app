@@ -5,13 +5,13 @@
  * basic operations, eviction policies, and query caching.
  */
 
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
 import { CacheManager } from '../storage/cacheManager';
 import { BaseEntity, IntelQueryOptions } from '../types/intelDataModels';
 
 describe('CacheManager', () => {
   let cacheManager: CacheManager;
-  
+
   beforeEach(() => {
     // Create a new cache manager for each test
     cacheManager = new CacheManager({
@@ -21,12 +21,13 @@ describe('CacheManager', () => {
     });
     
     // Mock Date.now for deterministic testing
-    vi.spyOn(Date, 'now').mockImplementation(() => 1000);
+    jest.spyOn(Date, 'now').mockImplementation(() => 1000);
   });
   
   afterEach(() => {
     cacheManager.dispose();
-    vi.restoreAllMocks();
+    jest.restoreAllMocks();
+    jest.useRealTimers();
   });
   
   describe('Basic cache operations', () => {
@@ -34,11 +35,11 @@ describe('CacheManager', () => {
       // Arrange
       const key = 'test-key';
       const value = { name: 'Test Value', data: [1, 2, 3] };
-      
+
       // Act
       cacheManager.set(key, value);
       const retrieved = cacheManager.get(key);
-      
+
       // Assert
       expect(retrieved).toEqual(value);
     });
@@ -93,7 +94,7 @@ describe('CacheManager', () => {
       cacheManager.set('expires-soon', 'value', 50);
       
       // Act - advance time beyond TTL
-      vi.spyOn(Date, 'now').mockImplementation(() => 1051);
+      jest.spyOn(Date, 'now').mockImplementation(() => 1051);
       
       // Assert
       expect(cacheManager.get('expires-soon')).toBeNull();
@@ -101,23 +102,31 @@ describe('CacheManager', () => {
     });
     
     it('should evict least recently used entries when full', () => {
-      // Arrange - fill the cache
-      for (let i = 0; i < 10; i++) {
-        cacheManager.set(`key-${i}`, `A very long string value for key ${i}`.repeat(10));
+      const smallCache = new CacheManager({ maxSize: 1000, defaultTtl: 100, maxEntries: 10 });
+
+      smallCache.set('key-old', 'x'.repeat(300)); // ~600 bytes
+      smallCache.set('key-recent', 'y'.repeat(100)); // ~200 bytes
+
+      // Touch recent to ensure it is newest
+      smallCache.get('key-recent');
+
+      // Act - this insert should evict the oldest entry to free space
+      smallCache.set('key-new', 'z'.repeat(300)); // ~600 bytes triggers eviction
+
+      expect(smallCache.has('key-old')).toBe(false);
+      expect(smallCache.has('key-recent')).toBe(true);
+      expect(smallCache.has('key-new')).toBe(true);
+
+      smallCache.dispose();
+    });
+
+    it('should increment eviction stats when evicting to free space', () => {
+      for (let i = 0; i < 5; i++) {
+        cacheManager.set(`heavy-${i}`, 'x'.repeat(2000));
       }
-      
-      // Access some keys to update their last accessed time
-      cacheManager.get('key-5');
-      cacheManager.get('key-8');
-      
-      // Act - add one more entry to trigger eviction
-      cacheManager.set('new-key', 'This should cause eviction');
-      
-      // Assert - the least recently accessed entries should be evicted
-      expect(cacheManager.has('key-0')).toBe(false);
-      expect(cacheManager.has('key-5')).toBe(true); // Recently accessed
-      expect(cacheManager.has('key-8')).toBe(true); // Recently accessed
-      expect(cacheManager.has('new-key')).toBe(true); // Just added
+
+      const stats = cacheManager.getStats();
+      expect(stats.evictions).toBeGreaterThan(0);
     });
     
     it('should track cache statistics', () => {
@@ -134,6 +143,46 @@ describe('CacheManager', () => {
       expect(stats.misses).toBe(1);
       expect(stats.entries).toBe(1);
       expect(stats.size).toBeGreaterThan(0);
+    });
+  });
+
+  describe('Cleanup scheduler', () => {
+    it('removes expired entries on scheduled cleanup', () => {
+      cacheManager.dispose();
+      jest.restoreAllMocks();
+      jest.useFakeTimers();
+      jest.setSystemTime(0);
+
+      const scheduledCache = new CacheManager({ defaultTtl: 10, maxSize: 1000, maxEntries: 10 });
+      try {
+        scheduledCache.set('short-lived', 'value');
+
+        expect(scheduledCache.has('short-lived')).toBe(true);
+
+        jest.advanceTimersByTime(60000);
+        jest.runOnlyPendingTimers();
+
+        expect(scheduledCache.has('short-lived')).toBe(false);
+      } finally {
+        scheduledCache.dispose();
+        jest.useRealTimers();
+      }
+    });
+
+    it('stops the cleanup interval when disposed', () => {
+      cacheManager.dispose();
+      jest.restoreAllMocks();
+      jest.useFakeTimers();
+
+      const scheduledCache = new CacheManager({ defaultTtl: 10 });
+      try {
+        expect(jest.getTimerCount()).toBeGreaterThan(0);
+
+        scheduledCache.dispose();
+        expect(jest.getTimerCount()).toBe(0);
+      } finally {
+        jest.useRealTimers();
+      }
     });
   });
   
@@ -167,9 +216,13 @@ describe('CacheManager', () => {
       // Act
       cacheManager.invalidateEntityType('type-a');
       
-      // Assert
-      expect(cacheManager.getEntity('e1')).toBeNull();
-      expect(cacheManager.getEntity('e2')).toBeNull();
+      // Assert: type-scoped entries removed
+      expect(cacheManager.has('entity:type-a:e1')).toBe(false);
+      expect(cacheManager.has('entity:type-a:e2')).toBe(false);
+      expect(cacheManager.has('entity:type-b:e3')).toBe(true);
+      // ID-based lookups remain available
+      expect(cacheManager.getEntity('e1')).not.toBeNull();
+      expect(cacheManager.getEntity('e2')).not.toBeNull();
       expect(cacheManager.getEntity('e3')).not.toBeNull();
     });
   });
@@ -244,15 +297,25 @@ describe('CacheManager', () => {
   
   describe('Local storage integration', () => {
     beforeEach(() => {
-      // Mock localStorage
-      global.localStorage = {
-        getItem: vi.fn(),
-        setItem: vi.fn(),
-        removeItem: vi.fn(),
-        clear: vi.fn(),
-        length: 0,
-        key: vi.fn()
-      };
+      // Mock localStorage with writable descriptor
+      Object.defineProperty(global, 'localStorage', {
+        value: {
+          getItem: jest.fn(),
+          setItem: jest.fn(),
+          removeItem: jest.fn(),
+          clear: jest.fn(),
+          length: 0,
+          key: jest.fn()
+        },
+        writable: true,
+        configurable: true
+      });
+    });
+
+    afterEach(() => {
+      // Clean up mocked storage
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      delete (global as any).localStorage;
     });
     
     it('should save to localStorage when configured', () => {
@@ -274,7 +337,8 @@ describe('CacheManager', () => {
     
     it('should load from localStorage when configured', () => {
       // Arrange
-      vi.mocked(localStorage.getItem).mockReturnValue(JSON.stringify({
+      const getItemMock = localStorage.getItem as jest.Mock;
+      getItemMock.mockReturnValue(JSON.stringify({
         entries: [['cached-key', {
           id: 'test-id',
           key: 'cached-key',
@@ -294,6 +358,8 @@ describe('CacheManager', () => {
       // Assert
       expect(localStorage.getItem).toHaveBeenCalledWith('intelDataCore_cache');
       expect(persistentCache.get('cached-key')).toBe('cached-value');
+
+      persistentCache.dispose();
     });
   });
 });

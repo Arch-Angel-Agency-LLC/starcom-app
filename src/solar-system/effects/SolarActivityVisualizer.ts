@@ -4,6 +4,7 @@
 import * as THREE from 'three';
 import { NOAASolarDataService } from '../noaa/NOAASolarDataService';
 import { SpaceWeatherSummary, SolarFlareEvent } from '../noaa/types';
+import { FlarePool } from './FlarePool';
 
 export interface SolarActivityConfig {
   // Corona configuration
@@ -18,6 +19,8 @@ export interface SolarActivityConfig {
   flareParticleCount: number;      // Maximum particles per flare (default: 1000)
   flareMaxDuration: number;        // Maximum flare animation duration in seconds (default: 300)
   flareIntensityScale: number;     // Flare brightness scale factor (default: 2.0)
+  flarePoolSize: number;           // Maximum pooled flare instances (default: maxActiveFlares)
+  onFlarePoolEvent?: (event: FlarePoolEvent) => void; // Telemetry for pool cap hits
   
   // Animation configuration
   animationSpeed: number;          // Overall animation speed multiplier (default: 1.0)
@@ -45,9 +48,15 @@ export interface FlareState {
   intensity: number;
   position: THREE.Vector3;
   particles?: THREE.Points;
+  material?: THREE.PointsMaterial;
   isActive: boolean;
   classification: string;
 }
+
+export type FlarePoolEvent = {
+  type: 'cap-hit';
+  stats: ReturnType<FlarePool['getStats']>;
+};
 
 export class SolarActivityVisualizer {
   private scene: THREE.Scene;
@@ -63,7 +72,7 @@ export class SolarActivityVisualizer {
   // Solar flare components
   private activeFlares: Map<string, FlareState> = new Map();
   private flareGeometry?: THREE.BufferGeometry;
-  private flareMaterials: Map<string, THREE.PointsMaterial> = new Map();
+  private flarePool?: FlarePool;
   
   // Animation and timing
   private animationId?: number;
@@ -75,7 +84,9 @@ export class SolarActivityVisualizer {
   private performanceStats = {
     avgFrameTime: 0,
     activeFlareCount: 0,
-    coronaComplexity: 0
+    coronaComplexity: 0,
+    flarePoolAvailable: 0,
+    flarePoolCapHits: 0
   };
 
   constructor(
@@ -99,6 +110,7 @@ export class SolarActivityVisualizer {
       flareParticleCount: 1000,
       flareMaxDuration: 300,
       flareIntensityScale: 2.0,
+      flarePoolSize: config.maxActiveFlares ?? 5,
       animationSpeed: 1.0,
       pulseRate: 0.5,
       updateInterval: 30000,
@@ -227,6 +239,18 @@ export class SolarActivityVisualizer {
     this.flareGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     this.flareGeometry.setAttribute('velocity', new THREE.BufferAttribute(velocities, 3));
     this.flareGeometry.setAttribute('lifetime', new THREE.BufferAttribute(lifetimes, 1));
+
+    this.flarePool = new FlarePool({
+      geometry: this.flareGeometry,
+      maxPoolSize: this.config.flarePoolSize,
+      onCapHit: stats => {
+        this.performanceStats.flarePoolCapHits = (this.performanceStats.flarePoolCapHits ?? 0) + 1;
+        this.config.onFlarePoolEvent?.({ type: 'cap-hit', stats });
+        if (import.meta.env.DEV) {
+          console.warn('[SolarActivityVisualizer] flare pool cap hit', stats);
+        }
+      }
+    });
   }
 
   private startDataMonitoring(): void {
@@ -306,38 +330,34 @@ export class SolarActivityVisualizer {
       classification: flare.classification
     };
 
-    // Create flare particle material based on classification
-    const material = new THREE.PointsMaterial({
+    const particles = this.flarePool?.acquire({
+      position: flareState.position,
       color: this.getFlareColor(flare.classification),
-      size: this.getFlareSize(flare.classification),
-      transparent: true,
-      blending: THREE.AdditiveBlending
+      size: this.getFlareSize(flare.classification)
     });
 
-    // Create particle system for this flare
-    const particles = new THREE.Points(this.flareGeometry.clone(), material);
-    particles.position.copy(flareState.position);
-    
+    if (!particles) {
+      return;
+    }
+
     flareState.particles = particles;
+    flareState.material = particles.material as THREE.PointsMaterial;
     this.scene.add(particles);
-    
     this.activeFlares.set(flare.id, flareState);
-    this.flareMaterials.set(flare.id, material);
   }
 
   private removeFlare(flareId: string): void {
     const flareState = this.activeFlares.get(flareId);
     if (flareState?.particles && this.scene) {
       this.scene.remove(flareState.particles);
-      flareState.particles.geometry.dispose();
+      if (this.flarePool) {
+        this.flarePool.release(flareState.particles);
+      } else {
+        flareState.particles.geometry.dispose();
+        flareState.material?.dispose();
+      }
     }
-    
-    const material = this.flareMaterials.get(flareId);
-    if (material) {
-      material.dispose();
-      this.flareMaterials.delete(flareId);
-    }
-    
+
     this.activeFlares.delete(flareId);
   }
 
@@ -437,9 +457,8 @@ export class SolarActivityVisualizer {
       totalFlareIntensity += intensity;
       
       // Update flare particle material
-      const material = this.flareMaterials.get(id);
-      if (material) {
-        material.opacity = intensity / flareState.intensity;
+      if (flareState.material) {
+        flareState.material.opacity = intensity / flareState.intensity;
       }
     }
     
@@ -512,6 +531,11 @@ export class SolarActivityVisualizer {
     this.performanceStats.avgFrameTime = (this.performanceStats.avgFrameTime * 0.9) + (this.frameTime * 0.1);
     this.performanceStats.activeFlareCount = this.activeFlares.size;
     this.performanceStats.coronaComplexity = this.coronaMeshes.length;
+    if (this.flarePool) {
+      const stats = this.flarePool.getStats();
+      this.performanceStats.flarePoolAvailable = stats.available;
+      this.performanceStats.flarePoolCapHits = stats.capHits;
+    }
   }
 
   // Public API methods
@@ -563,6 +587,8 @@ export class SolarActivityVisualizer {
       clearInterval(this.dataUpdateTimer);
       this.dataUpdateTimer = undefined;
     }
+
+    this.clearAllFlares();
   }
 
   public resume(): void {
@@ -603,9 +629,18 @@ export class SolarActivityVisualizer {
     if (this.flareGeometry) {
       this.flareGeometry.dispose();
     }
-    
+
+    if (this.flarePool) {
+      this.flarePool.dispose();
+    }
+
     this.coronaMeshes.length = 0;
     this.activeFlares.clear();
-    this.flareMaterials.clear();
+  }
+
+  private clearAllFlares(): void {
+    for (const [id] of this.activeFlares) {
+      this.removeFlare(id);
+    }
   }
 }

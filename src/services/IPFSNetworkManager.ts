@@ -73,6 +73,7 @@ export class IPFSNetworkManager {
   private performanceMetrics: Map<string, PerformanceMetrics> = new Map();
   private discoveryInterval: number | null = null;
   private healthCheckInterval: number | null = null;
+  private paused = false;
 
   private constructor() {
     this.relayNodeService = RelayNodeIPFSService.getInstance();
@@ -99,6 +100,7 @@ export class IPFSNetworkManager {
    * Initialize network discovery and monitoring
    */
   private initializeNetworkDiscovery(): void {
+    if (this.paused || this.discoveryInterval || this.healthCheckInterval) return;
     console.log('🌐 Initializing IPFS network discovery...');
     
     // Start peer discovery
@@ -119,6 +121,7 @@ export class IPFSNetworkManager {
    * Discover and catalog IPFS peers in the network
    */
   private async discoverPeers(): Promise<void> {
+    if (this.paused) return;
     try {
       const relayNodeStatus = this.relayNodeService.getRelayNodeStatus();
       
@@ -196,6 +199,7 @@ export class IPFSNetworkManager {
    * Perform health checks on known peers
    */
   private async performHealthChecks(): Promise<void> {
+    if (this.paused) return;
     const allPeers: IPFSPeer[] = [
       ...this.networkTopology.publicNodes,
       ...Array.from(this.networkTopology.teamNodes.values()).flat()
@@ -472,10 +476,35 @@ export class IPFSNetworkManager {
     console.log(`✅ Trusted peer added: ${peer.id}`);
   }
 
+  public pause(): void {
+    if (this.paused) return;
+    this.paused = true;
+
+    if (this.discoveryInterval) {
+      clearInterval(this.discoveryInterval);
+      this.discoveryInterval = null;
+    }
+
+    if (this.healthCheckInterval) {
+      clearInterval(this.healthCheckInterval);
+      this.healthCheckInterval = null;
+    }
+
+    console.log('⏸️ IPFS Network Manager paused');
+  }
+
+  public resume(): void {
+    if (!this.paused) return;
+    this.paused = false;
+    this.initializeNetworkDiscovery();
+    console.log('▶️ IPFS Network Manager resumed');
+  }
+
   /**
    * Clean up resources
    */
   public destroy(): void {
+    this.paused = true;
     if (this.discoveryInterval) {
       clearInterval(this.discoveryInterval);
       this.discoveryInterval = null;

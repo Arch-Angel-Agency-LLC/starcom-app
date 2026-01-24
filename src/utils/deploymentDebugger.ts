@@ -42,6 +42,8 @@ const ENV = {
   timestamp: new Date().toISOString(),
 };
 
+const VERBOSE_DEPLOYMENT_DEBUG = import.meta.env.VITE_DEPLOYMENT_DEBUG === 'true';
+
 // Configuration for the debugger
 const CONFIG = {
   // Set this to true to enable verbose debugging in production
@@ -146,18 +148,13 @@ export function debugLog(
     shouldLog = isDeploymentDebugEnabled;
   }
   
-  // Skip logging if feature flags are disabled and not forced
-  if (!shouldLog && !ignoreProductionSetting) {
+  // Respect production quiet mode unless explicitly enabled via env flag
+  const allowForceInProd = ignoreProductionSetting && (!ENV.isProduction || VERBOSE_DEPLOYMENT_DEBUG);
+  if (!shouldLog && !allowForceInProd) {
     return;
   }
 
-  // Skip logging in production unless specifically enabled
-  if (
-    ENV.isProduction &&
-    !CONFIG.enableInProduction &&
-    !ignoreProductionSetting &&
-    !shouldLog
-  ) {
+  if (ENV.isProduction && !VERBOSE_DEPLOYMENT_DEBUG && !shouldLog) {
     return;
   }
 

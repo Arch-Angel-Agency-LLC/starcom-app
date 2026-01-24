@@ -1,5 +1,8 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useRef } from 'react';
 import { settingsStorage } from '../utils/settingsStorage';
+import { pollerRegistry } from '../services/pollerRegistry';
+import { makeModeScope } from '../services/pollerScopes';
+import { assetLoader } from '../utils/assetLoader';
 
 // Extend VisualizationMode to include sub-modes
 export type VisualizationMode =
@@ -25,6 +28,7 @@ const DEFAULT_SUBMODES: LastSelectedSubmodes = {
 // Storage keys for persistence
 const VISUALIZATION_MODE_STORAGE_KEY = 'visualization-mode';
 const LAST_SUBMODES_STORAGE_KEY = 'last-selected-submodes';
+const HEAVY_MODES = new Set(['CyberCommand', 'EcoNatural']);
 
 // Create a context for VisualizationMode
 interface VisualizationModeContextProps {
@@ -43,6 +47,7 @@ export const VisualizationModeProvider: React.FC<{ children: React.ReactNode }> 
   const [visualizationMode, setVisualizationModeState] = useState<VisualizationMode>(DEFAULT_MODE);
   const [lastSelectedSubmodes, setLastSelectedSubmodesState] = useState<LastSelectedSubmodes>(DEFAULT_SUBMODES);
   const [isInitialized, setIsInitialized] = useState(false);
+  const previousModeRef = useRef<VisualizationMode | null>(null);
 
   // Load persisted settings after component mounts
   useEffect(() => {
@@ -93,6 +98,21 @@ export const VisualizationModeProvider: React.FC<{ children: React.ReactNode }> 
       console.log(`📊 VisualizationMode changed to: ${visualizationMode.mode}, SubMode: ${visualizationMode.subMode}`);
     }
   }, [visualizationMode]);
+
+  useEffect(() => {
+    if (!isInitialized) {
+      previousModeRef.current = visualizationMode;
+      return;
+    }
+    const previous = previousModeRef.current;
+    if (previous && previous.mode !== visualizationMode.mode) {
+      pollerRegistry.stopAll(makeModeScope(previous.mode));
+      if (HEAVY_MODES.has(previous.mode) && !HEAVY_MODES.has(visualizationMode.mode)) {
+        assetLoader.purgeCache('mode-change');
+      }
+    }
+    previousModeRef.current = visualizationMode;
+  }, [visualizationMode.mode, isInitialized, visualizationMode]);
 
   return (
     <VisualizationModeContext.Provider value={{ 

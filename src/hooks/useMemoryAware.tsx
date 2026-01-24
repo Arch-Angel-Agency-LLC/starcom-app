@@ -4,14 +4,10 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { memoryMonitor } from '../utils/memoryMonitor';
+import { memoryMonitor, type MemoryStats } from '../utils/memoryMonitor';
 
 interface MemoryAwareHookResult {
-  memoryStats: {
-    usedMB: number;
-    totalMB: number;
-    usagePercentage: number;
-  } | null;
+  memoryStats: Pick<MemoryStats, 'usedMB' | 'totalMB' | 'usagePercentage'> | null;
   isMemoryHigh: boolean;
   isMemoryCritical: boolean;
   shouldProceedWithOperation: boolean;
@@ -24,45 +20,32 @@ export const useMemoryAware = (): MemoryAwareHookResult => {
   const [isMemoryHigh, setIsMemoryHigh] = useState(false);
   const [isMemoryCritical, setIsMemoryCritical] = useState(false);
 
-  const updateMemoryStatus = useCallback(() => {
-    const stats = memoryMonitor.getMemoryStats();
-    setMemoryStats(stats);
-    setIsMemoryHigh(memoryMonitor.isMemoryUsageHigh());
-    setIsMemoryCritical(memoryMonitor.isMemoryUsageCritical());
+  const updateFromReading = useCallback((readingStats: MemoryStats | null, level: 'warning' | 'critical' | null) => {
+    setMemoryStats(readingStats ? {
+      usedMB: readingStats.usedMB,
+      totalMB: readingStats.totalMB,
+      usagePercentage: readingStats.usagePercentage
+    } : null);
+    setIsMemoryHigh(level === 'warning');
+    setIsMemoryCritical(level === 'critical');
   }, []);
 
   const forceMemoryCheck = useCallback(() => {
-    updateMemoryStatus();
-  }, [updateMemoryStatus]);
+    memoryMonitor.forceCheck();
+  }, []);
 
-  // Listen for memory pressure events
   useEffect(() => {
-    const handleMemoryPressure = (event: CustomEvent) => {
-      console.log('Memory pressure detected in component:', event.detail);
-      updateMemoryStatus();
-    };
-
-    window.addEventListener('memoryPressure', handleMemoryPressure as EventListener);
-    
-    // Initial memory check
-    updateMemoryStatus();
-
-    return () => {
-      window.removeEventListener('memoryPressure', handleMemoryPressure as EventListener);
-    };
-  }, [updateMemoryStatus]);
-
-  // Update memory stats periodically
-  useEffect(() => {
-    const interval = setInterval(updateMemoryStatus, 10000); // Every 10 seconds
-    return () => clearInterval(interval);
-  }, [updateMemoryStatus]);
+    const unsubscribe = memoryMonitor.subscribe(({ stats, level }) => {
+      updateFromReading(stats, level);
+    });
+    return () => unsubscribe();
+  }, [updateFromReading]);
 
   return {
     memoryStats,
     isMemoryHigh,
     isMemoryCritical,
-    shouldProceedWithOperation: memoryMonitor.shouldProceedWithLargeOperation(),
+    shouldProceedWithOperation: !isMemoryCritical,
     getRecommendedPageSize: memoryMonitor.getRecommendedPageSize.bind(memoryMonitor),
     forceMemoryCheck,
   };
