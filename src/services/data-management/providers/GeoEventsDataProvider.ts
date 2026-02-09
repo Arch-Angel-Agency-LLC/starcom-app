@@ -85,12 +85,16 @@ export type GeoEventsDataTypes =
 export class GeoEventsDataProvider implements DataProvider<GeoEventsDataTypes> {
   public readonly id = 'geo-events';
   public readonly name = 'GeoEvents Data Provider';
+  private static readonly DEFAULT_TIMEOUT_MS = 12000;
+  private static readonly DEFAULT_RETRIES = 1;
+  private readonly lastGoodData = new Map<string, { data: GeoEventsDataTypes; timestamp: number }>();
+  private readonly warnOnceTags = new Set<string>();
   
   public readonly endpoints: EndpointConfig[] = [
     // USGS Earthquake data - real-time
     {
       id: 'earthquakes-recent',
-      url: 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_day.geojson',
+      url: 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson',
       method: 'GET'
     },
     {
@@ -109,6 +113,12 @@ export class GeoEventsDataProvider implements DataProvider<GeoEventsDataTypes> {
       url: 'https://firms.modaps.eosdis.nasa.gov/data/active_fire/viirs/csv/VNP14IMGTDL_NRT_Global_24h.csv',
       method: 'GET'
     },
+    // Volcanoes (mock/static) - keep a dedicated key to avoid accidental fallback
+    {
+      id: 'volcanoes',
+      url: 'mock://volcanoes',
+      method: 'GET'
+    },
     // Legacy/fallback endpoint
     {
       id: 'natural-events-legacy',
@@ -120,14 +130,12 @@ export class GeoEventsDataProvider implements DataProvider<GeoEventsDataTypes> {
   private observer?: DataServiceObserver;
 
   async fetchData(key: string, options: FetchOptions = {}): Promise<GeoEventsDataTypes> {
+    const startTime = Date.now();
     this.observer?.onFetchStart?.(key, this.id);
-    console.debug('Fetching geo events data with options:', options);
+    this.logInfo('Fetch start', key, { options });
 
-    const endpoint = this.endpoints.find(e => e.id === key);
-    if (!endpoint) {
-      // Default to earthquakes for backward compatibility
-      return this.fetchUSGSEarthquakes('earthquakes-recent');
-    }
+    const timeoutMs = options.timeout ?? GeoEventsDataProvider.DEFAULT_TIMEOUT_MS;
+    const retries = options.retries ?? GeoEventsDataProvider.DEFAULT_RETRIES;
 
     try {
       let result: GeoEventsDataTypes;
@@ -135,63 +143,85 @@ export class GeoEventsDataProvider implements DataProvider<GeoEventsDataTypes> {
       switch (key) {
         case 'earthquakes-recent':
         case 'earthquakes-major':
-        case 'earthquakes-all':
-          result = await this.fetchUSGSEarthquakes(key);
+        case 'earthquakes-all': {
+          const endpoint = this.endpoints.find(e => e.id === key);
+          if (!endpoint) {
+            this.warnOnce(`missing-endpoint-${key}`, `Endpoint missing for ${key}; returning empty.`);
+            result = [];
+          } else {
+            result = await this.fetchUSGSEarthquakes(key, { timeoutMs, retries });
+          }
           break;
+        }
         case 'wildfires-viirs':
-          result = await this.fetchWildfireData();
+          // Disable direct FIRMS fetch in browser (CORS). Return empty to avoid noisy errors.
+          this.logInfo('Wildfire feed disabled in browser; returning empty set', key);
+          result = [];
           break;
         case 'volcanoes':
           result = await this.fetchVolcanicData();
           break;
         case 'natural-events-legacy':
-        default:
-          result = await this.fetchLegacyNaturalEvents();
+          result = await this.fetchLegacyNaturalEvents({ timeoutMs, retries });
           break;
+        default: {
+          this.warnOnce(`unknown-key-${key}`, `Unknown geo-events key '${key}' requested; falling back to earthquakes-recent.`);
+          result = await this.fetchUSGSEarthquakes('earthquakes-recent', { timeoutMs, retries });
+        }
       }
 
-      this.observer?.onFetchEnd?.(key, 0, this.id); // Duration tracking could be added
+      const duration = Date.now() - startTime;
+      this.recordGoodData(key, result);
+      this.observer?.onFetchEnd?.(key, duration, this.id);
+      this.logInfo('Fetch complete', key, { durationMs: duration, source: this.id });
       return result;
     } catch (error) {
+      const duration = Date.now() - startTime;
       this.observer?.onError?.(key, error as Error, this.id);
+      this.observer?.onFetchEnd?.(key, duration, this.id);
+      this.logError('Fetch failed', key, error as Error, { durationMs: duration, timeoutMs, retries });
+
+      const cached = this.lastGoodData.get(key);
+      if (cached) {
+        this.logWarn('Serving last known good data after failure', key, { ageMs: Date.now() - cached.timestamp });
+        return cached.data;
+      }
+
       throw error;
     }
   }
 
   // Migrated from original GeoEventsService.ts with improvements
-  private async fetchLegacyNaturalEvents(): Promise<NaturalEvent[]> {
+  private async fetchLegacyNaturalEvents(opts: { timeoutMs: number; retries: number }): Promise<NaturalEvent[]> {
     const apiUrl = import.meta.env.VITE_GEO_EVENTS_API_URL || 'https://api.starcom.app/natural-events';
-    
-    const response = await fetch(apiUrl);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch natural events: ${response.status}`);
+    const data = await this.fetchJsonWithDiagnostics('natural-events-legacy', apiUrl, opts);
+
+    if (data !== undefined && !Array.isArray(data)) {
+      this.logWarn('Legacy natural events payload is not an array; returning empty', 'natural-events-legacy', {
+        receivedType: typeof data,
+        sampleKeys: typeof data === 'object' && data ? Object.keys(data as Record<string, unknown>).slice(0, 5) : []
+      });
+      return [];
     }
 
-    const data = await response.json();
-    
-    // Defensive: ensure array of events
-    if (Array.isArray(data)) return data;
-    if (Array.isArray(data.events)) return data.events;
-    
-    return [];
+    return Array.isArray(data) ? data : [];
   }
 
   // New USGS earthquake data integration
-  private async fetchUSGSEarthquakes(key: string): Promise<USGSEarthquakeData> {
+  private async fetchUSGSEarthquakes(key: string, opts: { timeoutMs: number; retries: number }): Promise<USGSEarthquakeData> {
     const endpoint = this.endpoints.find(e => e.id === key);
     if (!endpoint) {
       throw new Error(`Earthquake endpoint not found: ${key}`);
     }
 
-    const response = await fetch(endpoint.url);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch USGS earthquake data: ${response.status}`);
-    }
+    const data = await this.fetchJsonWithDiagnostics(key, endpoint.url, opts) as USGSEarthquakeData;
 
-    const data = await response.json() as USGSEarthquakeData;
-    
     // Validate USGS GeoJSON structure
     if (data.type !== 'FeatureCollection' || !Array.isArray(data.features)) {
+      this.logError('Invalid USGS earthquake data format', key, new Error('Invalid format'), {
+        receivedType: data?.type,
+        featureCount: Array.isArray(data?.features) ? data.features.length : 'n/a'
+      });
       throw new Error('Invalid USGS earthquake data format');
     }
 
@@ -204,48 +234,53 @@ export class GeoEventsDataProvider implements DataProvider<GeoEventsDataTypes> {
     if (!endpoint) {
       throw new Error('Wildfire endpoint not configured');
     }
-
-    const response = await fetch(endpoint.url);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch wildfire data: ${response.status}`);
-    }
-
-    const csvText = await response.text();
-    const lines = csvText.split('\n');
-    const headers = lines[0].split(',');
-    
-    const events: NaturalEvent[] = [];
-    
-    for (let i = 1; i < lines.length; i++) {
-      const values = lines[i].split(',');
-      if (values.length < headers.length) continue;
-      
-      const lat = parseFloat(values[0]);
-      const lng = parseFloat(values[1]);
-      const brightness = parseFloat(values[2]);
-      const confidence = parseFloat(values[8]);
-      
-      if (!isNaN(lat) && !isNaN(lng) && confidence > 30) { // Filter low confidence detections
-        events.push({
-          id: `fire_${i}_${Date.now()}`,
-          lat,
-          lng,
-          type: 'wildfire',
-          intensity: brightness,
-          timestamp: values[5], // scan time
-          description: `Wildfire detection (confidence: ${confidence}%)`,
-          source: 'NASA FIRMS VIIRS'
-        });
+    try {
+      const response = await fetch(endpoint.url, { mode: 'cors' as RequestMode });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch wildfire data: ${response.status}`);
       }
-    }
 
-    return events;
+      const csvText = await response.text();
+      const lines = csvText.split('\n');
+      const headers = lines[0].split(',');
+
+      const events: NaturalEvent[] = [];
+
+      for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split(',');
+        if (values.length < headers.length) continue;
+        
+        const lat = parseFloat(values[0]);
+        const lng = parseFloat(values[1]);
+        const brightness = parseFloat(values[2]);
+        const confidence = parseFloat(values[8]);
+        
+        if (!isNaN(lat) && !isNaN(lng) && confidence > 30) {
+          events.push({
+            id: `fire_${i}_${Date.now()}`,
+            lat,
+            lng,
+            type: 'wildfire',
+            intensity: brightness,
+            timestamp: values[5],
+            description: `Wildfire detection (confidence: ${confidence}%)`,
+            source: 'NASA FIRMS VIIRS'
+          });
+        }
+      }
+
+      return events;
+    } catch (error) {
+      console.warn('Wildfire feed unavailable (likely CORS); returning empty wildfire set', error);
+      return [];
+    }
   }
 
   // New volcanic activity data
   private async fetchVolcanicData(): Promise<VolcanicEvent[]> {
     // Using Smithsonian's Global Volcanism Program API (if available)
     // For now, return mock data - can be expanded to real volcanic activity feeds
+    this.logInfo('Volcanic data using mock dataset', 'volcanoes');
     return [
       {
         id: 'kilauea',
@@ -274,20 +309,105 @@ export class GeoEventsDataProvider implements DataProvider<GeoEventsDataTypes> {
     ];
   }
 
+  private async fetchJsonWithDiagnostics(endpointId: string, url: string, opts: { timeoutMs: number; retries: number }): Promise<unknown> {
+    let lastError: unknown;
+
+    for (let attempt = 0; attempt <= opts.retries; attempt++) {
+      const start = Date.now();
+      try {
+        this.logInfo('Fetch attempt', endpointId, { url, attempt, timeoutMs: opts.timeoutMs });
+        const response = await this.fetchWithTimeout(url, opts.timeoutMs);
+        const duration = Date.now() - start;
+
+        if (!response.ok) {
+          lastError = new Error(`HTTP ${response.status}`);
+          this.logWarn('Fetch received non-OK status', endpointId, { status: response.status, durationMs: duration, attempt });
+          this.warnOnce(`non-ok-${endpointId}-${response.status}`, `Non-OK response for ${endpointId}: ${response.status}`, {
+            url,
+            statusText: response.statusText
+          });
+          continue;
+        }
+
+        const contentLength = Number(response.headers.get('content-length') || 0);
+        const json = await response.json();
+        this.logInfo('Fetch succeeded', endpointId, { durationMs: duration, contentLength, attempt });
+        return json;
+      } catch (error) {
+        const duration = Date.now() - start;
+        lastError = error;
+        this.logError('Fetch attempt failed', endpointId, error as Error, { attempt, durationMs: duration });
+      }
+    }
+
+    throw lastError ?? new Error(`Failed to fetch ${endpointId}`);
+  }
+
+  private async fetchWithTimeout(url: string, timeoutMs: number): Promise<Response> {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+      return await fetch(url, { signal: controller.signal });
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  private recordGoodData(key: string, data: GeoEventsDataTypes): void {
+    this.lastGoodData.set(key, { data, timestamp: Date.now() });
+  }
+
+  private logInfo(message: string, key: string, extra?: Record<string, unknown>): void {
+    console.info(`[GeoEvents] ${message}`, { key, ...extra });
+  }
+
+  private logWarn(message: string, key: string, extra?: Record<string, unknown>): void {
+    console.warn(`[GeoEvents] ${message}`, { key, ...extra });
+  }
+
+  private logError(message: string, key: string, error: Error, extra?: Record<string, unknown>): void {
+    console.error(`[GeoEvents] ${message}`, { key, error: error.message, stack: error.stack, ...extra });
+  }
+
+  private warnOnce(tag: string, message: string, extra?: Record<string, unknown>): void {
+    if (this.warnOnceTags.has(tag)) return;
+    this.warnOnceTags.add(tag);
+    console.warn(`[GeoEvents] ${message}`, extra ?? {});
+  }
+
   // Transform USGS data to our unified NaturalEvent format
   transformUSGSToNaturalEvents(usgsData: USGSEarthquakeData): NaturalEvent[] {
-    return usgsData.features.map(feature => ({
-      id: feature.id,
-      lat: feature.geometry.coordinates[1],
-      lng: feature.geometry.coordinates[0],
-      type: 'earthquake',
-      magnitude: feature.properties.mag,
-      intensity: feature.properties.sig, // Significance
-      status: feature.properties.status,
-      timestamp: new Date(feature.properties.time).toISOString(),
-      description: feature.properties.title,
-      source: 'USGS'
-    }));
+    return usgsData.features.reduce<NaturalEvent[]>((events, feature, index) => {
+      const coords = feature?.geometry?.coordinates;
+      const props = feature?.properties;
+
+      if (!Array.isArray(coords) || coords.length < 2) {
+        console.error('Invalid USGS feature geometry; dropping feature.', { id: feature?.id, index });
+        return events;
+      }
+
+      const [lng, lat] = coords;
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+        console.error('Invalid USGS feature coordinates; dropping feature.', { id: feature?.id, index });
+        return events;
+      }
+
+      events.push({
+        id: feature.id,
+        lat,
+        lng,
+        type: 'earthquake',
+        magnitude: props?.mag,
+        intensity: props?.sig, // Significance
+        status: props?.status,
+        timestamp: props?.time ? new Date(props.time).toISOString() : undefined,
+        description: props?.title,
+        source: 'USGS'
+      });
+
+      return events;
+    }, []);
   }
 
   subscribe(
@@ -300,6 +420,7 @@ export class GeoEventsDataProvider implements DataProvider<GeoEventsDataTypes> {
     // Initial fetch
     this.fetchData(key).then(onData).catch(error => {
       this.observer?.onError?.(key, error, this.id);
+      this.logError('Subscription initial fetch failed', key, error as Error);
     });
 
     // Set up polling
@@ -309,6 +430,7 @@ export class GeoEventsDataProvider implements DataProvider<GeoEventsDataTypes> {
         onData(data);
       } catch (error) {
         this.observer?.onError?.(key, error as Error, this.id);
+        this.logError('Subscription poll failed', key, error as Error);
       }
     }, interval);
 

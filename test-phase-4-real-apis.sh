@@ -54,12 +54,12 @@ echo "✅ TheHarvester: No API key required (open source tool)"
 echo ""
 echo "🔧 TypeScript Compilation Check:"
 echo "--------------------------------"
-npx tsc --noEmit --project tsconfig.netrunner.json
+npx tsc --noEmit --project tsconfig.starcom.json
 
 if [ $? -eq 0 ]; then
-    echo "✅ NetRunner TypeScript compilation successful"
+    echo "✅ Starcom TypeScript compilation successful"
 else
-    echo "❌ NetRunner TypeScript compilation failed"
+    echo "❌ Starcom TypeScript compilation failed"
 fi
 
 echo ""

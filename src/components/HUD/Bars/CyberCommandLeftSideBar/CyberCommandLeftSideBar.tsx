@@ -1,33 +1,30 @@
 import React, { lazy, Suspense } from 'react';
-import { useVisualizationMode } from '../../../../context/VisualizationModeContext';
 // Replaced old monolithic settings panel with new layer system container
 import { SpaceWeatherLayerSelector } from '../../../SpaceWeather/SpaceWeatherLayerSelector';
 import { SpaceWeatherSettingsContainer } from '../../../SpaceWeather/SpaceWeatherSettingsContainer';
+import { SpaceWeatherControlSurface } from '../../../SpaceWeather/SpaceWeatherControlSurface';
+import { useSpaceWeatherSidebarLayout } from '../../../SpaceWeather/SpaceWeatherSidebarLayout';
 import { VisualizationModeInterface } from '../../Common/VisualizationModeInterface';
 import styles from './CyberCommandLeftSideBar.module.css';
 
 // Lazy load TinyGlobe to reduce initial bundle size
 const TinyGlobe = lazy(() => import('../../../TinyGlobe/TinyGlobe'));
 
-// Clean placeholder components for future implementation
-const PrimaryModeSelector: React.FC = () => {
-  return (
-    <div className={styles.primaryModeSelector}>
-      {/* Placeholder for primary mode buttons */}
-      <div className={styles.modePlaceholder}>Primary Modes</div>
-    </div>
-  );
-};
-
 const SettingsPanel: React.FC = () => {
-  const { visualizationMode } = useVisualizationMode();
-  const showSW = visualizationMode.mode === 'EcoNatural' && visualizationMode.subMode === 'SpaceWeather';
+  const layout = useSpaceWeatherSidebarLayout();
+  const interactive = layout.interactive;
+  const passive = layout.passive;
+  const ready = Boolean(interactive && passive);
+
   return (
-    <div className={styles.settingsPanel} style={{ position: 'relative' }}>
-      {showSW ? (
+    <div className={styles.settingsPanel}>
+      {ready && interactive && passive ? (
         <>
-          <SpaceWeatherLayerSelector />
-          <SpaceWeatherSettingsContainer />
+          <SpaceWeatherControlSurface interactive={interactive} passive={passive} />
+          <SpaceWeatherSettingsContainer
+            layerId={interactive.layerId}
+            layerLabel={interactive.layer?.label ?? 'Layer'}
+          />
         </>
       ) : (
         <div className={styles.settingsPlaceholder}>Settings</div>
@@ -37,33 +34,39 @@ const SettingsPanel: React.FC = () => {
 };
 
 const CyberCommandLeftSideBar: React.FC = () => {
+  const layout = useSpaceWeatherSidebarLayout();
+  const showSpaceWeather = layout.isSpaceWeatherActive;
   return (
-    <div className={styles.cyberCommandLeftSideBar}>
-      <div className={styles.content}>
-        {/* TinyGlobe - Keep this as it works well */}
-        <div className={styles.globeContainer}>
-          <Suspense fallback={<div className={styles.tinyGlobePlaceholder}>Loading Globe...</div>}>
-            <TinyGlobe />
-          </Suspense>
-        </div>
-        
-        {/* Visualization Mode Controls - NEW: Primary + Secondary mode buttons */}
-        <div className={styles.visualizationControls}>
-          <Suspense fallback={<div className={styles.visualizationPlaceholder}>⚡</div>}>
-            <VisualizationModeInterface compact={true} />
-          </Suspense>
-        </div>
-        
-        {/* Primary Mode Selector - Clean placeholder */}
-        <div className={styles.primarySection}>
-          <PrimaryModeSelector />
-        </div>
-        
-        {/* Settings Panel - Clean placeholder */}
-        <div className={styles.settingsSection}>
-          <SettingsPanel />
+    <div className={styles.cyberCommandLeftDock}>
+      <div className={styles.cyberCommandLeftSideBar}>
+        <div className={styles.content}>
+          {/* TinyGlobe - Keep this as it works well */}
+          <div className={styles.globeContainer}>
+            <Suspense fallback={<div className={styles.tinyGlobePlaceholder}>Loading Globe...</div>}>
+              <TinyGlobe />
+            </Suspense>
+          </div>
+
+          {/* Visualization Mode Controls - NEW: Primary + Secondary mode buttons */}
+          <div className={styles.visualizationControls}>
+            <Suspense fallback={<div className={styles.visualizationPlaceholder}>⚡</div>}>
+              <VisualizationModeInterface compact={true} />
+            </Suspense>
+          </div>
+          
+          {/* Settings Panel - Clean placeholder */}
+          <div className={styles.settingsSection}>
+            <SettingsPanel />
+          </div>
         </div>
       </div>
+      {showSpaceWeather && (
+        <div className={styles.spaceWeatherRailDock}>
+          <div className={styles.spaceWeatherRailPanel}>
+            <SpaceWeatherLayerSelector />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

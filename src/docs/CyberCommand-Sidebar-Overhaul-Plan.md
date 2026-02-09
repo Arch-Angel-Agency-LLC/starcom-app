@@ -67,7 +67,7 @@ Current Structure:
 Current Structure:
 ┌─────────────────────────────────────┐
 │ Mission Control Tabs:               │
-│ 📡 Mission | 🎯 Intel | 💬 Chat     │
+│ 📡 Status | 🎯 Intel | 💬 Chat      │
 │ | 🚀 Apps                           │
 ├─────────────────────────────────────┤
 │ Tab Content Area:                   │
@@ -119,7 +119,7 @@ New Optimized Structure:
 New Enhanced Structure:
 ┌─────────────────────────────────────────────┐
 │ Mission Control Tabs:                       │
-│ 📡 Mission | 🎛️ Controls | 🎯 Intel | 💬   │
+│ 📡 Status | 🎛️ Controls | 🎯 Intel | 💬   │
 │ Chat | 🚀 Apps                              │
 ├─────────────────────────────────────────────┤
 │ When 🎛️ Controls Tab Active:                │
@@ -230,7 +230,7 @@ New Enhanced Structure:
 - **Keep**: Only primary mode buttons (📑 🌎 ☀️)
 
 #### Step 2.2: Add Provider Selection UI
-- **New Component**: `SpaceWeatherProviderSelector.tsx`
+- **Removed Component**: `SpaceWeatherProviderSelector.tsx` (provider switching now auto-managed; health is passive-only)
 - **Integration**: Connect to enhanced `SpaceWeatherContext`
 - **Features**: Toggle between Legacy/Enterprise/Enhanced modes
 
@@ -285,7 +285,7 @@ src/components/HUD/Bars/CyberCommandRightSideBar/
 │   └── VisualizationControls.module.css
 ├── SpaceWeatherControls/
 │   ├── index.ts
-│   ├── SpaceWeatherProviderSelector.tsx
+│   ├── (removed) SpaceWeatherProviderSelector.tsx
 │   ├── SpaceWeatherQualityIndicator.tsx
 │   ├── SpaceWeatherCacheStatus.tsx
 │   ├── SpaceWeatherCorrelationMetrics.tsx
@@ -443,57 +443,8 @@ const EcoNaturalControls: React.FC<EcoNaturalControlsProps> = ({
 };
 ```
 
-### SpaceWeatherProviderSelector Component
-```tsx
-const SpaceWeatherProviderSelector: React.FC = () => {
-  const { provider, setProvider } = useSpaceWeatherContext();
-  
-  const providers = [
-    { 
-      key: 'legacy', 
-      label: 'Legacy', 
-      desc: '2 endpoints, basic features',
-      icon: '⚡'
-    },
-    { 
-      key: 'enterprise', 
-      label: 'Enterprise', 
-      desc: '20+ endpoints, advanced processing',
-      icon: '🚀'
-    },
-    { 
-      key: 'enhanced', 
-      label: 'Enhanced', 
-      desc: 'Full correlation, quality metrics',
-      icon: '✨'
-    }
-  ];
-
-  return (
-    <div className={styles.providerSelector}>
-      <div className={styles.selectorHeader}>
-        <h4>SpaceWeather Data Provider</h4>
-      </div>
-      
-      <div className={styles.providerButtons}>
-        {providers.map(providerOption => (
-          <button
-            key={providerOption.key}
-            className={`${styles.providerButton} ${
-              provider === providerOption.key ? styles.active : ''
-            }`}
-            onClick={() => setProvider(providerOption.key)}
-          >
-            <span className={styles.providerIcon}>{providerOption.icon}</span>
-            <span className={styles.providerLabel}>{providerOption.label}</span>
-            <span className={styles.providerDesc}>{providerOption.desc}</span>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-};
-```
+### Provider Selection
+Provider selection is automatic with failover; health surfaces passively on the Status tab. No manual selector component is rendered.
 
 ---
 
@@ -554,7 +505,7 @@ const SpaceWeatherProviderSelector: React.FC = () => {
 
 ### 🚧 Phase 2: Left Sidebar Cleanup (IN PROGRESS)  
 - [x] ✅ Remove secondary mode buttons from `VisualizationModeButtons`
-- [ ] 🔄 Create `SpaceWeatherProviderSelector` component
+- [x] 🔄 Remove `SpaceWeatherProviderSelector`; auto/failover only
 - [ ] 🔄 Integrate provider selector into left sidebar
 - [ ] 🔄 Optimize visual hierarchy and spacing
 - [ ] 🔄 Test primary mode selection flow
@@ -597,7 +548,7 @@ This overhaul will transform the CyberCommand interface from a cramped, feature-
    - Smooth transitions with `width 0.3s ease`
 
 2. **Section Navigation System**:
-   - Current tabs: 📡 Mission | 🎯 Intel | 💬 Chat | 🚀 Apps | 🔧 Developer
+  - Current tabs: 📡 Status | 🎯 Intel | 💬 Chat | 🚀 Apps | 🔧 Developer
    - Navigation pattern established and working
    - Easy to add 🎛️ Controls tab
 
@@ -667,7 +618,7 @@ This overhaul will transform the CyberCommand interface from a cramped, feature-
 4. **Update width logic** in `RightSideBarContext.tsx` (add controls: 240px)
 
 #### **Requires New Development:**
-1. **SpaceWeatherProviderSelector.tsx** (new component for left sidebar)
+1. **(Removed) SpaceWeatherProviderSelector.tsx** (manual switching deprecated)
 2. **Enhanced feature components** (quality indicators, cache status, correlation metrics)
 3. **Left sidebar cleanup** (remove secondary modes, add provider selector)
 
@@ -861,41 +812,9 @@ const geoPoliticalSubmodes = [
 ];
 ```
 
-#### **Stage 3: Left Sidebar Provider Selector**
+#### **Stage 3: Provider Selection**
 
-**NEW: `SpaceWeatherProviderSelector.tsx` - PROVIDER SWITCHING UI:**
-```tsx
-const SpaceWeatherProviderSelector: React.FC = () => {
-  const { currentProvider, switchProvider } = useSpaceWeatherContext();
-  
-  const providers = [
-    { key: 'legacy', label: 'Legacy', desc: '2 endpoints, basic features', icon: '⚡' },
-    { key: 'enterprise', label: 'Enterprise', desc: '20+ endpoints, advanced processing', icon: '🚀' },
-    { key: 'enhanced', label: 'Enhanced', desc: 'Full correlation, quality metrics', icon: '✨' }
-  ];
-
-  return (
-    <div className={styles.providerSelector}>
-      <div className={styles.selectorHeader}>
-        <h4>SpaceWeather Provider</h4>
-      </div>
-      <div className={styles.providerButtons}>
-        {providers.map(provider => (
-          <button
-            key={provider.key}
-            className={`${styles.providerButton} ${currentProvider === provider.key ? styles.active : ''}`}
-            onClick={() => switchProvider(provider.key)}
-            title={provider.desc}
-          >
-            <span className={styles.providerIcon}>{provider.icon}</span>
-            <span className={styles.providerLabel}>{provider.label}</span>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-};
-```
+Provider selection is automatic with failover; health surfaces passively on the Status tab. No manual selector component is rendered.
 
 #### **Stage 4: Enhanced Feature Components**
 
@@ -985,7 +904,7 @@ const CyberCommandLeftSideBar: React.FC = () => {
           <TinyGlobe />
         </Suspense>
         <VisualizationModeButtons /> {/* PRIMARY MODES ONLY */}
-        <SpaceWeatherProviderSelector /> {/* NEW */}
+        {/* Provider selector removed — auto/failover only */}
         <ModeSettingsPanel />
       </div>
     </div>
@@ -999,7 +918,7 @@ const CyberCommandLeftSideBar: React.FC = () => {
 CLEAN LEFT SIDEBAR (128px):
 ├── TinyGlobe.tsx (keep)
 ├── VisualizationModeButtons.tsx (primary modes only - cleaned)
-├── SpaceWeatherProviderSelector.tsx (NEW - provider switching)
+├── (removed) SpaceWeatherProviderSelector.tsx (manual switching deprecated)
 └── ModeSettingsPanel.tsx (keep)
 
 ENHANCED RIGHT SIDEBAR (120px → 240px when controls active):
@@ -1025,7 +944,7 @@ ENHANCED RIGHT SIDEBAR (120px → 240px when controls active):
 4. **Remove secondary modes** from left sidebar VisualizationModeButtons.tsx
 
 #### **Phase 2 (Medium Priority - Provider Integration):**
-5. **Create SpaceWeatherProviderSelector.tsx** for left sidebar
+5. **Remove SpaceWeatherProviderSelector.tsx**; verify passive health surfaces on Status tab
 6. **Integrate provider selector** into CyberCommandLeftSideBar.tsx
 7. **Test provider switching** with existing enhanced backend
 

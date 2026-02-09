@@ -113,21 +113,21 @@ const VisualizationModeControls: React.FC = () => {
               onClick={() => setVisualizationMode({ mode: 'EcoNatural', subMode: 'SpaceWeather' })}
               title="Space Weather"
             >
-              🌎
+              ☀️
             </button>
             <button 
               className={`${styles.secondaryButton} ${visualizationMode.subMode === 'EcologicalDisasters' ? styles.active : ''}`}
               onClick={() => setVisualizationMode({ mode: 'EcoNatural', subMode: 'EcologicalDisasters' })}
               title="Ecological Disasters"
             >
-              🌪️
+              🌋
             </button>
             <button 
               className={`${styles.secondaryButton} ${visualizationMode.subMode === 'EarthWeather' ? styles.active : ''}`}
               onClick={() => setVisualizationMode({ mode: 'EcoNatural', subMode: 'EarthWeather' })}
               title="Earth Weather"
             >
-              🌤️
+              🌦️
             </button>
           </>
         )}

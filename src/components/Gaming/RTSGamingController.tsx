@@ -8,6 +8,7 @@
 import React, { useEffect, useCallback, useState } from 'react';
 import { useAdaptiveInterface } from '../../hooks/useAdaptiveInterface';
 import { useFeatureFlag } from '../../utils/featureFlags';
+import { playNotificationTone, clearNotificationAudioResources } from '../../services/audio/notificationAudio';
 import styles from './RTSGamingController.module.css';
 
 interface RTSGamingControllerProps {
@@ -179,65 +180,49 @@ export const RTSGamingController: React.FC<RTSGamingControllerProps> = ({
   // ============================================================================
   
   const initializeSoundEffects = useCallback(() => {
-    if (!enableSoundEffects || !rtsEnhancementsEnabled) return;
+    if (!enableSoundEffects || !rtsEnhancementsEnabled) return () => {};
 
-    // Web Audio API setup for gaming sounds
-    let audioContext: AudioContext;
-    
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-    } catch {
-      console.warn('Web Audio API not supported');
-      return;
-    }
+    const timeoutIds: number[] = [];
 
-    // Generate gaming-style sound effects
-    const createBeep = (frequency: number, duration: number, type: OscillatorType = 'sine') => {
-      const oscillator = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
-      
-      oscillator.connect(gainNode);
-      gainNode.connect(audioContext.destination);
-      
-      oscillator.frequency.value = frequency;
-      oscillator.type = type;
-      
-      gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
-      
-      oscillator.start(audioContext.currentTime);
-      oscillator.stop(audioContext.currentTime + duration);
+    const hoverSound = () => playNotificationTone({ frequency: 800, duration: 0.1 });
+    const clickSound = () => playNotificationTone({ frequency: 600, duration: 0.15 });
+    const successSound = () => {
+      clickSound();
+      timeoutIds.push(window.setTimeout(() => playNotificationTone({ frequency: 659, duration: 0.1 }), 100));
+      timeoutIds.push(window.setTimeout(() => playNotificationTone({ frequency: 784, duration: 0.2 }), 200));
+    };
+    const warningSound = () => {
+      playNotificationTone({ frequency: 400, duration: 0.2, type: 'square', gain: 0.09 });
+      timeoutIds.push(
+        window.setTimeout(
+          () => playNotificationTone({ frequency: 300, duration: 0.2, type: 'square', gain: 0.08 }),
+          250
+        )
+      );
     };
 
-    // Sound effect mappings
-    const soundEffects = {
-      hover: () => createBeep(800, 0.1),
-      click: () => createBeep(600, 0.15),
-      success: () => {
-        createBeep(523, 0.1); // C
-        setTimeout(() => createBeep(659, 0.1), 100); // E
-        setTimeout(() => createBeep(784, 0.2), 200); // G
-      },
-      warning: () => {
-        createBeep(400, 0.2, 'square');
-        setTimeout(() => createBeep(300, 0.2, 'square'), 250);
-      }
-    };
-
-    // Attach sound effects to UI elements
-    document.addEventListener('click', (e) => {
+    const clickHandler = (e: Event) => {
       if ((e.target as HTMLElement).classList.contains('rts-button')) {
-        soundEffects.click();
+        clickSound();
       }
-    });
+    };
 
-    document.addEventListener('mouseenter', (e) => {
+    const hoverHandler = (e: Event) => {
       if ((e.target as HTMLElement).classList.contains('holo-panel')) {
-        soundEffects.hover();
+        hoverSound();
       }
-    }, true);
-  }, [enableSoundEffects, rtsEnhancementsEnabled]);
+    };
+
+    document.addEventListener('click', clickHandler);
+    document.addEventListener('mouseenter', hoverHandler, true);
+
+    return () => {
+      timeoutIds.forEach(id => window.clearTimeout(id));
+      document.removeEventListener('click', clickHandler);
+      document.removeEventListener('mouseenter', hoverHandler, true);
+      void clearNotificationAudioResources();
+    };
+  }, [enableSoundEffects, rtsEnhancementsEnabled, playNotificationTone, clearNotificationAudioResources]);
 
   // ============================================================================
   // PROGRESSIVE DISCLOSURE GAMING ENHANCEMENT
@@ -288,7 +273,7 @@ export const RTSGamingController: React.FC<RTSGamingControllerProps> = ({
     initializeHolographicEffects();
     initializeCommandCenterAnimations();
     applyRoleBasedGamingTheme();
-    initializeSoundEffects();
+    const soundCleanup = initializeSoundEffects();
     enhanceProgressiveDisclosure();
 
     // Performance monitoring
@@ -310,6 +295,8 @@ export const RTSGamingController: React.FC<RTSGamingControllerProps> = ({
         perfObserver.disconnect();
       }
       
+      soundCleanup?.();
+
       // Remove gaming event listeners
       const elements = document.querySelectorAll('.holo-panel, .rts-button');
       elements.forEach(element => {

@@ -1,4 +1,9 @@
 {
     "git.ignoreLimitWarning": true,
-    "cmake.sourceDirectory": "/Users/jono/Documents/GitHub/starcom-app/node_modules/@ipshipyard/node-datachannel"
+    "cmake.sourceDirectory": "/Users/jono/Documents/GitHub/starcom-app/node_modules/@ipshipyard/node-datachannel",
+    "chat.tools.terminal.autoApprove": {
+        "EOF": true,
+        "git checkout": true,
+        "git add": true
+    }
 }

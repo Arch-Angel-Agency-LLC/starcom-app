@@ -58,10 +58,23 @@ export const useSpaceWeatherData = (options: UseSpaceWeatherOptions = {}): UseSp
         }
       }
 
-      // Fetch both datasets
+      // Fetch both datasets with graceful empty fallbacks when upstream has no files
+      const fetchWithEmptyFallback = async (dataset: 'InterMag' | 'US-Canada') => {
+        try {
+          return await fetchLatestElectricFieldData(dataset);
+        } catch (err) {
+          const message = err instanceof Error ? err.message : String(err);
+          if (message.includes('No electric field files found')) {
+            console.warn(`Space weather: ${dataset} returned no files; using empty dataset`);
+            return { time_tag: new Date().toISOString(), features: [] } as const;
+          }
+          throw err;
+        }
+      };
+
       const [interMagRaw, usCanadaRaw] = await Promise.all([
-        fetchLatestElectricFieldData('InterMag'),
-        fetchLatestElectricFieldData('US-Canada')
+        fetchWithEmptyFallback('InterMag'),
+        fetchWithEmptyFallback('US-Canada')
       ]);
       
       // Convert raw data to ProcessedElectricFieldData format
@@ -80,7 +93,7 @@ export const useSpaceWeatherData = (options: UseSpaceWeatherOptions = {}): UseSp
             ey: eyRaw,
             magnitude: magnitudeRaw,
             direction: Math.atan2(f.properties.Ey, f.properties.Ex) * (180 / Math.PI),
-            quality: f.properties.quality_flag || 1,
+            quality: Math.max(1, f.properties.quality_flag ?? 3),
             stationDistance: f.properties.distance_nearest_station || 0,
             unit: 'mV/km' as const,
             ex_mVkm: exRaw,
@@ -117,7 +130,7 @@ export const useSpaceWeatherData = (options: UseSpaceWeatherOptions = {}): UseSp
             ey: eyRaw,
             magnitude: magnitudeRaw,
             direction: Math.atan2(f.properties.Ey, f.properties.Ex) * (180 / Math.PI),
-            quality: f.properties.quality_flag || 1,
+            quality: Math.max(1, f.properties.quality_flag ?? 3),
             stationDistance: f.properties.distance_nearest_station || 0,
             unit: 'mV/km' as const,
             ex_mVkm: exRaw,
@@ -163,8 +176,18 @@ export const useSpaceWeatherData = (options: UseSpaceWeatherOptions = {}): UseSp
       
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
-      setError(`Failed to fetch space weather data: ${errorMessage}`);
-      console.error('Space weather data fetch error:', err);
+      // If both datasets were empty but not exceptional, do not surface as blocking error
+      if (errorMessage.includes('No electric field files found')) {
+        console.warn('Space weather data empty; continuing without raising fatal error');
+        setInterMagData(null);
+        setUsCanadaData(null);
+        setAlerts([]);
+        setLastUpdated(new Date());
+        setError(null);
+      } else {
+        setError(`Failed to fetch space weather data: ${errorMessage}`);
+        console.error('Space weather data fetch error:', err);
+      }
     } finally {
       setIsLoading(false);
     }

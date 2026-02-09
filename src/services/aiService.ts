@@ -11,6 +11,7 @@ import type {
   InsightType,
   ConfidenceLevel
 } from '../types';
+import { ServiceBackoffController, type ServiceBackoffEvent } from './backoff/ServiceBackoffController';
 
 // ===== MOCK DATA GENERATORS =====
 
@@ -366,8 +367,17 @@ export const generateMockActionRecommendations = (): ActionRecommendation[] => {
 export class AIEngineSimulator {
   private static instance: AIEngineSimulator;
   private isRunning = false;
-  private intervalId?: NodeJS.Timeout;
+  private tickTimer?: ReturnType<typeof setTimeout>;
   private callbacks: Array<(insights: AIInsight[]) => void> = [];
+  private backoffController = new ServiceBackoffController({
+    label: 'ai-engine-simulator',
+    baseDelayMs: 1000,
+    coolOffThreshold: 3,
+    coolOffDurationMs: 12000,
+    sampleRate: 0.5,
+    minIntervalMs: 2000,
+    onEvent: (event) => this.emitBackoffEvent(event)
+  });
 
   static getInstance(): AIEngineSimulator {
     if (!AIEngineSimulator.instance) {
@@ -380,20 +390,50 @@ export class AIEngineSimulator {
     if (this.isRunning) return;
     
     this.isRunning = true;
-    
-    // Generate new insights every 30 seconds (for demo purposes)
-    this.intervalId = setInterval(() => {
-      const newInsights = this.generateRealtimeInsights();
-      this.notifyCallbacks(newInsights);
-    }, 30000);
+    this.scheduleTick();
   }
 
   stop() {
-    if (this.intervalId) {
-      clearInterval(this.intervalId);
-      this.intervalId = undefined;
+    if (this.tickTimer) {
+      clearTimeout(this.tickTimer);
+      this.tickTimer = undefined;
     }
+    this.backoffController.pause();
     this.isRunning = false;
+  }
+
+  private scheduleTick(delay = 30000): void {
+    if (!this.isRunning) return;
+    if (this.tickTimer) {
+      clearTimeout(this.tickTimer);
+    }
+
+    this.tickTimer = setTimeout(() => {
+      void this.runTick();
+    }, delay);
+  }
+
+  private async runTick(): Promise<void> {
+    if (!this.isRunning) return;
+
+    try {
+      await this.backoffController.run(async () => {
+        const newInsights = this.generateRealtimeInsights();
+        this.notifyCallbacks(newInsights);
+      });
+    } catch (error) {
+      console.error('AIEngineSimulator tick failed after backoff:', error);
+    } finally {
+      this.scheduleTick();
+    }
+  }
+
+  private emitBackoffEvent(event: ServiceBackoffEvent): void {
+    try {
+      window.dispatchEvent(new CustomEvent('service-backoff', { detail: { service: 'ai-engine-simulator', event } }));
+    } catch (error) {
+      console.warn('Failed to emit AIEngineSimulator backoff event:', error);
+    }
   }
 
   subscribe(callback: (insights: AIInsight[]) => void) {

@@ -16,6 +16,25 @@ import { fetchAlerts } from '../services/AlertsService';
 import { fetchNaturalEvents } from '../services/GeoEventsService';
 import { fetchSpaceAssets } from '../services/SpaceAssetsService';
 import { fetchLatestElectricFieldData, transformNOAAToIntelMarkers } from '../services/noaaSpaceWeather';
+import { pollerRegistry } from '../services/pollerRegistry';
+import { combineScopes, makeInstanceScope, makeModeScope, makeRouteScope } from '../services/pollerScopes';
+import {
+  buildAuroralPayload,
+  buildBowShockPayload,
+  buildMagnetopausePayload,
+  type AuroraPayload,
+  type BowShockPayload,
+  type MagnetopausePayload,
+} from '../services/SpaceWeatherModeling';
+import { fetchLiveKpSnapshot, fetchLiveSolarWindSnapshot } from '../services/SpaceWeatherLive';
+import {
+  createAuroraBlackoutMesh,
+  createAuroraLines,
+  createBowShockMesh,
+  createMagnetopauseMesh,
+  disposeObject,
+  logVertexCount,
+} from './SpaceWeatherGeometry';
 import type { IntelReportOverlayMarker } from '../interfaces/IntelReportOverlay';
 
 export type GlobeEvent = { type: string; payload?: unknown };
@@ -36,6 +55,9 @@ export interface GlobeEngineConfig {
 }
 
 export class GlobeEngine {
+  private static readonly SOLAR_WIND_STALE_MS = 10 * 60 * 1000; // 10 minutes
+  private static readonly KP_STALE_MS = 90 * 60 * 1000; // 90 minutes (Kp cadence)
+  private static instanceCounter = 0;
   private mode: string;
   private overlays: string[];
   private material: THREE.Material | null = null;
@@ -43,10 +65,20 @@ export class GlobeEngine {
   private overlayData: Record<string, unknown> = {};
   // Overlay data cache (see globe-overlays.artifact, UI/UX guidelines)
   private overlayDataCache: Record<string, unknown> = {};
-  private spaceAssetsInterval: NodeJS.Timeout | null = null; // For periodic updates
-  private spaceWeatherInterval: NodeJS.Timeout | null = null; // For space weather updates
+  // Optional overlay objects (THREE) for renderers that consume ready-made meshes
+  private overlayObjects: Record<string, THREE.Object3D | undefined> = {};
+  // Checksums to debounce redundant space weather geometry rebuilds
+  private spaceWeatherChecksums: Record<string, string> = {};
+  private readonly instanceId: string;
+  private pollerScopes: string[];
+  private readonly spaceAssetsPollerKey: string;
+  private readonly spaceWeatherPollerKey: string;
 
   constructor(config: GlobeEngineConfig) {
+    this.instanceId = `globe-${++GlobeEngine.instanceCounter}`;
+    this.pollerScopes = this.computePollerScopes(config.mode);
+    this.spaceAssetsPollerKey = `${this.instanceId}-space-assets`;
+    this.spaceWeatherPollerKey = `${this.instanceId}-space-weather`;
     this.mode = config.mode;
     this.overlays = config.overlays || [];
     if (config.onEvent) {
@@ -114,74 +146,120 @@ export class GlobeEngine {
     }
   }
 
+  private computePollerScopes(mode: string) {
+    return combineScopes(makeModeScope(mode), makeRouteScope('cybercommand'), makeInstanceScope(this.instanceId));
+  }
+
   private startSpaceAssetsUpdates() {
     this.stopSpaceAssetsUpdates();
-    // Fetch immediately, then every 60s (artifact-driven: periodic/real-time, see globe-overlays.artifact)
-    this.fetchAndUpdateSpaceAssets();
-    this.spaceAssetsInterval = setInterval(() => {
-      this.fetchAndUpdateSpaceAssets();
-    }, 60000);
+    pollerRegistry.register(this.spaceAssetsPollerKey, (signal) => this.fetchAndUpdateSpaceAssets(signal), {
+      intervalMs: 60_000,
+      minIntervalMs: 60_000,
+      jitterMs: 2_000,
+      immediate: true,
+      scope: this.pollerScopes,
+    });
   }
 
   private stopSpaceAssetsUpdates() {
-    if (this.spaceAssetsInterval) {
-      clearInterval(this.spaceAssetsInterval);
-      this.spaceAssetsInterval = null;
-    }
+    pollerRegistry.stop(this.spaceAssetsPollerKey);
   }
 
-  private fetchAndUpdateSpaceAssets() {
+  private async fetchAndUpdateSpaceAssets(signal?: AbortSignal) {
+    if (signal?.aborted) return;
     this.emit('overlayDataLoading', { overlay: 'spaceAssets' });
-    fetchSpaceAssets()
-      .then((data) => {
-        this.overlayDataCache['spaceAssets'] = data;
-        this.setOverlayData('spaceAssets', data);
-      })
-      .catch((err) => {
-        this.emit('overlayDataError', { overlay: 'spaceAssets', error: err?.message || String(err) });
-      });
+    try {
+      const data = await fetchSpaceAssets();
+      if (signal?.aborted) return;
+      this.overlayDataCache['spaceAssets'] = data;
+      this.setOverlayData('spaceAssets', data);
+    } catch (err) {
+      if (signal?.aborted) return;
+      this.emit('overlayDataError', { overlay: 'spaceAssets', error: err instanceof Error ? err.message : String(err) });
+    }
   }
 
   // AI-NOTE: Space weather periodic update methods
   private startSpaceWeatherUpdates() {
     this.stopSpaceWeatherUpdates();
-    // Fetch immediately, then every 5 minutes (matches NOAA update frequency)
-    this.fetchAndUpdateSpaceWeather();
-    this.spaceWeatherInterval = setInterval(() => {
-      this.fetchAndUpdateSpaceWeather();
-    }, 5 * 60 * 1000); // 5 minutes
+    pollerRegistry.register(this.spaceWeatherPollerKey, (signal) => this.fetchAndUpdateSpaceWeather(signal), {
+      intervalMs: 5 * 60 * 1000,
+      minIntervalMs: 5 * 60 * 1000,
+      jitterMs: 5_000,
+      immediate: true,
+      scope: this.pollerScopes,
+    });
   }
 
   private stopSpaceWeatherUpdates() {
-    if (this.spaceWeatherInterval) {
-      clearInterval(this.spaceWeatherInterval);
-      this.spaceWeatherInterval = null;
-    }
+    pollerRegistry.stop(this.spaceWeatherPollerKey);
   }
 
-  private async fetchAndUpdateSpaceWeather() {
+  private async fetchAndUpdateSpaceWeather(signal?: AbortSignal) {
+    if (signal?.aborted) return;
     try {
       this.emit('overlayDataLoading', { overlay: 'spaceWeather' });
       
-      // Fetch both InterMag and US-Canada data
       const [interMagData, usCanadaData] = await Promise.all([
         fetchLatestElectricFieldData('InterMag'),
         fetchLatestElectricFieldData('US-Canada')
       ]);
 
-      // Transform to intelligence markers for globe visualization
+      if (signal?.aborted) return;
+
       const interMagMarkers = transformNOAAToIntelMarkers(interMagData, 'electric-field-intermag');
       const usCanadaMarkers = transformNOAAToIntelMarkers(usCanadaData, 'electric-field-us-canada');
       
-      // Combine both datasets
       const combinedMarkers = [...interMagMarkers, ...usCanadaMarkers];
       
-      // Cache and update - Note: actual rendering will be controlled by Globe component with settings
       this.overlayDataCache['spaceWeather'] = combinedMarkers;
       this.setOverlayData('spaceWeather', combinedMarkers);
-      
+      await this.fetchAndUpdateSpaceWeatherBoundaries(signal);
     } catch (err) {
+      if (signal?.aborted) return;
       this.emit('overlayDataError', { overlay: 'spaceWeather', error: err instanceof Error ? err.message : String(err) });
+    }
+  }
+
+  // AI-NOTE: Modeled boundaries for MVP until live endpoints are wired
+  private async fetchAndUpdateSpaceWeatherBoundaries(signal?: AbortSignal) {
+    if (signal?.aborted) return;
+    try {
+      const { snapshot: solarWind, quality: solarWindQuality } = await fetchLiveSolarWindSnapshot();
+      const { snapshot: kp, quality: kpQuality } = await fetchLiveKpSnapshot();
+
+      if (signal?.aborted) return;
+
+      const now = Date.now();
+      const solarWindAgeMs = Math.max(0, now - Date.parse(solarWind.timestamp));
+      const kpAgeMs = Math.max(0, now - Date.parse(kp.timestamp));
+      const solarWindStale = solarWindAgeMs > GlobeEngine.SOLAR_WIND_STALE_MS;
+      const kpStale = kpAgeMs > GlobeEngine.KP_STALE_MS;
+
+      const magnetopause: MagnetopausePayload = buildMagnetopausePayload(solarWind, solarWindQuality);
+      const bowShock: BowShockPayload = buildBowShockPayload(solarWind, magnetopause.standoffRe, solarWindQuality);
+      const aurora: AuroraPayload = buildAuroralPayload(kp, kpQuality);
+
+      const qualityForSolarWind = solarWindStale ? 'stale' : solarWindQuality;
+      magnetopause.quality = qualityForSolarWind;
+      bowShock.quality = qualityForSolarWind;
+      magnetopause.meta = { ...(magnetopause.meta || {}), stale: solarWindStale, ageMs: solarWindAgeMs };
+      bowShock.meta = { ...(bowShock.meta || {}), stale: solarWindStale, ageMs: solarWindAgeMs };
+
+      const qualityForKp = kpStale ? 'stale' : kpQuality;
+      aurora.quality = qualityForKp;
+      aurora.meta = { ...(aurora.meta || {}), stale: kpStale, ageMs: kpAgeMs };
+
+      this.overlayDataCache['spaceWeatherMagnetopause'] = magnetopause;
+      this.overlayDataCache['spaceWeatherBowShock'] = bowShock;
+      this.overlayDataCache['spaceWeatherAurora'] = aurora;
+
+      this.setOverlayData('spaceWeatherMagnetopause', magnetopause);
+      this.setOverlayData('spaceWeatherBowShock', bowShock);
+      this.setOverlayData('spaceWeatherAurora', aurora);
+    } catch (error) {
+      if (signal?.aborted) return;
+      this.emit('overlayDataError', { overlay: 'spaceWeatherBoundaries', error: error instanceof Error ? error.message : String(error) });
     }
   }
 
@@ -189,10 +267,25 @@ export class GlobeEngine {
    * Switch globe mode (see globe-modes.artifact)
    */
   setMode(mode: string): void {
+    const previousScopes = this.pollerScopes;
+    this.pollerScopes = this.computePollerScopes(mode);
+    previousScopes.forEach((scope) => pollerRegistry.stopAll(scope));
+    this.stopSpaceAssetsUpdates();
+    this.stopSpaceWeatherUpdates();
     this.mode = mode;
     // Artifact-driven: Reset overlays to mode defaults (see globe-modes.artifact, globe-mode-mapping-reference.artifact)
     const modeDefaults: Record<string, string[]> = {
-      CyberCommand: ['alerts', 'intelMarkers', 'markers', 'spaceWeather'],
+      CyberCommand: [
+        'alerts',
+        'intelMarkers',
+        'markers',
+        // Space weather visualizations (electric field + boundaries)
+        'spaceWeatherInterMag',
+        'spaceWeatherUSCanada',
+        'spaceWeatherMagnetopause',
+        'spaceWeatherBowShock',
+        'spaceWeatherAurora',
+      ],
       EcoNatural: ['weather', 'naturalEvents', 'markers', 'spaceWeather'],
       GeoPolitical: ['borders', 'territories', 'markers'],
     };
@@ -315,6 +408,24 @@ export class GlobeEngine {
         this.startSpaceWeatherUpdates();
         return;
       }
+
+      // Modeled space weather boundary overlays (magnetopause, bow shock, aurora)
+      if (overlay === 'spaceWeatherMagnetopause' || overlay === 'spaceWeatherBowShock' || overlay === 'spaceWeatherAurora') {
+        // Start periodic updates if not already running
+        if (!pollerRegistry.isActive(this.spaceWeatherPollerKey)) {
+          this.startSpaceWeatherUpdates();
+        }
+        // If cached data exists, emit immediately; otherwise compute fallback once
+        const cached = this.overlayDataCache[overlay];
+        if (cached) {
+          this.setOverlayData(overlay, cached);
+          this.emit('overlayAdded', overlay);
+          return;
+        }
+        this.fetchAndUpdateSpaceWeatherBoundaries();
+        this.emit('overlayAdded', overlay);
+        return;
+      }
       
       // AI-NOTE: Space weather overlays integration (see NOAA-TDD-Implementation-Summary.md)
       if (overlay === 'spaceWeatherInterMag') {
@@ -333,7 +444,7 @@ export class GlobeEngine {
             });
           });
         // Start space weather updates if not already running
-        if (!this.spaceWeatherInterval) {
+        if (!pollerRegistry.isActive(this.spaceWeatherPollerKey)) {
           this.startSpaceWeatherUpdates();
         }
         return;
@@ -355,7 +466,7 @@ export class GlobeEngine {
             });
           });
         // Start space weather updates if not already running
-        if (!this.spaceWeatherInterval) {
+        if (!pollerRegistry.isActive(this.spaceWeatherPollerKey)) {
           this.startSpaceWeatherUpdates();
         }
         return;
@@ -381,13 +492,27 @@ export class GlobeEngine {
     if (overlay === 'spaceWeather') {
       this.stopSpaceWeatherUpdates();
     }
+    // Stop space weather polling when no spaceWeather overlays remain
+    if (!this.overlays.some(o => o.startsWith('spaceWeather'))) {
+      this.stopSpaceWeatherUpdates();
+    }
   }
 
   /**
    * Update space weather visualization with settings-based processing
    * Called by Globe component when settings change
    */
-  updateSpaceWeatherVisualization(processedData: unknown): void {
+  updateSpaceWeatherVisualization(processedData: unknown, allowedBoundaryOverlays?: string[]): void {
+    if (!this.overlays.includes('spaceWeather')) {
+      this.addOverlay('spaceWeather');
+    }
+    const boundaryList = allowedBoundaryOverlays ?? ['spaceWeatherMagnetopause', 'spaceWeatherBowShock', 'spaceWeatherAurora'];
+    // Only add boundary overlays that the caller allows (respects user toggles)
+    boundaryList.forEach((overlay) => {
+      if (!this.overlays.includes(overlay)) {
+        this.addOverlay(overlay);
+      }
+    });
     this.setOverlayData('spaceWeather', processedData);
   }
 
@@ -406,13 +531,118 @@ export class GlobeEngine {
     return this.overlayData[overlay];
   }
 
+  private computeSpaceWeatherChecksum(
+    overlay: string,
+    payload: MagnetopausePayload | BowShockPayload | AuroraPayload
+  ): string {
+    if (overlay === 'spaceWeatherMagnetopause') {
+      const p = payload as MagnetopausePayload;
+      const pressure = typeof (p.meta as Record<string, unknown> | undefined)?.pressureNPa === 'number'
+        ? (p.meta as { pressureNPa: number }).pressureNPa
+        : 0;
+      return ['mp', p.quality, p.standoffRe.toFixed(3), p.clamped ? '1' : '0', pressure.toFixed(3)].join('|');
+    }
+    if (overlay === 'spaceWeatherBowShock') {
+      const p = payload as BowShockPayload;
+      const pressure = typeof (p.meta as Record<string, unknown> | undefined)?.pressureNPa === 'number'
+        ? (p.meta as { pressureNPa: number }).pressureNPa
+        : 0;
+      return ['bs', p.quality, p.radiusRe.toFixed(3), p.clamped ? '1' : '0', pressure.toFixed(3)].join('|');
+    }
+    if (overlay === 'spaceWeatherAurora') {
+      const p = payload as AuroraPayload;
+      const gradient = p.blackout?.gradient || { inner: 0, outer: 0 };
+      const pulse = (p.meta as Record<string, unknown> | undefined)?.pulse ? '1' : '0';
+      return [
+        'aurora',
+        p.quality,
+        p.kp.toFixed(2),
+        gradient.inner.toFixed(3),
+        gradient.outer.toFixed(3),
+        pulse
+      ].join('|');
+    }
+    return `${overlay}|${JSON.stringify(payload)}`;
+  }
+
   /**
    * Set overlay data (see globe-overlays.artifact)
    */
   setOverlayData(overlay: string, data: unknown): void {
     // AI-NOTE: Overlay data update mechanism should be defined in globe-overlays.artifact
-    this.overlayData[overlay] = data;
+    const isSpaceWeatherBoundary =
+      overlay === 'spaceWeatherMagnetopause' ||
+      overlay === 'spaceWeatherBowShock' ||
+      overlay === 'spaceWeatherAurora';
+
+    if (isSpaceWeatherBoundary && (data === undefined || data === null)) {
+      // Clear stored THREE objects and checksums on teardown
+      if (overlay === 'spaceWeatherAurora') {
+        disposeObject(this.overlayObjects['spaceWeatherAuroraLinesNorth']);
+        disposeObject(this.overlayObjects['spaceWeatherAuroraLinesSouth']);
+        disposeObject(this.overlayObjects['spaceWeatherAuroraBlackout']);
+        this.overlayObjects['spaceWeatherAuroraLinesNorth'] = undefined;
+        this.overlayObjects['spaceWeatherAuroraLinesSouth'] = undefined;
+        this.overlayObjects['spaceWeatherAuroraBlackout'] = undefined;
+      }
+      disposeObject(this.overlayObjects[overlay]);
+      this.overlayObjects[overlay] = undefined;
+      delete this.spaceWeatherChecksums[overlay];
+    }
+
+    if (isSpaceWeatherBoundary && data && typeof data === 'object') {
+      const checksum = this.computeSpaceWeatherChecksum(
+        overlay,
+        data as MagnetopausePayload | BowShockPayload | AuroraPayload
+      );
+      const previousChecksum = this.spaceWeatherChecksums[overlay];
+      // Keep caches in sync even when we debounce rebuilds
+      this.overlayDataCache[overlay] = data;
+      this.overlayData[overlay] = data;
+      if (previousChecksum === checksum) {
+        this.emit('overlayDataUpdated', { overlay, data, unchanged: true });
+        return;
+      }
+      this.spaceWeatherChecksums[overlay] = checksum;
+    } else {
+      this.overlayData[overlay] = data;
+    }
+
+    // Build THREE objects for space weather boundary overlays so consumers can attach them
+    if (overlay === 'spaceWeatherMagnetopause' && data && typeof data === 'object') {
+      const payload = data as MagnetopausePayload;
+      disposeObject(this.overlayObjects[overlay]);
+      this.overlayObjects[overlay] = createMagnetopauseMesh(payload);
+      logVertexCount('Magnetopause shell', this.overlayObjects[overlay]!);
+    }
+    if (overlay === 'spaceWeatherBowShock' && data && typeof data === 'object') {
+      const payload = data as BowShockPayload;
+      disposeObject(this.overlayObjects[overlay]);
+      this.overlayObjects[overlay] = createBowShockMesh(payload);
+      logVertexCount('Bow shock shell', this.overlayObjects[overlay]!);
+    }
+    if (overlay === 'spaceWeatherAurora' && data && typeof data === 'object') {
+      const payload = data as AuroraPayload;
+      disposeObject(this.overlayObjects['spaceWeatherAuroraLinesNorth']);
+      disposeObject(this.overlayObjects['spaceWeatherAuroraLinesSouth']);
+      disposeObject(this.overlayObjects['spaceWeatherAuroraBlackout']);
+      const lines = createAuroraLines(payload);
+      this.overlayObjects['spaceWeatherAuroraLinesNorth'] = lines.north;
+      this.overlayObjects['spaceWeatherAuroraLinesSouth'] = lines.south;
+      this.overlayObjects['spaceWeatherAuroraBlackout'] = createAuroraBlackoutMesh(payload);
+      logVertexCount('Aurora lines north', lines.north);
+      logVertexCount('Aurora lines south', lines.south);
+      logVertexCount('Aurora blackout band', this.overlayObjects['spaceWeatherAuroraBlackout']!);
+    }
+
     this.emit('overlayDataUpdated', { overlay, data });
+  }
+
+  /**
+   * Retrieve overlay THREE object(s) if available
+   */
+  getOverlayObject(overlay: string): THREE.Object3D | undefined {
+    return this.overlayObjects[overlay];
   }
 
   /**

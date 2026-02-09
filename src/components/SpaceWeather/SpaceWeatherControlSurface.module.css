@@ -1,0 +1,287 @@
+.surface {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 6px;
+  border: 1px solid rgba(0, 196, 255, 0.25);
+  border-radius: 4px;
+  background: rgba(0, 10, 20, 0.65);
+}
+
+.surfaceSwitching {
+  border-color: rgba(126, 238, 255, 0.65);
+  box-shadow: 0 0 12px rgba(0, 196, 255, 0.25);
+}
+
+.surfaceHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: rgba(224, 247, 255, 0.85);
+}
+
+.layerChip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+}
+
+.layerChip span:first-child {
+  font-size: 14px;
+}
+
+.timestamp {
+  font-size: 10px;
+  color: rgba(224, 247, 255, 0.65);
+}
+
+.switchNotice {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: rgba(224, 247, 255, 0.7);
+}
+
+.infoButton {
+  border: none;
+  background: transparent;
+  color: rgba(224, 247, 255, 0.9);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0 2px;
+}
+
+.contextPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-top: 1px solid rgba(126, 238, 255, 0.15);
+  padding-top: 6px;
+}
+
+.contextPanelBody {
+  animation: panelFade 0.18s ease;
+}
+
+.telemetryHistory {
+  border-top: 1px solid rgba(126, 238, 255, 0.15);
+  padding-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.telemetryHistoryHeader {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: rgba(224, 247, 255, 0.6);
+}
+
+.telemetryHistoryRange {
+  opacity: 0.6;
+}
+
+.telemetryHistoryList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.telemetryHistoryRow {
+  border: 1px solid rgba(126, 238, 255, 0.2);
+  border-radius: 4px;
+  padding: 4px;
+  background: rgba(0, 12, 24, 0.7);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.telemetryHistoryRowHeader {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: rgba(224, 247, 255, 0.8);
+}
+
+.telemetryTime {
+  font-variant-numeric: tabular-nums;
+}
+
+.telemetryProvider {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+  font-size: 10px;
+}
+
+.telemetryProviderIcon {
+  font-size: 12px;
+}
+
+.telemetryHistoryRowBody {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.telemetryCounts {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+  color: rgba(224, 247, 255, 0.9);
+}
+
+.telemetrySamples {
+  font-variant-numeric: tabular-nums;
+}
+
+.telemetryDelta {
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.telemetryDeltaPositive {
+  color: #6effa1;
+}
+
+.telemetryDeltaNegative {
+  color: #ff7d7d;
+}
+
+.telemetryDeltaNeutral {
+  color: rgba(224, 247, 255, 0.6);
+}
+
+.telemetryStatusRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 9px;
+}
+
+.telemetryStatus {
+  padding: 2px 6px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  font-weight: 600;
+  font-size: 9px;
+}
+
+.telemetryStatusOk {
+  background: rgba(110, 255, 161, 0.1);
+  color: #6effa1;
+}
+
+.telemetryStatusWarn {
+  background: rgba(255, 125, 125, 0.12);
+  color: #ffb4b4;
+}
+
+.telemetryDatasets {
+  color: rgba(224, 247, 255, 0.65);
+  font-size: 9px;
+  text-align: right;
+}
+
+.datasetButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.datasetButton {
+  flex: 1 1 calc(50% - 4px);
+  border-radius: 4px;
+  border: 1px solid rgba(126, 238, 255, 0.25);
+  background: rgba(0, 18, 36, 0.7);
+  color: #e0f7ff;
+  font-size: 10px;
+  padding: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.datasetButtonActive {
+  border-color: rgba(126, 238, 255, 0.9);
+  background: rgba(0, 40, 70, 0.85);
+}
+
+.inlineMetrics {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11px;
+}
+
+.metricRow {
+  display: flex;
+  justify-content: space-between;
+  color: rgba(224, 247, 255, 0.9);
+}
+
+.metricLabel {
+  opacity: 0.7;
+}
+
+.toggleRow {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.toggleButton {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 4px;
+  border: 1px solid rgba(126, 238, 255, 0.3);
+  background: rgba(0, 14, 28, 0.75);
+  padding: 4px;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.toggleButtonActive {
+  border-color: rgba(0, 196, 255, 0.7);
+  background: rgba(0, 35, 60, 0.85);
+}
+
+.lastUpdated {
+  font-size: 9px;
+  color: rgba(224, 247, 255, 0.6);
+  text-align: right;
+}
+
+.fallback {
+  font-size: 10px;
+  color: rgba(224, 247, 255, 0.65);
+  line-height: 1.4;
+}
+
+.providerSelectorInline {
+  margin-top: 4px;
+}
+
+@keyframes panelFade {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

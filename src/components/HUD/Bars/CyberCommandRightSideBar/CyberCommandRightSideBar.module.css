@@ -420,9 +420,9 @@
   cursor: pointer;
 }
 
-/* Mission Control Interface Styles */
+/* Status Interface Styles (formerly Mission Control) */
 
-/* Mission Header */
+/* Status Header */
 .missionHeader {
   display: flex;
   justify-content: space-between;

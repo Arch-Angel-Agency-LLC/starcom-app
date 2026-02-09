@@ -258,6 +258,46 @@ describe('SolarActivityVisualizer - Phase 2 Week 5 TDD Implementation', () => {
       expect(activeFlares.length).toBe(2); // Should be limited to maxActiveFlares
     });
 
+    it('reuses pooled flare particle instances after release', () => {
+      const config: Partial<SolarActivityConfig> = {
+        maxActiveFlares: 2,
+        flarePoolSize: 1
+      };
+
+      visualizer = new SolarActivityVisualizer(scene, sunMesh, mockNoaaService, config);
+
+      const addFlare = (visualizer as any).addFlare.bind(visualizer);
+      const removeFlare = (visualizer as any).removeFlare.bind(visualizer);
+
+      addFlare({ ...mockSolarFlare, id: 'pool-a' });
+      const first = (visualizer as any).activeFlares.get('pool-a').particles;
+
+      removeFlare('pool-a');
+
+      addFlare({ ...mockSolarFlare, id: 'pool-b' });
+      const second = (visualizer as any).activeFlares.get('pool-b').particles;
+
+      expect(second).toBe(first);
+    });
+
+    it('tracks pool cap hits and prevents over-allocation', () => {
+      const config: Partial<SolarActivityConfig> = {
+        maxActiveFlares: 2,
+        flarePoolSize: 1
+      };
+
+      visualizer = new SolarActivityVisualizer(scene, sunMesh, mockNoaaService, config);
+
+      const addFlare = (visualizer as any).addFlare.bind(visualizer);
+
+      addFlare({ ...mockSolarFlare, id: 'cap-1' });
+      addFlare({ ...mockSolarFlare, id: 'cap-2' });
+
+      const stats = visualizer.getPerformanceStats();
+      expect(stats.activeFlareCount).toBe(1);
+      expect(stats.flarePoolCapHits).toBeGreaterThanOrEqual(1);
+    });
+
     it('should calculate flare position from solar coordinates', () => {
       visualizer = new SolarActivityVisualizer(scene, sunMesh, mockNoaaService);
       
@@ -312,6 +352,64 @@ describe('SolarActivityVisualizer - Phase 2 Week 5 TDD Implementation', () => {
       updateFlares.call(visualizer);
       
       expect(visualizer.getActiveFlares().length).toBe(0);
+    });
+
+    it('returns pooled flares on pause', () => {
+      const config: Partial<SolarActivityConfig> = {
+        flarePoolSize: 1,
+        maxActiveFlares: 1
+      };
+
+      visualizer = new SolarActivityVisualizer(scene, sunMesh, mockNoaaService, config);
+
+      const addFlare = (visualizer as any).addFlare.bind(visualizer);
+      addFlare({ ...mockSolarFlare, id: 'pause-return' });
+
+      expect(visualizer.getActiveFlares().length).toBe(1);
+
+      visualizer.pause();
+
+      const stats = visualizer.getPerformanceStats();
+      expect(visualizer.getActiveFlares().length).toBe(0);
+      expect(stats.flarePoolAvailable).toBeGreaterThanOrEqual(1);
+    });
+
+    it('keeps pool bounded under churn', () => {
+      const config: Partial<SolarActivityConfig> = {
+        flarePoolSize: 2,
+        maxActiveFlares: 2
+      };
+
+      visualizer = new SolarActivityVisualizer(scene, sunMesh, mockNoaaService, config);
+      const addFlare = (visualizer as any).addFlare.bind(visualizer);
+      const removeFlare = (visualizer as any).removeFlare.bind(visualizer);
+
+      for (let i = 0; i < 10; i++) {
+        addFlare({ ...mockSolarFlare, id: `churn-${i}` });
+        removeFlare(`churn-${i}`);
+      }
+
+      const stats = visualizer.getPerformanceStats();
+      expect(stats.activeFlareCount).toBe(0);
+      expect(stats.flarePoolAvailable).toBeLessThanOrEqual(2);
+      expect(stats.flarePoolCapHits).toBeGreaterThanOrEqual(0);
+    });
+
+    it('emits telemetry when pool hits cap', () => {
+      const events: any[] = [];
+      const config: Partial<SolarActivityConfig> = {
+        flarePoolSize: 1,
+        maxActiveFlares: 2,
+        onFlarePoolEvent: event => events.push(event)
+      };
+
+      visualizer = new SolarActivityVisualizer(scene, sunMesh, mockNoaaService, config);
+      const addFlare = (visualizer as any).addFlare.bind(visualizer);
+
+      addFlare({ ...mockSolarFlare, id: 'cap-telemetry-1' });
+      addFlare({ ...mockSolarFlare, id: 'cap-telemetry-2' });
+
+      expect(events.find(e => e?.type === 'cap-hit')).toBeDefined();
     });
   });
 

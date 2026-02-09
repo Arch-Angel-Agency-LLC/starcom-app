@@ -4,7 +4,7 @@
 // Bridges the gap between settings, data fetching, and Globe visualization
 // Enhanced with enterprise capabilities and advanced data processing
 
-import React, { createContext, ReactNode, useState, useCallback, useEffect, useRef } from 'react';
+import React, { createContext, ReactNode, useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import type { ElectricFieldVector } from '../types';
 import { useEcoNaturalSettings } from '../hooks/useEcoNaturalSettings';
 import { useSpaceWeatherData } from '../hooks/useSpaceWeatherData';
@@ -19,6 +19,9 @@ import { createNoaaInterMagAdapter } from '../services/space-weather/adapters/No
 import { createNoaaUSCanadaAdapter } from '../services/space-weather/adapters/NoaaUSCanadaAdapter';
 import { spaceWeatherDiagnostics, SpaceWeatherDiagnosticsState } from '../services/space-weather/SpaceWeatherDiagnostics';
 import { visualizationResourceMonitor } from '../services/visualization/VisualizationResourceMonitor';
+import { recordSpaceWeatherTelemetrySnapshot, getSpaceWeatherTelemetryHistory, type SpaceWeatherTelemetrySnapshot } from '../utils/spaceWeatherTelemetryTracker';
+import { pollerRegistry, type PollerHandle } from '../services/pollerRegistry';
+import { combineScopes, makeModeScope, makeRouteScope } from '../services/pollerScopes';
 // Tertiary mode data hooks (Phase 1 stubs)
 import { useGeomagneticData } from '../hooks/useGeomagneticData';
 import { useAuroralOvalData } from '../hooks/useAuroralOvalData';
@@ -57,7 +60,7 @@ export interface VisualizationVector {
   anomaly?: boolean;
 }
 
-interface SpaceWeatherContextType {
+export interface SpaceWeatherContextType {
   // Settings
   settings: ReturnType<typeof useEcoNaturalSettings>['config']['spaceWeather'];
   updateSettings: ReturnType<typeof useEcoNaturalSettings>['updateSpaceWeather'];
@@ -92,6 +95,7 @@ interface SpaceWeatherContextType {
   telemetry: {
     rawInterMag: number;
     rawUSCanada: number;
+    rawPipeline: number;
     combinedRaw: number;
     sampled: number;
     rendered: number;
@@ -105,14 +109,15 @@ interface SpaceWeatherContextType {
   pipelineActive: boolean;
     // Tertiary visualization modes (stub telemetry Phase 1)
     modes: {
-      geomagnetic: { active: boolean; kp: number | null; lastUpdate: number | null };
-      auroralOval: { active: boolean; resolution: string | null; lastUpdate: number | null };
-      solarWind: { active: boolean; speed: number | null; density: number | null; bz: number | null; lastUpdate: number | null };
-      magnetopause: { active: boolean; standoffRe: number | null; lastUpdate: number | null };
-      magneticField: { active: boolean; sampleCount: number | null; lastUpdate: number | null };
+      geomagnetic: { active: boolean; kp: number | null; lastUpdate: number | null; quality?: 'live' | 'fallback' | 'stale' };
+      auroralOval: { active: boolean; resolution: string | null; lastUpdate: number | null; quality?: 'live' | 'fallback' | 'stale' };
+      solarWind: { active: boolean; speed: number | null; density: number | null; bz: number | null; lastUpdate: number | null; quality?: 'live' | 'fallback' | 'stale' };
+      magnetopause: { active: boolean; standoffRe: number | null; lastUpdate: number | null; quality?: 'live' | 'fallback' | 'stale' };
+      magneticField: { active: boolean; sampleCount: number | null; lastUpdate: number | null; quality?: 'live' | 'fallback' | 'stale' };
     };
     diagnostics: SpaceWeatherDiagnosticsState;
   };
+  telemetryHistory: SpaceWeatherTelemetrySnapshot[];
   diagnostics: SpaceWeatherDiagnosticsState;
   
   // Enhanced feature controls
@@ -144,7 +149,7 @@ export const SpaceWeatherProvider: React.FC<{ children: ReactNode }> = ({ childr
   const [pipelineVectors, setPipelineVectors] = useState<VisualizationVector[] | null>(null);
   const [pipelineMeta, setPipelineMeta] = useState<null | { adapterCount: number; fetchMs: number; failures: number; totalVectors: number; lastFetch: number }>(null);
   const [lastPipelineError, setLastPipelineError] = useState<string | null>(null);
-  const pipelineIntervalRef = useRef<number | null>(null);
+  const pipelinePollerHandleRef = useRef<PollerHandle | null>(null);
   const orchestratorRef = useRef<ReturnType<typeof createAdapterOrchestrator> | null>(null);
   const [diagnosticsState, setDiagnosticsState] = useState<SpaceWeatherDiagnosticsState>(() => spaceWeatherDiagnostics.getState());
 
@@ -317,7 +322,6 @@ export const SpaceWeatherProvider: React.FC<{ children: ReactNode }> = ({ childr
   const shouldShowSpaceWeatherVisualization = (
     visualizationMode.mode === 'EcoNatural' &&
     visualizationMode.subMode === 'SpaceWeather' &&
-    activeLayer === 'electricFields' &&
     isElectricFieldsEnabled
   );
   // Performance metrics ref must be defined before hooks that reference it
@@ -332,7 +336,22 @@ export const SpaceWeatherProvider: React.FC<{ children: ReactNode }> = ({ childr
     }
     
     // Simple cache key (timestamps + key normalization settings + flags)
-    const cacheKey = `${baseData.interMagData?.timestamp || 'none'}|${baseData.usCanadaData?.timestamp || 'none'}|${config.spaceWeather.enhancedSampling ? 1:0}|${config.spaceWeather.normalization.method}|${config.spaceWeather.normalization.outlierFactor}|${config.spaceWeather.normalization.smoothingFactor}|${config.spaceWeather.pipelineEnabled ? 1:0}`;
+    const cacheKey = [
+      baseData.interMagData?.timestamp || 'none',
+      baseData.usCanadaData?.timestamp || 'none',
+      config.spaceWeather.enhancedSampling ? 1 : 0,
+      config.spaceWeather.samplingMode || 'legacy-topN',
+      config.spaceWeather.gridBinSize,
+      config.spaceWeather.legacyCap,
+      config.spaceWeather.magnitudeFloor,
+      config.spaceWeather.normalization.method,
+      config.spaceWeather.normalization.outlierFactor,
+      config.spaceWeather.normalization.smoothingFactor,
+      config.spaceWeather.pipelineEnabled ? 1 : 0,
+      config.spaceWeather.enabledDatasets.intermag ? 1 : 0,
+      config.spaceWeather.enabledDatasets.usCanada ? 1 : 0,
+      config.spaceWeather.enabledDatasets.pipeline ? 1 : 0
+    ].join('|');
 
     // Local static cache (scoped to provider lifetime)
   const cache = vectorCacheRef.current;
@@ -345,13 +364,22 @@ export const SpaceWeatherProvider: React.FC<{ children: ReactNode }> = ({ childr
     const degradationStages: number[] = [];
 
     // Source vectors: prefer pipeline when enabled & available
-    const interMagVectors = baseData.interMagData?.vectors || [];
-    const usCanadaVectors = baseData.usCanadaData?.vectors || [];
-    const legacyAll = [...interMagVectors, ...usCanadaVectors];
-    const pipelineActive = config.spaceWeather.pipelineEnabled && pipelineVectors && pipelineVectors.length > 0;
+    const pipelineDatasetEnabled = config.spaceWeather.enabledDatasets.pipeline;
+    const pipelineActive = config.spaceWeather.pipelineEnabled && pipelineDatasetEnabled && pipelineVectors && pipelineVectors.length > 0;
     // When pipeline active, treat pipelineVectors as already (legacy) normalized raw domain vectors for sampling path
-    interface RawVectorLike { latitude: number; longitude: number; magnitude: number; direction: number; quality: number; ex: number; ey: number; stationDistance?: number }
-    function toRaw(v: ElectricFieldVector): RawVectorLike {
+    type VectorDataset = 'intermag' | 'uscanada' | 'pipeline';
+    interface RawVectorLike {
+      latitude: number;
+      longitude: number;
+      magnitude: number;
+      direction: number;
+      quality: number;
+      ex: number;
+      ey: number;
+      stationDistance?: number;
+      dataset?: VectorDataset;
+    }
+    function toRaw(v: ElectricFieldVector, dataset: VectorDataset): RawVectorLike {
       return {
         latitude: v.latitude,
         longitude: v.longitude,
@@ -360,50 +388,77 @@ export const SpaceWeatherProvider: React.FC<{ children: ReactNode }> = ({ childr
         quality: v.quality,
         ex: v.ex ?? 0,
         ey: v.ey ?? 0,
-        stationDistance: (v as unknown as { stationDistance?: number }).stationDistance ?? 0
+        stationDistance: (v as unknown as { stationDistance?: number }).stationDistance ?? 0,
+        dataset
       };
     }
-    const allVectors: RawVectorLike[] = pipelineActive
-      ? pipelineVectors.map(v => ({ latitude: v.latitude, longitude: v.longitude, magnitude: v.magnitude, direction: v.direction, quality: v.quality, ex: 0, ey: 0, stationDistance: 0 }))
-      : (legacyAll as ElectricFieldVector[]).map(toRaw);
+    const rawInterMagVectors = baseData.interMagData?.vectors || [];
+    const rawUSCanadaVectors = baseData.usCanadaData?.vectors || [];
+    const interMagVectors = config.spaceWeather.enabledDatasets.intermag ? rawInterMagVectors : [];
+    const usCanadaVectors = config.spaceWeather.enabledDatasets.usCanada ? rawUSCanadaVectors : [];
 
-    if (!allVectors.length) return [];
+    const sourceVectors: RawVectorLike[] = pipelineActive
+      ? pipelineVectors.map(v => ({ latitude: v.latitude, longitude: v.longitude, magnitude: v.magnitude, direction: v.direction, quality: v.quality, ex: 0, ey: 0, stationDistance: 0, dataset: 'pipeline' }))
+      : [
+          ...(interMagVectors as ElectricFieldVector[]).map(vec => toRaw(vec, 'intermag')),
+          ...(usCanadaVectors as ElectricFieldVector[]).map(vec => toRaw(vec, 'uscanada'))
+        ];
 
-  const legacySamplingCap = 500;
-  // Feature flag (persisted setting OR window global) for new sampling approach
-  const enhancedSamplingEnabled: boolean = config.spaceWeather.enhancedSampling === true || window.STARCOM_SPACEWEATHER_ENHANCED_SAMPLING === true;
+    if (!sourceVectors.length) return [];
 
-    let sampledVectors: typeof allVectors = [];
+    const magnitudeFloor = Math.max(0, config.spaceWeather.magnitudeFloor ?? 0);
+    const filteredVectors = magnitudeFloor > 0
+      ? sourceVectors.filter(v => Math.abs(v.magnitude) >= magnitudeFloor)
+      : sourceVectors;
+
+    if (!filteredVectors.length) return [];
+
+    const legacySamplingCap = Math.max(50, config.spaceWeather.legacyCap ?? 500);
+    // Feature flag (persisted setting OR window global) for new sampling approach
+    const enhancedSamplingEnabled: boolean = config.spaceWeather.enhancedSampling === true || window.STARCOM_SPACEWEATHER_ENHANCED_SAMPLING === true;
+    const samplingModeSetting: 'legacy-topN' | 'grid-binning' = config.spaceWeather.samplingMode || (enhancedSamplingEnabled ? 'grid-binning' : 'legacy-topN');
+    const useGridSampling = samplingModeSetting === 'grid-binning';
+    const gridBinSize = Math.max(1, config.spaceWeather.gridBinSize ?? 5);
+
+    let sampledVectors: RawVectorLike[] = [];
     const samplingStart = performance.now();
-    if (enhancedSamplingEnabled) {
-      // Provisional grid/bin sampling (simple lat/lon binning) to improve spatial fairness
-  const BIN_SIZE_DEG = 5; // base grid size
-      const bins = new Map<string, { v: typeof allVectors[number] }>();
-      for (const v of allVectors) {
-        if (v.quality < 3) continue; // quality pre-filter
-        const latBin = Math.floor((v.latitude + 90) / BIN_SIZE_DEG);
-        const lonBin = Math.floor((v.longitude + 180) / BIN_SIZE_DEG);
+    const gridSampleVectors = (vectors: RawVectorLike[]) => {
+      const bins = new Map<string, RawVectorLike>();
+      for (const v of vectors) {
+        if (v.quality < 1) continue; // softened quality pre-filter
+        const latBin = Math.floor((v.latitude + 90) / gridBinSize);
+        const lonBin = Math.floor((v.longitude + 180) / gridBinSize);
         const key = `${latBin}:${lonBin}`;
         const existing = bins.get(key);
         if (!existing) {
-          bins.set(key, { v });
+          bins.set(key, v);
         } else {
-          // Pick representative: higher magnitude*quality wins
-            const scoreNew = v.magnitude * (v.quality || 1);
-            const scoreOld = existing.v.magnitude * (existing.v.quality || 1);
-            if (scoreNew > scoreOld) bins.set(key, { v });
+          const scoreNew = v.magnitude * (v.quality || 1);
+          const scoreOld = existing.magnitude * (existing.quality || 1);
+          if (scoreNew > scoreOld) bins.set(key, v);
         }
       }
-      sampledVectors = Array.from(bins.values()).map(b => b.v);
+      return Array.from(bins.values());
+    };
+
+    if (useGridSampling) {
+      if (pipelineActive) {
+        sampledVectors = gridSampleVectors(filteredVectors);
+      } else {
+        // Ensure each legacy feed contributes representatives per spatial bin
+        const interMagSampled = gridSampleVectors(filteredVectors.filter(v => v.dataset === 'intermag'));
+        const usCanadaSampled = gridSampleVectors(filteredVectors.filter(v => v.dataset === 'uscanada'));
+        sampledVectors = [...interMagSampled, ...usCanadaSampled];
+      }
     } else {
       // Legacy biased top-N sampling
-      if (allVectors.length > legacySamplingCap) {
-        const sortedVectors = allVectors
-          .filter(v => v.quality >= 3)
+      if (filteredVectors.length > legacySamplingCap) {
+        const sortedVectors = filteredVectors
+          .filter(v => v.quality >= 1)
           .sort((a, b) => (b.magnitude * b.quality) - (a.magnitude * a.quality));
         sampledVectors = sortedVectors.slice(0, legacySamplingCap);
       } else {
-        sampledVectors = allVectors.filter(v => v.quality >= 3);
+        sampledVectors = filteredVectors.filter(v => v.quality >= 1);
       }
     }
     samplingMs = performance.now() - samplingStart;
@@ -418,7 +473,7 @@ export const SpaceWeatherProvider: React.FC<{ children: ReactNode }> = ({ childr
     };
     
     // Adaptive degradation triggers
-  const combinedRaw = allVectors.length;
+  const combinedRaw = filteredVectors.length;
     const adaptiveStart = performance.now();
     // Bridge type for normalization (expects ElectricFieldVector shape). Pipeline-injected vectors include minimal ex/ey.
   const normalizedVectorsPrePass = normalizeElectricFieldVectors(sampledVectors as unknown as ElectricFieldVector[], normalizationConfig);
@@ -442,8 +497,8 @@ export const SpaceWeatherProvider: React.FC<{ children: ReactNode }> = ({ childr
     
   const finalVectors = normalizedVectors
       .filter(vector => {
-        // Magnitude threshold for visualization
-        const magnitudeThreshold = 50 / 1000; // 50 mV converted to V
+        // Magnitude threshold for visualization (lowered to keep quiet conditions visible)
+        const magnitudeThreshold = 20 / 1000; // 20 mV converted to V
         return vector.originalMagnitude >= magnitudeThreshold;
       })
       .map(vector => {
@@ -467,8 +522,14 @@ export const SpaceWeatherProvider: React.FC<{ children: ReactNode }> = ({ childr
         
         // Dataset hue shift (Phase 0 differentiation)
   // Determine dataset by approximate matching (compare coordinates & magnitude) – Phase 0 lightweight approach
-  const isInterMag = !pipelineActive && interMagVectors.some(v => v.latitude === vector.latitude && v.longitude === vector.longitude && v.magnitude === vector.originalMagnitude);
-        const datasetHue = isInterMag ? 'cyan' : 'orange';
+        const datasetTag = (vector as typeof vector & { dataset?: VectorDataset }).dataset;
+        const datasetHue = pipelineActive
+          ? 'white'
+          : datasetTag === 'intermag'
+            ? 'cyan'
+            : datasetTag === 'uscanada'
+              ? 'orange'
+              : 'magenta';
         // Blend dataset hue with magnitude-based color by simple precedence (keep existing ramp if high percentile)
         const finalColor = vector.percentileRank >= 50 ? color : (datasetHue === 'cyan' ? `rgba(0,200,255,${vectorSettings.opacity})` : `rgba(255,140,0,${vectorSettings.opacity})`);
         const result = {
@@ -499,6 +560,11 @@ export const SpaceWeatherProvider: React.FC<{ children: ReactNode }> = ({ childr
     config.spaceWeather.normalization,
   config.spaceWeather.pipelineEnabled,
   config.spaceWeather.enhancedSampling,
+  config.spaceWeather.enabledDatasets,
+  config.spaceWeather.gridBinSize,
+  config.spaceWeather.legacyCap,
+  config.spaceWeather.magnitudeFloor,
+  config.spaceWeather.samplingMode,
   shouldShowSpaceWeatherVisualization,
   pipelineVectors
   ]);
@@ -507,23 +573,32 @@ export const SpaceWeatherProvider: React.FC<{ children: ReactNode }> = ({ childr
 
   // Telemetry diagnostics (extended)
   const telemetry = React.useMemo(() => {
-    const rawInterMag = baseData.interMagData?.vectors.length || 0;
-    const rawUSCanada = baseData.usCanadaData?.vectors.length || 0;
-    const combinedRaw = rawInterMag + rawUSCanada;
-    const enhancedSamplingActive = config.spaceWeather.enhancedSampling === true || window.STARCOM_SPACEWEATHER_ENHANCED_SAMPLING === true;
+    const datasetPrefs = config.spaceWeather.enabledDatasets;
+    const rawInterMagTotal = baseData.interMagData?.vectors.length || 0;
+    const rawUSCanadaTotal = baseData.usCanadaData?.vectors.length || 0;
+    const pipelineCountTotal = pipelineVectors?.length || 0;
+    const rawInterMag = datasetPrefs.intermag ? rawInterMagTotal : 0;
+    const rawUSCanada = datasetPrefs.usCanada ? rawUSCanadaTotal : 0;
+    const rawPipeline = datasetPrefs.pipeline ? pipelineCountTotal : 0;
+    const enhancedSamplingFlag = config.spaceWeather.enhancedSampling === true || window.STARCOM_SPACEWEATHER_ENHANCED_SAMPLING === true;
+    const samplingModeSetting: 'legacy-topN' | 'grid-binning' = config.spaceWeather.samplingMode || (enhancedSamplingFlag ? 'grid-binning' : 'legacy-topN');
+    const combinedRaw = rawInterMag + rawUSCanada + rawPipeline;
     let gatingReason: null | 'inactiveLayer' | 'disabled' | 'noData' = null;
     if (!shouldShowSpaceWeatherVisualization) {
-      if (config.spaceWeather.activeLayer !== 'electricFields') gatingReason = 'inactiveLayer';
-      else if (!isElectricFieldsEnabled) gatingReason = 'disabled';
+      if (!isElectricFieldsEnabled) gatingReason = 'disabled';
       else if (combinedRaw === 0) gatingReason = 'noData';
+    } else if (config.spaceWeather.activeLayer !== 'electricFields') {
+      // Render electric vectors as fallback even when a non-electric layer is selected; surface gating reason for UX.
+      gatingReason = 'inactiveLayer';
     }
     return {
       rawInterMag,
       rawUSCanada,
+      rawPipeline,
       combinedRaw,
       sampled: visualizationVectors.length,
       rendered: visualizationVectors.length,
-      samplingStrategy: (enhancedSamplingActive ? 'grid-binning' : 'legacy-topN') as 'grid-binning' | 'legacy-topN',
+      samplingStrategy: samplingModeSetting,
       unit: 'mV/km' as const,
       gatingReason,
       timings: { samplingMs: perfRef.current.samplingMs, normalizationMs: perfRef.current.normalizationMs, totalMs: perfRef.current.totalMs },
@@ -538,13 +613,13 @@ export const SpaceWeatherProvider: React.FC<{ children: ReactNode }> = ({ childr
         lastFetch: pipelineMeta.lastFetch,
         lastError: lastPipelineError
       } : null,
-      pipelineActive: !!(config.spaceWeather.pipelineEnabled && pipelineMeta),
+      pipelineActive: !!(config.spaceWeather.pipelineEnabled && datasetPrefs.pipeline && pipelineMeta),
       modes: {
-        geomagnetic: { active: geomagneticActive, kp: geomagnetic.data?.kp ?? null, lastUpdate: geomagnetic.lastUpdated?.getTime() ?? null },
-        auroralOval: { active: auroralOvalActive, resolution: auroralOval.data?.resolution ?? null, lastUpdate: auroralOval.lastUpdated?.getTime() ?? null },
-        solarWind: { active: solarWindActive, speed: solarWind.data?.speed ?? null, density: solarWind.data?.density ?? null, bz: solarWind.data?.bz ?? null, lastUpdate: solarWind.lastUpdated?.getTime() ?? null },
-        magnetopause: { active: magnetopauseActive, standoffRe: magnetopause.data?.standoffRe ?? null, lastUpdate: magnetopause.lastUpdated?.getTime() ?? null },
-        magneticField: { active: magneticFieldActive, sampleCount: magneticField.data?.sampleCount ?? null, lastUpdate: magneticField.lastUpdated?.getTime() ?? null }
+        geomagnetic: { active: geomagneticActive, kp: geomagnetic.data?.kp ?? null, lastUpdate: geomagnetic.lastUpdated?.getTime() ?? null, quality: geomagnetic.data?.quality ?? 'live' },
+        auroralOval: { active: auroralOvalActive, resolution: auroralOval.data?.resolution ?? null, lastUpdate: auroralOval.lastUpdated?.getTime() ?? null, quality: auroralOval.data?.quality ?? 'live' },
+        solarWind: { active: solarWindActive, speed: solarWind.data?.speed ?? null, density: solarWind.data?.density ?? null, bz: solarWind.data?.bz ?? null, lastUpdate: solarWind.lastUpdated?.getTime() ?? null, quality: solarWind.data?.quality ?? 'live' },
+        magnetopause: { active: magnetopauseActive, standoffRe: magnetopause.data?.standoffRe ?? null, lastUpdate: magnetopause.lastUpdated?.getTime() ?? null, quality: magnetopause.data?.quality ?? 'live' },
+        magneticField: { active: magneticFieldActive, sampleCount: magneticField.data?.sampleCount ?? null, lastUpdate: magneticField.lastUpdated?.getTime() ?? null, quality: magneticField.data?.quality ?? 'live' }
       },
       diagnostics: diagnosticsState
     };
@@ -553,11 +628,14 @@ export const SpaceWeatherProvider: React.FC<{ children: ReactNode }> = ({ childr
     baseData.usCanadaData,
     visualizationVectors,
     config.spaceWeather.enhancedSampling,
+    config.spaceWeather.samplingMode,
     config.spaceWeather.activeLayer,
+    config.spaceWeather.enabledDatasets,
     isElectricFieldsEnabled,
     shouldShowSpaceWeatherVisualization,
     pipelineMeta,
   config.spaceWeather.pipelineEnabled,
+  pipelineVectors,
   lastPipelineError,
   geomagneticActive, auroralOvalActive, solarWindActive, magnetopauseActive, magneticFieldActive,
   geomagnetic.data, auroralOval.data, solarWind.data, magnetopause.data, magneticField.data,
@@ -565,12 +643,74 @@ export const SpaceWeatherProvider: React.FC<{ children: ReactNode }> = ({ childr
   diagnosticsState
   ]);
 
+  // Phase 2.4: telemetry snapshot tracker
+  useEffect(() => {
+    recordSpaceWeatherTelemetrySnapshot({
+      provider: currentProvider,
+      activeLayer: config.spaceWeather.activeLayer,
+      samplingStrategy: telemetry.samplingStrategy,
+      rawInterMag: telemetry.rawInterMag,
+      rawUSCanada: telemetry.rawUSCanada,
+      rawPipeline: telemetry.rawPipeline,
+      combinedRaw: telemetry.combinedRaw,
+      sampled: telemetry.sampled,
+      rendered: telemetry.rendered,
+      gatingReason: telemetry.gatingReason,
+      datasetFlags: {
+        intermag: config.spaceWeather.enabledDatasets.intermag,
+        usCanada: config.spaceWeather.enabledDatasets.usCanada,
+        pipeline: config.spaceWeather.enabledDatasets.pipeline
+      },
+      pipeline: telemetry.pipeline
+        ? {
+            totalVectors: telemetry.pipeline.totalVectors,
+            failures: telemetry.pipeline.failures,
+            lastFetch: telemetry.pipeline.lastFetch ?? null,
+            active: telemetry.pipelineActive
+          }
+        : undefined,
+      degradationStages: telemetry.degradationStages
+    });
+  }, [
+    telemetry.rawInterMag,
+    telemetry.rawUSCanada,
+    telemetry.rawPipeline,
+    telemetry.combinedRaw,
+    telemetry.sampled,
+    telemetry.rendered,
+    telemetry.samplingStrategy,
+    telemetry.pipeline ? telemetry.pipeline.totalVectors : null,
+    telemetry.pipeline ? telemetry.pipeline.failures : null,
+    telemetry.pipeline ? telemetry.pipeline.lastFetch : null,
+    telemetry.gatingReason,
+    telemetry.degradationStages,
+    telemetry.pipelineActive,
+    config.spaceWeather.activeLayer,
+    config.spaceWeather.enabledDatasets,
+    currentProvider
+  ]);
+
+  const telemetryHistory = useMemo(() => getSpaceWeatherTelemetryHistory(), [
+    telemetry.rawInterMag,
+    telemetry.rawUSCanada,
+    telemetry.rawPipeline,
+    telemetry.sampled,
+    telemetry.rendered,
+    telemetry.samplingStrategy,
+    telemetry.gatingReason,
+    telemetry.pipeline ? telemetry.pipeline.totalVectors : null,
+    telemetry.degradationStages,
+    telemetry.pipelineActive,
+    config.spaceWeather.activeLayer,
+    currentProvider
+  ]);
+
   // Pipeline async fetch effect
   useEffect(() => {
-    const clearTimer = () => {
-      if (pipelineIntervalRef.current) {
-        clearInterval(pipelineIntervalRef.current);
-        pipelineIntervalRef.current = null;
+    const stopPipelinePoller = () => {
+      if (pipelinePollerHandleRef.current) {
+        pipelinePollerHandleRef.current.stop();
+        pipelinePollerHandleRef.current = null;
       }
     };
 
@@ -590,12 +730,12 @@ export const SpaceWeatherProvider: React.FC<{ children: ReactNode }> = ({ childr
     };
 
     const tearDownPipeline = () => {
-      clearTimer();
+      stopPipelinePoller();
       disposeOrchestrator();
       resetPipelineState();
     };
 
-    if (!(config.spaceWeather.pipelineEnabled && shouldShowSpaceWeatherVisualization)) {
+    if (!(config.spaceWeather.pipelineEnabled && config.spaceWeather.enabledDatasets.pipeline && shouldShowSpaceWeatherVisualization)) {
       tearDownPipeline();
       return () => tearDownPipeline();
     }
@@ -610,11 +750,12 @@ export const SpaceWeatherProvider: React.FC<{ children: ReactNode }> = ({ childr
         return;
       }
     }
-    const fetchPipeline = async () => {
-      if (!orchestratorRef.current) return;
+    const fetchPipeline = async (signal: AbortSignal) => {
+      if (!orchestratorRef.current || signal.aborted) return;
       try {
         const start = performance.now();
         const result = await orchestratorRef.current.fetchAll();
+        if (signal.aborted) return;
         const fetchMs = performance.now() - start;
         setPipelineMeta({
           adapterCount: result.metrics.adapterCount,
@@ -637,6 +778,7 @@ export const SpaceWeatherProvider: React.FC<{ children: ReactNode }> = ({ childr
           size: 1
         })));
       } catch (e) {
+        if (signal.aborted) return;
         const message = e instanceof Error ? e.message : 'Unknown pipeline error';
         console.warn('Pipeline fetch failed', message);
         setLastPipelineError(message);
@@ -649,15 +791,24 @@ export const SpaceWeatherProvider: React.FC<{ children: ReactNode }> = ({ childr
         }));
       }
     };
-    // Initial fetch
-    fetchPipeline();
-    // Schedule
     const intervalMs = Math.max(15_000, dataSettings.refreshIntervalMs || 60_000); // floor 15s
-    pipelineIntervalRef.current = window.setInterval(fetchPipeline, intervalMs);
+    const scopeTags = combineScopes(
+      makeModeScope(visualizationMode.mode),
+      makeRouteScope('cybercommand'),
+      'spaceWeather'
+    );
+
+    pipelinePollerHandleRef.current = pollerRegistry.register('space-weather-pipeline', fetchPipeline, {
+      intervalMs,
+      minIntervalMs: 15_000,
+      jitterMs: 1_000,
+      immediate: true,
+      scope: scopeTags
+    });
     return () => {
       tearDownPipeline();
     };
-  }, [config.spaceWeather.pipelineEnabled, shouldShowSpaceWeatherVisualization, dataSettings.refreshIntervalMs]);
+  }, [config.spaceWeather.pipelineEnabled, config.spaceWeather.enabledDatasets, shouldShowSpaceWeatherVisualization, dataSettings.refreshIntervalMs, visualizationMode.mode]);
 
   // Resource instrumentation: capture vector counts, diagnostics footprint, and heap usage when data changes
   useEffect(() => {
@@ -735,6 +886,7 @@ export const SpaceWeatherProvider: React.FC<{ children: ReactNode }> = ({ childr
   shouldShowOverlay: shouldShowSpaceWeatherVisualization,
   visualizationVectors,
     telemetry,
+    telemetryHistory,
     diagnostics: diagnosticsState
   };
 

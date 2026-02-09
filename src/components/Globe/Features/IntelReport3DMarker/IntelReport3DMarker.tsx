@@ -6,6 +6,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
 import { IntelReportOverlayMarker } from '../../../../interfaces/IntelReportOverlay';
 import { assetLoader } from '../../../../utils/assetLoader';
+import { disposeGLTF } from '../../../../utils/disposeGLTF';
 
 // Import GLB asset using Vite's asset handling for static deployment compatibility
 import intelReportModelUrl from '../../../../assets/models/intel_report-01d.glb?url';
@@ -89,7 +90,7 @@ const IntelReport3DMarker: React.FC<IntelReport3DMarkerProps> = ({
 
     const newModels: ModelInstance[] = reports.map((report) => {
       // Clone the loaded model
-      const mesh = gltfModel.clone();
+      const mesh = gltfModel.clone(true);
       
       // Calculate position on globe surface
       const basePosition = latLngToVector3(
@@ -122,6 +123,7 @@ const IntelReport3DMarker: React.FC<IntelReport3DMarkerProps> = ({
     return () => {
       newModels.forEach(model => {
         group.remove(model.mesh);
+        disposeGLTF(model.mesh);
       });
     };
   }, [gltfModel, reports, globeRadius, hoverAltitude]);

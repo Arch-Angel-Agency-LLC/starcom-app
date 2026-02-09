@@ -67,7 +67,7 @@ Add to `keybindings.json`:
   {
     "key": "cmd+shift+t", 
     "command": "workbench.action.tasks.runTask",
-    "args": "NetRunner: Type Check"
+    "args": "Starcom: Type Check"
   }
 ]
 ```
@@ -105,7 +105,7 @@ Add to VS Code settings.json:
 npm run build
 
 # ✅ Type check template:
-npx tsc --noEmit
+npx tsc --noEmit --project tsconfig.starcom.json
 
 # ✅ Status check template:
 echo "Checking NetRunner components..."
@@ -135,7 +135,7 @@ function nr-build() {
 function nr-typecheck() {
     echo "🔍 Type checking NetRunner..."
     cd /Users/jono/Documents/GitHub/starcom-app
-    npx tsc --noEmit
+  npx tsc --noEmit --project tsconfig.starcom.json
 }
 
 function nr-status() {

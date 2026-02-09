@@ -1,4 +1,5 @@
 import type { VisualizationMode } from '../../context/VisualizationModeContext';
+import { emitDiagnosticTrace } from '../tracing/traceEmitters';
 
 type VisualizationModeKey =
   | 'EcoNatural.SpaceWeather'
@@ -53,7 +54,33 @@ export interface ResourceBudget {
   maxDiagnosticsEntries?: number;
 }
 
+interface VisualizationResourceMonitorOptions {
+  warningDebounceMs?: number;
+  heapWarningDeltaBytes?: number;
+  snapshotTtlMs?: number;
+  snapshotCap?: number;
+  snapshotWarningThreshold?: number;
+  onSnapshotEvent?: (event: SnapshotTelemetryEvent) => void;
+}
+
 type WarningListener = (snapshot: ModeResourceSnapshot) => void;
+
+type SnapshotEvictionReason = 'ttl' | 'cap';
+
+export type SnapshotTelemetryEvent =
+  | {
+      type: 'evict';
+      key: VisualizationModeKey;
+      reason: SnapshotEvictionReason;
+      ageMs: number;
+    }
+  | {
+      type: 'size';
+      active: number;
+      cap: number;
+      utilization: number;
+      warning: boolean;
+    };
 
 function buildKey(mode: VisualizationMode | VisualizationModeKey): VisualizationModeKey {
   if (typeof mode === 'string') return mode as VisualizationModeKey;
@@ -63,10 +90,37 @@ function buildKey(mode: VisualizationMode | VisualizationModeKey): Visualization
 const DEFAULT_VECTOR_BYTES = 64; // rough size of ElectricFieldVector-like objects
 const DEFAULT_PIPELINE_VECTOR_BYTES = 48;
 
-class VisualizationResourceMonitorImpl {
+const defaultOptions = {
+  warningDebounceMs: 1_500,
+  heapWarningDeltaBytes: 64_000_000,
+  snapshotTtlMs: 5 * 60 * 1000,
+  snapshotCap: 24,
+  snapshotWarningThreshold: 0.9
+};
+
+export class VisualizationResourceMonitorImpl {
   private snapshots = new Map<VisualizationModeKey, ModeResourceSnapshot>();
   private budgets = new Map<VisualizationModeKey, ResourceBudget>();
   private listeners = new Set<WarningListener>();
+  private pendingWarnings = new Map<VisualizationModeKey, ReturnType<typeof setTimeout>>();
+  private lastWarningSnapshots = new Map<VisualizationModeKey, ModeResourceSnapshot>();
+  private warningEmissions = 0;
+
+  private readonly warningDebounceMs: number;
+  private readonly heapWarningDeltaBytes: number;
+  private readonly snapshotTtlMs: number;
+  private readonly snapshotCap: number;
+  private readonly snapshotWarningThreshold: number;
+  private readonly onSnapshotEvent?: (event: SnapshotTelemetryEvent) => void;
+
+  constructor(options: VisualizationResourceMonitorOptions = {}) {
+    this.warningDebounceMs = options.warningDebounceMs ?? defaultOptions.warningDebounceMs;
+    this.heapWarningDeltaBytes = options.heapWarningDeltaBytes ?? defaultOptions.heapWarningDeltaBytes;
+    this.snapshotTtlMs = options.snapshotTtlMs ?? defaultOptions.snapshotTtlMs;
+    this.snapshotCap = options.snapshotCap ?? defaultOptions.snapshotCap;
+    this.snapshotWarningThreshold = options.snapshotWarningThreshold ?? defaultOptions.snapshotWarningThreshold;
+    this.onSnapshotEvent = options.onSnapshotEvent;
+  }
 
   recordVectors(mode: VisualizationMode | VisualizationModeKey, metric: Partial<VectorMetric> & { count: number }) {
     const key = buildKey(mode);
@@ -135,6 +189,8 @@ class VisualizationResourceMonitorImpl {
   clearMode(mode: VisualizationMode | VisualizationModeKey) {
     const key = buildKey(mode);
     this.snapshots.delete(key);
+    this.clearPendingWarning(key);
+    this.lastWarningSnapshots.delete(key);
   }
 
   getSnapshot(mode?: VisualizationMode | VisualizationModeKey): ModeResourceSnapshot | ModeResourceSnapshot[] {
@@ -157,6 +213,13 @@ class VisualizationResourceMonitorImpl {
     };
   }
 
+  getWarningStats() {
+    return {
+      emissions: this.warningEmissions,
+      listeners: this.listeners.size
+    };
+  }
+
   onWarning(listener: WarningListener) {
     this.listeners.add(listener);
     return () => this.listeners.delete(listener);
@@ -167,18 +230,8 @@ class VisualizationResourceMonitorImpl {
     const next = updater({ ...prev, timestamp: Date.now(), warnings: [...prev.warnings] });
     next.warnings = this.applyBudgets(key, next);
     this.snapshots.set(key, next);
-    if (next.warnings.length > prev.warnings.length) {
-      this.listeners.forEach(listener => listener(next));
-      if (import.meta.env.DEV) {
-        console.warn('[VisualizationResourceMonitor]', key, next.warnings, {
-          vectors: next.vectors,
-          pipelineVectors: next.pipelineVectors,
-          geometries: next.geometries,
-          heap: next.heap,
-          overlayCacheBytes: next.overlayCacheBytes
-        });
-      }
-    }
+    this.scheduleWarning(key, prev, next);
+    this.cleanupSnapshots();
   }
 
   private applyBudgets(key: VisualizationModeKey, snapshot: ModeResourceSnapshot) {
@@ -200,7 +253,116 @@ class VisualizationResourceMonitorImpl {
     if (budget.maxGpuBytes && snapshot.geometries?.approxGpuBytes && snapshot.geometries.approxGpuBytes > budget.maxGpuBytes) {
       warnings.add(`gpu>${Math.round(budget.maxGpuBytes / 1_000_000)}MB`);
     }
-    return Array.from(warnings);
+    return this.normalizeWarnings(Array.from(warnings));
+  }
+
+  private scheduleWarning(key: VisualizationModeKey, prev: ModeResourceSnapshot, next: ModeResourceSnapshot) {
+    if (!next.warnings.length) {
+      this.clearPendingWarning(key);
+      this.lastWarningSnapshots.delete(key);
+      return;
+    }
+
+    const prevWarn = this.lastWarningSnapshots.get(key);
+    const prevWarningsKey = prevWarn ? prevWarn.warnings.join('|') : '';
+    const nextWarningsKey = next.warnings.join('|');
+    const prevHeap = prevWarn?.heap?.usedBytes ?? 0;
+    const nextHeap = next.heap?.usedBytes ?? 0;
+    const heapDelta = Math.max(0, nextHeap - prevHeap);
+    const warningsChanged = prevWarningsKey !== nextWarningsKey;
+    const deltaExceeded = heapDelta >= this.heapWarningDeltaBytes;
+
+    if (!warningsChanged && !deltaExceeded) return;
+
+    this.clearPendingWarning(key);
+    const emission: ModeResourceSnapshot = { ...next, warnings: [...next.warnings] };
+    emitDiagnosticTrace(
+      'viz_heap_warning',
+      {
+        mode: key,
+        warnings: emission.warnings,
+        heap: emission.heap,
+        overlayCacheBytes: emission.overlayCacheBytes,
+        vectors: emission.vectors,
+        pipelineVectors: emission.pipelineVectors,
+        geometries: emission.geometries
+      },
+      'warn'
+    );
+    const timer = setTimeout(() => {
+      this.lastWarningSnapshots.set(key, emission);
+      this.warningEmissions += 1;
+      this.listeners.forEach(listener => listener(emission));
+      if (import.meta.env.DEV) {
+        console.warn('[VisualizationResourceMonitor]', key, emission.warnings, {
+          vectors: emission.vectors,
+          pipelineVectors: emission.pipelineVectors,
+          geometries: emission.geometries,
+          heap: emission.heap,
+          overlayCacheBytes: emission.overlayCacheBytes
+        });
+      }
+    }, this.warningDebounceMs);
+
+    this.pendingWarnings.set(key, timer);
+  }
+
+  private clearPendingWarning(key: VisualizationModeKey) {
+    const timer = this.pendingWarnings.get(key);
+    if (timer) {
+      clearTimeout(timer);
+      this.pendingWarnings.delete(key);
+    }
+  }
+
+  private cleanupSnapshots() {
+    const evicted: SnapshotTelemetryEvent[] = [];
+    const now = Date.now();
+    for (const [key, snapshot] of this.snapshots.entries()) {
+      if (now - snapshot.timestamp > this.snapshotTtlMs) {
+        this.snapshots.delete(key);
+        this.clearPendingWarning(key);
+        this.lastWarningSnapshots.delete(key);
+        evicted.push({ type: 'evict', key, reason: 'ttl', ageMs: now - snapshot.timestamp });
+      }
+    }
+
+    if (this.snapshots.size > this.snapshotCap) {
+      const ordered = Array.from(this.snapshots.entries()).sort(([, a], [, b]) => a.timestamp - b.timestamp);
+      while (this.snapshots.size > this.snapshotCap) {
+        const [evictedKey, snapshot] = ordered.shift() ?? [];
+        if (evictedKey) {
+          this.snapshots.delete(evictedKey);
+          this.clearPendingWarning(evictedKey);
+          this.lastWarningSnapshots.delete(evictedKey);
+          evicted.push({ type: 'evict', key: evictedKey, reason: 'cap', ageMs: now - (snapshot?.timestamp ?? now) });
+        }
+      }
+    }
+
+    const utilization = this.snapshotCap > 0 ? this.snapshots.size / this.snapshotCap : 0;
+    if (this.onSnapshotEvent) {
+      evicted.forEach(event => this.onSnapshotEvent?.(event));
+      this.onSnapshotEvent({
+        type: 'size',
+        active: this.snapshots.size,
+        cap: this.snapshotCap,
+        utilization,
+        warning: utilization >= this.snapshotWarningThreshold
+      });
+    }
+
+    if (utilization >= this.snapshotWarningThreshold && import.meta.env.DEV) {
+      console.warn('[VisualizationResourceMonitor] snapshot utilization nearing cap', {
+        active: this.snapshots.size,
+        cap: this.snapshotCap,
+        utilization
+      });
+    }
+  }
+
+  private normalizeWarnings(warnings: string[]) {
+    return Array.from(new Set(warnings)).sort();
   }
 }
 

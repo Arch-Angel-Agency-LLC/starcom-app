@@ -16,58 +16,16 @@ import { IntelDataProvider } from './providers/IntelDataProvider';
 // Import cache services
 import { EIADataCacheService } from '../eia/EIADataCacheService';
 import { SpaceWeatherCacheService } from '../SpaceWeatherCacheService';
+import { SharedCacheDataService } from '../../cache/sharedCacheService';
 
-// Temporary basic cache implementation for other providers
-// TODO: Implement Nostr relay load balancing and automatic failover - PRIORITY: HIGH
-// TODO: Add support for Nostr event filtering and subscription optimization - PRIORITY: MEDIUM
-class BasicCacheService {
-  private cache = new Map<string, { value: unknown; expiresAt?: number }>();
-  private static readonly DEFAULT_TTL = 5 * 60 * 1000; // 5 minutes
-
-  get(key: string): unknown | null {
-    const entry = this.cache.get(key);
-    if (!entry) return null;
-    if (entry.expiresAt && entry.expiresAt < Date.now()) {
-      this.cache.delete(key);
-      return null;
-    }
-    return entry.value;
-  }
-
-  set(key: string, value: unknown, ttl?: number): void {
-    const expiresAt = ttl ? Date.now() + ttl : Date.now() + BasicCacheService.DEFAULT_TTL;
-    this.cache.set(key, { value, expiresAt });
-  }
-
-  delete(key: string): void {
-    this.cache.delete(key);
-  }
-
-  clear(): void {
-    this.cache.clear();
-  }
-
-  has(key: string): boolean {
-    return this.cache.has(key);
-  }
-
-  getMetadata() {
-    return null;
-  }
-
-  getSize(): number {
-    return this.cache.size;
-  }
-
-  async cleanup(): Promise<void> {
-    const now = Date.now();
-    for (const [key, entry] of this.cache.entries()) {
-      if (entry.expiresAt && entry.expiresAt < now) {
-        this.cache.delete(key);
-      }
-    }
-  }
-}
+// Shared cache configurations for provider caches (bounded + TTL)
+const CACHE_DEFAULTS = {
+  weather: { ttlMs: 10 * 60 * 1000, maxEntries: 500, maxSize: 2 * 1024 * 1024 },
+  alerts: { ttlMs: 60 * 1000, maxEntries: 300, maxSize: 512 * 1024 },
+  geoEvents: { ttlMs: 5 * 60 * 1000, maxEntries: 400, maxSize: 1 * 1024 * 1024 },
+  spaceAssets: { ttlMs: 60 * 1000, maxEntries: 400, maxSize: 1 * 1024 * 1024 },
+  intel: { ttlMs: 5 * 60 * 1000, maxEntries: 500, maxSize: 2 * 1024 * 1024 }
+};
 
 /**
  * Register all data providers with the StarcomDataManager
@@ -131,7 +89,12 @@ export async function setupDataProviders(manager: StarcomDataManager): Promise<v
 
     // 3. Weather Data Provider
     const weatherProvider = new WeatherDataProvider();
-    const weatherCache = new BasicCacheService();
+    const weatherCache = new SharedCacheDataService('weather-cache', {
+      defaultTtlMs: CACHE_DEFAULTS.weather.ttlMs,
+      maxEntries: CACHE_DEFAULTS.weather.maxEntries,
+      maxSizeBytes: CACHE_DEFAULTS.weather.maxSize,
+      cleanupIntervalMs: 60_000
+    });
     
     const weatherSource: DataSource = {
       id: 'weather',
@@ -157,7 +120,12 @@ export async function setupDataProviders(manager: StarcomDataManager): Promise<v
 
     // 4. Alerts Data Provider
     const alertsProvider = new AlertsDataProvider();
-    const alertsCache = new BasicCacheService();
+    const alertsCache = new SharedCacheDataService('alerts-cache', {
+      defaultTtlMs: CACHE_DEFAULTS.alerts.ttlMs,
+      maxEntries: CACHE_DEFAULTS.alerts.maxEntries,
+      maxSizeBytes: CACHE_DEFAULTS.alerts.maxSize,
+      cleanupIntervalMs: 30_000
+    });
     
     const alertsSource: DataSource = {
       id: 'alerts',
@@ -183,7 +151,12 @@ export async function setupDataProviders(manager: StarcomDataManager): Promise<v
 
     // 5. GeoEvents Data Provider
     const geoEventsProvider = new GeoEventsDataProvider();
-    const geoEventsCache = new BasicCacheService();
+    const geoEventsCache = new SharedCacheDataService('geo-events-cache', {
+      defaultTtlMs: CACHE_DEFAULTS.geoEvents.ttlMs,
+      maxEntries: CACHE_DEFAULTS.geoEvents.maxEntries,
+      maxSizeBytes: CACHE_DEFAULTS.geoEvents.maxSize,
+      cleanupIntervalMs: 60_000
+    });
     
     const geoEventsSource: DataSource = {
       id: 'geo-events',
@@ -209,7 +182,12 @@ export async function setupDataProviders(manager: StarcomDataManager): Promise<v
 
     // 6. Space Assets Data Provider
     const spaceAssetsProvider = new SpaceAssetsDataProvider();
-    const spaceAssetsCache = new BasicCacheService();
+    const spaceAssetsCache = new SharedCacheDataService('space-assets-cache', {
+      defaultTtlMs: CACHE_DEFAULTS.spaceAssets.ttlMs,
+      maxEntries: CACHE_DEFAULTS.spaceAssets.maxEntries,
+      maxSizeBytes: CACHE_DEFAULTS.spaceAssets.maxSize,
+      cleanupIntervalMs: 30_000
+    });
     
     const spaceAssetsSource: DataSource = {
       id: 'space-assets',
@@ -235,7 +213,12 @@ export async function setupDataProviders(manager: StarcomDataManager): Promise<v
 
     // 7. Intel Data Provider (Intelligence Reports)
     const intelProvider = new IntelDataProvider();
-    const intelCache = new BasicCacheService();
+    const intelCache = new SharedCacheDataService('intel-cache', {
+      defaultTtlMs: CACHE_DEFAULTS.intel.ttlMs,
+      maxEntries: CACHE_DEFAULTS.intel.maxEntries,
+      maxSizeBytes: CACHE_DEFAULTS.intel.maxSize,
+      cleanupIntervalMs: 60_000
+    });
     
     const intelSource: DataSource = {
       id: 'intel',
@@ -287,6 +270,34 @@ export async function createConfiguredDataManager(): Promise<StarcomDataManager>
 export class DataManagerHelpers {
   constructor(private manager: StarcomDataManager) {}
 
+  // Validators to keep malformed payloads out of normalizers
+  private isFeatureCollection(data: unknown): boolean {
+    const obj = data as { type?: unknown; features?: unknown };
+    return obj?.type === 'FeatureCollection' && Array.isArray(obj?.features);
+  }
+
+  private isArrayOfLatLng(data: unknown): boolean {
+    return Array.isArray(data) && data.every(item => {
+      const v = item as { lat?: unknown; lng?: unknown };
+      return Number.isFinite(v?.lat) && Number.isFinite(v?.lng);
+    });
+  }
+
+  private async safeFetch<T>(key: string, fn: () => Promise<unknown>, validator: (data: unknown) => boolean, fallback: T): Promise<T> {
+    try {
+      const data = await fn();
+      if (validator(data)) return data as T;
+      console.warn(`[DataManagerHelpers] Dropping invalid payload for ${key}; validator failed`, {
+        receivedType: typeof data,
+        sampleKeys: typeof data === 'object' && data ? Object.keys(data as Record<string, unknown>).slice(0, 5) : []
+      });
+      return fallback;
+    } catch (error) {
+      console.warn(`[DataManagerHelpers] Fetch failed for ${key}; returning fallback`, { error: (error as Error).message });
+      return fallback;
+    }
+  }
+
   // Space weather data
   async getSpaceWeatherData() {
     return {
@@ -299,11 +310,11 @@ export class DataManagerHelpers {
 
   // Natural events data
   async getNaturalEventsData() {
-    return {
-      earthquakes: await this.manager.fetchData('geo-events', 'earthquakes-recent'),
-      wildfires: await this.manager.fetchData('geo-events', 'wildfires-viirs'),
-      volcanoes: await this.manager.fetchData('geo-events', 'volcanoes')
-    };
+    const earthquakes = await this.safeFetch('earthquakes', () => this.manager.fetchData('geo-events', 'earthquakes-recent'), this.isFeatureCollection.bind(this), null);
+    const wildfires = await this.safeFetch('wildfires', () => this.manager.fetchData('geo-events', 'wildfires-viirs'), this.isArrayOfLatLng.bind(this), []);
+    const volcanoes = await this.safeFetch('volcanoes', () => this.manager.fetchData('geo-events', 'volcanoes'), this.isArrayOfLatLng.bind(this), []);
+
+    return { earthquakes, wildfires, volcanoes };
   }
 
   // Space assets data

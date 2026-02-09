@@ -51,6 +51,15 @@ export interface EcoNaturalConfig {
   enhancedSampling?: boolean;
   // Phase 1 pipeline feature flag
   pipelineEnabled?: boolean;
+    enabledDatasets: {
+      intermag: boolean;
+      usCanada: boolean;
+      pipeline: boolean;
+    };
+    samplingMode: 'legacy-topN' | 'grid-binning';
+    gridBinSize: number;
+    legacyCap: number;
+    magnitudeFloor: number;
   };
   
   // Ecological Disasters settings
@@ -161,7 +170,16 @@ const defaultConfig: EcoNaturalConfig = {
   // Phase 0 feature flags
   enhancedSampling: false,
   // Phase 1 pipeline flag (disabled by default until orchestrator validated)
-  pipelineEnabled: false
+  pipelineEnabled: false,
+    enabledDatasets: {
+      intermag: true,
+      usCanada: true,
+      pipeline: false
+    },
+    samplingMode: 'legacy-topN',
+    gridBinSize: 5,
+    legacyCap: 500,
+    magnitudeFloor: 0
   },
   
   ecologicalDisasters: {
@@ -170,11 +188,11 @@ const defaultConfig: EcoNaturalConfig = {
       floods: true,
       droughts: true,
       hurricanes: true,
-      earthquakes: false,
-      volcanoes: false
+      earthquakes: true,
+      volcanoes: true
     },
     severity: {
-      showMinor: false,
+      showMinor: true,
       showMajor: true,
       showCatastrophic: true
     },
@@ -229,14 +247,109 @@ const defaultConfig: EcoNaturalConfig = {
   }
 };
 
+const clampNumber = (value: unknown, min: number, max: number, fallback: number) => {
+  const num = typeof value === 'number' && Number.isFinite(value) ? value : fallback;
+  return Math.min(max, Math.max(min, num));
+};
+
+const coerceBoolean = (value: unknown, fallback: boolean) => {
+  if (typeof value === 'boolean') return value;
+  if (value === undefined) return fallback;
+  return Boolean(value);
+};
+
+const sanitizeEcologicalDisasters = (
+  incoming: EcoNaturalConfig['ecologicalDisasters']
+): EcoNaturalConfig['ecologicalDisasters'] => {
+  const defaults = defaultConfig.ecologicalDisasters;
+
+  const disasterTypes = {
+    ...defaults.disasterTypes,
+    ...(incoming?.disasterTypes || {})
+  };
+
+  const severity = {
+    ...defaults.severity,
+    ...(incoming?.severity || {})
+  };
+
+  const alertSettings = {
+    ...defaults.alertSettings,
+    ...(incoming?.alertSettings || {})
+  };
+
+  const dataLayers = {
+    ...defaults.dataLayers,
+    ...(incoming?.dataLayers || {})
+  };
+
+  const alertThreshold = ['minor', 'major', 'catastrophic'].includes(alertSettings.alertThreshold)
+    ? alertSettings.alertThreshold
+    : defaults.alertSettings.alertThreshold;
+
+  return {
+    ...defaults,
+    ...incoming,
+    disasterTypes: Object.fromEntries(
+      Object.entries(disasterTypes).map(([key, value]) => [key, coerceBoolean(value, defaults.disasterTypes[key as keyof typeof defaults.disasterTypes])])
+    ) as EcoNaturalConfig['ecologicalDisasters']['disasterTypes'],
+    severity: {
+      showMinor: coerceBoolean(severity.showMinor, defaults.severity.showMinor),
+      showMajor: coerceBoolean(severity.showMajor, defaults.severity.showMajor),
+      showCatastrophic: coerceBoolean(severity.showCatastrophic, defaults.severity.showCatastrophic)
+    },
+    timeRange: clampNumber(incoming?.timeRange, 1, 30, defaults.timeRange),
+    radiusOpacity: clampNumber(incoming?.radiusOpacity, 0, 100, defaults.radiusOpacity),
+    showImpactRadius: coerceBoolean(incoming?.showImpactRadius, defaults.showImpactRadius),
+    showEvacuationZones: coerceBoolean(incoming?.showEvacuationZones, defaults.showEvacuationZones),
+    alertSettings: {
+      enableAlerts: coerceBoolean(alertSettings.enableAlerts, defaults.alertSettings.enableAlerts),
+      soundAlerts: coerceBoolean(alertSettings.soundAlerts, defaults.alertSettings.soundAlerts),
+      alertThreshold
+    },
+    dataLayers: {
+      showPopulationDensity: coerceBoolean(dataLayers.showPopulationDensity, defaults.dataLayers.showPopulationDensity),
+      showInfrastructure: coerceBoolean(dataLayers.showInfrastructure, defaults.dataLayers.showInfrastructure),
+      showEnvironmentalData: coerceBoolean(dataLayers.showEnvironmentalData, defaults.dataLayers.showEnvironmentalData)
+    }
+  };
+};
+
 const STORAGE_KEY = 'eco-natural-settings';
+const STORAGE_VERSION = 2;
+
+const migrations: Record<number, (data: EcoNaturalConfig) => EcoNaturalConfig> = {
+  2: (data) => {
+    const ecologicalDisasters = {
+      ...defaultConfig.ecologicalDisasters,
+      ...(data.ecologicalDisasters || {})
+    };
+
+    const disasterTypes = {
+      ...defaultConfig.ecologicalDisasters.disasterTypes,
+      ...(data.ecologicalDisasters?.disasterTypes || {})
+    };
+
+    // Flip defaults to ON for earthquakes/volcanoes during migration
+    disasterTypes.earthquakes = true;
+    disasterTypes.volcanoes = true;
+
+    return {
+      ...data,
+      ecologicalDisasters: {
+        ...ecologicalDisasters,
+        disasterTypes
+      }
+    } as EcoNaturalConfig;
+  }
+};
 
 export const useEcoNaturalSettings = () => {
   const [config, setConfig] = useState<EcoNaturalConfig>(defaultConfig);
 
   // Load settings from localStorage on mount
   useEffect(() => {
-    const loadedConfig = settingsStorage.loadSettings(STORAGE_KEY, defaultConfig, { version: 1, migrations: {} });
+    const loadedConfig = settingsStorage.loadSettings(STORAGE_KEY, defaultConfig, { version: STORAGE_VERSION, migrations });
     // Simplified migration for Aug 2025 rename (showGemagneticIndex -> showGeomagneticIndex)
   type PartialSpaceWeather = Partial<EcoNaturalConfig['spaceWeather']> & { [k: string]: unknown };
   const sw = { ...defaultConfig.spaceWeather, ...(loadedConfig.spaceWeather || {}) } as PartialSpaceWeather as EcoNaturalConfig['spaceWeather'];
@@ -252,7 +365,8 @@ export const useEcoNaturalSettings = () => {
     }
   // Drop legacy typo key if present
   if ('showGemagneticIndex' in (sw as unknown as Record<string, unknown>)) delete (sw as unknown as Record<string, unknown>).showGemagneticIndex;
-    setConfig({ ...loadedConfig, spaceWeather: sw });
+    const eco = sanitizeEcologicalDisasters(loadedConfig.ecologicalDisasters ?? defaultConfig.ecologicalDisasters);
+    setConfig({ ...loadedConfig, spaceWeather: sw, ecologicalDisasters: eco });
   }, []);
 
   // Save settings to localStorage when config changes with debouncing
@@ -264,7 +378,7 @@ export const useEcoNaturalSettings = () => {
     }
     
     saveTimeoutRef.current = setTimeout(() => {
-      settingsStorage.saveSettings(STORAGE_KEY, configToSave, { version: 1 });
+      settingsStorage.saveSettings(STORAGE_KEY, configToSave, { version: STORAGE_VERSION });
     }, 500); // Debounce for 500ms
   }, []);
 
@@ -298,7 +412,7 @@ export const useEcoNaturalSettings = () => {
   const updateEcologicalDisasters = (updates: Partial<EcoNaturalConfig['ecologicalDisasters']>) => {
     setConfig(prev => ({
       ...prev,
-      ecologicalDisasters: { ...prev.ecologicalDisasters, ...updates }
+      ecologicalDisasters: sanitizeEcologicalDisasters({ ...prev.ecologicalDisasters, ...updates })
     }));
   };
 
@@ -323,7 +437,9 @@ export const useEcoNaturalSettings = () => {
   const resetSubMode = (subMode: 'spaceWeather' | 'ecologicalDisasters' | 'earthWeather' | 'globalSettings') => {
     setConfig(prev => ({
       ...prev,
-      [subMode]: defaultConfig[subMode]
+      [subMode]: subMode === 'ecologicalDisasters'
+        ? sanitizeEcologicalDisasters(defaultConfig.ecologicalDisasters)
+        : defaultConfig[subMode]
     }));
   };
 

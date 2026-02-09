@@ -1,7 +1,7 @@
-/**
- * Memory Monitoring Utility
- * Provides global memory monitoring and resource management for the application
- */
+import { memoryBudgetConfig } from '../config/memoryBudgets';
+import { emitDiagnosticTrace } from '../services/tracing/traceEmitters';
+
+const MB = 1_000_000;
 
 interface MemoryInfo {
   usedJSHeapSize: number;
@@ -9,181 +9,214 @@ interface MemoryInfo {
   jsHeapSizeLimit: number;
 }
 
-interface MemoryStats {
+export interface MemoryStats {
   usedMB: number;
   totalMB: number;
   limitMB: number;
   usagePercentage: number;
+  usedBytes: number;
 }
+
+export type MemoryPressureLevel = 'warning' | 'critical';
+
+export interface MemoryReading {
+  stats: MemoryStats | null;
+  level: MemoryPressureLevel | null;
+}
+
+type MemoryListener = (reading: MemoryReading) => void;
 
 export class MemoryMonitor {
   private static instance: MemoryMonitor;
-  private readonly MEMORY_WARNING_THRESHOLD = 100; // MB
-  private readonly MEMORY_CRITICAL_THRESHOLD = 200; // MB
-  private readonly CHECK_INTERVAL = 30000; // 30 seconds
-  
   private monitoring = false;
-  private intervalId?: NodeJS.Timeout;
+  private intervalId?: ReturnType<typeof setInterval>;
   private lastStats: MemoryStats | null = null;
-  
+  private lastPressureLevel: MemoryPressureLevel | null = null;
+  private lastPressureBytes = 0;
+  private readonly warningBytes = memoryBudgetConfig.warningBytes;
+  private readonly criticalBytes = memoryBudgetConfig.criticalBytes;
+  private readonly checkIntervalMs = memoryBudgetConfig.checkIntervalMs;
+  private readonly emitDeltaBytes = memoryBudgetConfig.emitDeltaBytes;
+  private subscribers = new Set<MemoryListener>();
+  private intervalStarts = 0;
+
   private constructor() {}
-  
-  public static getInstance(): MemoryMonitor {
+
+  static getInstance(): MemoryMonitor {
     if (!MemoryMonitor.instance) {
       MemoryMonitor.instance = new MemoryMonitor();
     }
     return MemoryMonitor.instance;
   }
-  
-  public startMonitoring(): void {
-    if (this.monitoring) return;
-    
+
+  startMonitoring(): void {
+    if (this.monitoring || !this.isMemoryAPIAvailable()) return;
     this.monitoring = true;
+    this.intervalStarts += 1;
     this.intervalId = setInterval(() => {
       this.checkMemoryUsage();
-    }, this.CHECK_INTERVAL);
-    
-    console.log('🔍 Memory monitoring started');
+    }, this.checkIntervalMs);
+    this.checkMemoryUsage();
   }
-  
-  public stopMonitoring(): void {
+
+  stopMonitoring(): void {
     if (this.intervalId) {
       clearInterval(this.intervalId);
       this.intervalId = undefined;
     }
     this.monitoring = false;
-    console.log('⏹️ Memory monitoring stopped');
   }
-  
-  public getMemoryStats(): MemoryStats | null {
-    if (!this.isMemoryAPIAvailable()) {
-      return null;
+
+  subscribe(listener: MemoryListener): () => void {
+    this.subscribers.add(listener);
+    if (!this.monitoring) {
+      this.startMonitoring();
     }
-    
-    const memInfo = this.getMemoryInfo();
-    if (!memInfo) return null;
-    
-    const usedMB = memInfo.usedJSHeapSize / 1024 / 1024;
-    const totalMB = memInfo.totalJSHeapSize / 1024 / 1024;
-    const limitMB = memInfo.jsHeapSizeLimit / 1024 / 1024;
-    const usagePercentage = (usedMB / limitMB) * 100;
-    
-    return {
-      usedMB: Math.round(usedMB * 100) / 100,
-      totalMB: Math.round(totalMB * 100) / 100,
-      limitMB: Math.round(limitMB * 100) / 100,
-      usagePercentage: Math.round(usagePercentage * 100) / 100
+    listener({ stats: this.lastStats, level: this.lastPressureLevel });
+    return () => {
+      this.subscribers.delete(listener);
+      if (this.subscribers.size === 0) {
+        this.stopMonitoring();
+      }
     };
   }
-  
-  public isMemoryUsageHigh(): boolean {
-    const stats = this.getMemoryStats();
-    return stats ? stats.usedMB > this.MEMORY_WARNING_THRESHOLD : false;
+
+  getMemoryStats(): MemoryStats | null {
+    if (!this.isMemoryAPIAvailable()) return null;
+    const memInfo = this.getMemoryInfo();
+    if (!memInfo) return null;
+
+    const usedMB = memInfo.usedJSHeapSize / MB;
+    const totalMB = memInfo.totalJSHeapSize / MB;
+    const limitMB = memInfo.jsHeapSizeLimit / MB;
+    const usagePercentage = (usedMB / limitMB) * 100;
+
+    const round = (value: number) => Math.round(value * 100) / 100;
+
+    return {
+      usedMB: round(usedMB),
+      totalMB: round(totalMB),
+      limitMB: round(limitMB),
+      usagePercentage: round(usagePercentage),
+      usedBytes: memInfo.usedJSHeapSize
+    };
   }
-  
-  public isMemoryUsageCritical(): boolean {
+
+  isMemoryUsageHigh(): boolean {
     const stats = this.getMemoryStats();
-    return stats ? stats.usedMB > this.MEMORY_CRITICAL_THRESHOLD : false;
+    return stats ? stats.usedBytes > this.warningBytes : false;
   }
-  
+
+  isMemoryUsageCritical(): boolean {
+    const stats = this.getMemoryStats();
+    return stats ? stats.usedBytes > this.criticalBytes : false;
+  }
+
+  shouldProceedWithLargeOperation(): boolean {
+    return !this.isMemoryUsageCritical();
+  }
+
+  getRecommendedPageSize(defaultSize: number, maxSize: number): number {
+    const stats = this.getMemoryStats();
+    if (!stats) return defaultSize;
+
+    if (stats.usedBytes > this.criticalBytes) {
+      return Math.min(defaultSize * 0.5, 10);
+    }
+    if (stats.usedBytes > this.warningBytes) {
+      return Math.min(defaultSize * 0.75, Math.max(5, maxSize * 0.5));
+    }
+    return Math.min(defaultSize, maxSize);
+  }
+
+  forceCheck(): void {
+    this.checkMemoryUsage();
+  }
+
+  getDebugState() {
+    return {
+      monitoring: this.monitoring,
+      subscribers: this.subscribers.size,
+      intervalStarts: this.intervalStarts
+    };
+  }
+
+  resetForTests() {
+    this.stopMonitoring();
+    this.subscribers.clear();
+    this.intervalStarts = 0;
+    this.lastStats = null;
+    this.lastPressureLevel = null;
+    this.lastPressureBytes = 0;
+  }
+
   private checkMemoryUsage(): void {
     const stats = this.getMemoryStats();
     if (!stats) return;
-    
     this.lastStats = stats;
-    
-    if (stats.usedMB > this.MEMORY_CRITICAL_THRESHOLD) {
-      console.warn('🚨 CRITICAL MEMORY USAGE:', {
-        usedMB: stats.usedMB,
-        threshold: this.MEMORY_CRITICAL_THRESHOLD,
-        percentage: stats.usagePercentage
-      });
-      
-      // Trigger garbage collection if available
-      this.forceGarbageCollection();
-      
-      // Emit custom event for other components to clean up
-      this.emitMemoryPressureEvent('critical');
-      
-    } else if (stats.usedMB > this.MEMORY_WARNING_THRESHOLD) {
-      console.warn('⚠️ HIGH MEMORY USAGE:', {
-        usedMB: stats.usedMB,
-        threshold: this.MEMORY_WARNING_THRESHOLD,
-        percentage: stats.usagePercentage
-      });
-      
-      this.emitMemoryPressureEvent('warning');
+
+    const level: MemoryPressureLevel | null = stats.usedBytes > this.criticalBytes
+      ? 'critical'
+      : stats.usedBytes > this.warningBytes
+        ? 'warning'
+        : null;
+
+    if (this.shouldEmitPressure(level, stats.usedBytes)) {
+      this.emitMemoryPressureEvent(level, stats);
+      emitDiagnosticTrace(
+        'heap_pressure',
+        {
+          level,
+          usedBytes: stats.usedBytes,
+          totalMB: stats.totalMB,
+          limitMB: stats.limitMB,
+          usagePercentage: stats.usagePercentage
+        },
+        level === 'critical' ? 'warn' : 'info'
+      );
     }
+
+    this.subscribers.forEach(listener => listener({ stats, level }));
   }
-  
+
+  private shouldEmitPressure(level: MemoryPressureLevel | null, usedBytes: number) {
+    if (!level) {
+      this.lastPressureLevel = null;
+      this.lastPressureBytes = 0;
+      return false;
+    }
+    const levelChanged = level !== this.lastPressureLevel;
+    const delta = usedBytes - this.lastPressureBytes;
+    const deltaExceeded = delta >= this.emitDeltaBytes;
+    if (levelChanged || deltaExceeded) {
+      this.lastPressureLevel = level;
+      this.lastPressureBytes = usedBytes;
+      return true;
+    }
+    return false;
+  }
+
   private isMemoryAPIAvailable(): boolean {
-    return 'memory' in performance;
+    return typeof performance !== 'undefined' && 'memory' in performance;
   }
-  
+
   private getMemoryInfo(): MemoryInfo | null {
-    if (!this.isMemoryAPIAvailable()) return null;
-    
     const performanceWithMemory = performance as { memory?: MemoryInfo };
     return performanceWithMemory.memory || null;
   }
-  
-  private forceGarbageCollection(): void {
-    // Force garbage collection if available (Chrome DevTools)
-    const windowWithGC = window as { gc?: () => void };
-    if (windowWithGC.gc) {
-      try {
-        windowWithGC.gc();
-        console.log('🗑️ Forced garbage collection');
-      } catch (error) {
-        console.warn('Failed to force garbage collection:', error);
-      }
-    }
-  }
-  
-  private emitMemoryPressureEvent(level: 'warning' | 'critical'): void {
+
+  private emitMemoryPressureEvent(level: MemoryPressureLevel, stats: MemoryStats): void {
     const event = new CustomEvent('memoryPressure', {
       detail: {
         level,
-        stats: this.lastStats,
+        stats,
         timestamp: Date.now()
       }
     });
-    
-    window.dispatchEvent(event);
-  }
-  
-  // Utility method to check if a large operation should proceed
-  public shouldProceedWithLargeOperation(): boolean {
-    return !this.isMemoryUsageCritical();
-  }
-  
-  // Utility method to get recommended page size based on memory usage
-  public getRecommendedPageSize(defaultSize: number, maxSize: number): number {
-    const stats = this.getMemoryStats();
-    if (!stats) return defaultSize;
-    
-    if (stats.usedMB > this.MEMORY_CRITICAL_THRESHOLD) {
-      return Math.min(defaultSize * 0.5, 10); // Reduce to 50% or 10, whichever is smaller
-    } else if (stats.usedMB > this.MEMORY_WARNING_THRESHOLD) {
-      return Math.min(defaultSize * 0.75, maxSize * 0.5); // Reduce to 75% of default
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(event);
     }
-    
-    return Math.min(defaultSize, maxSize);
   }
 }
 
-// Export singleton instance
 export const memoryMonitor = MemoryMonitor.getInstance();
-
-// Auto-start monitoring in production
-if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production') {
-  memoryMonitor.startMonitoring();
-}
-
-// Add cleanup listener for memory pressure events
-if (typeof window !== 'undefined') {
-  window.addEventListener('memoryPressure', (event: CustomEvent) => {
-    const { level, stats } = event.detail;
-    console.log(`📊 Memory pressure event: ${level}`, stats);
-  });
-}

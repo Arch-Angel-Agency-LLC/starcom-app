@@ -1,0 +1,218 @@
+# Progress Tracker
+
+## Stage 1: Foundations
+- [ ] 1.1 Phase: Requirements & Scope
+  - [ ] 1.1.1 Step: Confirm MVP goals
+    - [ ] 1.1.1.1 Task: Validate magnetopause/bow shock/aurora scope with stakeholders (approved)
+      - [ ] 1.1.1.1.a Subtask: Schedule review meeting with product/design
+      - [ ] 1.1.1.1.b Subtask: Capture meeting notes and action items
+    - [ ] 1.1.1.2 Task: Lock acceptance criteria (freshness, FPS, accuracy)
+      - [ ] 1.1.1.2.a Subtask: Draft acceptance matrix for each layer
+      - [ ] 1.1.1.2.b Subtask: Circulate matrix for sign-off
+  - [ ] 1.1.2 Step: Data source inventory
+    - [ ] 1.1.2.1 Task: List primary NOAA endpoints and cadences
+      - [ ] 1.1.2.1.a Subtask: Collect URL, cadence, required params per endpoint
+      - [ ] 1.1.2.1.b Subtask: Verify HTTPS access and any auth requirements
+    - [ ] 1.1.2.2 Task: Define staleness thresholds and fallbacks
+      - [ ] 1.1.2.2.a Subtask: Map thresholds to alerting states
+      - [ ] 1.1.2.2.b Subtask: Document fallback payload shapes
+- [ ] 1.2 Phase: Architecture Alignment
+  - [ ] 1.2.1 Step: Overlay ownership map
+    - [ ] 1.2.1.1 Task: Map overlay IDs to handlers and caches
+      - [ ] 1.2.1.1.a Subtask: Identify overlayData cache keys
+      - [ ] 1.2.1.1.b Subtask: Note responsible modules for each overlay
+    - [ ] 1.2.1.2 Task: Define event emission and consumption points
+      - [ ] 1.2.1.2.a Subtask: List events per overlay (loading/updated/error)
+      - [ ] 1.2.1.2.b Subtask: Identify UI listeners for events
+  - [ ] 1.2.2 Step: Scheduling model
+    - [ ] 1.2.2.1 Task: Confirm 5-minute cadence and timeouts
+      - [ ] 1.2.2.1.a Subtask: Align with existing space weather interval code
+      - [ ] 1.2.2.1.b Subtask: Document timeout values per endpoint
+    - [ ] 1.2.2.2 Task: Plan retry/backoff and stale handling
+      - [ ] 1.2.2.2.a Subtask: Choose backoff factors and max attempts
+      - [ ] 1.2.2.2.b Subtask: Define stale-to-fallback transition rules
+
+## Stage 2: Data & Mapping
+- [ ] 2.1 Phase: Fetch Contracts
+  - [ ] 2.1.1 Step: Finalize API specs
+    - [ ] 2.1.1.1 Task: Document endpoints, params, headers
+      - [ ] 2.1.1.1.a Subtask: Capture required/optional query params
+      - [ ] 2.1.1.1.b Subtask: Record expected response formats
+    - [ ] 2.1.1.2 Task: Define error taxonomy and retries
+      - [ ] 2.1.1.2.a Subtask: Enumerate error codes and meanings
+      - [ ] 2.1.1.2.b Subtask: Map errors to retry/abort decisions
+  - [ ] 2.1.2 Step: Fixtures and mocks
+    - [ ] 2.1.2.1 Task: Create normal/storm/malformed fixtures
+      - [ ] 2.1.2.1.a Subtask: Generate JSON fixtures for each dataset
+      - [ ] 2.1.2.1.b Subtask: Add timestamps to simulate staleness
+    - [ ] 2.1.2.2 Task: Wire fixtures into tests
+      - [ ] 2.1.2.2.a Subtask: Add fixture loaders to test setup
+      - [ ] 2.1.2.2.b Subtask: Validate fixtures via contract tests
+- [ ] 2.2 Phase: Mapping Models
+  - [ ] 2.2.1 Step: Magnetopause/bow shock formulas
+    - [x] 2.2.1.1 Task: Select coefficients and clamps
+      - [x] 2.2.1.1.a Subtask: Review literature values for Rmp fit
+      - [x] 2.2.1.1.b Subtask: Decide clamp ranges and rationale
+    - [ ] 2.2.1.2 Task: Produce test vectors for Rmp/Rbs
+      - [ ] 2.2.1.2.a Subtask: Calculate vectors for quiet conditions
+      - [ ] 2.2.1.2.b Subtask: Calculate vectors for storm conditions
+  - [ ] 2.2.2 Step: Auroral oval model
+    - [x] 2.2.2.1 Task: Define Kp-to-latitude mapping
+      - [x] 2.2.2.1.a Subtask: Establish per-Kp boundary table
+      - [x] 2.2.2.1.b Subtask: Include day/night asymmetry factors
+    - [x] 2.2.2.2 Task: Design blackout mask parameters
+      - [x] 2.2.2.2.a Subtask: Define opacity gradient rules
+      - [x] 2.2.2.2.b Subtask: Set thresholds for activation (e.g., Kp >= 7)
+
+## Stage 3: Rendering Implementation
+- [ ] 3.1 Phase: Geometry & Materials
+  - [ ] 3.1.1 Step: Shell geometry
+    - [x] 3.1.1.1 Task: Build magnetopause mesh (caps <5k verts)
+      - [x] 3.1.1.1.a Subtask: Implement geometry builder function
+      - [x] 3.1.1.1.b Subtask: Add vertex cap enforcement and logging
+    - [x] 3.1.1.2 Task: Build bow shock mesh with enforced delta
+      - [x] 3.1.1.2.a Subtask: Reuse base geometry with scaled delta
+      - [ ] 3.1.1.2.b Subtask: Validate separation constraint visually
+  - [ ] 3.1.2 Step: Aurora geometry
+    - [x] 3.1.2.1 Task: Generate oval ribbons with seam handling
+      - [x] 3.1.2.1.a Subtask: Implement lat/long to mesh conversion
+      - [x] 3.1.2.1.b Subtask: Duplicate seam vertices at +/-180
+    - [x] 3.1.2.2 Task: Add blackout mask band geometry
+      - [x] 3.1.2.2.a Subtask: Create gradient band geometry
+      - [x] 3.1.2.2.b Subtask: Bind opacity to Kp/threshold inputs
+  - [ ] 3.1.3 Step: Materials and blending
+    - [x] 3.1.3.1 Task: Configure shell materials (Phong, depth)
+      - [x] 3.1.3.1.a Subtask: Set colors/opacity constants
+      - [x] 3.1.3.1.b Subtask: Test depthWrite/depthTest settings
+    - [x] 3.1.3.2 Task: Configure aurora additive material
+      - [x] 3.1.3.2.a Subtask: Choose additive blend parameters
+      - [x] 3.1.3.2.b Subtask: Add optional pulse toggle
+- [x] 3.2 Phase: GlobeEngine Wiring
+  - [x] 3.2.1 Step: Overlay handlers
+    - [x] 3.2.1.1 Task: Add addOverlay cases for three overlays
+      - [x] 3.2.1.1.a Subtask: Implement handlers for magnetopause/bow shock/aurora
+      - [x] 3.2.1.1.b Subtask: Emit overlayDataLoading/Updated/Error appropriately
+    - [x] 3.2.1.2 Task: Hook update and dispose paths
+      - [x] 3.2.1.2.a Subtask: Ensure old meshes disposed on update
+      - [x] 3.2.1.2.b Subtask: Verify cache reuse logic works
+    - [x] 3.2.1.3 Task: Wire live NOAA inputs for boundary updates
+    - [x] 3.2.1.4 Task: Propagate stale/live quality for boundary payloads
+    - [x] 3.2.1.5 Task: Set CyberCommand defaults to auto-enable space weather overlays
+      - [x] 3.2.1.5.a Subtask: Include InterMag and US-Canada electric field overlays by default
+      - [x] 3.2.1.5.b Subtask: Enable magnetopause, bow shock, and aurora boundary overlays by default
+  - [x] 3.2.2 Step: Scheduling integration
+    - [x] 3.2.2.1 Task: Align with space weather polling
+      - [x] 3.2.2.1.a Subtask: Trigger immediate fetch on activation
+      - [x] 3.2.2.1.b Subtask: Confirm interval cleanup on disable
+      - [x] 3.2.2.2 Task: Debounce redundant rebuilds
+        - [x] 3.2.2.2.a Subtask: Add checksum to detect unchanged payloads
+        - [x] 3.2.2.2.b Subtask: Skip geometry rebuild when checksum matches
+
+## Stage 4: UX & HUD
+- [x] 4.1 Phase: Settings Wiring
+  - [x] 4.1.1 Step: Toggle integration
+    - [x] 4.1.1.1 Task: Connect showMagnetopause/showSolarWind/showAuroralOval
+      - [x] 4.1.1.1.a Subtask: Bind toggles to overlay activation
+      - [x] 4.1.1.1.b Subtask: Persist toggle state via settingsStorage
+    - [x] 4.1.1.2 Task: Ensure disable tears down meshes and polling
+      - [x] 4.1.1.2.a Subtask: Remove meshes from scene on disable
+      - [x] 4.1.1.2.b Subtask: Stop polling timers when overlays off
+- [ ] 4.2 Phase: HUD Alignment
+  - [ ] 4.2.1 Step: Data display
+    - [x] 4.2.1.1 Task: Show Re radii, Kp, freshness in cards
+      - [x] 4.2.1.1.a Subtask: Wire overlay payload fields into HUD
+      - [x] 4.2.1.1.b Subtask: Format values and timestamps consistently
+  - [x] 4.2.1.2 Task: Add degraded/loading indicators
+    - [x] 4.2.1.2.a Subtask: Display quality badge (live/fallback/stale)
+    - [x] 4.2.1.2.b Subtask: Show loading shimmer while fetching
+
+## Stage 5: Testing & Validation
+- [ ] 5.1 Phase: Automated Tests
+  - [ ] 5.1.1 Step: Unit and contract
+    - [x] 5.1.1.1 Task: Mapper unit tests for Rmp/Rbs/Kp→oval
+      - [x] 5.1.1.1.a Subtask: Add test vectors for quiet and storm cases
+      - [x] 5.1.1.1.b Subtask: Verify clamping flags in outputs
+    - [x] 5.1.1.2 Task: Contract tests for parsers and staleness
+      - [x] 5.1.1.2.a Subtask: Simulate malformed payloads and expect failures
+      - [x] 5.1.1.2.b Subtask: Test stale timestamp handling
+  - [ ] 5.1.2 Step: Integration
+    - [x] 5.1.2.1 Task: Overlay activation flow tests
+      - [x] 5.1.2.1.a Subtask: Verify events fire in correct order
+      - [x] 5.1.2.1.b Subtask: Assert geometry appears/disappears on toggle
+    - [ ] 5.1.2.2 Task: Render order and z-fight checks
+        - [x] 5.1.2.2.a Subtask: Validate renderOrder values per layer
+      - [ ] 5.1.2.2.b Subtask: Inspect visual artifacts in stress scenes
+- [ ] 5.2 Phase: Performance & Visual QA
+  - [ ] 5.2.1 Step: Performance
+    - [ ] 5.2.1.1 Task: FPS and update latency measurements
+      - [ ] 5.2.1.1.a Subtask: Measure baseline without overlays
+      - [ ] 5.2.1.1.b Subtask: Measure with all overlays during storm fixture
+    - [x] 5.2.1.2 Task: Vertex count caps under stress
+      - [x] 5.2.1.2.a Subtask: Log vertex counts per overlay build
+      - [x] 5.2.1.2.b Subtask: Trigger simplification when exceeding cap
+  - [ ] 5.2.2 Step: Visual
+    - [ ] 5.2.2.1 Task: Snapshot or manual checklist runs
+      - [ ] 5.2.2.1.a Subtask: Capture key states (quiet, moderate, storm)
+      - [ ] 5.2.2.1.b Subtask: Compare against visual spec palette
+    - [ ] 5.2.2.2 Task: Storm scenario validation
+      - [ ] 5.2.2.2.a Subtask: Use storm fixtures to verify shell sizes
+      - [ ] 5.2.2.2.b Subtask: Confirm blackout mask activation thresholds
+
+## Stage 6: Rollout & Observability
+- [ ] 6.1 Phase: Flags and Gating
+  - [ ] 6.1.1 Step: Feature flags
+    - [ ] 6.1.1.1 Task: Add per-overlay flags and defaults
+      - [ ] 6.1.1.1.a Subtask: Wire flags into configuration
+      - [ ] 6.1.1.1.b Subtask: Set environment-specific defaults
+    - [ ] 6.1.1.2 Task: Test kill switches in staging
+      - [ ] 6.1.1.2.a Subtask: Simulate flag off and verify teardown
+      - [ ] 6.1.1.2.b Subtask: Confirm no residual polling after disable
+- [ ] 6.2 Phase: Metrics and Alerts
+  - [ ] 6.2.1 Step: Dashboards
+      - [ ] 6.2.1.1 Task: Data health and staleness panels
+        - [ ] 6.2.1.1.a Subtask: Chart fetch success/latency per dataset
+        - [ ] 6.2.1.1.b Subtask: Display stale/fallback percentages
+      - [ ] 6.2.1.2 Task: Render performance panels
+        - [ ] 6.2.1.2.a Subtask: Plot FPS and update latency trends
+        - [ ] 6.2.1.2.b Subtask: Track geometry vertex counts over time
+  - [ ] 6.2.2 Step: Alerting
+      - [ ] 6.2.2.1 Task: Configure thresholds for failures and staleness
+        - [ ] 6.2.2.1.a Subtask: Define alert rules for fetch errors and stale data
+        - [ ] 6.2.2.1.b Subtask: Set thresholds for FPS drops and high latency
+      - [ ] 6.2.2.2 Task: Simulate alerts and verify routing
+        - [ ] 6.2.2.2.a Subtask: Trigger synthetic alerts in staging
+        - [ ] 6.2.2.2.b Subtask: Confirm notifications reach on-call channel
+
+## Stage 7: Risk Closure
+- [ ] 7.1 Phase: Open Questions
+  - [ ] 7.1.1 Step: Data and models
+    - [ ] 7.1.1.1 Task: Decide on live oval feed vs Kp-only
+      - [ ] 7.1.1.1.a Subtask: Evaluate reliability of live oval feed
+      - [ ] 7.1.1.1.b Subtask: Document fallback if feed unavailable
+    - [ ] 7.1.1.2 Task: Confirm standoff coefficients source
+      - [ ] 7.1.1.2.a Subtask: Select literature reference for coefficients
+      - [ ] 7.1.1.2.b Subtask: Record citation in docs
+  - [ ] 7.1.2 Step: UX choices
+    - [ ] 7.1.2.1 Task: Finalize colors/opacity
+      - [ ] 7.1.2.1.a Subtask: Review palette with design
+      - [ ] 7.1.2.1.b Subtask: Update constants after approval
+    - [ ] 7.1.2.2 Task: Decide on legends for MVP
+      - [ ] 7.1.2.2.a Subtask: Prototype minimal legend in UI
+      - [ ] 7.1.2.2.b Subtask: Validate legend placement with UX
+
+## Stage 8: Release Readiness
+- [ ] 8.1 Phase: Final Gate
+  - [ ] 8.1.1 Step: Checklist completion
+    - [ ] 8.1.1.1 Task: Verify all acceptance criteria satisfied
+      - [ ] 8.1.1.1.a Subtask: Cross-check acceptance matrix vs test results
+      - [ ] 8.1.1.1.b Subtask: Log any waivers or exceptions
+    - [ ] 8.1.1.2 Task: Sign-off from stakeholders
+      - [ ] 8.1.1.2.a Subtask: Collect approvals from product/engineering/design
+      - [ ] 8.1.1.2.b Subtask: Archive sign-off in tracker
+  - [ ] 8.1.2 Step: Launch
+    - [ ] 8.1.2.1 Task: Enable flags per plan
+      - [ ] 8.1.2.1.a Subtask: Roll out flags to target percentage
+      - [ ] 8.1.2.1.b Subtask: Monitor for regressions during ramp
+    - [ ] 8.1.2.2 Task: Post-release monitoring window
+      - [ ] 8.1.2.2.a Subtask: Track metrics for first 48 hours
+      - [ ] 8.1.2.2.b Subtask: Prepare rollback steps if needed

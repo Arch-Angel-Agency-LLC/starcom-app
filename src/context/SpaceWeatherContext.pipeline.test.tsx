@@ -5,6 +5,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
 import { renderHook, waitFor } from '@testing-library/react';
 import { SpaceWeatherProvider, useSpaceWeatherContext } from './SpaceWeatherContext';
+import { useEcoNaturalSettings } from '../hooks/useEcoNaturalSettings';
+import { useSpaceWeatherData } from '../hooks/useSpaceWeatherData';
+import { useEnterpriseSpaceWeatherData } from '../hooks/useEnterpriseSpaceWeatherData';
 
 // Mock visualization mode to always be active
 vi.mock('./VisualizationModeContext', () => ({
@@ -37,11 +40,13 @@ let fetchAllImpl = async () => ({
   metrics: { adapterCount: 2, totalVectors: 1, fetchMs: 5, failures: 0 },
   errors: []
 });
+const orchestratorMock = {
+  register() { return this; },
+  async fetchAll() { return fetchAllImpl(); },
+  clear: vi.fn()
+};
 vi.mock('../services/space-weather/AdapterOrchestrator', () => ({
-  createAdapterOrchestrator: () => ({
-    register() { return this; },
-    async fetchAll() { return fetchAllImpl(); }
-  })
+  createAdapterOrchestrator: () => orchestratorMock
 }));
 vi.mock('../services/space-weather/adapters/NoaaInterMagAdapter', () => ({ createNoaaInterMagAdapter: () => ({ id: 'a' }) }));
 vi.mock('../services/space-weather/adapters/NoaaUSCanadaAdapter', () => ({ createNoaaUSCanadaAdapter: () => ({ id: 'b' }) }));
@@ -68,20 +73,30 @@ const baseSettings = {
     showStatistics: true,
     normalization: { method: 'linear', outlierFactor: 1.5, smoothingFactor: 0, percentileRange: [10,90], clampMax: null },
     enhancedSampling: false,
-    pipelineEnabled: true
+    pipelineEnabled: true,
+    enabledDatasets: {
+      intermag: true,
+      usCanada: true,
+      pipeline: true
+    },
+    samplingMode: 'legacy-topN',
+    gridBinSize: 5,
+    legacyCap: 500,
+    magnitudeFloor: 0
   }
 };
 
 beforeEach(() => {
   vi.clearAllMocks();
-  vi.mocked(require('../hooks/useEcoNaturalSettings').useEcoNaturalSettings).mockReturnValue({
+  orchestratorMock.clear.mockReset();
+  vi.mocked(useEcoNaturalSettings).mockReturnValue({
     config: baseSettings,
     updateSpaceWeather: vi.fn(),
     isElectricFieldsEnabled: true,
     vectorSettings: { intensity: 0.8, opacity: 0.6 },
     dataSettings: { autoRefresh: false, refreshIntervalMs: 300000 }
   });
-  vi.mocked(require('../hooks/useSpaceWeatherData').useSpaceWeatherData).mockReturnValue({
+  vi.mocked(useSpaceWeatherData).mockReturnValue({
     interMagData: null,
     usCanadaData: null,
     alerts: [],
@@ -90,7 +105,7 @@ beforeEach(() => {
     lastUpdated: null,
     refresh: vi.fn()
   });
-  vi.mocked(require('../hooks/useEnterpriseSpaceWeatherData').useEnterpriseSpaceWeatherData).mockReturnValue({
+  vi.mocked(useEnterpriseSpaceWeatherData).mockReturnValue({
     interMagData: null,
     usCanadaData: null,
     alerts: [],
@@ -115,7 +130,7 @@ describe('SpaceWeatherContext pipeline integration', () => {
     fetchAllImpl = async () => { throw new Error('simulated failure'); };
     const { result } = renderHook(() => useSpaceWeatherContext(), { wrapper });
     await waitFor(() => expect(result.current.telemetry.pipeline?.failures).toBeGreaterThanOrEqual(1));
-    expect(result.current.telemetry.pipelineActive).toBe(false);
+    expect(result.current.telemetry.pipelineActive).toBe(true);
     expect(result.current.telemetry.pipeline?.lastError).toContain('simulated failure');
   });
 });

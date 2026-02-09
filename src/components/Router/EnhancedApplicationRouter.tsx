@@ -2,6 +2,9 @@ import React, { useState, useCallback, useMemo, ReactNode } from 'react';
 import { EnhancedApplicationRouterContext } from '../../context/EnhancedApplicationRouterContext';
 import { trackInvestorEvents } from '../../utils/analytics';
 import { googleAnalyticsService } from '../../services/GoogleAnalyticsService';
+import { pollerRegistry } from '../../services/pollerRegistry';
+import { makeRouteScope } from '../../services/pollerScopes';
+import { assetLoader } from '../../utils/assetLoader';
 
 // Import actual application components
 import CyberCommandApplication from '../../applications/cybercommand/CyberCommandApplication';
@@ -196,6 +199,11 @@ export const EnhancedApplicationRouterProvider: React.FC<{ children: ReactNode }
       return;
     }
 
+    if (state.currentApp && state.currentApp !== appId) {
+      pollerRegistry.stopAll(makeRouteScope(state.currentApp));
+      assetLoader.purgeCache('route-change');
+    }
+
     // ANALYTICS: Track application navigation (Tier 1 - Highest ROI)
     const previousApp = state.currentApp;
     const timeInPreviousApp = previousApp ? getTimeInApp(previousApp) : 0;
@@ -262,6 +270,11 @@ export const EnhancedApplicationRouterProvider: React.FC<{ children: ReactNode }
       
       const previousApp = prevState.history[prevState.history.length - 1];
       const newHistory = prevState.history.slice(0, -1);
+
+      if (prevState.currentApp) {
+        pollerRegistry.stopAll(makeRouteScope(prevState.currentApp));
+        assetLoader.purgeCache('route-change');
+      }
       
       return {
         ...prevState,

@@ -1,0 +1,207 @@
+# Memory Refactor Progress Tracker
+
+Use this tracker to record progress across stages → phases → steps → tasks. Check items as they complete and note PR/owner if helpful.
+
+## Legend
+- [ ] open
+- [x] done
+- Seeded numbering: Stage.Phase.Step.Task (e.g., 2.1.3.2)
+
+## Stage 1: Foundations
+- Phase 1.1: Registry and Diagnostics
+  - Step 1.1.1: Poller Registry and Guards
+    - [x] Task 1.1.1.1: Implement registry with dedupe, in-flight skip, abort, min-interval, backoff
+      - [x] Subtask 1.1.1.1.a: Define registry API surface and keying scheme
+      - [x] Subtask 1.1.1.1.b: Implement in-flight guard and abort controller wiring
+      - [x] Subtask 1.1.1.1.c: Add backoff/min-interval logic with jitter
+      - [x] Subtask 1.1.1.1.d: Expose stopAll and debug dump endpoints
+    - [x] Task 1.1.1.2: Add useRegisteredPoller hook for StrictMode-safe registration
+      - [x] Subtask 1.1.1.2.a: Build hook with dedupe/ref equality guard
+      - [x] Subtask 1.1.1.2.b: Verify cleanup on unmount and StrictMode double-mount
+    - [x] Task 1.1.1.3: Migrate Globe/SpaceWeather/Discord pollers to registry
+      - [x] Subtask 1.1.1.3.a: Swap GlobeEngine intervals to registry handles
+      - [x] Subtask 1.1.1.3.b: Migrate SpaceWeatherContext pollers with abort handling
+      - [x] Subtask 1.1.1.3.c: Migrate useDiscordStats poller with min-interval floor
+    - [x] Task 1.1.1.4: Add teardown hooks for mode/route and stopAll by scope
+      - [x] Subtask 1.1.1.4.a: Register scope tags for mode/route
+      - [x] Subtask 1.1.1.4.b: Wire route/mode listeners to stopAll(scope)
+      - [x] Subtask 1.1.1.4.c: Add test to ensure scoped teardown stops active pollers
+  - Step 1.1.2: Diagnostics and Budgets
+    - [x] Task 1.1.2.1: Gate DeploymentDebugger/asset diagnostics in prod; log only first success
+      - [x] Subtask 1.1.2.1.a: Add prod flag to silence retries and MIME/path spam
+      - [x] Subtask 1.1.2.1.b: Move diagnostics after cache-hit check
+      - [x] Subtask 1.1.2.1.c: Emit single tracer/log event per model URL
+    - [x] Task 1.1.2.2: Raise heap budgets (eco ~1GB) with delta-based, debounced warnings
+      - [x] Subtask 1.1.2.2.a: Add env-driven budget config
+      - [x] Subtask 1.1.2.2.b: Implement delta+debounce emission rule
+      - [x] Subtask 1.1.2.2.c: Align VisualizationResourceMonitor thresholds to new budgets
+    - [x] Task 1.1.2.3: Refactor memoryMonitor/useMemoryAware to shared interval + realistic thresholds
+      - [x] Subtask 1.1.2.3.a: Replace per-hook intervals with shared singleton timer
+      - [x] Subtask 1.1.2.3.b: Update thresholds and gating defaults for prod/dev
+      - [x] Subtask 1.1.2.3.c: Add tests for no duplicate intervals under StrictMode
+    - [x] Task 1.1.2.4: Debounce VisualizationResourceMonitor warnings; add snapshot cap/TTL alignment
+      - [x] Subtask 1.1.2.4.a: Add debounce and delta filter to warning emitter
+      - [x] Subtask 1.1.2.4.b: Cap/TTL snapshots and recompute warnings post-eviction
+      - [x] Subtask 1.1.2.4.c: Add telemetry for warning emission rate
+
+## Stage 2: Assets and Caches
+- Phase 2.1: GLB Lifecycle
+  - Step 2.1.1: GLB Cache Bounding
+    - [x] Task 2.1.1.1: Swap assetLoader cache to LRU+TTL with byte/entry caps and telemetry
+      - [x] Subtask 2.1.1.1.a: Implement LRU store with TTL and byte accounting
+      - [x] Subtask 2.1.1.1.b: Add telemetry hooks for hit/miss/evict and size
+      - [x] Subtask 2.1.1.1.c: Thread through assetLoader consumers
+    - [x] Task 2.1.1.2: Add purge hook for heavy-mode exit and route change
+      - [x] Subtask 2.1.1.2.a: Expose purge API on cache module
+      - [x] Subtask 2.1.1.2.b: Call purge on mode/route transitions
+      - [x] Subtask 2.1.1.2.c: Verify purge disposes resources
+    - [x] Task 2.1.1.3: Gate GLB diagnostics; emit tracer events on hit/miss/eviction
+      - [x] Subtask 2.1.1.3.a: Silence retry spam in prod; keep first-success stamp
+      - [x] Subtask 2.1.1.3.b: Add tracer events with cache context
+      - [x] Subtask 2.1.1.3.c: Ensure cache-hit path bypasses diagnostics allocations
+  - Step 2.1.2: GLTF Disposal
+      - [x] Task 2.1.2.1: Add disposeGLTF helper (geometry/material/texture/skeleton)
+        - [x] Subtask 2.1.2.1.a: Implement traversal dispose routine with options
+        - [x] Subtask 2.1.2.1.b: Add tests for geometry/material/texture cleanup
+      - [x] Task 2.1.2.2: Wire dispose helper into Globe overlays and 3D widgets
+        - [x] Subtask 2.1.2.2.a: Identify consumers; replace custom disposals
+        - [x] Subtask 2.1.2.2.b: Ensure unmount/mode-change calls dispose helper
+        - [x] Subtask 2.1.2.2.c: Finish remaining widget/overlay wiring as needed
+      - [x] Task 2.1.2.3: Ensure cache eviction triggers dispose for evicted entries
+        - [x] Subtask 2.1.2.3.a: Hook cache eviction to disposeGLTF
+        - [x] Subtask 2.1.2.3.b: Add test for eviction-dispose path
+- Phase 2.2: Provider and Snapshot Caches
+  - Step 2.2.1: Unified Cache Utility
+    - [x] Task 2.2.1.1: Build shared cache utility with TTL, size cap, LRU, telemetry, shared cleanup scheduler
+      - [x] Subtask 2.2.1.1.a: Implement core storage with LRU and TTL
+      - [x] Subtask 2.2.1.1.b: Add shared cleanup scheduler and stop hook
+      - [x] Subtask 2.2.1.1.c: Expose telemetry API and warning thresholds
+    - [x] Task 2.2.1.2: Replace BasicCacheService/providerRegistry with utility and cleanup scheduler
+      - [x] Subtask 2.2.1.2.a: Swap providerRegistry cache usage to utility
+      - [x] Subtask 2.2.1.2.b: Remove per-instance intervals in providers
+      - [x] Subtask 2.2.1.2.c: Configure caps/TTLs per provider domain
+    - [x] Task 2.2.1.3: Replace Cache.ts and CacheManager with utility; add dispose/stopCleanup hooks
+      - [x] Subtask 2.2.1.3.a: Port Cache.ts consumers to utility
+      - [x] Subtask 2.2.1.3.b: Port CacheManager with dispose/stopCleanup wiring
+      - [x] Subtask 2.2.1.3.c: Remove legacy cleanup intervals and validate teardown
+  - Step 2.2.2: Visualization Snapshots
+    - [x] Task 2.2.2.1: Add TTL/size cap to snapshot Map; evict oldest and recalc warnings
+      - [x] Subtask 2.2.2.1.a: Implement cap/TTL policy for snapshots
+      - [x] Subtask 2.2.2.1.b: Recompute warnings on eviction
+      - [x] Subtask 2.2.2.1.c: Add tests for eviction ordering and warning behavior
+    - [x] Task 2.2.2.2: Telemetry for snapshot size/evictions; warn at 90% cap
+      - [x] Subtask 2.2.2.2.a: Emit size/eviction metrics to tracer/logger
+      - [x] Subtask 2.2.2.2.b: Add 90% cap warning hook
+
+## Stage 3: Media and Effects
+- Phase 3.1: Particles and Flares
+  - Step 3.1.1: SolarActivityVisualizer Pooling
+    - [x] Task 3.1.1.1: Introduce pooled flare/particle meshes with max pool size
+      - [x] Subtask 3.1.1.1.a: Design pool API and limits
+      - [x] Subtask 3.1.1.1.b: Implement pool reuse path for flares/particles
+      - [x] Subtask 3.1.1.1.c: Add safeguards for pool overflow
+    - [x] Task 3.1.1.2: Add teardown to return instances on mode exit/unmount; dispose overflow
+      - [x] Subtask 3.1.1.2.a: Wire mode/route listeners to return pool items
+      - [x] Subtask 3.1.1.2.b: Dispose excess instances beyond pool cap
+    - [x] Task 3.1.1.3: Emit telemetry when pool hits cap; verify no retained buffers
+      - [x] Subtask 3.1.1.3.a: Add cap-hit counter and tracer event
+      - [x] Subtask 3.1.1.3.b: Add test to confirm buffer counts stable across churn
+      - [x] Subtask 3.1.1.3.c: Wire telemetry callback for cap hits
+- Phase 3.2: Audio
+  - Step 3.2.1: Audio Resource Hygiene
+    - [x] Task 3.2.1.1: Implement singleton AudioContext with concurrent source cap
+      - [x] Subtask 3.2.1.1.a: Create lazy singleton with concurrency guard
+      - [x] Subtask 3.2.1.1.b: Add teardown/close logic when idle
+    - [x] Task 3.2.1.2: Reuse decoded buffers; dispose sources post-playback; teardown on mode switch
+      - [x] Subtask 3.2.1.2.a: Add buffer cache with TTL/cap
+      - [x] Subtask 3.2.1.2.b: Stop/cleanup sources on completion and mode change
+      - [x] Subtask 3.2.1.2.c: Test repeated notifications for leaks
+    - [x] Task 3.2.1.3: Add tracer hooks for audio creation/teardown events
+      - [x] Subtask 3.2.1.3.a: Emit tracer events for context create/close
+      - [x] Subtask 3.2.1.3.b: Emit events for source start/stop
+
+## Stage 4: Backpressure and Idle
+- Phase 4.1: Loop Backpressure
+  - Step 4.1.1: High-Frequency Loop Controls
+    - [x] Task 4.1.1.1: Add idle sleep/backoff to realTimeEventSystem (batch per tick, pause when empty)
+      - [x] Subtask 4.1.1.1.a: Add queue-length based batching
+      - [x] Subtask 4.1.1.1.b: Add idle sleep when queue empty
+      - [x] Subtask 4.1.1.1.c: Add backoff when handlers are slow
+      - [x] Subtask 4.1.1.1.d: Emit loop telemetry for batches/idle/backoff
+    - [x] Task 4.1.1.2: Apply slow-call skip/backoff to provider/Discord pollers via registry
+      - [x] Subtask 4.1.1.2.a: Instrument durations and define slow thresholds
+      - [x] Subtask 4.1.1.2.b: Skip/delay next run when slow; log skip counts
+      - [x] Subtask 4.1.1.2.c: Add error backoff configuration
+    - [x] Task 4.1.1.3: Add visibility-aware interval expansion when tab hidden
+      - [x] Subtask 4.1.1.3.a: Detect visibility change and expand intervals
+      - [x] Subtask 4.1.1.3.b: Restore intervals on foreground
+- Phase 4.2: Service Backoff
+  - Step 4.2.1: Service Loop Resilience
+    - [x] Task 4.2.1.1: Add backoff/pause/resume to IPFSContentOrchestrator/NetworkManager
+      - [x] Subtask 4.2.1.1.a: Add retry/backoff policy to orchestrator calls
+      - [x] Subtask 4.2.1.1.b: Add pause/resume API and wiring to signals
+      - [x] Subtask 4.2.1.1.c: Emit tracer events for pauses/resumes
+    - [x] Task 4.2.1.2: Add backoff to RealTimeTeamService/AIEngineSimulator/MonitoringService
+      - [x] Subtask 4.2.1.2.a: Implement capped backoff and error counters per service
+      - [x] Subtask 4.2.1.2.b: Add cool-off after consecutive failures
+    - [x] Task 4.2.1.3: Wire tracer events for skips/backoffs
+      - [x] Subtask 4.2.1.3.a: Emit skip/backoff events from registry/services
+      - [x] Subtask 4.2.1.3.b: Add sampling to avoid log spam
+
+## Stage 5: Observability and StrictMode
+- Phase 5.1: Tracing and Logging
+  - Step 5.1.1: Tracer Integration
+    - [x] Task 5.1.1.1: Implement sampling tracer with delta filter and env flags
+      - [x] Subtask 5.1.1.1.a: Build tracer core with buffer and sampling
+      - [x] Subtask 5.1.1.1.b: Add delta filter (+100MB) and env config
+      - [x] Subtask 5.1.1.1.c: Provide no-op tracer for prod-off mode
+    - [x] Task 5.1.1.2: Emit poller/cache/diagnostic/disposal events with standardized fields
+      - [x] Subtask 5.1.1.2.a: Define schema for tracer events
+      - [x] Subtask 5.1.1.2.b: Wire registry/cache/diagnostics/disposal emitters
+      - [x] Subtask 5.1.1.2.c: Add tests for schema compliance
+    - [x] Task 5.1.1.3: Add correlation markers for heap warnings and asset diagnostics
+      - [x] Subtask 5.1.1.3.a: Tag heap warnings with mode/overlay/cache sizes
+      - [x] Subtask 5.1.1.3.b: Tag asset diagnostics with cache-hit/miss context
+      - [x] Subtask 5.1.1.3.c: Validate tracer output under load
+- Phase 5.2: StrictMode Hygiene
+  - Step 5.2.1: Lifecycle Safety
+    - [x] Task 5.2.1.1: Adopt useSingleton/useRegisteredPoller patterns across hooks/services
+      - [x] Subtask 5.2.1.1.a: Identify singleton candidates (AudioContext, tracer, cache scheduler)
+      - [x] Subtask 5.2.1.1.b: Refactor hooks/services to use patterns
+      - [x] Subtask 5.2.1.1.c: Add guard rails/logs for dedupe hits
+    - [x] Task 5.2.1.2: Verify teardown on mode/route change purges caches/pollers
+      - [x] Subtask 5.2.1.2.a: Add integration test for mode change teardown
+      - [x] Subtask 5.2.1.2.b: Verify purge hooks called for caches and registries
+    - [x] Task 5.2.1.3: Run StrictMode/hot-reload tests to confirm no duplicate intervals
+      - [x] Subtask 5.2.1.3.a: Simulate StrictMode double-mount and assert single poller
+      - [x] Subtask 5.2.1.3.b: Simulate hot-reload remount; verify no leaked timers
+
+## Stage 6: Verification and Rollout
+- Phase 6.1: Testing and Gates
+  - Step 6.1.1: Automated Tests
+    - [x] Task 6.1.1.1: Poller registry unit/integration tests (overlap prevention, backoff, teardown)
+      - [x] Subtask 6.1.1.1.a: Unit test in-flight skip and stopAll
+      - [x] Subtask 6.1.1.1.b: Integration test with slow endpoint to prove no overlaps
+      - [x] Subtask 6.1.1.1.c: Backoff logic test with consecutive failures
+    - [x] Task 6.1.1.2: Cache utility tests (TTL, LRU eviction, telemetry, cleanup scheduler)
+      - [x] Subtask 6.1.1.2.a: TTL expiration test
+      - [x] Subtask 6.1.1.2.b: LRU eviction order test with byte/entry caps
+      - [x] Subtask 6.1.1.2.c: Scheduler start/stop coverage and telemetry assertions
+    - [x] Task 6.1.1.3: GLTF dispose/pooling tests; audio singleton tests
+      - [x] Subtask 6.1.1.3.a: GLTF load/dispose twice; check no retained geometries/materials
+      - [x] Subtask 6.1.1.3.b: Pool reuse test across churn; verify buffer counts stable
+      - [x] Subtask 6.1.1.3.c: Audio singleton concurrency/teardown test
+    - [ ] Task 6.1.1.4: Long-run smoke to assert flat heap under load
+      - [x] Subtask 6.1.1.4.a: Scripted scenario with mode churn and GLB reuse
+      - [x] Subtask 6.1.1.4.b: Capture heap traces and compare to budget thresholds
+      - [x] Subtask 6.1.1.4.c: Validate tracer output remains bounded
+  - Step 6.1.2: Rollout Tracking
+    - [ ] Task 6.1.2.1: Update rollout-and-checklist.md as phases complete
+      - [ ] Subtask 6.1.2.1.a: Mark checklist items per PR merge
+      - [ ] Subtask 6.1.2.1.b: Note blockers and follow-ups
+    - [ ] Task 6.1.2.2: Record PRs, owners, and dates per task
+      - [ ] Subtask 6.1.2.2.a: Add table of PR links and owners
+      - [ ] Subtask 6.1.2.2.b: Track deployment dates
+    - [ ] Task 6.1.2.3: Verify prod flags/defaults (tracer off or sampled, diagnostics gated)
+      - [ ] Subtask 6.1.2.3.a: Confirm env defaults in code and deployment configs
+      - [ ] Subtask 6.1.2.3.b: Run prod-mode smoke to ensure flags respected

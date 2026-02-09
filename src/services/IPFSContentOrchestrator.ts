@@ -13,6 +13,7 @@
 
 import { RelayNodeIPFSService } from './RelayNodeIPFSService';
 import { IPFSNetworkManager } from './IPFSNetworkManager';
+import { IpfsBackoffController, type BackoffEvent } from './ipfs/ipfsBackoffController';
 import { IntelPackage, CyberTeam, CyberInvestigation, Evidence } from '../types/cyberInvestigation';
 import { IPFSUploadResult } from './IPFSService';
 
@@ -101,6 +102,7 @@ export class IPFSContentOrchestrator {
   private static instance: IPFSContentOrchestrator;
   private relayNodeService: RelayNodeIPFSService;
   private networkManager: IPFSNetworkManager;
+  private backoffController: IpfsBackoffController;
   private contentRegistry: Map<string, ContentMetadata> = new Map();
   private replicationPolicies: Map<string, ReplicationPolicy> = new Map();
   private syncEvents: ContentSyncEvent[] = [];
@@ -110,6 +112,10 @@ export class IPFSContentOrchestrator {
   private constructor() {
     this.relayNodeService = RelayNodeIPFSService.getInstance();
     this.networkManager = IPFSNetworkManager.getInstance();
+    this.backoffController = new IpfsBackoffController({
+      label: 'ipfs-orchestrator',
+      onEvent: (event) => this.handleBackoffEvent(event)
+    });
     
     this.initializeContentRegistry();
     this.setupDefaultPolicies();
@@ -158,14 +164,14 @@ export class IPFSContentOrchestrator {
     }
 
     // Upload content through RelayNode service
-    const uploadResult = await this.relayNodeService.uploadContent(data, {
+    const uploadResult = await this.backoffController.run(() => this.relayNodeService.uploadContent(data, {
       type: (contentType === 'binary' || contentType === 'evidence') ? undefined : contentType,
       creator: options.creator,
       classification: this.mapClassification(options.classification || 'CONFIDENTIAL'),
       replicateToTeam: true,
       encryptWithPQC: true,
       metadata: options.customMetadata
-    });
+    }));
 
     // Create content metadata
     const metadata: ContentMetadata = {
@@ -264,7 +270,7 @@ export class IPFSContentOrchestrator {
     try {
       console.log(`📥 Retrieving content from ${optimalNode.source}...`);
       
-      const data = await this.relayNodeService.downloadContent(metadata.hash);
+      const data = await this.backoffController.run(() => this.relayNodeService.downloadContent(metadata.hash));
       
       // Verify content integrity
       const integrityValid = await this.verifyContentIntegrity(data, metadata);
@@ -312,13 +318,13 @@ export class IPFSContentOrchestrator {
     }
 
     // Upload new version
-    const uploadResult = await this.relayNodeService.uploadContent(data, {
+    const uploadResult = await this.backoffController.run(() => this.relayNodeService.uploadContent(data, {
       type: existingMetadata.type === 'binary' ? undefined : existingMetadata.type,
       creator: updatingUser,
       replicateToTeam: true,
       encryptWithPQC: true,
       metadata: options.customMetadata
-    });
+    }));
 
     // Update metadata
     const oldHash = existingMetadata.hash;
@@ -509,6 +515,36 @@ export class IPFSContentOrchestrator {
     return () => {
       this.syncEventListeners.delete(listener);
     };
+  }
+
+  public pauseOperations(): void {
+    this.backoffController.pause();
+    this.networkManager.pause();
+  }
+
+  public resumeOperations(): void {
+    this.networkManager.resume();
+    this.backoffController.resume();
+  }
+
+  private handleBackoffEvent(event: BackoffEvent): void {
+    if (event.type === 'pause' || event.type === 'backoff_scheduled' || event.type === 'backoff_exhausted') {
+      this.networkManager.pause();
+    }
+
+    if (event.type === 'resume' || event.type === 'call_success') {
+      this.networkManager.resume();
+    }
+
+    this.emitBackoffEvent(event);
+  }
+
+  private emitBackoffEvent(event: BackoffEvent): void {
+    try {
+      window.dispatchEvent(new CustomEvent('ipfs-backoff', { detail: event }));
+    } catch (error) {
+      console.warn('Failed to emit IPFS backoff event:', error);
+    }
   }
 
   /**
@@ -973,7 +1009,7 @@ export class IPFSContentOrchestrator {
     try {
       if (!data) {
         // If no data provided, fetch it
-        data = await this.relayNodeService.downloadContent(metadata.hash);
+        data = await this.backoffController.run(() => this.relayNodeService.downloadContent(metadata.hash));
       }
 
       // For IPFS, the hash itself is the integrity check
@@ -1134,7 +1170,7 @@ export class IPFSContentOrchestrator {
       
       // In a real implementation, this would use authenticated communication
       // For now, fall back to the relay node service
-      return await this.relayNodeService.downloadContent(metadata.hash);
+      return await this.backoffController.run(() => this.relayNodeService.downloadContent(metadata.hash));
     } catch (error) {
       console.warn(`Team node recovery failed for ${nodeId}:`, error);
       return null;
@@ -1169,7 +1205,7 @@ export class IPFSContentOrchestrator {
       } else {
         // Emergency relay node recovery
         console.log(`🚨 Using emergency relay: ${source}`);
-        return await this.relayNodeService.downloadContent(metadata.hash);
+        return await this.backoffController.run(() => this.relayNodeService.downloadContent(metadata.hash));
       }
     } catch (error) {
       console.warn(`Remote source recovery failed for ${source}:`, error);

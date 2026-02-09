@@ -1,5 +1,6 @@
 import { CyberTeam, CyberInvestigation, TeamMember } from '../types/cyberInvestigation';
 import { createTeamInviteLink } from '../config/publicInfrastructure';
+import { ServiceBackoffController, type ServiceBackoffEvent } from './backoff/ServiceBackoffController';
 
 interface TeamWorkspaceData {
   teams: CyberTeam[];
@@ -43,6 +44,19 @@ class RealTimeTeamService {
   private investigations: Map<string, CyberInvestigation> = new Map();
   private memberActivities: MemberActivity[] = [];
   private eventListeners: Map<string, Set<(...args: unknown[]) => void>> = new Map();
+  private backoffController = new ServiceBackoffController({
+    label: 'real-time-team-service',
+    baseDelayMs: 1000,
+    coolOffThreshold: 3,
+    coolOffDurationMs: 20000,
+    sampleRate: 0.5,
+    minIntervalMs: 2000,
+    onEvent: (event) => this.emitBackoffEvent(event)
+  });
+  private syncIntervalMs = 30000;
+  private syncTimer?: ReturnType<typeof setTimeout>;
+  private syncInProgress = false;
+  private paused = false;
 
   constructor() {
     this.loadPersistedData();
@@ -399,10 +413,53 @@ class RealTimeTeamService {
   }
 
   private setupPeriodicSync(): void {
-    // Sync every 30 seconds for real-time feel
-    setInterval(() => {
-      this.syncWithPublicInfrastructure();
-    }, 30000);
+    this.scheduleNextSync();
+  }
+
+  private scheduleNextSync(delay = this.syncIntervalMs): void {
+    if (this.syncTimer) {
+      clearTimeout(this.syncTimer);
+    }
+
+    this.syncTimer = setTimeout(() => this.runSyncCycle(), delay);
+  }
+
+  private async runSyncCycle(): Promise<void> {
+    if (this.paused || this.syncInProgress) return;
+    this.syncInProgress = true;
+
+    try {
+      await this.backoffController.run(() => this.syncWithPublicInfrastructure());
+    } catch (error) {
+      console.error('RealTimeTeamService sync failed after backoff:', error);
+    } finally {
+      this.syncInProgress = false;
+      this.scheduleNextSync();
+    }
+  }
+
+  public pause(): void {
+    this.paused = true;
+    if (this.syncTimer) {
+      clearTimeout(this.syncTimer);
+      this.syncTimer = undefined;
+    }
+    this.backoffController.pause();
+  }
+
+  public resume(): void {
+    if (!this.paused) return;
+    this.paused = false;
+    this.backoffController.resume();
+    this.scheduleNextSync();
+  }
+
+  private emitBackoffEvent(event: ServiceBackoffEvent): void {
+    try {
+      window.dispatchEvent(new CustomEvent('service-backoff', { detail: { service: 'real-time-team-service', event } }));
+    } catch (error) {
+      console.warn('Failed to emit RealTimeTeamService backoff event:', error);
+    }
   }
 
   private async syncWithPublicInfrastructure(): Promise<void> {

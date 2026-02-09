@@ -8,6 +8,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
 import { IntelReportOverlayMarker } from '../../../interfaces/IntelReportOverlay';
 import { assetLoader } from '../../../utils/assetLoader';
+import { disposeGLTF } from '../../../utils/disposeGLTF';
 import intelReportModelUrl from '../../../assets/models/intel_report-01d.glb?url';
 
 interface IntelReport3DPreviewProps {
@@ -30,6 +31,7 @@ export const IntelReport3DPreview: React.FC<IntelReport3DPreviewProps> = ({
   const animationIdRef = useRef<number | null>(null);
   const baseScaleRef = useRef<number>(1);
   const [isLoading, setIsLoading] = useState(true);
+  const loadedModelRef = useRef<THREE.Object3D | null>(null);
 
   useEffect(() => {
     if (!mountRef.current) return;
@@ -119,6 +121,7 @@ export const IntelReport3DPreview: React.FC<IntelReport3DPreviewProps> = ({
         }
 
         const modelInstance = baseModel.clone(true);
+        loadedModelRef.current = modelInstance;
 
         const containerGroup = meshRef.current;
         containerGroup?.clear();
@@ -166,6 +169,10 @@ export const IntelReport3DPreview: React.FC<IntelReport3DPreviewProps> = ({
       if (sceneRef.current) {
         sceneRef.current.clear();
         sceneRef.current = null;
+      }
+      if (loadedModelRef.current) {
+        disposeGLTF(loadedModelRef.current);
+        loadedModelRef.current = null;
       }
       meshRef.current = null;
       baseScaleRef.current = 1;

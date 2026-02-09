@@ -4,7 +4,9 @@ import Globe, { GlobeMethods } from 'react-globe.gl';
 import * as THREE from 'three';
 import { useVisualizationMode } from '../../context/VisualizationModeContext';
 import { useGlobeLoading } from '../../context/GlobeLoadingContext';
+import { formatEcoDisasterLabel, formatEcoDisasterTooltip } from '../EcoNatural/formatters';
 import { GlobeEngine } from '../../globe-engine/GlobeEngine';
+import type { GlobeEvent } from '../../globe-engine/GlobeEngine';
 import { useSpaceWeatherContext } from '../../context/SpaceWeatherContext';
 import GlobeLoadingManager from './GlobeLoadingManager';
 import { useIntelReport3DMarkers } from '../../hooks/useIntelReport3DMarkers';
@@ -15,11 +17,14 @@ import { IntelReportOverlayMarker } from '../../interfaces/IntelReportOverlay';
 import { Enhanced3DGlobeInteractivity } from './Enhanced3DGlobeInteractivity';
 import { useGlobeSolarSystemIntegration } from './GlobeSolarSystemIntegration';
 import type { SolarSystemState } from '../../solar-system/SolarSystemManager';
+import useEcoNaturalSettings from '../../hooks/useEcoNaturalSettings';
+import useGeoEvents from '../../hooks/useGeoEvents';
+import { visualizationResourceMonitor } from '../../services/visualization/VisualizationResourceMonitor';
+import { memoryBudgetConfig } from '../../config/memoryBudgets';
 // Cyber visualization services
 import { ThreatIntelligenceService } from '../../services/CyberThreats/ThreatIntelligenceService';
 import { RealTimeAttackService } from '../../services/CyberAttacks/RealTimeAttackService';
 import { satelliteVisualizationService } from '../../services/Satellites/SatelliteVisualizationService';
-import { visualizationResourceMonitor } from '../../services/visualization/VisualizationResourceMonitor';
 import { collectGeometryStats } from '../../utils/threeResourceMetrics';
 import type { CyberThreatData } from '../../types/CyberThreats';
 import type { CyberAttackData } from '../../types/CyberAttacks';
@@ -67,6 +72,8 @@ const GlobeView: React.FC = () => {
   const commHubsGroupRef = useRef<THREE.Group>(new THREE.Group());
   // Debug: Prime meridian/equator marker(s)
   const primeMeridianMarkerRef = useRef<THREE.Group>(new THREE.Group());
+  const boundaryObjectsRef = useRef<Record<string, THREE.Object3D | undefined>>({});
+  const boundaryOverlays = ['spaceWeatherMagnetopause', 'spaceWeatherBowShock', 'spaceWeatherAurora'];
   
   // Cyber data services and state
   const threatServiceRef = useRef<ThreatIntelligenceService | null>(null);
@@ -81,6 +88,60 @@ const GlobeView: React.FC = () => {
     // isLoading: _spaceWeatherLoading,
     // error: _spaceWeatherError 
   } = useSpaceWeatherContext();
+  const { settings: spaceWeatherSettings } = useSpaceWeatherContext();
+  const { config: ecoSettings } = useEcoNaturalSettings();
+  const ecoResourceBudgetSet = useRef(false);
+
+  const ecoDisastersEnabled = visualizationMode.mode === 'EcoNatural' && visualizationMode.subMode === 'EcologicalDisasters';
+
+  const {
+    filtered: ecoEvents,
+    error: ecoEventsError,
+    stale: ecoEventsStale,
+    refetch: refetchEcoEvents
+  } = useGeoEvents({
+    enabled: ecoDisastersEnabled,
+    refreshMinutes: 1,
+    timeRangeDays: ecoSettings.ecologicalDisasters.timeRange,
+    disasterTypes: ecoSettings.ecologicalDisasters.disasterTypes,
+    severity: ecoSettings.ecologicalDisasters.severity
+  });
+
+  const ecoRefetchTriggered = useRef(false);
+
+  useEffect(() => {
+    if (!ecoDisastersEnabled) {
+      ecoRefetchTriggered.current = false;
+      return;
+    }
+    if (!globeEngine) return;
+    if (ecoRefetchTriggered.current) return;
+    ecoRefetchTriggered.current = true;
+    refetchEcoEvents().catch((err) => console.warn('EcoNatural refetch failed after engine init', err));
+  }, [ecoDisastersEnabled, globeEngine, refetchEcoEvents]);
+
+  useEffect(() => {
+    if (ecoResourceBudgetSet.current) return;
+    visualizationResourceMonitor.setBudgets('EcoNatural.EcologicalDisasters', {
+      maxVectors: 900,
+      maxPipelineVectors: 1800,
+      maxHeapBytes: memoryBudgetConfig.ecoHeapBudgetBytes
+    });
+    ecoResourceBudgetSet.current = true;
+  }, []);
+
+  useEffect(() => {
+    if (!ecoDisastersEnabled) return;
+    const off = visualizationResourceMonitor.onWarning((snapshot) => {
+      if (snapshot.mode !== 'EcoNatural.EcologicalDisasters') return;
+      console.warn('[EcoDisasters][resource-budget]', snapshot.warnings, {
+        vectors: snapshot.vectors,
+        pipelineVectors: snapshot.pipelineVectors,
+        heap: snapshot.heap
+      });
+    });
+    return () => off();
+  }, [ecoDisastersEnabled]);
   
   const containerRef = useRef<HTMLDivElement>(null);
   const [isInitializing, setIsInitializing] = useState(!hasGlobeLoadedBefore);
@@ -114,7 +175,14 @@ const GlobeView: React.FC = () => {
     const initDelay = hasGlobeLoadedBefore ? 0 : 800; // No delay for subsequent loads
     
     const initTimer = setTimeout(() => {
-      const engine = new GlobeEngine({ mode: visualizationMode.mode });
+      const overlays: string[] = [];
+      if (visualizationMode.mode === 'EcoNatural' && visualizationMode.subMode === 'SpaceWeather') {
+        overlays.push('spaceWeather', 'spaceWeatherMagnetopause', 'spaceWeatherBowShock', 'spaceWeatherAurora');
+      }
+      if (visualizationMode.mode === 'EcoNatural' && visualizationMode.subMode === 'EcologicalDisasters') {
+        overlays.push('naturalEvents');
+      }
+      const engine = new GlobeEngine({ mode: visualizationMode.mode, overlays });
       setGlobeEngine(engine);
       
       // Check for material with appropriate timing
@@ -140,7 +208,7 @@ const GlobeView: React.FC = () => {
     }, initDelay);
 
     return () => clearTimeout(initTimer);
-  }, [visualizationMode.mode, hasGlobeLoadedBefore, markGlobeAsLoaded, setGlobeInitialized]);
+  }, [visualizationMode.mode, visualizationMode.subMode, hasGlobeLoadedBefore, markGlobeAsLoaded, setGlobeInitialized]);
 
   // Track container size for responsive Globe
   useEffect(() => {
@@ -174,9 +242,187 @@ const GlobeView: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    // Example: update globe data if needed (can be extended for overlays)
-    setGlobeData([]); // TODO: Use overlay/event data from GlobeEngine if needed
+    // If additional globeEngine-driven overlays are needed, merge them instead of wiping data.
+    // Intentionally avoid clearing globeData here to preserve the first paint from hooks.
   }, [globeEngine]);
+
+  // Ecological disasters data -> globe markers
+  useEffect(() => {
+    if (!ecoDisastersEnabled) {
+      visualizationResourceMonitor.clearMode('EcoNatural.EcologicalDisasters');
+      setGlobeData(prevData => prevData.filter((d: { type?: string }) => d.type !== 'eco-disaster'));
+      console.info('[Globe][Eco] Cleared eco-disaster markers (mode disabled)');
+      return;
+    }
+
+    const colorForSeverity = (bucket?: string) => {
+      switch (bucket) {
+        case 'catastrophic':
+          return '#ff4d4f';
+        case 'major':
+          return '#fa8c16';
+        default:
+          return '#ffd666';
+      }
+    };
+
+    const sizeForSeverity = (bucket?: string) => {
+      switch (bucket) {
+        case 'catastrophic':
+          return 0.85;
+        case 'major':
+          return 0.65;
+        default:
+          return 0.45;
+      }
+    };
+
+    const formatLabel = (event: typeof ecoEvents[number]) => formatEcoDisasterLabel(event);
+
+    const validEvents = ecoEvents.filter((event) => Number.isFinite(event.lat) && Number.isFinite(event.lng));
+    const invalidCount = ecoEvents.length - validEvents.length;
+    if (invalidCount > 0) {
+      console.warn(`Dropping ${invalidCount} eco-disaster events with invalid coordinates`);
+    }
+
+    const markers = validEvents.map(event => ({
+      lat: event.lat,
+      lng: event.lng,
+      size: sizeForSeverity(event.severityBucket),
+      color: colorForSeverity(event.severityBucket),
+      label: formatLabel(event),
+      tooltip: formatEcoDisasterTooltip(event),
+      magnitude: event.magnitude,
+      type: 'eco-disaster',
+      hazardType: event.type,
+      severityBucket: event.severityBucket,
+      timestamp: event.timestamp,
+      source: event.source || 'geo-events'
+    }));
+
+    setGlobeData(prevData => {
+      const nonEco = prevData.filter((d: { type?: string }) => d.type !== 'eco-disaster');
+      return [...nonEco, ...markers];
+    });
+
+    const volcanoCount = markers.filter(m => m.hazardType === 'volcano').length;
+    console.info('[Globe][Eco] Applied eco-disaster markers', {
+      markers: markers.length,
+      volcanoes: volcanoCount,
+      earthquakes: markers.filter(m => m.hazardType === 'earthquake').length,
+      wildfires: markers.filter(m => m.hazardType === 'wildfire').length,
+      stale: ecoEventsStale,
+      error: Boolean(ecoEventsError)
+    });
+
+    visualizationResourceMonitor.recordPipelineVectors('EcoNatural.EcologicalDisasters', {
+      count: ecoEvents.length,
+      approxBytes: ecoEvents.length * 128
+    });
+
+    visualizationResourceMonitor.recordVectors('EcoNatural.EcologicalDisasters', {
+      count: markers.length,
+      approxBytes: markers.length * 128
+    });
+
+    if (typeof performance !== 'undefined' && 'memory' in performance && (performance as Performance & { memory?: { usedJSHeapSize: number; jsHeapSizeLimit: number } }).memory) {
+      const { usedJSHeapSize, jsHeapSizeLimit } = (performance as Performance & { memory: { usedJSHeapSize: number; jsHeapSizeLimit: number } }).memory;
+      visualizationResourceMonitor.recordHeap('EcoNatural.EcologicalDisasters', usedJSHeapSize, jsHeapSizeLimit);
+    }
+
+    if (ecoEventsError) {
+      console.error('Ecological disasters data error:', ecoEventsError);
+    }
+    if (ecoEventsStale) {
+      console.warn('Ecological disasters data stale');
+    }
+  }, [ecoDisastersEnabled, ecoEvents, ecoEventsError, ecoEventsStale]);
+
+  // Attach space weather boundary meshes from GlobeEngine into the scene
+  useEffect(() => {
+    if (!globeEngine) return;
+    const scene = globeRef.current?.scene?.();
+    if (!scene) return;
+
+    const attachObjects = (overlay: string) => {
+      if (overlay === 'spaceWeatherAurora') {
+        const keys = ['spaceWeatherAuroraLinesNorth', 'spaceWeatherAuroraLinesSouth', 'spaceWeatherAuroraBlackout'];
+        keys.forEach((key) => {
+          const obj = globeEngine.getOverlayObject(key);
+          const prev = boundaryObjectsRef.current[key];
+          if (prev && scene.children.includes(prev)) scene.remove(prev);
+          if (obj) {
+            scene.add(obj);
+            boundaryObjectsRef.current[key] = obj;
+          } else {
+            boundaryObjectsRef.current[key] = undefined;
+          }
+        });
+        return;
+      }
+      const obj = globeEngine.getOverlayObject(overlay);
+      const prev = boundaryObjectsRef.current[overlay];
+      if (prev && scene.children.includes(prev)) scene.remove(prev);
+      if (obj) {
+        scene.add(obj);
+        boundaryObjectsRef.current[overlay] = obj;
+      } else {
+        boundaryObjectsRef.current[overlay] = undefined;
+      }
+    };
+
+    const handler = ({ type, payload }: GlobeEvent) => {
+      if (type === 'overlayDataUpdated' && payload && typeof payload === 'object') {
+        const p = payload as { overlay?: string; unchanged?: boolean };
+        if (p.unchanged) return;
+        if (p.overlay && boundaryOverlays.includes(p.overlay)) {
+          attachObjects(p.overlay);
+        }
+      }
+      if (type === 'overlayRemoved' && typeof payload === 'string') {
+        if (boundaryOverlays.includes(payload)) {
+          const keys = payload === 'spaceWeatherAurora'
+            ? ['spaceWeatherAuroraLinesNorth', 'spaceWeatherAuroraLinesSouth', 'spaceWeatherAuroraBlackout']
+            : [payload];
+          keys.forEach((key) => {
+            const prev = boundaryObjectsRef.current[key];
+            if (prev && scene.children.includes(prev)) scene.remove(prev);
+            boundaryObjectsRef.current[key] = undefined;
+          });
+        }
+      }
+    };
+
+    globeEngine.on('overlayDataUpdated', handler);
+    globeEngine.on('overlayRemoved', handler as unknown as (event: GlobeEvent) => void);
+
+    // Attach existing cached objects on mount
+    boundaryOverlays.forEach(attachObjects);
+
+    return () => {
+      boundaryOverlays.forEach((key) => {
+        const prev = boundaryObjectsRef.current[key];
+        if (prev && scene.children.includes(prev)) scene.remove(prev);
+        boundaryObjectsRef.current[key] = undefined;
+      });
+    };
+  }, [globeEngine]);
+
+  // Sync overlay activation with space weather settings
+  useEffect(() => {
+    if (!globeEngine || !spaceWeatherSettings) return;
+
+    const toggleOverlay = (overlay: string, enabled: boolean) => {
+      const active = globeEngine.getOverlays().includes(overlay);
+      if (enabled && !active) globeEngine.addOverlay(overlay);
+      if (!enabled && active) globeEngine.removeOverlay(overlay);
+    };
+
+    toggleOverlay('spaceWeatherMagnetopause', spaceWeatherSettings.showMagnetopause === true);
+    // Bow shock depends on solar wind visibility; reuse that toggle
+    toggleOverlay('spaceWeatherBowShock', spaceWeatherSettings.showSolarWind === true);
+    toggleOverlay('spaceWeatherAurora', spaceWeatherSettings.showAuroralOval === true);
+  }, [globeEngine, spaceWeatherSettings]);
 
   // DEV: scripted camera snapshots for alignment/QA baseline
   useEffect(() => {
@@ -1404,7 +1650,11 @@ const GlobeView: React.FC = () => {
       quality: vector.quality,
       type: 'space-weather'
     }));
-    globeEngine.updateSpaceWeatherVisualization(spaceWeatherMarkers);
+    const allowedBoundaryOverlays: string[] = [];
+    if (spaceWeatherSettings?.showMagnetopause) allowedBoundaryOverlays.push('spaceWeatherMagnetopause');
+    if (spaceWeatherSettings?.showSolarWind) allowedBoundaryOverlays.push('spaceWeatherBowShock');
+    if (spaceWeatherSettings?.showAuroralOval) allowedBoundaryOverlays.push('spaceWeatherAurora');
+    globeEngine.updateSpaceWeatherVisualization(spaceWeatherMarkers, allowedBoundaryOverlays);
     setGlobeData(prevData => {
       const nonSpace = prevData.filter((d: { type?: string }) => d.type !== 'space-weather');
       return [...nonSpace, ...spaceWeatherMarkers];
@@ -1539,6 +1789,7 @@ const GlobeView: React.FC = () => {
             if (d.type === 'cloud') return 'gray';
             return d.color || 'white';
           }}
+          pointLabel={(d: { tooltip?: string; label?: string }) => d.tooltip || d.label || ''}
           globeMaterial={material ?? undefined}
           // Configure renderer for optimal space usage
           rendererConfig={{

@@ -10,6 +10,8 @@
 
 import { LoggerFactory } from '../logging';
 import { WorkflowExecution } from '../workflow';
+import { ServiceBackoffController, type ServiceBackoffEvent } from '../../../../services/backoff/ServiceBackoffController';
+import { emitDiagnosticTrace } from '../../../../services/tracing/traceEmitters';
 
 const logger = LoggerFactory.getLogger('NetRunner:MonitoringService');
 
@@ -130,8 +132,27 @@ export class MonitoringService {
   private startTime: Date = new Date();
   private config: MonitoringConfig;
   private isRunning = false;
-  private healthCheckInterval?: NodeJS.Timeout;
-  private metricsInterval?: NodeJS.Timeout;
+  private healthCheckTimer?: ReturnType<typeof setTimeout>;
+  private metricsTimer?: ReturnType<typeof setTimeout>;
+  private paused = false;
+  private healthBackoff = new ServiceBackoffController({
+    label: 'monitoring-health',
+    baseDelayMs: 1000,
+    coolOffThreshold: 3,
+    coolOffDurationMs: 20000,
+    sampleRate: 0.4,
+    minIntervalMs: 2000,
+    onEvent: (event) => this.emitBackoffEvent('health', event)
+  });
+  private metricsBackoff = new ServiceBackoffController({
+    label: 'monitoring-metrics',
+    baseDelayMs: 500,
+    coolOffThreshold: 3,
+    coolOffDurationMs: 12000,
+    sampleRate: 0.4,
+    minIntervalMs: 2000,
+    onEvent: (event) => this.emitBackoffEvent('metrics', event)
+  });
 
   constructor(config?: Partial<MonitoringConfig>) {
     this.config = {
@@ -167,14 +188,10 @@ export class MonitoringService {
     this.startTime = new Date();
 
     // Start periodic health checks
-    this.healthCheckInterval = setInterval(() => {
-      this.performHealthChecks();
-    }, this.config.healthCheckInterval * 1000);
+    this.scheduleHealthChecks();
 
     // Start metrics collection
-    this.metricsInterval = setInterval(() => {
-      this.collectPerformanceMetrics();
-    }, this.config.performanceMetricsInterval * 1000);
+    this.scheduleMetricsCollection();
 
     // Initial health check
     await this.performHealthChecks();
@@ -191,13 +208,75 @@ export class MonitoringService {
 
     logger.info('Stopping MonitoringService');
     this.isRunning = false;
+    this.paused = true;
 
-    if (this.healthCheckInterval) {
-      clearInterval(this.healthCheckInterval);
+    if (this.healthCheckTimer) {
+      clearTimeout(this.healthCheckTimer);
+      this.healthCheckTimer = undefined;
     }
 
-    if (this.metricsInterval) {
-      clearInterval(this.metricsInterval);
+    if (this.metricsTimer) {
+      clearTimeout(this.metricsTimer);
+      this.metricsTimer = undefined;
+    }
+
+    this.healthBackoff.pause();
+    this.metricsBackoff.pause();
+  }
+
+  private scheduleHealthChecks(delay = this.config.healthCheckInterval * 1000): void {
+    if (!this.isRunning) return;
+    if (this.healthCheckTimer) {
+      clearTimeout(this.healthCheckTimer);
+    }
+
+    this.healthCheckTimer = setTimeout(() => {
+      void this.runHealthChecks();
+    }, delay);
+  }
+
+  private async runHealthChecks(): Promise<void> {
+    if (!this.isRunning || this.paused) return;
+
+    try {
+      await this.healthBackoff.run(() => this.performHealthChecks());
+    } catch (error) {
+      logger.error('Health checks failed after backoff', error);
+    } finally {
+      this.scheduleHealthChecks();
+    }
+  }
+
+  private scheduleMetricsCollection(delay = this.config.performanceMetricsInterval * 1000): void {
+    if (!this.isRunning) return;
+    if (this.metricsTimer) {
+      clearTimeout(this.metricsTimer);
+    }
+
+    this.metricsTimer = setTimeout(() => {
+      void this.runMetricsCollection();
+    }, delay);
+  }
+
+  private async runMetricsCollection(): Promise<void> {
+    if (!this.isRunning || this.paused) return;
+
+    try {
+      await this.metricsBackoff.run(async () => {
+        this.collectPerformanceMetrics();
+      });
+    } catch (error) {
+      logger.error('Metrics collection failed after backoff', error);
+    } finally {
+      this.scheduleMetricsCollection();
+    }
+  }
+
+  private emitBackoffEvent(channel: 'health' | 'metrics', event: ServiceBackoffEvent): void {
+    try {
+      window.dispatchEvent(new CustomEvent('service-backoff', { detail: { service: `monitoring-${channel}`, event } }));
+    } catch (error) {
+      logger.warn('Failed to emit MonitoringService backoff event', { error });
     }
   }
 
@@ -492,6 +571,12 @@ export class MonitoringService {
     };
 
     this.alerts.push(fullAlert);
+    emitDiagnosticTrace('monitoring_alert', {
+      id: fullAlert.id,
+      type: fullAlert.type,
+      severity: fullAlert.severity,
+      source: fullAlert.source
+    }, fullAlert.severity === 'critical' ? 'warn' : 'info');
     
     logger.warn('Alert created', { 
       id: fullAlert.id,
