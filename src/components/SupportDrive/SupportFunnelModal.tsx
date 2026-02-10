@@ -46,6 +46,7 @@ const SupportFunnelModal: React.FC<SupportFunnelModalProps> = ({
   devWarning = null,
   forceReducedMotion = undefined,
 }) => {
+  const learnBodyId = 'support-learn-body';
   const modalRef = useRef<HTMLDivElement | null>(null);
   const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   const reducedMotion = forceReducedMotion ?? prefersReducedMotion;
@@ -87,14 +88,15 @@ const SupportFunnelModal: React.FC<SupportFunnelModalProps> = ({
   return (
     <div className={styles.overlay} role="dialog" aria-modal="true" aria-label={headline} data-reduced-motion={reducedMotion ? 'true' : 'false'}>
       <div className={styles.modal} ref={modalRef}>
+        <div className={styles.scanlines} aria-hidden="true" />
         <div className={styles.header}>
           <div>
             <h2 className={styles.title}>{headline}</h2>
             <p className={styles.subhead}>{subhead}</p>
             <div className={styles.badgeRow}>
-              <span className={styles.badge}>Decentralized</span>
-              <span className={styles.badge}>No Cabal Capture</span>
-              <span className={styles.badge}>Holographic UI</span>
+              <span className={styles.badge}>Earth Intelligence</span>
+              <span className={styles.badge}>Uncaptured Stack</span>
+              <span className={styles.badge}>Nostr Ops Ready</span>
             </div>
           </div>
           <button type="button" className={styles.closeButton} onClick={onClose} aria-label="Close support modal">
@@ -112,6 +114,10 @@ const SupportFunnelModal: React.FC<SupportFunnelModalProps> = ({
             Fund the Mission
           </button>
         </div>
+        <p className={styles.ctaNote}>
+          Nostr access is invite-gated to keep the signal clean. Funding keeps relays online and the uncaptured stack resilient.
+        </p>
+        <div className={styles.panelDivider} aria-hidden="true" />
 
         <div className={styles.secondaryActions}>
           <button type="button" className={styles.tertiaryButton} onClick={onLearnMore}>
@@ -128,7 +134,11 @@ const SupportFunnelModal: React.FC<SupportFunnelModalProps> = ({
           </button>
         </div>
 
-        {copyToast && <div className={styles.copyToast}>Invite copied</div>}
+        {copyToast && (
+          <div className={styles.copyToast} role="status" aria-live="polite">
+            Invite copied
+          </div>
+        )}
 
         {devWarning && <div className={styles.copyToast}>{devWarning}</div>}
 
@@ -140,12 +150,24 @@ const SupportFunnelModal: React.FC<SupportFunnelModalProps> = ({
 
         <div className={styles.disclosure}>{disclosure}</div>
 
-        <div className={styles.learnMore}>
-          <button type="button" className={styles.learnHeading} onClick={onLearnMore} aria-expanded={learnMoreOpen}>
+        <div className={styles.learnMore} data-open={learnMoreOpen ? 'true' : 'false'}>
+          <button
+            type="button"
+            className={styles.learnHeading}
+            onClick={onLearnMore}
+            aria-expanded={learnMoreOpen}
+            aria-controls={learnBodyId}
+          >
             <span>Why this matters</span>
             <span aria-hidden="true">{learnMoreOpen ? '−' : '+'}</span>
           </button>
-          {learnMoreOpen && <div className={styles.learnBody}>{learnMoreBody}</div>}
+          {learnMoreOpen && (
+            <div className={styles.learnGlow}>
+              <div className={styles.learnBody} id={learnBodyId}>
+                {learnMoreBody}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

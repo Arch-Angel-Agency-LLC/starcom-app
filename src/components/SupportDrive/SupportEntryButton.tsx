@@ -13,10 +13,10 @@ const SupportEntryButton: React.FC<SupportEntryButtonProps> = ({ onOpen }) => {
       onClick={onOpen}
       aria-label="Support the mission"
     >
-      <span role="img" aria-hidden="true">
-        💠
+      <span className={styles.icon} aria-hidden="true">
+        ✦
       </span>
-      <span className={styles.label}>Support</span>
+      <span className={styles.label}>Support Ops</span>
     </button>
   );
 };

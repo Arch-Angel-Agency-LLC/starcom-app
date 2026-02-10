@@ -6,10 +6,10 @@ import { getExperimentContext } from '../../services/supportFunnelExperiments';
 import SupportEntryButton from './SupportEntryButton';
 import SupportFunnelModal from './SupportFunnelModal';
 
-const HEADLINE = 'Fuel the mission. Stay uncaptured.';
-const SUBHEAD = 'Join the Nostr ops chat, fund the mission, and keep the network free.';
+const HEADLINE = 'Uncaptured intelligence. Keep the grid awake.';
+const SUBHEAD = 'Join the ops channel on Nostr, fuel the Earth Intelligence Network, and help harden the stack against cabal capture.';
 const DISCLOSURE = 'Support is processed by Arch Angel Agency LLC (for-profit). Contributions are not tax-deductible. Beneficiary: Starcom Initiative. Subject to US/WA law; no charitable tax treatment.';
-const LEARN_BODY = 'We are building decentralized comms and intel for the Earth Alliance. Join the Nostr ops chat to coordinate, and fund the mission to keep the network uncaptured.';
+const LEARN_BODY = 'Starcom runs decentralized comms, OSINT pipelines, and operatives on open networks. Your support keeps relays online, agents resourced, and the mission uncaptured. Nostr access is invite-gated to keep out signal jammers; funding keeps the grid resilient.';
 
 const SupportFunnelRoot: React.FC = () => {
   const config = useMemo(() => getSupportFunnelConfig(), []);
