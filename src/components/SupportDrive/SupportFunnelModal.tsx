@@ -13,6 +13,7 @@ export type SupportFunnelModalProps = {
   onOpenFund: () => void;
   onLearnMore: () => void;
   onCopyInvite: () => void;
+  onRequestInvite: () => void;
   fallbackLink: string | null;
   learnMoreOpen: boolean;
   learnMoreBody: string;
@@ -36,6 +37,7 @@ const SupportFunnelModal: React.FC<SupportFunnelModalProps> = ({
   onOpenFund,
   onLearnMore,
   onCopyInvite,
+  onRequestInvite,
   fallbackLink,
   learnMoreOpen,
   learnMoreBody,
@@ -108,20 +110,22 @@ const SupportFunnelModal: React.FC<SupportFunnelModalProps> = ({
 
         <div className={styles.ctaRow}>
           <button type="button" className={styles.primaryButton} onClick={onOpenNostr} disabled={disableNostr}>
-            Join the Nostr Ops
+            Join the Nostr Ops Channel
           </button>
           <button type="button" className={styles.secondaryButton} onClick={onOpenFund} disabled={disableFund}>
-            Fund the Mission
+            Fuel the Stack
           </button>
         </div>
-        <p className={styles.ctaNote}>
-          Nostr access is invite-gated to keep the signal clean. Funding keeps relays online and the uncaptured stack resilient.
-        </p>
+        <ul className={styles.ctaBullets}>
+          <li>Starcom runs decentralized comms, OSINT pipelines, and operatives on open networks.</li>
+          <li>Nostr access is invite-gated to keep the signal clean.</li>
+          <li>Funding keeps relays online and the uncaptured stack resilient.</li>
+        </ul>
         <div className={styles.panelDivider} aria-hidden="true" />
 
         <div className={styles.secondaryActions}>
-          <button type="button" className={styles.tertiaryButton} onClick={onLearnMore}>
-            Learn more
+          <button type="button" className={styles.tertiaryButton} onClick={onRequestInvite}>
+            Request invite
           </button>
           <button type="button" className={styles.tertiaryButton} onClick={onCopyInvite}>
             Copy invite link

@@ -6,10 +6,10 @@ import { getExperimentContext } from '../../services/supportFunnelExperiments';
 import SupportEntryButton from './SupportEntryButton';
 import SupportFunnelModal from './SupportFunnelModal';
 
-const HEADLINE = 'Uncaptured intelligence. Keep the grid awake.';
-const SUBHEAD = 'Join the ops channel on Nostr, fuel the Earth Intelligence Network, and help harden the stack against cabal capture.';
+const HEADLINE = 'Uncaptured Intelligence. Keep the Grid Awake.';
+const SUBHEAD = 'Join the Nostr ops channel. Fuel the Earth Intelligence Network. Harden the stack against capture.';
 const DISCLOSURE = 'Support is processed by Arch Angel Agency LLC (for-profit). Contributions are not tax-deductible. Beneficiary: Starcom Initiative. Subject to US/WA law; no charitable tax treatment.';
-const LEARN_BODY = 'Starcom runs decentralized comms, OSINT pipelines, and operatives on open networks. Your support keeps relays online, agents resourced, and the mission uncaptured. Nostr access is invite-gated to keep out signal jammers; funding keeps the grid resilient.';
+const LEARN_BODY = 'Your action keeps agents resourced, relays alive, and the mission uncaptured. We are building the Earth Alliance — operatives needed now.';
 
 const SupportFunnelRoot: React.FC = () => {
   const config = useMemo(() => getSupportFunnelConfig(), []);
@@ -110,6 +110,12 @@ const SupportFunnelRoot: React.FC = () => {
     markAction('learn');
   };
 
+  const handleRequestInvite = () => {
+    setLearnOpen(true);
+    trackSupportEvent({ event: 'cta_request_invite', target: 'request_invite', variant, sessionId, env });
+    markAction('request_invite');
+  };
+
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(config.inviteCopy);
@@ -149,6 +155,7 @@ const SupportFunnelRoot: React.FC = () => {
         onOpenFund={handleOpenFund}
         onLearnMore={handleLearnMore}
         onCopyInvite={handleCopy}
+        onRequestInvite={handleRequestInvite}
         fallbackLink={fallbackLink}
         learnMoreOpen={learnOpen}
         learnMoreBody={LEARN_BODY}
