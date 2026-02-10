@@ -1,7 +1,7 @@
 {
   "name": "starcom-app",
   "private": true,
-  "version": "0.1.1",
+  "version": "0.1.2",
   "type": "module",
   "engines": {
     "node": ">=22.12.0"
@@ -31,7 +31,7 @@
     "test:earth-alliance": "tsx scripts/test-earth-alliance.ts",
     "test:ai-agent": "tsx scripts/ai-safe-test-runner.ts",
     "test:ui": "playwright test",
-  "test:visual": "playwright test -c playwright.visual.config.mjs",
+    "test:visual": "playwright test -c playwright.visual.config.mjs",
     "test:a11y": "playwright test --grep 'accessibility'",
     "test:performance": "playwright test --grep 'performance'",
     "find:chat-legacy": "node scripts/find-chat-usages.js",
@@ -74,9 +74,9 @@
     "geo:eez": "tsx scripts/ingest-maritime-eez.ts",
     "geo:eez:process": "tsx scripts/process-maritime-eez.ts",
     "geo:eez:topology": "tsx scripts/build-topology-eez.ts",
-  "geo:eez:fetch": "tsx scripts/fetch-eez-data.ts",
-  "test:geo": "vitest run --config vitest.geometry.config.mjs",
-  "geo:benchmark:pipeline": "tsx scripts/benchmark-geo-pipeline.ts"
+    "geo:eez:fetch": "tsx scripts/fetch-eez-data.ts",
+    "test:geo": "vitest run --config vitest.geometry.config.mjs",
+    "geo:benchmark:pipeline": "tsx scripts/benchmark-geo-pipeline.ts"
   },
   "dependencies": {
     "@chainsafe/libp2p-noise": "^16.1.4",
