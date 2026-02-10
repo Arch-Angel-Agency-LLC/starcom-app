@@ -1,0 +1,25 @@
+{
+  "name": "Starcom App",
+  "short_name": "Starcom",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a1a29",
+  "theme_color": "#0a1a29",
+  "icons": [
+    {
+      "src": "/starcom-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/starcom-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}

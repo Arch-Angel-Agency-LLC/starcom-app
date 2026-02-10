@@ -31,6 +31,7 @@ import "./styles/globals.css";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ErrorBoundary from './components/Shared/ErrorBoundary';
 import { PopupProvider } from './components/Popup/PopupManager';
+import SupportFunnelRoot from './components/SupportDrive/SupportFunnelRoot';
 
 // Component loading debug
 debugLogger.info(DebugCategory.COMPONENT_LOAD, 'App.tsx loaded - main application entry point');
@@ -156,6 +157,8 @@ const App: React.FC = () => (
                                     <AppContent />
                                     {/* Mount tertiary space weather mode layers (placeholders) */}
                                     <SpaceWeatherModeLayers />
+                                    {/* Support drive funnel (post-load, gated by flag) */}
+                                    <SupportFunnelRoot />
                                   </div>
                                 </ViewProvider>
                               </RightSideBarProvider>

@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://starcom.app/sitemap.xml

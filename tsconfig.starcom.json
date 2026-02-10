@@ -5,5 +5,21 @@
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.starcom.tsbuildinfo"
   },
   "include": ["src/**/*", "src/setupTests.ts"],
-  "exclude": ["node_modules", "dist"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "src/testing/**/*",
+    "jest.config.ts",
+    "vite.config.ts",
+    "playwright.config.ts",
+    "src/main_OLD.tsx",
+    "src/components/Globe/__tests__/Aggressive3DInterfaceTests.test.tsx",
+    "src/components/Globe/__tests__/Aggressive3DTouchInterface.test.tsx",
+    "src/components/Globe/__tests__/Enhanced3DGlobeInteractivity.robust.test.tsx",
+    "src/components/Globe/__tests__/UltraAggressive3DInterface.test.tsx"
+  ]
 }

@@ -1,0 +1,56 @@
+.supportButton {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 1001;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.85rem 1rem;
+  border-radius: 14px;
+  border: 1px solid rgba(53, 199, 255, 0.7);
+  background: linear-gradient(135deg, rgba(53, 199, 255, 0.12), rgba(31, 209, 194, 0.2));
+  color: #e9f8ff;
+  cursor: pointer;
+  font-family: 'Aldrich', 'Aldrich-Regular', monospace;
+  letter-spacing: 0.04em;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border 0.15s ease;
+}
+
+.supportButton:hover,
+.supportButton:focus-visible {
+  transform: translateY(-1px);
+  border-color: #35c7ff;
+  box-shadow: 0 10px 28px rgba(53, 199, 255, 0.3);
+  outline: none;
+}
+
+.label {
+  font-size: 0.92rem;
+  text-transform: uppercase;
+}
+
+@media (max-width: 640px) {
+  .supportButton {
+    right: 14px;
+    bottom: 14px;
+    padding: 0.75rem 0.9rem;
+  }
+  .label {
+    font-size: 0.85rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .supportButton {
+    transition: none;
+  }
+
+  .supportButton:hover,
+  .supportButton:focus-visible {
+    transform: none;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    border-color: rgba(53, 199, 255, 0.7);
+  }
+}

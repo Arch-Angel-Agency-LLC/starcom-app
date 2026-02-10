@@ -1,0 +1,372 @@
+{
+  "startedAt": 1769237788344,
+  "durationMs": 61589,
+  "baseUrl": "http://127.0.0.1:4173/",
+  "headless": true,
+  "metrics": [
+    {
+      "t": 1769237792607,
+      "heap": {
+        "usedJSHeapSize": 133787052,
+        "totalJSHeapSize": 270495600,
+        "jsHeapSizeLimit": 2248146944
+      }
+    },
+    {
+      "t": 1769237796802,
+      "heap": {
+        "usedJSHeapSize": 223216926,
+        "totalJSHeapSize": 271663734,
+        "jsHeapSizeLimit": 2248146944
+      }
+    },
+    {
+      "t": 1769237800938,
+      "heap": {
+        "usedJSHeapSize": 145298341,
+        "totalJSHeapSize": 272334785,
+        "jsHeapSizeLimit": 2248146944
+      }
+    },
+    {
+      "t": 1769237805216,
+      "heap": {
+        "usedJSHeapSize": 199510886,
+        "totalJSHeapSize": 273911878,
+        "jsHeapSizeLimit": 2248146944
+      }
+    },
+    {
+      "t": 1769237809496,
+      "heap": {
+        "usedJSHeapSize": 222099262,
+        "totalJSHeapSize": 277165846,
+        "jsHeapSizeLimit": 2248146944
+      }
+    },
+    {
+      "t": 1769237813748,
+      "heap": {
+        "usedJSHeapSize": 97150548,
+        "totalJSHeapSize": 282802948,
+        "jsHeapSizeLimit": 2248146944
+      }
+    },
+    {
+      "t": 1769237817938,
+      "heap": {
+        "usedJSHeapSize": 125731960,
+        "totalJSHeapSize": 287606180,
+        "jsHeapSizeLimit": 2248146944
+      }
+    },
+    {
+      "t": 1769237822332,
+      "heap": {
+        "usedJSHeapSize": 169550121,
+        "totalJSHeapSize": 289512165,
+        "jsHeapSizeLimit": 2248146944
+      }
+    },
+    {
+      "t": 1769237828116,
+      "heap": {
+        "usedJSHeapSize": 130335124,
+        "totalJSHeapSize": 266995108,
+        "jsHeapSizeLimit": 2248146944
+      }
+    },
+    {
+      "t": 1769237832442,
+      "heap": {
+        "usedJSHeapSize": 224479083,
+        "totalJSHeapSize": 287707211,
+        "jsHeapSizeLimit": 2248146944
+      }
+    },
+    {
+      "t": 1769237836821,
+      "heap": {
+        "usedJSHeapSize": 136443009,
+        "totalJSHeapSize": 296884969,
+        "jsHeapSizeLimit": 2248146944
+      }
+    },
+    {
+      "t": 1769237841424,
+      "heap": {
+        "usedJSHeapSize": 144576156,
+        "totalJSHeapSize": 297786084,
+        "jsHeapSizeLimit": 2248146944
+      }
+    },
+    {
+      "t": 1769237845657,
+      "heap": {
+        "usedJSHeapSize": 235648913,
+        "totalJSHeapSize": 304146009,
+        "jsHeapSizeLimit": 2248146944
+      }
+    },
+    {
+      "t": 1769237849933,
+      "heap": {
+        "usedJSHeapSize": 171114224,
+        "totalJSHeapSize": 303383952,
+        "jsHeapSizeLimit": 2248146944
+      }
+    }
+  ],
+  "consoleSamples": [
+    {
+      "type": "error",
+      "text": "Access to image at 'http://unpkg.com/three-globe/example/img/earth-blue-marble.jpg' from origin 'http://127.0.0.1:4173' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "ts": 1769237783942
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: net::ERR_FAILED",
+      "ts": 1769237783942
+    },
+    {
+      "type": "warning",
+      "text": "Failed to load texture blueMarble: Event",
+      "ts": 1769237783942
+    },
+    {
+      "type": "warning",
+      "text": "Failed to load texture blueMarble: Event",
+      "ts": 1769237783942
+    },
+    {
+      "type": "warning",
+      "text": "Failed to decode downloaded font: http://127.0.0.1:4173/assets/Aldrich-Regular-CZWt9q8k.ttf",
+      "ts": 1769237784311
+    },
+    {
+      "type": "warning",
+      "text": "OTS parsing error: OS/2: misaligned table",
+      "ts": 1769237784311
+    },
+    {
+      "type": "warning",
+      "text": "Failed to decode downloaded font: http://127.0.0.1:4173/assets/Aldrich-Regular-CZWt9q8k.ttf",
+      "ts": 1769237784315
+    },
+    {
+      "type": "warning",
+      "text": "OTS parsing error: OS/2: misaligned table",
+      "ts": 1769237784315
+    },
+    {
+      "type": "error",
+      "text": "Access to image at 'http://unpkg.com/three-globe/example/img/earth-dark.jpg' from origin 'http://127.0.0.1:4173' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "ts": 1769237784638
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: net::ERR_FAILED",
+      "ts": 1769237784639
+    },
+    {
+      "type": "error",
+      "text": "Access to image at 'http://unpkg.com/three-globe/example/img/earth-blue-marble.jpg' from origin 'http://127.0.0.1:4173' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "ts": 1769237784639
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: net::ERR_FAILED",
+      "ts": 1769237784639
+    },
+    {
+      "type": "error",
+      "text": "Access to image at 'http://unpkg.com/three-globe/example/img/earth-day.jpg' from origin 'http://127.0.0.1:4173' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "ts": 1769237784639
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: net::ERR_FAILED",
+      "ts": 1769237784639
+    },
+    {
+      "type": "warning",
+      "text": "Failed to load texture earthDark: Event",
+      "ts": 1769237784639
+    },
+    {
+      "type": "warning",
+      "text": "Failed to load texture earthDark: Event",
+      "ts": 1769237784639
+    },
+    {
+      "type": "warning",
+      "text": "Failed to load texture blueMarble: Event",
+      "ts": 1769237784639
+    },
+    {
+      "type": "warning",
+      "text": "Failed to load texture earthDay: Event",
+      "ts": 1769237784639
+    },
+    {
+      "type": "log",
+      "text": "🔄 Enterprise: Fetching US-Canada electric field data...",
+      "ts": 1769237784675
+    },
+    {
+      "type": "log",
+      "text": "✅ Enterprise: Processed 3432 InterMag vectors",
+      "ts": 1769237784749
+    },
+    {
+      "type": "log",
+      "text": "✅ Enterprise: Processed 6763 US-Canada vectors",
+      "ts": 1769237784749
+    },
+    {
+      "type": "log",
+      "text": "📊 Enterprise: Generated 0 space weather alerts",
+      "ts": 1769237784749
+    },
+    {
+      "type": "log",
+      "text": "🎉 Enterprise: Space weather data fetch completed successfully",
+      "ts": 1769237784749
+    },
+    {
+      "type": "error",
+      "text": "Access to image at 'http://unpkg.com/three-globe/example/img/earth-dark.jpg' from origin 'http://127.0.0.1:4173' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "ts": 1769237784888
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: net::ERR_FAILED",
+      "ts": 1769237784888
+    },
+    {
+      "type": "error",
+      "text": "Access to image at 'http://unpkg.com/three-globe/example/img/earth-blue-marble.jpg' from origin 'http://127.0.0.1:4173' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "ts": 1769237784888
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: net::ERR_FAILED",
+      "ts": 1769237784888
+    },
+    {
+      "type": "error",
+      "text": "Access to image at 'http://unpkg.com/three-globe/example/img/earth-day.jpg' from origin 'http://127.0.0.1:4173' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "ts": 1769237784888
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: net::ERR_FAILED",
+      "ts": 1769237784888
+    },
+    {
+      "type": "warning",
+      "text": "Failed to load texture earthDark: Event",
+      "ts": 1769237784909
+    },
+    {
+      "type": "warning",
+      "text": "Failed to load texture earthDark: Event",
+      "ts": 1769237784909
+    },
+    {
+      "type": "warning",
+      "text": "Failed to load texture blueMarble: Event",
+      "ts": 1769237784909
+    },
+    {
+      "type": "warning",
+      "text": "Failed to load texture earthDay: Event",
+      "ts": 1769237784909
+    },
+    {
+      "type": "debug",
+      "text": "Preference comparison: {currentEnabled: Array(6), newDefaultEnabled: Array(6)}",
+      "ts": 1769237789836
+    },
+    {
+      "type": "debug",
+      "text": "Preference comparison: {currentEnabled: Array(6), newDefaultEnabled: Array(6)}",
+      "ts": 1769237809293
+    },
+    {
+      "type": "debug",
+      "text": "Flushing 1 logs to secure storage",
+      "ts": 1769237813192
+    },
+    {
+      "type": "log",
+      "text": "🔄 Starting real-time team sync with public infrastructure...",
+      "ts": 1769237813197
+    },
+    {
+      "type": "log",
+      "text": "✅ Real-time sync completed: {duration: 1ms, results: Object}",
+      "ts": 1769237813198
+    },
+    {
+      "type": "log",
+      "text": "🔬 [EXTENSION-ANALYZER] Deep browser extension analysis completed: {debug_signature: DEEP_EXTENSION_ANALYSIS_V1, analysis_results: Object, health_assessment: Object, compatibility_matrix: Object}",
+      "ts": 1769237813406
+    },
+    {
+      "type": "log",
+      "text": "🏥 EXTENSION HEALTH CHECK: {check_timestamp: 2026-01-24T06:56:53.406Z, phantom_stable: true, solflare_stable: true, adapter_stable: true}",
+      "ts": 1769237813406
+    },
+    {
+      "type": "log",
+      "text": "🔄 Discord: Fetching server stats...",
+      "ts": 1769237814303
+    },
+    {
+      "type": "log",
+      "text": "🎉 Discord: Server stats fetch completed successfully {onlineCount: 0, memberCount: 0}",
+      "ts": 1769237814377
+    },
+    {
+      "type": "log",
+      "text": "🔄 Starting real-time team sync with public infrastructure...",
+      "ts": 1769237843248
+    },
+    {
+      "type": "log",
+      "text": "✅ Real-time sync completed: {duration: 0ms, results: Object}",
+      "ts": 1769237843248
+    },
+    {
+      "type": "log",
+      "text": "🔬 [EXTENSION-ANALYZER] Deep browser extension analysis completed: {debug_signature: DEEP_EXTENSION_ANALYSIS_V1, analysis_results: Object, health_assessment: Object, compatibility_matrix: Object}",
+      "ts": 1769237843429
+    },
+    {
+      "type": "log",
+      "text": "🏥 EXTENSION HEALTH CHECK: {check_timestamp: 2026-01-24T06:57:23.427Z, phantom_stable: true, solflare_stable: true, adapter_stable: true}",
+      "ts": 1769237843429
+    },
+    {
+      "type": "log",
+      "text": "Fetching Intel Reports (UI) for 3D visualization...",
+      "ts": 1769237843863
+    },
+    {
+      "type": "log",
+      "text": "Loaded 0 Intel Report markers for 3D visualization",
+      "ts": 1769237843863
+    },
+    {
+      "type": "log",
+      "text": "🔄 Discord: Fetching server stats...",
+      "ts": 1769237844624
+    },
+    {
+      "type": "log",
+      "text": "🎉 Discord: Server stats fetch completed successfully {onlineCount: 0, memberCount: 0}",
+      "ts": 1769237844731
+    }
+  ]
+}
