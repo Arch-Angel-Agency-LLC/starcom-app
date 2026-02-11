@@ -26,12 +26,16 @@
   box-shadow: 0 18px 60px rgba(0, 0, 0, 0.65), 0 0 28px var(--glow);
   border-radius: 18px;
   padding: 1.9rem;
+  padding-right: 1.35rem; /* slight offset without crowding the right side */
   width: min(680px, 94vw);
+  max-height: 92vh;
   color: var(--text-bright);
   font-family: 'Rajdhani', 'Aldrich', sans-serif;
   position: relative;
   overflow: hidden;
   isolation: isolate;
+  display: flex;
+  flex-direction: column;
 }
 
 .modal::before,
@@ -98,7 +102,7 @@
 }
 
 .closeButton {
-  background: none;
+  background: #0a141e;
   border: 1px solid rgba(53, 199, 255, 0.6);
   color: #e9f8ff;
   border-radius: 999px;
@@ -109,6 +113,10 @@
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 0 0 0 rgba(53, 199, 255, 0.45);
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 2;
 }
 
 .closeButton:hover,
@@ -125,6 +133,18 @@
   margin-top: 0.75rem;
   color: #57f2c4;
   font-size: 0.9rem;
+  justify-content: center;
+  text-align: center;
+  width: 100%;
+}
+
+.sectionLabel {
+  margin-top: 0.85rem;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-align: center;
 }
 
 .ctaRow {
@@ -220,10 +240,24 @@
 }
 
 .secondaryActions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.65rem;
+  margin-top: 0.75rem;
+  width: 100%;
+}
+
+.secondaryActions .tertiaryButton strong {
+  font-weight: 800;
+}
+
+.socialActions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 1rem;
+  justify-content: center;
+  gap: 0.65rem;
+  margin-top: 0.6rem;
+  width: 100%;
 }
 
 .tertiaryButton {
@@ -238,6 +272,147 @@
   transition: background 0.18s ease, border 0.18s ease, transform 0.18s ease;
   position: relative;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  justify-content: center;
+}
+
+.tertiaryButton span:last-child {
+  text-align: left;
+}
+
+.buttonIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.15rem;
+  height: 1.15rem;
+  color: currentColor;
+  opacity: 0.9;
+  font-size: 1rem;
+}
+
+.socialButton {
+  width: 52px;
+  height: 52px;
+  padding: 0.55rem;
+  justify-content: center;
+}
+.modalContent {
+  position: relative;
+  max-height: 82vh;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+  scrollbar-color: rgba(124, 217, 255, 0.7) rgba(17, 21, 30, 0.6);
+  flex: 1;
+  min-height: 0;
+  padding-top: 0.35rem;
+}
+
+.modalContent::-webkit-scrollbar {
+  width: 10px;
+}
+
+.modalContent::-webkit-scrollbar-track {
+  background: rgba(17, 21, 30, 0.6);
+  border-radius: 10px;
+}
+
+.modalContent::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(124, 217, 255, 0.8), rgba(74, 164, 232, 0.8));
+  border-radius: 10px;
+  border: 2px solid rgba(12, 16, 24, 0.9);
+}
+
+.modalContent::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(144, 237, 255, 0.9), rgba(84, 174, 242, 0.9));
+}
+
+.fundModal {
+  background: var(--panel);
+  border: 1px solid var(--border-primary);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.65), 0 0 28px var(--glow);
+  border-radius: 18px;
+  padding: 1.25rem;
+  width: min(820px, 96vw);
+  max-height: 92vh;
+  color: var(--text-bright);
+  font-family: 'Rajdhani', 'Aldrich', sans-serif;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.fundHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding-right: 2.5rem;
+}
+
+.fundTitle {
+  margin: 0;
+  font-size: 1.35rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-shadow: 0 0 10px rgba(67, 214, 255, 0.35);
+}
+
+.fundSubtitle {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 0.98rem;
+  line-height: 1.5;
+}
+
+.fundEmbed {
+  flex: 1;
+  min-height: 480px;
+  border: 1px solid rgba(67, 214, 255, 0.18);
+  border-radius: 12px;
+  padding: 0.75rem;
+  background: linear-gradient(120deg, rgba(6, 14, 22, 0.7), rgba(10, 22, 34, 0.7));
+  box-shadow: inset 0 0 0 1px rgba(67, 214, 255, 0.08);
+  overflow: auto;
+}
+
+.fundEmbed > div {
+  min-height: 440px;
+}
+
+.fundFooter {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.fundLink {
+  color: #35c7ff;
+  text-decoration: underline;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 540px) {
+  .overlay {
+    padding: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0) env(safe-area-inset-bottom, 0) env(safe-area-inset-left, 0);
+  }
+
+  .modal {
+    width: 100vw;
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
+    padding: 1.1rem 1.05rem 1.35rem;
+  }
+
+  .modalContent {
+    max-height: calc(100vh - 2.45rem);
+    padding-right: 0.2rem;
+  }
 }
 
 .tertiaryButton:hover,
@@ -276,6 +451,15 @@
   line-height: 1.4;
 }
 
+.legalInline {
+  margin-top: 0.65rem;
+  color: var(--text-dim);
+  font-size: 0.82rem;
+  line-height: 1.35;
+  border-top: 1px solid rgba(233, 248, 255, 0.12);
+  padding-top: 0.6rem;
+}
+
 .copyToast {
   margin-top: 0.5rem;
   color: #57f2c4;
@@ -295,13 +479,39 @@
 
 .learnHeading {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
   cursor: pointer;
   color: #e9f8ff;
   font-size: 0.95rem;
   font-family: 'Aldrich', 'Rajdhani', sans-serif;
   letter-spacing: 0.04em;
+  gap: 0.55rem;
+  width: 100%;
+  padding: 0.75rem 0.1rem;
+  min-height: 64px;
+  background: none;
+  border: none;
+  text-align: left;
+}
+
+.learnHeadingIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.2rem;
+  height: 1.2rem;
+  font-size: 1.05rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.learnHeadingText {
+  flex: 1;
+}
+
+.learnGlow {
+  width: 100%;
 }
 
 .learnBody {
@@ -311,6 +521,42 @@
   line-height: 1.5;
   overflow: hidden;
   animation: expand 0.3s ease forwards;
+}
+
+.learnDivider {
+  margin: 0.85rem 0 0.6rem;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(67, 214, 255, 0.35), transparent);
+  box-shadow: 0 0 10px rgba(67, 214, 255, 0.2);
+}
+
+.learnTldr {
+  font-weight: 600;
+  color: #e9f8ff;
+  line-height: 1.5;
+}
+
+.learnMedium,
+.learnDepth {
+  margin-top: 0.85rem;
+  color: var(--text-dim);
+  line-height: 1.55;
+}
+
+.learnBullets {
+  margin: 0.75rem 0 0.5rem 1.2rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+  list-style: disc;
+}
+
+.learnBullets li + li {
+  margin-top: 0.25rem;
+}
+
+.learnMedium p + p,
+.learnDepth p + p {
+  margin-top: 0.65rem;
 }
 
 .learnGlow::after {
